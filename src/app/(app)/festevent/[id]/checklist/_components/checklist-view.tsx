@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown, Copy, Check } from "lucide-react";
 import { generateChecklistText } from "@/lib/checklist-text";
+import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -281,6 +282,25 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
     },
     [baseUrl],
   );
+
+  const clearDoneItems = useCallback(() => {
+    const doneIds = getDoneItemIds(items);
+    if (doneIds.length === 0) return;
+
+    // Optimistic update
+    setItems((prev) => filterPendingItems(prev));
+
+    // Parallel deletes
+    startTransition(async () => {
+      try {
+        await Promise.all(
+          doneIds.map((id) => fetch(`${baseUrl}/${id}`, { method: "DELETE" })),
+        );
+      } catch {
+        // silently ignore; items already removed from UI
+      }
+    });
+  }, [items, baseUrl]);
 
   const handleAdd = useCallback(async () => {
     const label = newLabel.trim();
@@ -617,9 +637,51 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
             />
           ))}
 
-          {/* Separator if mixed */}
-          {items.some((i) => i.done) && items.some((i) => !i.done) && (
-            <div style={{ borderTop: "1px solid var(--border-color)", margin: "var(--space-xs) 0" }} />
+          {/* Separator + clear done button */}
+          {items.some((i) => i.done) && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-sm)",
+                margin: "var(--space-xs) 0",
+              }}
+            >
+              <div style={{ flex: 1, borderTop: "1px solid var(--border-color)" }} />
+              <button
+                type="button"
+                onClick={clearDoneItems}
+                data-testid="clear-done-btn"
+                aria-label="Supprimer les items cochés"
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 4,
+                  padding: "2px 10px",
+                  borderRadius: "var(--radius-full)",
+                  border: "1px solid var(--border-color)",
+                  backgroundColor: "transparent",
+                  color: "var(--text-dim)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                  transition: "border-color 0.2s, color 0.2s",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "var(--danger-red)";
+                  (e.currentTarget as HTMLElement).style.color = "var(--danger-red)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = "var(--border-color)";
+                  (e.currentTarget as HTMLElement).style.color = "var(--text-dim)";
+                }}
+              >
+                <Trash2 size={11} aria-hidden="true" />
+                Effacer les cochés
+              </button>
+              <div style={{ flex: 1, borderTop: "1px solid var(--border-color)" }} />
+            </div>
           )}
 
           {/* Done items */}
