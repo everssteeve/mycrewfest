@@ -1,16 +1,14 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { format, parseISO } from "date-fns";
-import { fr } from "date-fns/locale";
 import { Search } from "lucide-react";
 import { EventCard, type EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import { useSelections } from "@/hooks/use-selections";
-import { useFestEventStore } from "@/store/use-fest-event-store";
 import type { SelectionStatus } from "@/types";
 import type { EventType } from "@/lib/api";
 import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, type SelectionFilter } from "@/lib/programme-search";
 import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
+import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -70,8 +68,13 @@ export function ProgrammeView({
     });
   }, [initialEvents, selections]);
 
+  // Days derived from events (not from presence dates)
+  const eventDays = useMemo(() => extractEventDays(initialEvents), [initialEvents]);
+
   // Filters
-  const [activeDay, setActiveDay] = useState<string>(presenceDates[0] ?? "");
+  const [activeDay, setActiveDay] = useState<string>(
+    () => getDefaultProgrammeDay(eventDays) ?? "",
+  );
   const [activeTypes, setActiveTypes] = useState<Set<EventType>>(new Set());
   const [accessFilter, setAccessFilter] = useState<AccessFilter>("tous");
   const [selectionFilter, setSelectionFilter] = useState<SelectionFilter>("tous");
@@ -107,11 +110,6 @@ export function ProgrammeView({
       return next;
     });
   }, []);
-
-  // Load more presenceDates from store (in case dates are set after initial fetch)
-  const storeDates = useFestEventStore((s) => s.presenceDates);
-  const effectiveDates =
-    presenceDates.length > 0 ? presenceDates : storeDates;
 
   // Filter events
   const filteredEvents = useMemo(() => {
@@ -256,9 +254,11 @@ export function ProgrammeView({
         )}
       </div>
 
-      {/* Day tabs */}
-      {effectiveDates.length > 1 && (
+      {/* Day tabs — derived from event start times */}
+      {eventDays.length > 1 && (
         <div
+          role="group"
+          aria-label="Filtrer par jour"
           style={{
             display: "flex",
             gap: "var(--space-sm)",
@@ -267,19 +267,44 @@ export function ProgrammeView({
             paddingBottom: 2,
           }}
         >
-          {effectiveDates.map((d) => {
+          {/* "Tous" tab */}
+          <button
+            type="button"
+            onClick={() => setActiveDay("")}
+            aria-pressed={activeDay === ""}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "6px 16px",
+              borderRadius: "var(--radius-full)",
+              border: activeDay === ""
+                ? "1.5px solid var(--accent-pink)"
+                : "1.5px solid var(--border-color)",
+              backgroundColor: activeDay === "" ? "var(--pink-soft)" : "transparent",
+              color: activeDay === "" ? "var(--accent-pink)" : "var(--text-muted)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              fontWeight: "var(--fw-bold)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+              transition: "var(--transition-fast)",
+            }}
+          >
+            Tous
+          </button>
+
+          {eventDays.map((d) => {
             const isActive = d === activeDay;
-            let label = d;
-            try {
-              label = format(parseISO(d), "EEE d", { locale: fr });
-            } catch {
-              label = d;
-            }
+            const label = formatDayLabel(d);
             return (
               <button
                 key={d}
                 type="button"
                 onClick={() => setActiveDay(d)}
+                aria-pressed={isActive}
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
