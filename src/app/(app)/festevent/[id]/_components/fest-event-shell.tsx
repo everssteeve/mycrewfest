@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { isWithinInterval, parseISO } from "date-fns";
+import { Settings } from "lucide-react";
 import type { FestivalSummary } from "@/lib/api";
 import { EventCountdown } from "@/components/festevent/event-countdown";
 import { NowPlayingBar } from "@/components/festevent/now-playing-bar";
 import { QuickLogFab } from "@/components/festevent/quick-log-fab";
+import { FestEventSettingsSheet } from "./festevent-settings-sheet";
 
 interface FestEventShellProps {
   festEventId: string;
@@ -52,11 +55,13 @@ function isFestivalPast(endDate: string): boolean {
 export function FestEventShell({
   festEventId,
   festival,
+  presenceDates,
   children,
 }: FestEventShellProps) {
   const pathname = usePathname();
   const base = `/festevent/${festEventId}`;
   const tabs = buildTabs(base, festival.programType);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const during = isFestivalDuring(festival.startDate, festival.endDate);
   const past = isFestivalPast(festival.endDate);
@@ -126,6 +131,24 @@ export function FestEventShell({
               FESTIVAL TERMINÉ
             </span>
           )}
+          <button
+            type="button"
+            onClick={() => setSettingsOpen(true)}
+            aria-label="Paramètres du FestEvent"
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--text-dim)",
+              cursor: "pointer",
+              padding: 4,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+            }}
+          >
+            <Settings size={18} aria-hidden="true" />
+          </button>
         </div>
 
         {/* Sub-navigation tabs */}
@@ -199,6 +222,18 @@ export function FestEventShell({
 
       {/* F12 — QuickLogFab: visible on all pages */}
       <QuickLogFab festEventId={festEventId} />
+
+      {/* Settings sheet */}
+      {settingsOpen && (
+        <FestEventSettingsSheet
+          festEventId={festEventId}
+          festivalName={festival.name}
+          startDate={festival.startDate}
+          endDate={festival.endDate}
+          currentPresenceDates={presenceDates}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
     </>
   );
 }
