@@ -24,6 +24,10 @@ function buildTabs(
     { label: "Planning", href: `${base}/planning` },
     { label: "Crew", href: `${base}/crew` },
     { label: "Journal", href: `${base}/journal` },
+    { label: "Checklist", href: `${base}/checklist` },
+    { label: "Signaux", href: `${base}/signaux` },
+    { label: "Carte", href: `${base}/carte` },
+    { label: "News", href: `${base}/news` },
   ];
 
   if (programType === "déambulatoire" || programType === "hybride") {

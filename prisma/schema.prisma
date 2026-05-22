@@ -66,6 +66,9 @@ model User {
   preferredDisciplines String? // JSON array serialized
   photo                String?
 
+  // role: user|admin
+  role String @default("user")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -79,6 +82,7 @@ model User {
   signals            Signal[]
   submissions        FestivalSubmission[]
   checklistItems     ChecklistItem[]
+  pushSubscriptions  PushSubscription[]
 }
 
 // ---------------------------------------------------------------------------
@@ -416,6 +420,22 @@ model ChecklistItem {
 
   festEvent FestEvent @relation(fields: [festEventId], references: [id], onDelete: Cascade)
   assignee  User?     @relation(fields: [userId], references: [id])
+}
+
+// ---------------------------------------------------------------------------
+// PUSH SUBSCRIPTION (F21 notifications)
+// ---------------------------------------------------------------------------
+
+model PushSubscription {
+  id          String   @id @default(cuid())
+  userId      String
+  endpoint    String   @unique
+  p256dh      String
+  auth        String
+  festEventId String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // ---------------------------------------------------------------------------

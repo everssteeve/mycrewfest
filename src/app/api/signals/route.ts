@@ -3,6 +3,58 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 /**
+ * GET /api/signals?festivalId=xxx
+ * Returns active (non-expired) signals for a festival, scoped to "communauté".
+ */
+export async function GET(request: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non connecté." }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(request.url);
+  const festivalId = searchParams.get("festivalId");
+
+  if (!festivalId) {
+    return NextResponse.json(
+      { error: "festivalId est requis." },
+      { status: 400 },
+    );
+  }
+
+  const now = new Date();
+  const signals = await prisma.signal.findMany({
+    where: {
+      festivalId,
+      scope: "communauté",
+      expiresAt: { gt: now },
+    },
+    orderBy: { createdAt: "desc" },
+    include: {
+      author: { select: { name: true, pseudo: true, image: true } },
+    },
+  });
+
+  return NextResponse.json(
+    signals.map((s) => ({
+      id: s.id,
+      authorId: s.authorId,
+      authorName: s.author.pseudo ?? s.author.name ?? "Anonyme",
+      scope: s.scope,
+      latitude: s.latitude,
+      longitude: s.longitude,
+      predefinedPhrase: s.predefinedPhrase ?? null,
+      description: s.description ?? null,
+      discoveryType: s.discoveryType ?? null,
+      confirmations: s.confirmations,
+      infirmations: s.infirmations,
+      createdAt: s.createdAt.toISOString(),
+      expiresAt: s.expiresAt.toISOString(),
+    })),
+  );
+}
+
+/**
  * POST /api/signals
  * Create a discovery or situational signal.
  * Body: {

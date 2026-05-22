@@ -5,6 +5,7 @@ import { Edit3, LogOut, Trash2, Download, Bell } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useAppStore } from "@/store/use-app-store";
 import Link from "next/link";
+import { PushToggle } from "@/components/notifications/push-toggle";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -697,6 +698,9 @@ export function ProfilView({ data }: { data: ProfilData }) {
             overflow: "hidden",
           }}
         >
+          {/* Push notifications toggle */}
+          <PushToggle />
+
           {/* Festival Mode toggle */}
           <div
             style={{
