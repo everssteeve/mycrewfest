@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/api";
+import type { FestivalType } from "@/lib/api";
 import { FestEventShell } from "./_components/fest-event-shell";
 
 type LayoutContext = { params: Promise<{ id: string }> };
@@ -61,6 +62,8 @@ export default async function FestEventLayout({
     ...fe.festival,
     startDate: fe.festival.startDate.toISOString(),
     endDate: fe.festival.endDate.toISOString(),
+    festivalType: fe.festival.festivalType as FestivalType,
+    programType: fe.festival.programType as "structuré" | "déambulatoire" | "hybride",
   };
 
   return (
