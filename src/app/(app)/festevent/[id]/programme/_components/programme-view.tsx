@@ -9,6 +9,7 @@ import type { EventType } from "@/lib/api";
 import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, type SelectionFilter } from "@/lib/programme-search";
 import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
 import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
+import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -81,6 +82,7 @@ export function ProgrammeView({
   const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
   const [sortMode, setSortMode] = useState<SortMode>("time");
   const [searchQuery, setSearchQuery] = useState("");
+  const [upcomingOnly, setUpcomingOnly] = useState(false);
 
   const allTags = useMemo(() => {
     const set = new Set<string>();
@@ -148,9 +150,12 @@ export function ProgrammeView({
       // Text search
       if (!matchesProgrammeQuery(e, searchQuery)) return false;
 
+      // Upcoming filter — events happening now or starting within 2h
+      if (upcomingOnly && !isUpcomingOrOngoing(e, new Date(), 120)) return false;
+
       return true;
     });
-  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, searchQuery]);
+  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, searchQuery, upcomingOnly]);
 
   const sortedFilteredEvents = useMemo(
     () => sortProgrammeEvents(filteredEvents, sortMode),
@@ -167,7 +172,8 @@ export function ProgrammeView({
     accessFilter !== "tous" ||
     selectionFilter !== "tous" ||
     activeTags.size > 0 ||
-    searchQuery.trim().length > 0;
+    searchQuery.trim().length > 0 ||
+    upcomingOnly;
 
   const handleSelectionCycle = useCallback(
     (eventId: string, next: SelectionStatus | null) => {
@@ -544,6 +550,32 @@ export function ProgrammeView({
             </span>
           </>
         )}
+        {/* À venir chip */}
+        <button
+          type="button"
+          onClick={() => setUpcomingOnly((v) => !v)}
+          aria-pressed={upcomingOnly}
+          data-testid="upcoming-filter-btn"
+          style={{
+            padding: "2px 9px",
+            borderRadius: "var(--radius-full)",
+            border: upcomingOnly
+              ? "1.5px solid var(--primary-neon)"
+              : "1.5px solid rgba(255,255,255,0.1)",
+            backgroundColor: upcomingOnly ? "var(--neon-soft)" : "transparent",
+            color: upcomingOnly ? "var(--primary-neon)" : "var(--text-dim)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-xs)",
+            fontWeight: "var(--fw-bold)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+            transition: "var(--transition-fast)",
+          }}
+        >
+          ▶ À venir
+        </button>
         <div style={{ flex: 1 }} />
         {/* Sort controls */}
         <div
