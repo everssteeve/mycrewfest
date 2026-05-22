@@ -1,6 +1,7 @@
 "use client";
 
-import { MapPin, Clock, Ticket } from "lucide-react";
+import { MapPin, Clock, Ticket, ChevronDown, ChevronUp, Globe, ExternalLink } from "lucide-react";
+import { useState } from "react";
 import type { EventWithSelection } from "@/lib/api";
 import type { SelectionStatus } from "@/types";
 import { formatEventDuration, getAccessLabel } from "@/lib/event-format";
@@ -127,8 +128,15 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, onSelectionCycle }: EventCardProps) {
+  const [expanded, setExpanded] = useState(false);
   const selectionStatus = event.selection?.status ?? null;
   const typeConfig = EVENT_TYPE_COLORS[event.eventType] ?? EVENT_TYPE_COLORS.autre;
+  const hasArtistDetails = Boolean(
+    event.artist?.description ||
+    (event.artist?.disciplines && event.artist.disciplines.length > 0) ||
+    event.artist?.siteUrl ||
+    event.artist?.instagram,
+  );
 
   const hasTime = Boolean(event.startTime);
   const timeLabel =
@@ -317,6 +325,159 @@ export function EventCard({ event, onSelectionCycle }: EventCardProps) {
       {/* Row 4: tags */}
       {event.tags && event.tags.length > 0 && (
         <EventTagChips tags={event.tags} />
+      )}
+
+      {/* Row 5: expand toggle */}
+      {hasArtistDetails && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setExpanded((v) => !v);
+          }}
+          aria-expanded={expanded}
+          aria-label={expanded ? "Réduire les détails" : "Voir les détails de l'artiste"}
+          style={{
+            alignSelf: "flex-start",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            background: "none",
+            border: "none",
+            padding: 0,
+            cursor: "pointer",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-xs)",
+            fontWeight: "var(--fw-bold)",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            color: "var(--text-dim)",
+            transition: "var(--transition-fast)",
+          }}
+        >
+          {expanded ? (
+            <ChevronUp size={12} aria-hidden="true" />
+          ) : (
+            <ChevronDown size={12} aria-hidden="true" />
+          )}
+          {expanded ? "Réduire" : "Voir plus"}
+        </button>
+      )}
+
+      {/* Row 6: artist details panel */}
+      {expanded && event.artist && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-xs)",
+            paddingTop: "var(--space-xs)",
+            borderTop: "1px solid var(--border-color)",
+          }}
+        >
+          {/* Disciplines + country */}
+          {(event.artist.disciplines.length > 0 || event.artist.countryCode) && (
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-sm)",
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
+              {event.artist.disciplines.map((d) => (
+                <span
+                  key={d}
+                  style={{
+                    padding: "1px 7px",
+                    borderRadius: "var(--radius-full)",
+                    fontSize: "var(--fs-xs)",
+                    fontFamily: "var(--font-body)",
+                    backgroundColor: "var(--cyan-soft)",
+                    color: "var(--secondary-cyan)",
+                    border: "1px solid rgba(0,229,255,0.25)",
+                  }}
+                >
+                  {d}
+                </span>
+              ))}
+              {event.artist.countryCode && (
+                <span
+                  style={{
+                    fontSize: "var(--fs-xs)",
+                    fontFamily: "var(--font-mono)",
+                    color: "var(--text-dim)",
+                  }}
+                >
+                  {event.artist.countryCode.toUpperCase()}
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Description */}
+          {event.artist.description && (
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-muted)",
+                lineHeight: "var(--lh-base)",
+                margin: 0,
+              }}
+            >
+              {event.artist.description}
+            </p>
+          )}
+
+          {/* Social links */}
+          {(event.artist.siteUrl || event.artist.instagram) && (
+            <div style={{ display: "flex", gap: "var(--space-sm)" }}>
+              {event.artist.siteUrl && (
+                <a
+                  href={event.artist.siteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Site web de ${event.artist.name}`}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    fontSize: "var(--fs-xs)",
+                    fontFamily: "var(--font-body)",
+                    color: "var(--secondary-cyan)",
+                    textDecoration: "none",
+                  }}
+                >
+                  <Globe size={11} aria-hidden="true" />
+                  Site
+                </a>
+              )}
+              {event.artist.instagram && (
+                <a
+                  href={`https://instagram.com/${event.artist.instagram.replace(/^@/, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Instagram de ${event.artist.name}`}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 4,
+                    fontSize: "var(--fs-xs)",
+                    fontFamily: "var(--font-body)",
+                    color: "var(--accent-pink)",
+                    textDecoration: "none",
+                  }}
+                >
+                  <ExternalLink size={11} aria-hidden="true" />
+                  @{event.artist.instagram.replace(/^@/, "")}
+                </a>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
