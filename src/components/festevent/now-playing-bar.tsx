@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { EventSummary } from "@/types";
+import { formatMinsUntil } from "@/lib/now-playing";
 
 interface NowPlayingData {
   current: EventSummary | null;
@@ -12,13 +13,6 @@ interface NowPlayingData {
 interface NowPlayingBarProps {
   festEventId: string;
   onScrollToEvent?: (eventId: string) => void;
-}
-
-function formatMinsUntil(mins: number): string {
-  if (mins < 60) return `${mins} min`;
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return m > 0 ? `${h}h ${m}m` : `${h}h`;
 }
 
 function formatTime(iso: string | undefined): string {
@@ -142,8 +136,8 @@ export function NowPlayingBar({ festEventId, onScrollToEvent }: NowPlayingBarPro
         </button>
       )}
 
-      {/* PROCHAIN */}
-      {hasNext && data.next && !hasCurrent && (
+      {/* PROCHAIN — always shown when available (even alongside EN COURS) */}
+      {hasNext && data.next && (
         <button
           type="button"
           onClick={() => onScrollToEvent?.(data.next!.id)}
@@ -154,7 +148,7 @@ export function NowPlayingBar({ festEventId, onScrollToEvent }: NowPlayingBarPro
             backgroundColor: "var(--bg-surface-elevated)",
             border: "1.5px solid var(--secondary-cyan)",
             borderRadius: "var(--radius-md)",
-            padding: "10px var(--space-md)",
+            padding: hasCurrent ? "6px var(--space-md)" : "10px var(--space-md)",
             cursor: onScrollToEvent ? "pointer" : "default",
             pointerEvents: "auto",
             width: "100%",
@@ -164,8 +158,8 @@ export function NowPlayingBar({ festEventId, onScrollToEvent }: NowPlayingBarPro
         >
           <span
             style={{
-              width: 10,
-              height: 10,
+              width: 8,
+              height: 8,
               borderRadius: "50%",
               backgroundColor: "transparent",
               border: "2px solid var(--secondary-cyan)",
@@ -174,33 +168,71 @@ export function NowPlayingBar({ festEventId, onScrollToEvent }: NowPlayingBarPro
             aria-hidden="true"
           />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "var(--fs-xs)",
-                color: "var(--secondary-cyan)",
-                textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                fontWeight: "var(--fw-bold)",
-              }}
-            >
-              ● PROCHAIN
-              {data.next.startTime && ` · ${formatTime(data.next.startTime)}`}
-              {data.minsUntilNext != null && ` · dans ${formatMinsUntil(data.minsUntilNext)}`}
-            </div>
-            <div
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "var(--fs-sm)",
-                color: "var(--text-main)",
-                fontWeight: "var(--fw-medium)",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {data.next.title}
-            </div>
+            {hasCurrent ? (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-xs)",
+                  overflow: "hidden",
+                }}
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--secondary-cyan)",
+                    fontWeight: "var(--fw-bold)",
+                    flexShrink: 0,
+                  }}
+                >
+                  ▷
+                  {data.minsUntilNext != null && ` ${formatMinsUntil(data.minsUntilNext)}`}
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--text-muted)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {data.next.title}
+                </span>
+              </div>
+            ) : (
+              <>
+                <div
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--secondary-cyan)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    fontWeight: "var(--fw-bold)",
+                  }}
+                >
+                  ● PROCHAIN
+                  {data.next.startTime && ` · ${formatTime(data.next.startTime)}`}
+                  {data.minsUntilNext != null && ` · dans ${formatMinsUntil(data.minsUntilNext)}`}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--fs-sm)",
+                    color: "var(--text-main)",
+                    fontWeight: "var(--fw-medium)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {data.next.title}
+                </div>
+              </>
+            )}
           </div>
         </button>
       )}
