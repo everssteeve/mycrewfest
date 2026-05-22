@@ -162,6 +162,37 @@ export async function syncPendingSelections(): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
+// Queue — Souvenirs (offline write path)
+// ---------------------------------------------------------------------------
+
+/**
+ * Store a souvenir locally in Dexie to be synced when back online.
+ *
+ * @param festEventId - The FestEvent this souvenir belongs to.
+ * @param payload     - The souvenir body (same shape as POST /api/festevents/[id]/souvenirs).
+ */
+export async function queueSouvenirOffline(
+  festEventId: string,
+  payload: {
+    eventId?: string;
+    freeText?: string;
+    note?: string;
+    photos?: string[];
+    timestamp?: string;
+  },
+): Promise<void> {
+  try {
+    await db.souvenirs.add({
+      festEventId,
+      payload,
+      createdAt: new Date().toISOString(),
+    });
+  } catch {
+    // Silently ignore — worst case the souvenir is lost offline
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Sync — Souvenirs
 // ---------------------------------------------------------------------------
 

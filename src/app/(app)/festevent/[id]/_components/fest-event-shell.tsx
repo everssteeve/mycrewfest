@@ -2,8 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { differenceInDays, isWithinInterval, parseISO } from "date-fns";
+import { isWithinInterval, parseISO } from "date-fns";
 import type { FestivalSummary } from "@/lib/api";
+import { EventCountdown } from "@/components/festevent/event-countdown";
+import { NowPlayingBar } from "@/components/festevent/now-playing-bar";
+import { QuickLogFab } from "@/components/festevent/quick-log-fab";
 
 interface FestEventShellProps {
   festEventId: string;
@@ -12,29 +15,34 @@ interface FestEventShellProps {
   children: React.ReactNode;
 }
 
-const TABS = [
-  { label: "Programme", path: "programme" },
-  { label: "Planning", path: "planning" },
-  { label: "Crew", path: "crew" },
-  { label: "Journal", path: "journal" },
-] as const;
+function buildTabs(
+  base: string,
+  programType: string,
+): Array<{ label: string; href: string }> {
+  const tabs: Array<{ label: string; href: string }> = [
+    { label: "Programme", href: `${base}/programme` },
+    { label: "Planning", href: `${base}/planning` },
+    { label: "Crew", href: `${base}/crew` },
+    { label: "Journal", href: `${base}/journal` },
+  ];
 
-function getDayBadge(startDate: string, endDate: string): string {
+  if (programType === "déambulatoire" || programType === "hybride") {
+    tabs.splice(1, 0, {
+      label: "Déambulation",
+      href: `${base}/mode-deambuloire`,
+    });
+  }
+
+  return tabs;
+}
+
+function isFestivalDuring(startDate: string, endDate: string): boolean {
   const now = new Date();
-  const start = parseISO(startDate);
-  const end = parseISO(endDate);
+  return isWithinInterval(now, { start: parseISO(startDate), end: parseISO(endDate) });
+}
 
-  if (isWithinInterval(now, { start, end })) {
-    const dayN = differenceInDays(now, start) + 1;
-    return `Jour ${dayN}`;
-  }
-
-  const daysUntil = differenceInDays(start, now);
-  if (daysUntil > 0) {
-    return `J-${daysUntil}`;
-  }
-
-  return "";
+function isFestivalPast(endDate: string): boolean {
+  return new Date() > parseISO(endDate);
 }
 
 export function FestEventShell({
@@ -43,8 +51,11 @@ export function FestEventShell({
   children,
 }: FestEventShellProps) {
   const pathname = usePathname();
-  const badge = getDayBadge(festival.startDate, festival.endDate);
   const base = `/festevent/${festEventId}`;
+  const tabs = buildTabs(base, festival.programType);
+
+  const during = isFestivalDuring(festival.startDate, festival.endDate);
+  const past = isFestivalPast(festival.endDate);
 
   return (
     <>
@@ -63,7 +74,7 @@ export function FestEventShell({
           paddingTop: "env(safe-area-inset-top, 0px)",
         }}
       >
-        {/* Top row: festival name + badge */}
+        {/* Top row: festival name + contextual badge */}
         <div
           style={{
             height: "var(--header-height)",
@@ -87,22 +98,28 @@ export function FestEventShell({
           >
             {festival.name}
           </span>
-          {badge && (
+          {!past && (
+            <EventCountdown
+              startDate={festival.startDate}
+              endDate={festival.endDate}
+            />
+          )}
+          {past && (
             <span
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: "var(--fs-xs)",
                 fontWeight: "var(--fw-bold)",
-                color: "var(--accent-pink)",
-                backgroundColor: "var(--pink-soft)",
-                border: "1px solid var(--accent-pink)",
+                color: "var(--text-dim)",
+                backgroundColor: "rgba(255,255,255,0.04)",
+                border: "1px solid var(--border-color)",
                 borderRadius: "var(--radius-full)",
                 padding: "2px 10px",
                 whiteSpace: "nowrap",
                 flexShrink: 0,
               }}
             >
-              {badge}
+              FESTIVAL TERMINÉ
             </span>
           )}
         </div>
@@ -116,13 +133,12 @@ export function FestEventShell({
             scrollbarWidth: "none",
           }}
         >
-          {TABS.map((tab) => {
-            const href = `${base}/${tab.path}`;
-            const isActive = pathname.startsWith(href);
+          {tabs.map((tab) => {
+            const isActive = pathname.startsWith(tab.href);
             return (
               <Link
-                key={tab.path}
-                href={href}
+                key={tab.href}
+                href={tab.href}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -171,6 +187,14 @@ export function FestEventShell({
           {children}
         </div>
       </div>
+
+      {/* F07 — NowPlayingBar: visible only during festival */}
+      {during && (
+        <NowPlayingBar festEventId={festEventId} />
+      )}
+
+      {/* F12 — QuickLogFab: visible on all pages */}
+      <QuickLogFab festEventId={festEventId} />
     </>
   );
 }

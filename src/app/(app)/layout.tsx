@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { BottomNav, ScreenWrapper } from "@/components/ui";
+import { OfflineBanner } from "@/components/offline/offline-banner";
 
 export default async function AppLayout({
   children,
@@ -20,6 +21,7 @@ export default async function AppLayout({
         minHeight: "100dvh",
       }}
     >
+      <OfflineBanner />
       <ScreenWrapper>{children}</ScreenWrapper>
       <BottomNav />
     </div>

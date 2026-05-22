@@ -316,6 +316,11 @@ model CrewMember {
   geolocStatus String @default("off") // off|active|background
   isPrivate Boolean @default(false)
 
+  // Temporary position storage (ephemeral, replaced at each update)
+  lastLat    Float?
+  lastLng    Float?
+  lastSeenAt DateTime?
+
   createdAt DateTime @default(now())
 
   crew Crew @relation(fields: [crewId], references: [id], onDelete: Cascade)

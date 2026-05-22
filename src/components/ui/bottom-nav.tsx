@@ -36,7 +36,7 @@ const TABS: NavTab[] = [
     activeGlow: "var(--glow-cyan)",
   },
   {
-    href: "/hq",
+    href: "/profil",
     label: "Le QG",
     icon: Home,
     activeColor: "var(--text-main)",
