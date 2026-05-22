@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { nextSelectionStatus, SELECTION_CYCLE } from "@/lib/selection";
+import { nextSelectionStatus, toggleVuStatus, SELECTION_CYCLE } from "@/lib/selection";
 
 describe("SELECTION_CYCLE", () => {
   it("contains null, intéressé, must-see and vu in order", () => {
@@ -42,5 +42,29 @@ describe("nextSelectionStatus", () => {
     status = nextSelectionStatus(status);
     status = nextSelectionStatus(status);
     expect(status).toBeNull();
+  });
+});
+
+describe("toggleVuStatus", () => {
+  it("null → vu", () => {
+    expect(toggleVuStatus(null)).toBe("vu");
+  });
+
+  it("intéressé → vu (overrides, does not preserve previous status)", () => {
+    expect(toggleVuStatus("intéressé")).toBe("vu");
+  });
+
+  it("must-see → vu", () => {
+    expect(toggleVuStatus("must-see")).toBe("vu");
+  });
+
+  it("vu → null (unmark)", () => {
+    expect(toggleVuStatus("vu")).toBeNull();
+  });
+
+  it("is a true toggle: applying twice returns to null", () => {
+    const afterFirst = toggleVuStatus(null);
+    const afterSecond = toggleVuStatus(afterFirst);
+    expect(afterSecond).toBeNull();
   });
 });

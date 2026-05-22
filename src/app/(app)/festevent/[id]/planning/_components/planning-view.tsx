@@ -7,6 +7,7 @@ import { ChevronDown, CalendarArrowDown } from "lucide-react";
 import { detectConflicts, filterEventsByDay, sortEventsByTime } from "@/lib/planning";
 import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
+import { toggleVuStatus } from "@/lib/selection";
 import type { EventSummary, ConflictInfo, ConflictLevel } from "@/types";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import type { SelectionStatus } from "@/types";
@@ -95,6 +96,7 @@ interface TimelineEventCardProps {
   now: Date;
   arrivalConstraint: string | null;
   departureConstraint: string | null;
+  onMarkVu: () => void;
 }
 
 function TimelineEventCard({
@@ -103,6 +105,7 @@ function TimelineEventCard({
   now,
   arrivalConstraint,
   departureConstraint,
+  onMarkVu,
 }: TimelineEventCardProps) {
   const selectionStatus = event.selection?.status ?? null;
   const isSeen = selectionStatus === "vu";
@@ -206,8 +209,8 @@ function TimelineEventCard({
         </span>
       )}
 
-      {/* Time + title */}
-      <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-sm)" }}>
+      {/* Time + title + mark-vu button */}
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
         <span
           style={{
             fontFamily: "var(--font-mono)",
@@ -225,10 +228,40 @@ function TimelineEventCard({
             fontSize: "var(--fs-sm)",
             fontWeight: "var(--fw-medium)",
             color: isSeen ? "var(--text-dim)" : "var(--text-main)",
+            flex: 1,
+            minWidth: 0,
           }}
         >
           {event.title}
         </span>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onMarkVu();
+          }}
+          aria-label={isSeen ? "Retirer la mention vu" : "Marquer comme vu"}
+          aria-pressed={isSeen}
+          style={{
+            flexShrink: 0,
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: 28,
+            height: 28,
+            borderRadius: "var(--radius-full)",
+            border: isSeen
+              ? "1.5px solid var(--primary-neon)"
+              : "1.5px solid var(--border-color)",
+            backgroundColor: isSeen ? "var(--neon-soft)" : "transparent",
+            color: isSeen ? "var(--primary-neon)" : "var(--text-dim)",
+            fontSize: 14,
+            cursor: "pointer",
+            transition: "var(--transition-fast)",
+          }}
+        >
+          ✓
+        </button>
       </div>
 
       {/* Venue */}
@@ -276,7 +309,7 @@ export function PlanningView({
   presenceDates,
   initialEvents,
 }: PlanningViewProps) {
-  const { selections } = useSelections(festEventId);
+  const { selections, updateSelection } = useSelections(festEventId);
   const comfortMarginMins = useFestEventStore((s) => s.comfortMarginMins);
   const setComfortMargin = useFestEventStore((s) => s.setComfortMargin);
   const arrivalConstraint = useFestEventStore((s) => s.arrivalConstraint);
@@ -739,6 +772,12 @@ export function PlanningView({
                     now={now}
                     arrivalConstraint={arrivalConstraint}
                     departureConstraint={departureConstraint}
+                    onMarkVu={() =>
+                      updateSelection(
+                        enriched.id,
+                        toggleVuStatus(enriched.selection?.status ?? null),
+                      )
+                    }
                   />
                 </div>
               </div>

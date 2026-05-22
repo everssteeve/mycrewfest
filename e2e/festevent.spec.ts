@@ -115,6 +115,32 @@ test.describe("FestEvent — create and navigate", () => {
     await expect(page.locator("h1, h2")).toBeVisible({ timeout: 5_000 });
   });
 
+  test("planning timeline cards have a mark-vu button", async ({ page }) => {
+    const res = await page.request.get("/api/festevents");
+    if (!res.ok()) { test.skip(); return; }
+    const data: { id: string }[] = await res.json();
+    if (!Array.isArray(data) || data.length === 0) { test.skip(); return; }
+
+    const festEventId = data[0].id;
+    await page.goto(`/festevent/${festEventId}/planning`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(400);
+
+    // If any timeline cards are present, each should have a ✓ button
+    const markVuBtns = page.locator('[aria-label="Marquer comme vu"], [aria-label="Retirer la mention vu"]');
+    const count = await markVuBtns.count();
+
+    if (count > 0) {
+      // At least one mark-vu button is visible
+      await expect(markVuBtns.first()).toBeVisible();
+      // Pressing it should not cause an error
+      await markVuBtns.first().click();
+      await page.waitForTimeout(300);
+      await expect(page.locator('[role="alert"]')).not.toBeVisible();
+    }
+    // If no events are selected, count === 0 is valid (planning is empty)
+  });
+
   test("toggling event selection changes its status", async ({ page }) => {
     await page.goto("/catalogue");
 

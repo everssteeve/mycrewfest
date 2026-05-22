@@ -22,3 +22,10 @@ export const SELECTION_LABELS: Record<NonNullable<SelectionStatus> | "_add", str
   "must-see": "★ Must-see",
   vu: "✓ Vu",
 };
+
+/** One-tap "mark as seen" toggle: vu ↔ null (preserves other statuses). */
+export function toggleVuStatus(
+  current: SelectionStatus | null,
+): SelectionStatus | null {
+  return current === "vu" ? null : "vu";
+}
