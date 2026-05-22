@@ -3,11 +3,13 @@
 import { useCallback, useMemo, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
+import { Search } from "lucide-react";
 import { EventCard, type EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 import type { SelectionStatus } from "@/types";
 import type { EventType } from "@/lib/api";
+import { matchesProgrammeQuery } from "@/lib/programme-search";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -71,6 +73,7 @@ export function ProgrammeView({
   const [activeDay, setActiveDay] = useState<string>(presenceDates[0] ?? "");
   const [activeTypes, setActiveTypes] = useState<Set<EventType>>(new Set());
   const [accessFilter, setAccessFilter] = useState<AccessFilter>("tous");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const toggleType = useCallback((t: EventType) => {
     setActiveTypes((prev) => {
@@ -115,9 +118,12 @@ export function ProgrammeView({
         return false;
       }
 
+      // Text search
+      if (!matchesProgrammeQuery(e, searchQuery)) return false;
+
       return true;
     });
-  }, [events, activeDay, activeTypes, accessFilter]);
+  }, [events, activeDay, activeTypes, accessFilter, searchQuery]);
 
   const handleSelectionCycle = useCallback(
     (eventId: string, next: SelectionStatus | null) => {
@@ -136,6 +142,74 @@ export function ProgrammeView({
         paddingBottom: "var(--space-md)",
       }}
     >
+      {/* Search input */}
+      <div style={{ position: "relative" }}>
+        <Search
+          size={15}
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            left: 11,
+            top: "50%",
+            transform: "translateY(-50%)",
+            color: "var(--text-dim)",
+            pointerEvents: "none",
+          }}
+        />
+        <input
+          type="search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Chercher un artiste, scène…"
+          aria-label="Rechercher dans le programme"
+          style={{
+            width: "100%",
+            paddingLeft: 34,
+            paddingRight: searchQuery ? 34 : 12,
+            paddingTop: 9,
+            paddingBottom: 9,
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            color: "var(--text-main)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-sm)",
+            outline: "none",
+            transition: "var(--transition-fast)",
+          }}
+          onFocus={(e) => {
+            e.currentTarget.style.borderColor = "var(--accent-pink)";
+            e.currentTarget.style.boxShadow = "0 0 0 2px rgba(255,0,122,0.12)";
+          }}
+          onBlur={(e) => {
+            e.currentTarget.style.borderColor = "var(--border-color)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => setSearchQuery("")}
+            aria-label="Effacer la recherche"
+            style={{
+              position: "absolute",
+              right: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--text-dim)",
+              fontSize: 14,
+              lineHeight: 1,
+              padding: 2,
+            }}
+          >
+            ✕
+          </button>
+        )}
+      </div>
+
       {/* Day tabs */}
       {effectiveDates.length > 1 && (
         <div
