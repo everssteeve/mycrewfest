@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui";
 import type { FestivalDetail, NewsItem } from "@/lib/types";
 import { FollowButton } from "./_components/follow-button";
 import { ParticipateButton } from "./_components/participate-button";
+import { ShareButton } from "@/components/ui/share-button";
+import { buildFestivalSharePayload } from "@/lib/share";
 
 async function fetchFestival(slug: string): Promise<FestivalDetail | null> {
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
@@ -219,6 +221,9 @@ export default async function FestivalPage({
                 endDate={festival.endDate}
               />
           <FollowButton festivalId={festival.id} initialFollowed={festival.isFollowed} festivalSlug={festival.slug} />
+          <ShareButton
+            payload={buildFestivalSharePayload(festival.name, festival.slug)}
+          />
         </div>
       </div>
 

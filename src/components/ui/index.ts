@@ -1,4 +1,5 @@
 export { Button } from "./button";
+export { ShareButton } from "./share-button";
 export { Card } from "./card";
 export { Chip } from "./chip";
 export { Avatar, AvatarStack } from "./avatar";
