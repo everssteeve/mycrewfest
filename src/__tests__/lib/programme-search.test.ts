@@ -73,6 +73,23 @@ describe("matchesProgrammeQuery", () => {
   it("trims leading/trailing whitespace from query", () => {
     expect(matchesProgrammeQuery(BASE, "  massive  ")).toBe(true);
   });
+
+  it("matches tags (partial, case-insensitive)", () => {
+    const tagged = { ...BASE, tags: ["rap", "live", "outdoor"] };
+    expect(matchesProgrammeQuery(tagged, "rap")).toBe(true);
+    expect(matchesProgrammeQuery(tagged, "RAP")).toBe(true);
+    expect(matchesProgrammeQuery(tagged, "out")).toBe(true);
+  });
+
+  it("does not match when query only matches a tag that does not exist", () => {
+    expect(matchesProgrammeQuery(BASE, "jazz")).toBe(false);
+  });
+
+  it("returns true for event with no tags when query matches title", () => {
+    const noTags = { ...BASE, tags: undefined };
+    expect(matchesProgrammeQuery(noTags, "main stage")).toBe(true);
+    expect(matchesProgrammeQuery(noTags, "jazz")).toBe(false);
+  });
 });
 
 describe("matchesSelectionFilter", () => {

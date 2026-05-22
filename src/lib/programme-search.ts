@@ -2,6 +2,7 @@ export interface SearchableEvent {
   title: string;
   artist?: { name: string } | null;
   venue?: { name: string } | null;
+  tags?: string[];
 }
 
 export function matchesProgrammeQuery<T extends SearchableEvent>(
@@ -13,7 +14,8 @@ export function matchesProgrammeQuery<T extends SearchableEvent>(
   return (
     event.title.toLowerCase().includes(q) ||
     (event.artist?.name.toLowerCase().includes(q) ?? false) ||
-    (event.venue?.name.toLowerCase().includes(q) ?? false)
+    (event.venue?.name.toLowerCase().includes(q) ?? false) ||
+    (event.tags?.some((t) => t.toLowerCase().includes(q)) ?? false)
   );
 }
 

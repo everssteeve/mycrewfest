@@ -152,6 +152,18 @@ export function ProgrammeView({
     });
   }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, searchQuery]);
 
+  const selectedCount = useMemo(
+    () => filteredEvents.filter((e) => e.selection?.status != null).length,
+    [filteredEvents],
+  );
+
+  const hasActiveFilter =
+    activeTypes.size > 0 ||
+    accessFilter !== "tous" ||
+    selectionFilter !== "tous" ||
+    activeTags.size > 0 ||
+    searchQuery.trim().length > 0;
+
   const handleSelectionCycle = useCallback(
     (eventId: string, next: SelectionStatus | null) => {
       updateSelection(eventId, next);
@@ -460,6 +472,46 @@ export function ProgrammeView({
           })}
         </div>
       )}
+
+      {/* Stats strip */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-sm)",
+          minHeight: 20,
+        }}
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-xs)",
+            color: "var(--text-dim)",
+          }}
+        >
+          {filteredEvents.length}
+          {hasActiveFilter && events.length !== filteredEvents.length
+            ? ` / ${events.length}`
+            : ""}{" "}
+          événement{filteredEvents.length !== 1 ? "s" : ""}
+        </span>
+        {selectedCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--accent-pink)",
+              }}
+            >
+              ♥ {selectedCount} sélectionné{selectedCount !== 1 ? "s" : ""}
+            </span>
+          </>
+        )}
+      </div>
 
       {/* Events list */}
       {filteredEvents.length === 0 ? (

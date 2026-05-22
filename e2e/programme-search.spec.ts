@@ -102,6 +102,39 @@ test.describe("Programme search bar", () => {
     await expect(page.getByRole("button", { name: /intéressé/i })).toBeVisible({ timeout: 5_000 });
   });
 
+  test("stats strip shows event count and updates on search", async ({ page }) => {
+    const festEventId = await getFirstFestEventId(page);
+    if (!festEventId) {
+      test.skip();
+      return;
+    }
+
+    await page.goto(`/festevent/${festEventId}/programme`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(300);
+
+    // Stats strip should mention "événement"
+    const statsStrip = page.locator('[aria-live="polite"]');
+    await expect(statsStrip).toBeVisible();
+    const initialText = await statsStrip.textContent();
+    expect(initialText).toMatch(/événement/);
+
+    // After filtering with a non-matching query, should show 0
+    const searchInput = page.getByRole("searchbox").or(page.getByPlaceholder(/artiste|scène/i));
+    if (await searchInput.isVisible()) {
+      await searchInput.fill("zzznomatch9999");
+      await page.waitForTimeout(300);
+      const filteredText = await statsStrip.textContent();
+      expect(filteredText).toMatch(/0 événement/);
+
+      // Restore
+      await searchInput.fill("");
+      await page.waitForTimeout(200);
+      const restoredText = await statsStrip.textContent();
+      expect(restoredText).toBe(initialText);
+    }
+  });
+
   test("clear button removes search query", async ({ page }) => {
     const festEventId = await getFirstFestEventId(page);
     if (!festEventId) {
