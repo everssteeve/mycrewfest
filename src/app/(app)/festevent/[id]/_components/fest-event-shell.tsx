@@ -10,6 +10,7 @@ import { EventCountdown } from "@/components/festevent/event-countdown";
 import { NowPlayingBar } from "@/components/festevent/now-playing-bar";
 import { QuickLogFab } from "@/components/festevent/quick-log-fab";
 import { FestEventSettingsSheet } from "./festevent-settings-sheet";
+import { SelectionProgressBar } from "@/components/festevent/selection-progress-bar";
 
 interface FestEventShellProps {
   festEventId: string;
@@ -195,12 +196,17 @@ export function FestEventShell({
             );
           })}
         </div>
+
+        {/* Progress bar — visible only during festival */}
+        {during && (
+          <SelectionProgressBar festEventId={festEventId} />
+        )}
       </header>
 
-      {/* Content — offset for double header (header + tabs) */}
+      {/* Content — offset for double header (header + tabs + progress bar when during) */}
       <div
         style={{
-          paddingTop: "calc(var(--header-height) + 41px + env(safe-area-inset-top, 0px))",
+          paddingTop: `calc(var(--header-height) + 41px + ${during ? "50px" : "0px"} + env(safe-area-inset-top, 0px))`,
           paddingBottom: "calc(var(--nav-height) + env(safe-area-inset-bottom, 0px))",
           minHeight: "100dvh",
           backgroundColor: "var(--bg-darker)",
