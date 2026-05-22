@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown } from "lucide-react";
+import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown, Copy, Check } from "lucide-react";
+import { generateChecklistText } from "@/lib/checklist-text";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -27,6 +28,7 @@ interface ChecklistTemplate {
 interface ChecklistViewProps {
   festEventId: string;
   initialItems: ChecklistItemData[];
+  festivalName: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -179,7 +181,7 @@ function TemplateModal({
 // Main component
 // ---------------------------------------------------------------------------
 
-export function ChecklistView({ festEventId, initialItems }: ChecklistViewProps) {
+export function ChecklistView({ festEventId, initialItems, festivalName }: ChecklistViewProps) {
   const [items, setItems] = useState<ChecklistItemData[]>(initialItems);
   const [templates, setTemplates] = useState<ChecklistTemplate[]>([]);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
@@ -188,6 +190,7 @@ export function ChecklistView({ festEventId, initialItems }: ChecklistViewProps)
   const [newCost, setNewCost] = useState("");
   const [newAssignee, setNewAssignee] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const baseUrl = `/api/festevents/${festEventId}/checklist`;
@@ -196,6 +199,16 @@ export function ChecklistView({ festEventId, initialItems }: ChecklistViewProps)
   const completedCount = items.filter((i) => i.done).length;
   const totalCount = items.length;
   const totalCost = items.reduce((sum, i) => sum + (i.cost ?? 0), 0);
+
+  const copyChecklist = useCallback(async () => {
+    const text = generateChecklistText(
+      items.map((i) => ({ label: i.label, done: i.done, cost: i.cost, assigneeName: i.assigneeName })),
+      festivalName,
+    );
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [items, festivalName]);
 
   // Load templates on demand
   const loadTemplates = useCallback(async () => {
@@ -432,6 +445,31 @@ export function ChecklistView({ festEventId, initialItems }: ChecklistViewProps)
         >
           <Package size={16} />
           Template
+        </button>
+        <button
+          type="button"
+          onClick={() => void copyChecklist()}
+          data-testid="copy-checklist-btn"
+          aria-label={copied ? "Liste copiée" : "Copier la liste"}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "var(--space-xs)",
+            background: copied ? "var(--neon-soft)" : "transparent",
+            color: copied ? "var(--primary-neon)" : "var(--text-muted)",
+            border: copied ? "1px solid var(--primary-neon)" : "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-sm) var(--space-md)",
+            fontWeight: "var(--fw-bold)",
+            fontSize: "var(--fs-xs)",
+            textTransform: "uppercase",
+            letterSpacing: "0.08em",
+            cursor: "pointer",
+            transition: "border-color 0.2s, color 0.2s, background 0.2s",
+          }}
+        >
+          {copied ? <Check size={14} aria-hidden="true" /> : <Copy size={14} aria-hidden="true" />}
         </button>
       </div>
 

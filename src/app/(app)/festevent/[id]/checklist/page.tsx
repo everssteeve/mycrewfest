@@ -64,6 +64,7 @@ export default async function ChecklistPage({ params }: PageContext) {
     <ChecklistView
       festEventId={id}
       initialItems={data.items}
+      festivalName={data.festivalName}
     />
   );
 }
