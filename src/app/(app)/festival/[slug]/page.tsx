@@ -218,7 +218,7 @@ export default async function FestivalPage({
                 startDate={festival.startDate}
                 endDate={festival.endDate}
               />
-          <FollowButton festivalId={festival.id} />
+          <FollowButton festivalId={festival.id} initialFollowed={festival.isFollowed} festivalSlug={festival.slug} />
         </div>
       </div>
 
