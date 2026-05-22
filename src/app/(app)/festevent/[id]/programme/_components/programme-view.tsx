@@ -10,6 +10,7 @@ import { useFestEventStore } from "@/store/use-fest-event-store";
 import type { SelectionStatus } from "@/types";
 import type { EventType } from "@/lib/api";
 import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, type SelectionFilter } from "@/lib/programme-search";
+import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -75,6 +76,7 @@ export function ProgrammeView({
   const [accessFilter, setAccessFilter] = useState<AccessFilter>("tous");
   const [selectionFilter, setSelectionFilter] = useState<SelectionFilter>("tous");
   const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
+  const [sortMode, setSortMode] = useState<SortMode>("time");
   const [searchQuery, setSearchQuery] = useState("");
 
   const allTags = useMemo(() => {
@@ -151,6 +153,11 @@ export function ProgrammeView({
       return true;
     });
   }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, searchQuery]);
+
+  const sortedFilteredEvents = useMemo(
+    () => sortProgrammeEvents(filteredEvents, sortMode),
+    [filteredEvents, sortMode],
+  );
 
   const selectedCount = useMemo(
     () => filteredEvents.filter((e) => e.selection?.status != null).length,
@@ -473,12 +480,13 @@ export function ProgrammeView({
         </div>
       )}
 
-      {/* Stats strip */}
+      {/* Stats strip + sort controls */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           gap: "var(--space-sm)",
+          flexWrap: "wrap",
           minHeight: 20,
         }}
         aria-live="polite"
@@ -511,6 +519,42 @@ export function ProgrammeView({
             </span>
           </>
         )}
+        <div style={{ flex: 1 }} />
+        {/* Sort controls */}
+        <div
+          style={{ display: "flex", gap: 4 }}
+          role="group"
+          aria-label="Trier par"
+        >
+          {(["time", "alpha", "venue"] as SortMode[]).map((mode) => {
+            const isActive = sortMode === mode;
+            return (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => setSortMode(mode)}
+                aria-pressed={isActive}
+                style={{
+                  padding: "2px 8px",
+                  borderRadius: "var(--radius-full)",
+                  border: isActive
+                    ? "1.5px solid var(--secondary-cyan)"
+                    : "1.5px solid rgba(255,255,255,0.1)",
+                  backgroundColor: isActive ? "var(--cyan-soft)" : "transparent",
+                  color: isActive ? "var(--secondary-cyan)" : "var(--text-dim)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  fontWeight: "var(--fw-medium)",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  transition: "var(--transition-fast)",
+                }}
+              >
+                {SORT_MODE_LABELS[mode]}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Events list */}
@@ -548,7 +592,7 @@ export function ProgrammeView({
         <div
           style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}
         >
-          {filteredEvents.map((e) => (
+          {sortedFilteredEvents.map((e) => (
             <EventCard
               key={e.id}
               event={e}

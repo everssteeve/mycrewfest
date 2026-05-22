@@ -102,6 +102,37 @@ test.describe("Programme search bar", () => {
     await expect(page.getByRole("button", { name: /intéressé/i })).toBeVisible({ timeout: 5_000 });
   });
 
+  test("sort controls are visible and change button state", async ({ page }) => {
+    const festEventId = await getFirstFestEventId(page);
+    if (!festEventId) { test.skip(); return; }
+
+    await page.goto(`/festevent/${festEventId}/programme`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(300);
+
+    // Sort group should be visible
+    const sortGroup = page.locator('[role="group"][aria-label="Trier par"]');
+    await expect(sortGroup).toBeVisible();
+
+    // "Horaire" should be the default active (aria-pressed=true)
+    const horaireBtn = sortGroup.getByRole("button", { name: "Horaire" });
+    await expect(horaireBtn).toBeVisible();
+    await expect(horaireBtn).toHaveAttribute("aria-pressed", "true");
+
+    // Clicking "A→Z" should activate it
+    const alphaBtn = sortGroup.getByRole("button", { name: "A→Z" });
+    await alphaBtn.click();
+    await page.waitForTimeout(200);
+    await expect(alphaBtn).toHaveAttribute("aria-pressed", "true");
+    await expect(horaireBtn).toHaveAttribute("aria-pressed", "false");
+
+    // Clicking "Scène" should activate it
+    const venueBtn = sortGroup.getByRole("button", { name: "Scène" });
+    await venueBtn.click();
+    await page.waitForTimeout(200);
+    await expect(venueBtn).toHaveAttribute("aria-pressed", "true");
+  });
+
   test("stats strip shows event count and updates on search", async ({ page }) => {
     const festEventId = await getFirstFestEventId(page);
     if (!festEventId) {
