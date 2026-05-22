@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, CalendarArrowDown } from "lucide-react";
 import { detectConflicts, filterEventsByDay, sortEventsByTime } from "@/lib/planning";
 import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
@@ -439,6 +439,41 @@ export function PlanningView({
         >
           {totalHours}h
         </span>
+        <div style={{ flex: 1 }} />
+        <a
+          href={`/api/festevents/${festEventId}/planning/export`}
+          download="mycrewfest-planning.ics"
+          aria-label="Exporter le planning au format iCalendar"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            padding: "4px 10px",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border-color)",
+            backgroundColor: "transparent",
+            color: "var(--text-muted)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-xs, 11px)",
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            textDecoration: "none",
+            cursor: "pointer",
+            transition: "var(--transition-fast)",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = "var(--secondary-cyan)";
+            (e.currentTarget as HTMLElement).style.color = "var(--secondary-cyan)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = "var(--border-color)";
+            (e.currentTarget as HTMLElement).style.color = "var(--text-muted)";
+          }}
+        >
+          <CalendarArrowDown size={12} aria-hidden="true" />
+          .ics
+        </a>
       </div>
 
       {/* Comfort margin selector */}
