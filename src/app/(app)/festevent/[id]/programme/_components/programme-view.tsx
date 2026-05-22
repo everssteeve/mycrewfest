@@ -12,6 +12,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
+import { countEventsByDay } from "@/lib/programme-summary";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -177,6 +178,9 @@ export function ProgrammeView({
   // Live "ongoing" event detection — refreshes every minute
   const ongoingIds = useMemo(() => findOngoingEventIds(events, now), [events, now]);
 
+  // Event counts per day (across ALL events, not filtered)
+  const eventDayCounts = useMemo(() => countEventsByDay(initialEvents), [initialEvents]);
+
   const selectedCount = useMemo(
     () => filteredEvents.filter((e) => e.selection?.status != null).length,
     [filteredEvents],
@@ -196,6 +200,15 @@ export function ProgrammeView({
     },
     [updateSelection],
   );
+
+  const resetFilters = useCallback(() => {
+    setActiveTypes(new Set());
+    setAccessFilter("tous");
+    setSelectionFilter("tous");
+    setActiveTags(new Set());
+    setSearchQuery("");
+    setUpcomingOnly(false);
+  }, []);
 
   return (
     <div
@@ -348,6 +361,18 @@ export function ProgrammeView({
                 }}
               >
                 {label}
+                {eventDayCounts.get(d) !== undefined && (
+                  <span
+                    style={{
+                      marginLeft: 4,
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "10px",
+                      opacity: 0.7,
+                    }}
+                  >
+                    · {eventDayCounts.get(d)}
+                  </span>
+                )}
               </button>
             );
           })}
@@ -591,6 +616,32 @@ export function ProgrammeView({
         >
           ▶ À venir
         </button>
+        {/* Reset all filters */}
+        {hasActiveFilter && (
+          <button
+            type="button"
+            onClick={resetFilters}
+            aria-label="Réinitialiser tous les filtres"
+            data-testid="reset-filters-btn"
+            style={{
+              padding: "2px 9px",
+              borderRadius: "var(--radius-full)",
+              border: "1.5px solid rgba(255,255,255,0.15)",
+              backgroundColor: "transparent",
+              color: "var(--text-dim)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              fontWeight: "var(--fw-bold)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              transition: "var(--transition-fast)",
+            }}
+          >
+            ✕ Effacer
+          </button>
+        )}
         <div style={{ flex: 1 }} />
         {/* Sort controls */}
         <div
