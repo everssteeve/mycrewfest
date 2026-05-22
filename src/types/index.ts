@@ -68,6 +68,8 @@ export interface FestivalDetail extends FestivalSummary {
   address?: string;
   siteUrl?: string;
   instagramHandle?: string;
+  facebookPage?: string;
+  xHandle?: string;
   mapImageUrl?: string;
   capacity?: number;
   ingestionStatus?: string;
@@ -76,6 +78,7 @@ export interface FestivalDetail extends FestivalSummary {
   venueCount?: number;
   recentNews: NewsItemSummary[];
   isFollowed: boolean;
+  _count?: { events: number; followers: number };
 }
 
 // ---------------------------------------------------------------------------

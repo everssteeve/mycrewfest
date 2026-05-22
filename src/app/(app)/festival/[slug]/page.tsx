@@ -2,7 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowLeft, Globe, MapPin, Users } from "lucide-react";
+import { ArrowLeft, Globe, MapPin, Users, ExternalLink } from "lucide-react";
+import { formatFestivalStats } from "@/lib/format-count";
 import type { Metadata } from "next";
 import { Badge } from "@/components/ui";
 import type { FestivalDetail, NewsItem } from "@/lib/types";
@@ -190,23 +191,72 @@ export default async function FestivalPage({
           </p>
         )}
 
-        {/* External link */}
-        {festival.siteUrl && (
-          <a
-            href={festival.siteUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="t-caption inline-flex items-center gap-1"
-            style={{
-              color: "var(--secondary-cyan)",
-              marginTop: "var(--space-xs)",
-              textDecoration: "none",
-            }}
+        {/* Stats row */}
+        {festival._count && (festival._count.events > 0 || festival._count.followers > 0) && (
+          <p
+            className="t-caption"
+            style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 11px)" }}
+            aria-label="Statistiques du festival"
           >
-            <Globe size={14} aria-hidden="true" />
-            Site officiel
-          </a>
+            {formatFestivalStats(festival._count)}
+          </p>
         )}
+
+        {/* Social & external links */}
+        <div className="flex flex-wrap items-center gap-3" style={{ marginTop: "var(--space-xs)" }}>
+          {festival.siteUrl && (
+            <a
+              href={festival.siteUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="t-caption inline-flex items-center gap-1"
+              style={{ color: "var(--secondary-cyan)", textDecoration: "none" }}
+              aria-label="Site officiel du festival"
+            >
+              <Globe size={13} aria-hidden="true" />
+              Site officiel
+            </a>
+          )}
+          {festival.instagramHandle && (
+            <a
+              href={`https://instagram.com/${festival.instagramHandle.replace(/^@/, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="t-caption inline-flex items-center gap-1"
+              style={{ color: "var(--accent-pink)", textDecoration: "none" }}
+              aria-label={`Instagram : ${festival.instagramHandle}`}
+            >
+              <ExternalLink size={12} aria-hidden="true" />
+              Instagram
+            </a>
+          )}
+          {festival.facebookPage && (
+            <a
+              href={festival.facebookPage}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="t-caption inline-flex items-center gap-1"
+              style={{ color: "var(--secondary-cyan)", textDecoration: "none" }}
+              aria-label="Page Facebook du festival"
+            >
+              <ExternalLink size={12} aria-hidden="true" />
+              Facebook
+            </a>
+          )}
+          {festival.xHandle && (
+            <a
+              href={`https://x.com/${festival.xHandle.replace(/^@/, "")}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="t-caption inline-flex items-center gap-1"
+              style={{ color: "var(--text-muted)", textDecoration: "none" }}
+              aria-label={`X (Twitter) : ${festival.xHandle}`}
+            >
+              <ExternalLink size={12} aria-hidden="true" />
+              X / Twitter
+            </a>
+          )}
+        </div>
 
         {/* Actions */}
         <div
