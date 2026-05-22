@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MapPin, CalendarDays } from "lucide-react";
+import { MapPin, CalendarDays, Heart } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { FestivalSummary, FestivalType, ProgramStatus } from "@/lib/types";
@@ -135,6 +135,19 @@ export function FestivalCard({ festival }: FestivalCardProps) {
                 }}
               >
                 {daysUntil === 0 ? "Demain" : `Dans ${daysUntil} j`}
+              </span>
+            )}
+            {festival.isFollowed && (
+              <span
+                aria-label="Festival suivi"
+                className="inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5"
+                style={{
+                  backgroundColor: "rgba(255,0,122,0.1)",
+                  color: "var(--accent-pink)",
+                  border: "1px solid rgba(255,0,122,0.3)",
+                }}
+              >
+                <Heart size={10} aria-hidden="true" fill="currentColor" />
               </span>
             )}
             {festival.confidenceLevel === "auto" && (

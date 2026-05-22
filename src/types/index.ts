@@ -61,6 +61,8 @@ export interface FestivalSummary {
   programType: ProgramType;
   programStatus: "complet" | "partiel" | "bientôt_disponible";
   confidenceLevel: "auto" | "vérifié_humain";
+  isFollowed?: boolean;
+  _count?: { events: number; followers: number };
 }
 
 export interface FestivalDetail extends FestivalSummary {

@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Search } from "lucide-react";
+import { Search, Heart } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
 import { compareByTemporalRelevance } from "@/lib/festival-temporal";
+import { matchesFollowFilter } from "@/lib/catalogue-filter";
 
 type FilterType = "tous" | FestivalType;
 
@@ -24,6 +25,12 @@ interface FestivalListProps {
 export function FestivalList({ initialFestivals }: FestivalListProps) {
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("tous");
+  const [followedOnly, setFollowedOnly] = useState(false);
+
+  const hasFollowed = useMemo(
+    () => initialFestivals.some((f) => f.isFollowed),
+    [initialFestivals],
+  );
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -36,10 +43,10 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
           f.country.toLowerCase().includes(q);
         const matchesType =
           activeFilter === "tous" || f.festivalType === activeFilter;
-        return matchesQuery && matchesType;
+        return matchesQuery && matchesType && matchesFollowFilter(f, followedOnly);
       })
       .sort(compareByTemporalRelevance);
-  }, [initialFestivals, query, activeFilter]);
+  }, [initialFestivals, query, activeFilter, followedOnly]);
 
   return (
     <div className="flex flex-col gap-0 py-4">
@@ -141,6 +148,39 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
             </button>
           );
         })}
+        {hasFollowed && (
+          <button
+            type="button"
+            onClick={() => setFollowedOnly((v) => !v)}
+            aria-pressed={followedOnly}
+            style={{
+              flexShrink: 0,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              paddingLeft: 12,
+              paddingRight: 12,
+              paddingTop: 6,
+              paddingBottom: 6,
+              borderRadius: "var(--radius-full)",
+              border: followedOnly
+                ? "1px solid var(--accent-pink)"
+                : "1px solid var(--border-color)",
+              backgroundColor: followedOnly ? "rgba(255,0,122,0.1)" : "transparent",
+              color: followedOnly ? "var(--accent-pink)" : "var(--text-muted)",
+              fontFamily: "var(--font-body)",
+              fontSize: 12,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              cursor: "pointer",
+              transition: "var(--transition-fast)",
+            }}
+          >
+            <Heart size={11} aria-hidden="true" fill={followedOnly ? "currentColor" : "none"} />
+            Suivis
+          </button>
+        )}
       </div>
 
       {/* Results count */}
@@ -149,7 +189,7 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
         style={{ color: "var(--text-dim)" }}
       >
         {filtered.length} festival{filtered.length !== 1 ? "s" : ""}
-        {query || activeFilter !== "tous" ? " trouvé" + (filtered.length !== 1 ? "s" : "") : ""}
+        {(query || activeFilter !== "tous" || followedOnly) ? " trouvé" + (filtered.length !== 1 ? "s" : "") : ""}
       </p>
 
       {/* Festival list */}
@@ -160,7 +200,7 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
           ))}
         </div>
       ) : (
-        <EmptyState hasFilters={!!(query || activeFilter !== "tous")} />
+        <EmptyState hasFilters={!!(query || activeFilter !== "tous" || followedOnly)} />
       )}
     </div>
   );
