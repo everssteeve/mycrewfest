@@ -4,6 +4,7 @@ import { MapPin, Clock, Ticket } from "lucide-react";
 import type { EventWithSelection } from "@/lib/api";
 import type { SelectionStatus } from "@/types";
 import { formatEventDuration, getAccessLabel } from "@/lib/event-format";
+import { nextSelectionStatus } from "@/lib/selection";
 
 // Extended type that includes confidence field returned by the programme API
 export interface EventWithSelectionAndConfidence extends EventWithSelection {
@@ -33,16 +34,6 @@ const EVENT_TYPE_COLORS: Record<
 // Selection button
 // ---------------------------------------------------------------------------
 
-const SELECTION_CYCLE: Array<SelectionStatus | null> = [
-  null,
-  "intéressé",
-  "must-see",
-];
-
-function nextStatus(current: SelectionStatus | null): SelectionStatus | null {
-  const idx = SELECTION_CYCLE.indexOf(current);
-  return SELECTION_CYCLE[(idx + 1) % SELECTION_CYCLE.length] ?? null;
-}
 
 interface SelectionButtonProps {
   status: SelectionStatus | null;
@@ -71,9 +62,9 @@ function SelectionButton({ status, onCycle }: SelectionButtonProps) {
   } else if (status === "vu") {
     label = "✓ Vu";
     style = {
-      backgroundColor: "rgba(255,255,255,0.06)",
-      color: "var(--text-dim)",
-      border: "1.5px solid var(--border-color)",
+      backgroundColor: "var(--neon-soft)",
+      color: "var(--primary-neon)",
+      border: "1.5px solid var(--primary-neon)",
     };
   } else {
     label = "+ Ajouter";
@@ -301,7 +292,7 @@ export function EventCard({ event, onSelectionCycle }: EventCardProps) {
         <SelectionButton
           status={selectionStatus}
           onCycle={() =>
-            onSelectionCycle(event.id, nextStatus(selectionStatus))
+            onSelectionCycle(event.id, nextSelectionStatus(selectionStatus))
           }
         />
       </div>

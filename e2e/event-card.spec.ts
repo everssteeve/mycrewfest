@@ -107,4 +107,50 @@ test.describe("EventCard enriched display", () => {
       expect(btnText).toMatch(/^#/);
     }
   });
+
+  test("selection button cycles through intéressé → must-see → vu → null", async ({ page }) => {
+    const festEventId = await getFirstFestEventId(page);
+    if (!festEventId) {
+      test.skip();
+      return;
+    }
+
+    await page.goto(`/festevent/${festEventId}/programme`);
+    await page.waitForLoadState("networkidle");
+    await page.waitForTimeout(500);
+
+    const articles = page.locator('article[role="article"]');
+    const count = await articles.count();
+    if (count === 0) {
+      test.skip();
+      return;
+    }
+
+    // Find the first "+ Ajouter" button (unselected event)
+    const addBtn = page.getByRole("button", { name: "+ Ajouter" }).first();
+    if (!(await addBtn.isVisible())) {
+      test.skip();
+      return;
+    }
+
+    // Cycle: null → intéressé
+    await addBtn.click();
+    await page.waitForTimeout(200);
+    await expect(page.getByRole("button", { name: /intéressé/i }).first()).toBeVisible();
+
+    // Cycle: intéressé → must-see
+    await page.getByRole("button", { name: /intéressé/i }).first().click();
+    await page.waitForTimeout(200);
+    await expect(page.getByRole("button", { name: /must-see/i }).first()).toBeVisible();
+
+    // Cycle: must-see → vu
+    await page.getByRole("button", { name: /must-see/i }).first().click();
+    await page.waitForTimeout(200);
+    await expect(page.getByRole("button", { name: /vu/i }).first()).toBeVisible();
+
+    // Cycle: vu → null (back to "+ Ajouter")
+    await page.getByRole("button", { name: /vu/i }).first().click();
+    await page.waitForTimeout(200);
+    await expect(page.getByRole("button", { name: "+ Ajouter" }).first()).toBeVisible();
+  });
 });
