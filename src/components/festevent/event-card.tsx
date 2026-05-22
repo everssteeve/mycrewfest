@@ -1,0 +1,275 @@
+"use client";
+
+import { MapPin } from "lucide-react";
+import type { EventWithSelection } from "@/lib/api";
+import type { SelectionStatus } from "@/types";
+
+// Extended type that includes confidence field returned by the programme API
+export interface EventWithSelectionAndConfidence extends EventWithSelection {
+  confidence?: "auto" | "vérifié_humain";
+}
+import { Badge } from "@/components/ui/badge";
+
+// ---------------------------------------------------------------------------
+// Event type colour mapping
+// ---------------------------------------------------------------------------
+
+const EVENT_TYPE_COLORS: Record<
+  string,
+  { label: string; color: string; bg: string }
+> = {
+  concert:      { label: "Concert",      color: "var(--accent-pink)",    bg: "var(--pink-soft)" },
+  spectacle:    { label: "Spectacle",    color: "var(--secondary-cyan)", bg: "var(--cyan-soft)" },
+  atelier:      { label: "Atelier",      color: "var(--primary-neon)",   bg: "var(--neon-soft)" },
+  défilé:       { label: "Défilé",       color: "var(--warning-orange)", bg: "var(--orange-soft)" },
+  cypher:       { label: "Cypher",       color: "var(--accent-pink)",    bg: "var(--pink-soft)" },
+  conférence:   { label: "Conférence",   color: "var(--secondary-cyan)", bg: "var(--cyan-soft)" },
+  installation: { label: "Installation", color: "var(--primary-neon)",   bg: "var(--neon-soft)" },
+  autre:        { label: "Autre",        color: "var(--text-muted)",     bg: "rgba(255,255,255,0.06)" },
+};
+
+// ---------------------------------------------------------------------------
+// Selection button
+// ---------------------------------------------------------------------------
+
+const SELECTION_CYCLE: Array<SelectionStatus | null> = [
+  null,
+  "intéressé",
+  "must-see",
+];
+
+function nextStatus(current: SelectionStatus | null): SelectionStatus | null {
+  const idx = SELECTION_CYCLE.indexOf(current);
+  return SELECTION_CYCLE[(idx + 1) % SELECTION_CYCLE.length] ?? null;
+}
+
+interface SelectionButtonProps {
+  status: SelectionStatus | null;
+  onCycle: () => void;
+}
+
+function SelectionButton({ status, onCycle }: SelectionButtonProps) {
+  let label: string;
+  let style: React.CSSProperties;
+
+  if (status === "must-see") {
+    label = "★ Must-see";
+    style = {
+      backgroundColor: "var(--accent-pink)",
+      color: "white",
+      border: "1.5px solid var(--accent-pink)",
+      boxShadow: "var(--glow-pink)",
+    };
+  } else if (status === "intéressé") {
+    label = "♥ Intéressé";
+    style = {
+      backgroundColor: "var(--orange-soft)",
+      color: "var(--warning-orange)",
+      border: "1.5px solid var(--warning-orange)",
+    };
+  } else if (status === "vu") {
+    label = "✓ Vu";
+    style = {
+      backgroundColor: "rgba(255,255,255,0.06)",
+      color: "var(--text-dim)",
+      border: "1.5px solid var(--border-color)",
+    };
+  } else {
+    label = "+ Ajouter";
+    style = {
+      backgroundColor: "transparent",
+      color: "var(--text-dim)",
+      border: "1.5px solid var(--border-color)",
+    };
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onCycle();
+      }}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        padding: "4px 10px",
+        borderRadius: "var(--radius-full)",
+        fontSize: "var(--fs-xs)",
+        fontFamily: "var(--font-body)",
+        fontWeight: "var(--fw-bold)",
+        textTransform: "uppercase",
+        letterSpacing: "0.06em",
+        cursor: "pointer",
+        transition: "var(--transition-fast)",
+        whiteSpace: "nowrap",
+        flexShrink: 0,
+        ...style,
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+function formatTime(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const h = d.getHours().toString().padStart(2, "0");
+  const m = d.getMinutes().toString().padStart(2, "0");
+  return `${h}h${m}`;
+}
+
+// ---------------------------------------------------------------------------
+// EventCard
+// ---------------------------------------------------------------------------
+
+interface EventCardProps {
+  event: EventWithSelectionAndConfidence;
+  onSelectionCycle: (eventId: string, next: SelectionStatus | null) => void;
+}
+
+export function EventCard({ event, onSelectionCycle }: EventCardProps) {
+  const selectionStatus = event.selection?.status ?? null;
+  const typeConfig = EVENT_TYPE_COLORS[event.eventType] ?? EVENT_TYPE_COLORS.autre;
+
+  const hasTime = Boolean(event.startTime);
+  const timeLabel =
+    hasTime && event.startTime
+      ? event.endTime
+        ? `${formatTime(event.startTime)} – ${formatTime(event.endTime)}`
+        : formatTime(event.startTime)
+      : "Itinérant";
+
+  const isCancelled = event.status === "annulé";
+  const isModified = event.status === "modifié";
+
+  return (
+    <div
+      style={{
+        backgroundColor: "var(--bg-surface)",
+        borderRadius: "var(--radius-md)",
+        border: "1px solid var(--border-color)",
+        padding: "var(--space-md)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-sm)",
+        opacity: isCancelled ? 0.5 : 1,
+        transition: "transform 0.12s ease-in-out",
+        cursor: "default",
+      }}
+      // biome-ignore lint/a11y/useSemanticElements: card is not interactive
+      role="article"
+      aria-label={event.title}
+    >
+      {/* Row 1: time + type chip + badges */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-sm)",
+          flexWrap: "wrap",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-sm)",
+            color: hasTime ? "var(--accent-pink)" : "var(--text-dim)",
+            flexShrink: 0,
+          }}
+        >
+          {timeLabel}
+        </span>
+
+        {/* Type chip */}
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            padding: "2px 8px",
+            borderRadius: "var(--radius-full)",
+            fontSize: "var(--fs-xs)",
+            fontFamily: "var(--font-body)",
+            fontWeight: "var(--fw-bold)",
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            backgroundColor: typeConfig.bg,
+            color: typeConfig.color,
+            border: `1px solid ${typeConfig.color}`,
+            flexShrink: 0,
+          }}
+        >
+          {typeConfig.label}
+        </span>
+
+        {/* IA badge */}
+        {event.confidence === "auto" && (
+          <Badge variant="ai">IA</Badge>
+        )}
+
+        {/* Status badges */}
+        {isCancelled && <Badge variant="critical">Annulé</Badge>}
+        {isModified && <Badge variant="urgent">Modifié</Badge>}
+      </div>
+
+      {/* Row 2: title */}
+      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-sm)" }}>
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+          <span
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-base)",
+              fontWeight: "var(--fw-medium)",
+              color: "var(--text-main)",
+              lineHeight: "var(--lh-snug)",
+            }}
+          >
+            {event.title}
+          </span>
+          {event.artist && (
+            <span
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-sm)",
+                color: "var(--text-muted)",
+              }}
+            >
+              {event.artist.name}
+            </span>
+          )}
+        </div>
+
+        {/* Selection button */}
+        <SelectionButton
+          status={selectionStatus}
+          onCycle={() =>
+            onSelectionCycle(event.id, nextStatus(selectionStatus))
+          }
+        />
+      </div>
+
+      {/* Row 3: venue */}
+      {event.venue && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 4,
+            color: "var(--text-dim)",
+            fontSize: "var(--fs-xs)",
+            fontFamily: "var(--font-body)",
+          }}
+        >
+          <MapPin size={12} aria-hidden="true" />
+          <span>{event.venue.name}</span>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -211,7 +211,13 @@ export default async function FestivalPage({
           className="flex items-center gap-3 pt-2"
           style={{ marginTop: "var(--space-sm)" }}
         >
-          <ParticipateButton festivalId={festival.id} />
+          <ParticipateButton
+                festivalId={festival.id}
+                festivalSlug={festival.slug}
+                festivalName={festival.name}
+                startDate={festival.startDate}
+                endDate={festival.endDate}
+              />
           <FollowButton festivalId={festival.id} />
         </div>
       </div>
