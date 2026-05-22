@@ -1,0 +1,362 @@
+@import "tailwindcss";
+
+/* =============================================================================
+   MyCrewFest — Design Tokens "Electric Camp"
+   Dark mode only, OLED-optimized, outdoor high-contrast
+   ============================================================================= */
+
+:root {
+  /* --------------------------------------------------------------------------
+     COLORS — base palette
+     -------------------------------------------------------------------------- */
+
+  /* Backgrounds */
+  --bg-darker:           #0D0E12;
+  --bg-surface:          #161820;
+  --bg-surface-elevated: #222531;
+  --bg-overlay:          rgba(13, 14, 18, 0.72);
+
+  /* Borders */
+  --border-color:        #2D3142;
+  --border-strong:       #3D4258;
+
+  /* Brand accents */
+  --primary-neon:     #00FF66;
+  --secondary-cyan:   #00E5FF;
+  --accent-pink:      #FF007A;
+  --warning-orange:   #FF9900;
+  --danger-red:       #FF3355;
+
+  /* Soft 14% tints */
+  --neon-soft:    rgba(0, 255, 102, 0.14);
+  --cyan-soft:    rgba(0, 229, 255, 0.14);
+  --pink-soft:    rgba(255, 0, 122, 0.14);
+  --orange-soft:  rgba(255, 153, 0, 0.14);
+
+  /* Text */
+  --text-main:        #FFFFFF;
+  --text-muted:       #8F95B2;
+  --text-dim:         #5A607A;
+  --text-on-neon:     #0D0E12;
+  --text-on-pink:     #FFFFFF;
+
+  /* Semantic aliases */
+  --color-success: var(--primary-neon);
+  --color-warning: var(--warning-orange);
+  --color-danger:  var(--danger-red);
+  --color-info:    var(--secondary-cyan);
+
+  /* --------------------------------------------------------------------------
+     TYPOGRAPHY
+     -------------------------------------------------------------------------- */
+
+  --font-display: 'Archivo Black', 'Impact', 'Helvetica Neue', sans-serif;
+  --font-body:    'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:    'Space Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --fs-xs:   12px;
+  --fs-sm:   14px;
+  --fs-base: 16px;
+  --fs-md:   18px;
+  --fs-lg:   20px;
+  --fs-xl:   24px;
+  --fs-2xl:  32px;
+  --fs-3xl:  44px;
+  --fs-4xl:  64px;
+
+  --lh-tight:  1.05;
+  --lh-snug:   1.2;
+  --lh-base:   1.5;
+
+  --tracking-tight:  -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.05em;
+  --tracking-wider:  0.1em;
+
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-bold:    700;
+  --fw-black:   900;
+
+  /* --------------------------------------------------------------------------
+     SPACING — 4 px grid
+     -------------------------------------------------------------------------- */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* --------------------------------------------------------------------------
+     BORDER RADII
+     -------------------------------------------------------------------------- */
+  --radius-sm:   6px;
+  --radius-md:   12px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-full: 9999px;
+
+  /* --------------------------------------------------------------------------
+     SHADOWS & GLOWS
+     -------------------------------------------------------------------------- */
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md:  0 4px 14px rgba(0,0,0,0.4);
+  --shadow-lg:  0 12px 32px rgba(0,0,0,0.55);
+
+  --glow-neon:   0 0 18px rgba(0, 255, 102, 0.45);
+  --glow-cyan:   0 0 18px rgba(0, 229, 255, 0.45);
+  --glow-pink:   0 0 18px rgba(255, 0, 122, 0.45);
+  --glow-orange: 0 0 18px rgba(255, 153, 0, 0.45);
+
+  /* --------------------------------------------------------------------------
+     MOTION
+     -------------------------------------------------------------------------- */
+  --transition-fast:  all 0.18s ease-in-out;
+  --transition-base:  all 0.28s cubic-bezier(.2,.7,.2,1);
+  --transition-slow:  all 0.45s cubic-bezier(.2,.7,.2,1);
+
+  /* --------------------------------------------------------------------------
+     LAYOUT
+     -------------------------------------------------------------------------- */
+  --nav-height:    72px;
+  --header-height: 56px;
+  --max-content:   480px;
+}
+
+/* =============================================================================
+   TAILWIND v4 THEME EXTENSION
+   ============================================================================= */
+
+@theme inline {
+  /* Colors */
+  --color-bg-darker:           var(--bg-darker);
+  --color-bg-surface:          var(--bg-surface);
+  --color-bg-surface-elevated: var(--bg-surface-elevated);
+  --color-border:              var(--border-color);
+  --color-border-strong:       var(--border-strong);
+  --color-neon:                var(--primary-neon);
+  --color-cyan:                var(--secondary-cyan);
+  --color-pink:                var(--accent-pink);
+  --color-orange:              var(--warning-orange);
+  --color-red:                 var(--danger-red);
+  --color-text-main:           var(--text-main);
+  --color-text-muted:          var(--text-muted);
+  --color-text-dim:            var(--text-dim);
+
+  /* Font families */
+  --font-display: var(--font-display);
+  --font-body:    var(--font-body);
+  --font-mono:    var(--font-mono);
+
+  /* Border radius */
+  --radius-sm:   var(--radius-sm);
+  --radius-md:   var(--radius-md);
+  --radius-lg:   var(--radius-lg);
+  --radius-xl:   var(--radius-xl);
+  --radius-full: var(--radius-full);
+}
+
+/* =============================================================================
+   BASE STYLES
+   ============================================================================= */
+
+html,
+body {
+  background-color: var(--bg-darker);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* =============================================================================
+   SEMANTIC TYPE UTILITIES
+   ============================================================================= */
+
+.t-display,
+.fest-heading {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  line-height: var(--lh-tight);
+}
+
+.t-h1 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--fs-2xl);
+  line-height: var(--lh-tight);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.t-h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--fs-xl);
+  line-height: var(--lh-snug);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.t-h3 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  font-size: var(--fs-lg);
+  line-height: var(--lh-snug);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.t-body {
+  font-family: var(--font-body);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-base);
+  line-height: var(--lh-base);
+}
+
+.t-body-md {
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-md);
+  line-height: var(--lh-base);
+}
+
+.t-meta {
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-snug);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wider);
+  color: var(--text-muted);
+}
+
+.t-caption {
+  font-family: var(--font-body);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-sm);
+  line-height: var(--lh-base);
+  color: var(--text-muted);
+}
+
+.t-mono {
+  font-family: var(--font-mono);
+  font-weight: var(--fw-regular);
+  font-size: var(--fs-base);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-normal);
+}
+
+.t-countdown {
+  font-family: var(--font-mono);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+/* =============================================================================
+   BUTTON BASE UTILITIES
+   ============================================================================= */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: 12px var(--space-md);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-sm);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: var(--transition-fast);
+  user-select: none;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: var(--primary-neon);
+  color: var(--text-on-neon);
+  box-shadow: var(--glow-neon);
+}
+
+.btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn-pink {
+  background: var(--accent-pink);
+  color: #fff;
+  box-shadow: var(--glow-pink);
+}
+
+.btn-pink:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.btn-cyan {
+  background: transparent;
+  color: var(--secondary-cyan);
+  border: 1.5px solid var(--secondary-cyan);
+}
+
+.btn-cyan:hover:not(:disabled) {
+  background: var(--cyan-soft);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-main);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: rgba(255,255,255,0.06);
+}
+
+.btn-sm {
+  padding: 8px 12px;
+  font-size: var(--fs-xs);
+}
+
+.btn-lg {
+  padding: 16px var(--space-lg);
+  font-size: var(--fs-base);
+}
+
+/* =============================================================================
+   SCREEN WRAPPER
+   ============================================================================= */
+
+.screen-wrapper {
+  min-height: 100dvh;
+  padding-top: calc(var(--header-height) + env(safe-area-inset-top, 0px));
+  padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+  background-color: var(--bg-darker);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}

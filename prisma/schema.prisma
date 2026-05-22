@@ -1,0 +1,434 @@
+// Prisma Schema — MyCrewFest
+// Dev: SQLite | Prod: PostgreSQL (swap provider + url in .env)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ---------------------------------------------------------------------------
+// AUTH (Auth.js v5 / NextAuth adapter tables)
+// ---------------------------------------------------------------------------
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ---------------------------------------------------------------------------
+// USER
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  image         String?
+  passwordHash  String?
+
+  // profile
+  pseudo               String?
+  preferredDisciplines String? // JSON array serialized
+  photo                String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  accounts           Account[]
+  sessions           Session[]
+  festEvents         FestEvent[]
+  followedFestivals  UserFollowsFestival[]
+  crewMemberships    CrewMember[]
+  souvenirs          Souvenir[]
+  signals            Signal[]
+  submissions        FestivalSubmission[]
+  checklistItems     ChecklistItem[]
+}
+
+// ---------------------------------------------------------------------------
+// FESTIVAL (managed by SYS-01 agents, not user-created)
+// ---------------------------------------------------------------------------
+
+model Festival {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+
+  // location
+  city        String
+  country     String
+  latitude    Float?
+  longitude   Float?
+  address     String?
+
+  // classification
+  festivalType   String  @default("multidisciplinaire") // musique|theatre_rue|cirque|world|multidisciplinaire|autre
+  programType    String  @default("structuré")          // structuré|déambulatoire|hybride
+  capacity       Int?
+
+  // metadata from agents
+  siteUrl         String?
+  instagramHandle String?
+  facebookPage    String?
+  xHandle         String?
+  ingestionStatus String  @default("détecté") // détecté|vérifié|enrichi
+  confidenceLevel String  @default("auto")    // auto|vérifié_humain
+  programStatus   String  @default("bientôt_disponible") // complet|partiel|bientôt_disponible
+
+  // map / plan
+  mapImageUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // relations
+  events     Event[]
+  venues     Venue[]
+  newsItems  NewsItem[]
+  festEvents FestEvent[]
+  followers  UserFollowsFestival[]
+  submissions FestivalSubmission[]
+  signals    Signal[]
+}
+
+model UserFollowsFestival {
+  userId     String
+  festivalId String
+  createdAt  DateTime @default(now())
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  festival Festival @relation(fields: [festivalId], references: [id], onDelete: Cascade)
+
+  @@id([userId, festivalId])
+}
+
+// ---------------------------------------------------------------------------
+// VENUE (lieux/scènes dans un festival)
+// ---------------------------------------------------------------------------
+
+model Venue {
+  id         String   @id @default(cuid())
+  festivalId String
+  name       String
+  type       String   @default("scène") // scène|espace|rue|salle|plein_air
+  latitude   Float?
+  longitude  Float?
+  capacity   Int?
+
+  festival Festival @relation(fields: [festivalId], references: [id], onDelete: Cascade)
+  events   Event[]
+  signals  Signal[]
+}
+
+// ---------------------------------------------------------------------------
+// ARTIST / COMPAGNIE
+// ---------------------------------------------------------------------------
+
+model Artist {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  disciplines String?  // JSON array
+  countryCode String?
+  siteUrl     String?
+  instagram   String?
+  spotifyId   String?
+  musicBrainzId String?
+  instruments String?  // JSON array
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  events Event[]
+}
+
+// ---------------------------------------------------------------------------
+// EVENT (programme)
+// ---------------------------------------------------------------------------
+
+model Event {
+  id         String   @id @default(cuid())
+  festivalId String
+  venueId    String?
+  artistId   String?
+
+  title        String
+  eventType    String  @default("concert") // concert|spectacle|atelier|défilé|cypher|conférence|installation|autre
+  startTime    DateTime?
+  endTime      DateTime?
+  durationMins Int?
+  ageMin       Int?
+  ageMax       Int?
+  access       String  @default("inclus") // inclus|réservation_séparée
+  status       String  @default("confirmé") // confirmé|annulé|modifié
+  confidence   String  @default("auto")    // auto|vérifié_humain
+  tags         String? // JSON array
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  festival   Festival    @relation(fields: [festivalId], references: [id], onDelete: Cascade)
+  venue      Venue?      @relation(fields: [venueId], references: [id])
+  artist     Artist?     @relation(fields: [artistId], references: [id])
+  selections Selection[]
+  souvenirs  Souvenir[]
+  signals    Signal[]
+}
+
+// ---------------------------------------------------------------------------
+// NEWS ITEM (generated by Agent 3)
+// ---------------------------------------------------------------------------
+
+model NewsItem {
+  id         String   @id @default(cuid())
+  festivalId String
+
+  source          String  // instagram|facebook|x|site_officiel
+  sourceUrl       String?
+  publishedAt     DateTime
+  category        String  @default("autre") // line-up|logistique|programme-change|annulation|urgence|autre
+  summary         String
+  entitiesMentioned String? // JSON array
+  urgencyLevel    String  @default("normal") // normal|critique
+  isPinned        Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  festival Festival @relation(fields: [festivalId], references: [id], onDelete: Cascade)
+}
+
+// ---------------------------------------------------------------------------
+// FEST EVENT (user participation instance)
+// ---------------------------------------------------------------------------
+
+model FestEvent {
+  id         String   @id @default(cuid())
+  userId     String
+  festivalId String
+
+  mode                  String  @default("solo") // solo|crew
+  programTypeOverride   String? // structuré|déambulatoire|hybride — overrides festival default
+  presenceDates         String? // JSON array of date strings
+  arrivalConstraint     DateTime?
+  departureConstraint   DateTime?
+  comfortMarginMins     Int     @default(15)
+  shareToken            String? @unique // for public read-only sharing
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  festival   Festival    @relation(fields: [festivalId], references: [id])
+  crew       Crew?       @relation(fields: [crewId], references: [id])
+  crewId     String?
+  selections Selection[]
+  souvenirs  Souvenir[]
+  checklistItems ChecklistItem[]
+}
+
+// ---------------------------------------------------------------------------
+// SELECTION (user's programme picks)
+// ---------------------------------------------------------------------------
+
+model Selection {
+  id          String   @id @default(cuid())
+  festEventId String
+  eventId     String
+
+  status      String  @default("intéressé") // intéressé|must-see|vu
+  dismissedRecoTypes String? // JSON array of dismissed recommendation types
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  festEvent FestEvent @relation(fields: [festEventId], references: [id], onDelete: Cascade)
+  event     Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([festEventId, eventId])
+}
+
+// ---------------------------------------------------------------------------
+// CREW
+// ---------------------------------------------------------------------------
+
+model Crew {
+  id          String   @id @default(cuid())
+  name        String?
+  inviteCode  String   @unique @default(cuid())
+
+  // rally point
+  rallyLatitude   Float?
+  rallyLongitude  Float?
+  rallyDescription String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members    CrewMember[]
+  festEvents FestEvent[]
+  signals    Signal[]
+}
+
+model CrewMember {
+  id      String   @id @default(cuid())
+  crewId  String
+  userId  String
+  role    String  @default("membre") // admin|membre
+  geolocStatus String @default("off") // off|active|background
+  isPrivate Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  crew Crew @relation(fields: [crewId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([crewId, userId])
+}
+
+// ---------------------------------------------------------------------------
+// SIGNAL (F10-A crew discovery + F10-B community Waze-style)
+// ---------------------------------------------------------------------------
+
+model Signal {
+  id         String   @id @default(cuid())
+  authorId   String
+  scope      String  // crew|communauté
+  crewId     String?
+  festivalId String?
+  venueId    String?
+  eventId    String?
+
+  latitude   Float
+  longitude  Float
+
+  // F10-A (discovery, crew-only)
+  description   String?
+  discoveryType String? // cypher|happening|performance_rue|autre
+
+  // F10-B (situation, Waze-style)
+  predefinedPhrase String?
+
+  confirmations Int @default(0)
+  infirmations  Int @default(0)
+
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  crew     Crew?     @relation(fields: [crewId], references: [id])
+  festival Festival? @relation(fields: [festivalId], references: [id])
+  venue    Venue?    @relation(fields: [venueId], references: [id])
+  event    Event?    @relation(fields: [eventId], references: [id])
+}
+
+// ---------------------------------------------------------------------------
+// SOUVENIR
+// ---------------------------------------------------------------------------
+
+model Souvenir {
+  id          String   @id @default(cuid())
+  userId      String
+  festEventId String
+  eventId     String?
+
+  freeText   String?
+  note       String?
+  photos     String?  // JSON array of Media URLs
+  timestamp  DateTime @default(now())
+  shareWithCrew Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  festEvent FestEvent @relation(fields: [festEventId], references: [id], onDelete: Cascade)
+  event     Event?    @relation(fields: [eventId], references: [id])
+}
+
+// ---------------------------------------------------------------------------
+// CHECKLIST
+// ---------------------------------------------------------------------------
+
+model ChecklistTemplate {
+  id       String   @id @default(cuid())
+  name     String
+  category String  @default("custom") // camping|day_trip|urban|family|custom
+  items    String  // JSON array of default item labels
+
+  createdAt DateTime @default(now())
+}
+
+model ChecklistItem {
+  id          String   @id @default(cuid())
+  festEventId String
+  userId      String?  // assignee
+  label       String
+  done        Boolean @default(false)
+  cost        Float?
+  assigneeName String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  festEvent FestEvent @relation(fields: [festEventId], references: [id], onDelete: Cascade)
+  assignee  User?     @relation(fields: [userId], references: [id])
+}
+
+// ---------------------------------------------------------------------------
+// FESTIVAL SUBMISSION (user-submitted missing festivals)
+// ---------------------------------------------------------------------------
+
+model FestivalSubmission {
+  id        String   @id @default(cuid())
+  authorId  String
+  festivalId String?
+
+  nameProposed String
+  officialUrl  String
+  status       String  @default("en_attente") // en_attente|en_traitement|ajouté|rejeté
+
+  submittedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  festival  Festival? @relation(fields: [festivalId], references: [id])
+}

@@ -1,0 +1,167 @@
+/* =============================================================================
+   MyCrewFest — Design Tokens
+   Theme: "Electric Camp" — high-contrast dark UI for outdoor/festival use.
+   Source: UI Kit HTML (extracted 2026-05-22)
+   ============================================================================= */
+
+/* Webfonts — load from Google Fonts in production:
+   https://fonts.google.com/specimen/Archivo+Black
+   https://fonts.google.com/specimen/Space+Grotesk
+   https://fonts.google.com/specimen/Space+Mono
+*/
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  /* ==========================================================================
+     COLORS — base palette
+     ========================================================================== */
+
+  /* Backgrounds — dark / OLED-friendly */
+  --bg-darker:           #0D0E12;   /* app background, deepest layer */
+  --bg-surface:          #161820;   /* cards, rows */
+  --bg-surface-elevated: #222531;   /* modals, toasts, elevated sheets */
+  --bg-overlay:          rgba(13, 14, 18, 0.72); /* scrim behind bottom sheets */
+
+  /* Borders */
+  --border-color:        #2D3142;
+  --border-strong:       #3D4258;
+
+  /* Brand accents — each color has a dedicated semantic role */
+  --primary-neon:     #00FF66;   /* Vert Électrique — primary CTAs, success, own messages */
+  --secondary-cyan:   #00E5FF;   /* Cyan Flash — Crew / position / friends */
+  --accent-pink:      #FF007A;   /* Rose Line-up — concerts, favourites, schedule alerts */
+  --warning-orange:   #FF9900;   /* Orange Alerte — clashes, low battery, warnings */
+  --danger-red:       #FF3355;   /* SOS, errors, cancellations */
+
+  /* Soft 14% tints — use as chip/tag backgrounds */
+  --neon-soft:    rgba(0, 255, 102, 0.14);
+  --cyan-soft:    rgba(0, 229, 255, 0.14);
+  --pink-soft:    rgba(255, 0, 122, 0.14);
+  --orange-soft:  rgba(255, 153, 0, 0.14);
+
+  /* Text */
+  --text-main:        #FFFFFF;
+  --text-muted:       #8F95B2;
+  --text-dim:         #5A607A;
+  --text-on-neon:     #0D0E12;  /* text on neon-green backgrounds */
+  --text-on-pink:     #FFFFFF;
+
+  /* Semantic aliases */
+  --color-success: var(--primary-neon);
+  --color-warning: var(--warning-orange);
+  --color-danger:  var(--danger-red);
+  --color-info:    var(--secondary-cyan);
+
+  /* ==========================================================================
+     TYPOGRAPHY
+     ========================================================================== */
+
+  /* Font families */
+  --font-display: 'Archivo Black', 'Impact', 'Helvetica Neue', sans-serif;
+  --font-body:    'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono:    'Space Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Type scale — mobile-first */
+  --fs-xs:   12px;   /* meta labels, captions */
+  --fs-sm:   14px;   /* secondary copy */
+  --fs-base: 16px;   /* body text */
+  --fs-md:   18px;   /* emphasised body */
+  --fs-lg:   20px;   /* h3, section titles */
+  --fs-xl:   24px;   /* h2 */
+  --fs-2xl:  32px;   /* h1 */
+  --fs-3xl:  44px;   /* hero countdowns, festival name */
+  --fs-4xl:  64px;   /* splash / poster / lock screen */
+
+  /* Line heights */
+  --lh-tight:  1.05;
+  --lh-snug:   1.2;
+  --lh-base:   1.5;
+
+  /* Letter-spacing */
+  --tracking-tight:  -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.05em;   /* display headings */
+  --tracking-wider:  0.1em;    /* uppercase meta labels */
+
+  /* Font weights */
+  --fw-regular: 400;
+  --fw-medium:  500;
+  --fw-bold:    700;
+  --fw-black:   900;
+
+  /* ==========================================================================
+     SPACING — 4 px grid
+     ========================================================================== */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  16px;
+  --space-lg:  24px;
+  --space-xl:  32px;
+  --space-2xl: 48px;
+  --space-3xl: 64px;
+
+  /* ==========================================================================
+     BORDER RADII
+     ========================================================================== */
+  --radius-sm:   6px;
+  --radius-md:   12px;   /* cards, inputs, buttons */
+  --radius-lg:   20px;   /* sheets, large cards */
+  --radius-xl:   28px;   /* bottom sheets */
+  --radius-full: 9999px; /* pills, avatars, chips */
+
+  /* ==========================================================================
+     SHADOWS & GLOWS — neon glow is the brand signature
+     ========================================================================== */
+  --shadow-sm:  0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md:  0 4px 14px rgba(0,0,0,0.4);
+  --shadow-lg:  0 12px 32px rgba(0,0,0,0.55);
+
+  --glow-neon:   0 0 18px rgba(0, 255, 102, 0.45);
+  --glow-cyan:   0 0 18px rgba(0, 229, 255, 0.45);
+  --glow-pink:   0 0 18px rgba(255, 0, 122, 0.45);
+  --glow-orange: 0 0 18px rgba(255, 153, 0, 0.45);
+
+  /* ==========================================================================
+     MOTION
+     ========================================================================== */
+  --transition-fast:  all 0.18s ease-in-out;
+  --transition-base:  all 0.28s cubic-bezier(.2,.7,.2,1);
+  --transition-slow:  all 0.45s cubic-bezier(.2,.7,.2,1);
+
+  /* ==========================================================================
+     LAYOUT — mobile-first phone app
+     ========================================================================== */
+  --nav-height:    72px;   /* bottom tab bar (incl. safe area padding) */
+  --header-height: 56px;   /* top header */
+  --max-content:   480px;  /* max-width for phone UI */
+}
+
+/* =============================================================================
+   SEMANTIC TYPE UTILITIES
+   ============================================================================= */
+
+/* Display / headlines — Archivo Black, uppercase */
+.t-display,
+.fest-heading {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  line-height: var(--lh-tight);
+}
+
+.t-h1 { font: var(--fw-black) var(--fs-2xl)/var(--lh-tight) var(--font-display); text-transform: uppercase; letter-spacing: var(--tracking-wide); }
+.t-h2 { font: var(--fw-black) var(--fs-xl)/var(--lh-snug)   var(--font-display); text-transform: uppercase; letter-spacing: var(--tracking-wide); }
+.t-h3 { font: var(--fw-black) var(--fs-lg)/var(--lh-snug)   var(--font-display); text-transform: uppercase; letter-spacing: var(--tracking-wide); }
+
+/* Body — Space Grotesk */
+.t-body     { font: var(--fw-regular) var(--fs-base)/var(--lh-base) var(--font-body); }
+.t-body-md  { font: var(--fw-medium)  var(--fs-md)/var(--lh-base)   var(--font-body); }
+
+/* Meta / captions */
+.t-meta     { font: var(--fw-bold) var(--fs-xs)/var(--lh-snug) var(--font-body); text-transform: uppercase; letter-spacing: var(--tracking-wider); color: var(--text-muted); }
+.t-caption  { font: var(--fw-medium) var(--fs-sm)/var(--lh-base)  var(--font-body); color: var(--text-muted); }
+
+/* Mono — set times, countdowns, codes */
+.t-mono      { font: var(--fw-regular) var(--fs-base)/var(--lh-snug) var(--font-mono); letter-spacing: var(--tracking-normal); }
+.t-countdown { font: var(--fw-bold) var(--fs-xl)/var(--lh-tight)     var(--font-mono); letter-spacing: var(--tracking-tight); }
