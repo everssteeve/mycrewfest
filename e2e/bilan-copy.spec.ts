@@ -1,0 +1,110 @@
+/**
+ * E2E tests for the "Copier le bilan" button on the post-festival bilan page.
+ *
+ * Requires: dev server + seed data with at least one FestEvent.
+ */
+
+import { test, expect } from "@playwright/test";
+
+async function login(page: import("@playwright/test").Page) {
+  await page.goto("/login");
+  await page.fill('input[type="email"]', "test@mycrewfest.dev");
+  await page.fill('input[type="password"]', "password123");
+  await page.click('button[type="submit"]');
+  await page.waitForURL("/catalogue", { timeout: 10_000 });
+}
+
+async function getFirstFestEventId(
+  page: import("@playwright/test").Page,
+): Promise<string | null> {
+  const res = await page.request.get("/api/festevents");
+  if (!res.ok()) return null;
+  const data: { id: string }[] = await res.json();
+  return Array.isArray(data) && data.length > 0 ? data[0].id : null;
+}
+
+test.describe("Bilan — copy button", () => {
+  test.beforeEach(async ({ page }) => {
+    await login(page);
+  });
+
+  test("copy button is visible on bilan page", async ({ page }) => {
+    const festEventId = await getFirstFestEventId(page);
+    if (!festEventId) {
+      test.skip();
+      return;
+    }
+
+    await page.goto(`/festevent/${festEventId}/bilan`);
+    await page.waitForLoadState("networkidle");
+
+    const copyBtn = page.getByTestId("copy-bilan-btn");
+    await expect(copyBtn).toBeVisible({ timeout: 5_000 });
+  });
+
+  test("copy button shows festival name and bilan heading", async ({ page }) => {
+    const festEventId = await getFirstFestEventId(page);
+    if (!festEventId) {
+      test.skip();
+      return;
+    }
+
+    await page.goto(`/festevent/${festEventId}/bilan`);
+    await page.waitForLoadState("networkidle");
+
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("bilan", {
+      ignoreCase: true,
+      timeout: 5_000,
+    });
+  });
+
+  test("copy button changes state after click", async ({ page, context }) => {
+    const festEventId = await getFirstFestEventId(page);
+    if (!festEventId) {
+      test.skip();
+      return;
+    }
+
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.goto(`/festevent/${festEventId}/bilan`);
+    await page.waitForLoadState("networkidle");
+
+    const copyBtn = page.getByTestId("copy-bilan-btn");
+    if (!(await copyBtn.isVisible())) {
+      test.skip();
+      return;
+    }
+
+    await copyBtn.click();
+
+    // Button should show "Copié !" feedback
+    await expect(copyBtn).toHaveAttribute("aria-label", "Bilan copié", { timeout: 2_000 });
+    await expect(copyBtn).toContainText("Copié", { timeout: 2_000 });
+  });
+
+  test("copy button reverts to original state after 2s", async ({ page, context }) => {
+    const festEventId = await getFirstFestEventId(page);
+    if (!festEventId) {
+      test.skip();
+      return;
+    }
+
+    await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+    await page.goto(`/festevent/${festEventId}/bilan`);
+    await page.waitForLoadState("networkidle");
+
+    const copyBtn = page.getByTestId("copy-bilan-btn");
+    if (!(await copyBtn.isVisible())) {
+      test.skip();
+      return;
+    }
+
+    await copyBtn.click();
+    await expect(copyBtn).toContainText("Copié", { timeout: 2_000 });
+
+    // Wait for reset
+    await page.waitForTimeout(2_200);
+    await expect(copyBtn).toHaveAttribute("aria-label", "Copier le bilan");
+    await expect(copyBtn).toContainText("Copier");
+  });
+});

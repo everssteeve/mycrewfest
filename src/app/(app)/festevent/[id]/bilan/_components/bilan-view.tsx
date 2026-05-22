@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
-import { MapPin, Eye, Clock, Star } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { MapPin, Eye, Clock, Star, Copy, Check } from "lucide-react";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
 import { computeBilan, formatBilanDuration } from "@/lib/bilan";
+import { generateBilanText } from "@/lib/bilan-text";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -178,6 +179,22 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
   }, [initialEvents, selections]);
 
   const stats = useMemo(() => computeBilan(events), [events]);
+  const [copied, setCopied] = useState(false);
+
+  const copyBilan = useCallback(async () => {
+    const text = generateBilanText(
+      events.map((e) => ({
+        title: e.title,
+        durationMins: e.durationMins ?? null,
+        selection: e.selection,
+        venue: e.venue ? { name: e.venue.name } : null,
+      })),
+      festivalName,
+    );
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [events, festivalName]);
 
   const seenEvents = useMemo(
     () => events.filter((e) => e.selection?.status === "vu"),
@@ -200,29 +217,56 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
       }}
     >
       {/* Header */}
-      <div>
-        <p
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "var(--space-sm)" }}>
+        <div>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-dim)",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              margin: 0,
+            }}
+          >
+            {festivalName}
+          </p>
+          <h1
+            className="t-h2"
+            style={{
+              margin: "4px 0 0",
+              color: "var(--text-main)",
+              fontSize: "var(--fs-xl)",
+            }}
+          >
+            Ton bilan
+          </h1>
+        </div>
+        <button
+          type="button"
+          onClick={copyBilan}
+          data-testid="copy-bilan-btn"
+          aria-label={copied ? "Bilan copié" : "Copier le bilan"}
           style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            padding: "6px 12px",
+            borderRadius: "var(--radius-md)",
+            border: `1px solid ${copied ? "var(--primary-neon)" : "var(--border-color)"}`,
+            backgroundColor: copied ? "var(--neon-soft)" : "var(--bg-surface)",
+            color: copied ? "var(--primary-neon)" : "var(--text-dim)",
             fontFamily: "var(--font-body)",
             fontSize: "var(--fs-xs)",
-            color: "var(--text-dim)",
-            textTransform: "uppercase",
-            letterSpacing: "0.08em",
-            margin: 0,
+            fontWeight: "var(--fw-medium)",
+            cursor: "pointer",
+            transition: "border-color 0.2s, color 0.2s, background-color 0.2s",
+            flexShrink: 0,
           }}
         >
-          {festivalName}
-        </p>
-        <h1
-          className="t-h2"
-          style={{
-            margin: "4px 0 0",
-            color: "var(--text-main)",
-            fontSize: "var(--fs-xl)",
-          }}
-        >
-          Ton bilan
-        </h1>
+          {copied ? <Check size={13} aria-hidden="true" /> : <Copy size={13} aria-hidden="true" />}
+          {copied ? "Copié !" : "Copier"}
+        </button>
       </div>
 
       {/* Stats grid */}
