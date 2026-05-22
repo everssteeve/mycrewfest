@@ -3,11 +3,12 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ChevronDown, CalendarArrowDown } from "lucide-react";
+import { ChevronDown, CalendarArrowDown, Copy, Check } from "lucide-react";
 import { detectConflicts, filterEventsByDay, sortEventsByTime } from "@/lib/planning";
 import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 import { toggleVuStatus } from "@/lib/selection";
+import { generatePlanningText } from "@/lib/planning-text";
 import type { EventSummary, ConflictInfo, ConflictLevel } from "@/types";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import type { SelectionStatus } from "@/types";
@@ -302,12 +303,14 @@ interface PlanningViewProps {
   festEventId: string;
   presenceDates: string[];
   initialEvents: EventWithSelectionAndConfidence[];
+  festivalName: string;
 }
 
 export function PlanningView({
   festEventId,
   presenceDates,
   initialEvents,
+  festivalName,
 }: PlanningViewProps) {
   const { selections, updateSelection } = useSelections(festEventId);
   const comfortMarginMins = useFestEventStore((s) => s.comfortMarginMins);
@@ -320,6 +323,7 @@ export function PlanningView({
   );
 
   const [activeDay, setActiveDay] = useState<string>(presenceDates[0] ?? "");
+  const [copied, setCopied] = useState(false);
   const now = new Date();
 
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -398,6 +402,27 @@ export function PlanningView({
     }
     return Math.round(mins / 60);
   }, [dayEvents]);
+
+  // Copy planning as text to clipboard
+  const copyPlanning = useCallback(async () => {
+    const planningEvents = events
+      .filter(
+        (e) =>
+          e.selection?.status === "must-see" ||
+          e.selection?.status === "intéressé" ||
+          e.selection?.status === "vu",
+      )
+      .map((e) => ({
+        title: e.title,
+        startTime: e.startTime ?? null,
+        endTime: e.endTime ?? null,
+        venue: e.venue ? { name: e.venue.name } : null,
+      }));
+    const text = generatePlanningText(planningEvents, festivalName);
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [events, festivalName]);
 
   // Find next event card element and scroll to it
   const scrollToNext = useCallback(() => {
@@ -507,6 +532,38 @@ export function PlanningView({
           <CalendarArrowDown size={12} aria-hidden="true" />
           .ics
         </a>
+        <button
+          type="button"
+          onClick={copyPlanning}
+          aria-label="Copier mon planning"
+          data-testid="copy-planning-btn"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            padding: "4px 10px",
+            borderRadius: "var(--radius-md)",
+            border: copied
+              ? "1px solid var(--primary-neon)"
+              : "1px solid var(--border-color)",
+            backgroundColor: copied ? "var(--neon-soft)" : "transparent",
+            color: copied ? "var(--primary-neon)" : "var(--text-muted)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-xs, 11px)",
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            cursor: "pointer",
+            transition: "var(--transition-fast)",
+          }}
+        >
+          {copied ? (
+            <Check size={12} aria-hidden="true" />
+          ) : (
+            <Copy size={12} aria-hidden="true" />
+          )}
+          {copied ? "Copié !" : "Copier"}
+        </button>
       </div>
 
       {/* Comfort margin selector */}
