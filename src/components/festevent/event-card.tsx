@@ -1,8 +1,9 @@
 "use client";
 
-import { MapPin } from "lucide-react";
+import { MapPin, Clock, Ticket } from "lucide-react";
 import type { EventWithSelection } from "@/lib/api";
 import type { SelectionStatus } from "@/types";
+import { formatEventDuration, getAccessLabel } from "@/lib/event-format";
 
 // Extended type that includes confidence field returned by the programme API
 export interface EventWithSelectionAndConfidence extends EventWithSelection {
@@ -149,6 +150,12 @@ export function EventCard({ event, onSelectionCycle }: EventCardProps) {
   const isCancelled = event.status === "annulé";
   const isModified = event.status === "modifié";
 
+  const durationLabel =
+    !event.endTime && event.durationMins
+      ? formatEventDuration(event.durationMins)
+      : null;
+  const accessLabel = getAccessLabel(event.access as "inclus" | "réservation_séparée");
+
   return (
     <div
       style={{
@@ -216,6 +223,51 @@ export function EventCard({ event, onSelectionCycle }: EventCardProps) {
         {/* Status badges */}
         {isCancelled && <Badge variant="critical">Annulé</Badge>}
         {isModified && <Badge variant="urgent">Modifié</Badge>}
+
+        {/* Duration when endTime is not set */}
+        {durationLabel && (
+          <span
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 3,
+              fontSize: "var(--fs-xs)",
+              fontFamily: "var(--font-mono)",
+              color: "var(--text-dim)",
+              flexShrink: 0,
+            }}
+          >
+            <Clock size={10} aria-hidden="true" />
+            {durationLabel}
+          </span>
+        )}
+
+        {/* Access type badge */}
+        {accessLabel && (
+          <span
+            aria-label="Réservation séparée requise"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 3,
+              padding: "2px 7px",
+              borderRadius: "var(--radius-full)",
+              fontSize: "var(--fs-xs)",
+              fontFamily: "var(--font-body)",
+              fontWeight: "var(--fw-bold)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              backgroundColor: "var(--orange-soft)",
+              color: "var(--warning-orange)",
+              border: "1px solid rgba(255,153,0,0.35)",
+              flexShrink: 0,
+            }}
+          >
+            <Ticket size={9} aria-hidden="true" />
+            {accessLabel}
+          </span>
+        )}
+
       </div>
 
       {/* Row 2: title */}
