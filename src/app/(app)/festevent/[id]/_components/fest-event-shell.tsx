@@ -66,6 +66,10 @@ export function FestEventShell({
   const during = isFestivalDuring(festival.startDate, festival.endDate);
   const past = isFestivalPast(festival.endDate);
 
+  if (past) {
+    tabs.push({ label: "Bilan", href: `${base}/bilan` });
+  }
+
   return (
     <>
       {/* Fixed header */}
