@@ -3,8 +3,6 @@ import { PrismaLibSql } from "@prisma/adapter-libsql";
 
 function createPrismaClient() {
   const url = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
-
-  // PrismaLibSql is a factory — pass the config directly (Prisma v7 driver adapter)
   const adapter = new PrismaLibSql({ url });
 
   return new PrismaClient({
