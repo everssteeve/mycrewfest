@@ -16,3 +16,21 @@ export function matchesProgrammeQuery<T extends SearchableEvent>(
     (event.venue?.name.toLowerCase().includes(q) ?? false)
   );
 }
+
+export type SelectionFilter = "tous" | "sélectionné" | "must-see" | "intéressé";
+
+export interface SelectionFilterable {
+  selectionStatus?: string | null;
+}
+
+export function matchesSelectionFilter<T extends SelectionFilterable>(
+  event: T,
+  filter: SelectionFilter
+): boolean {
+  if (filter === "tous") return true;
+  const s = event.selectionStatus;
+  if (filter === "sélectionné") {
+    return s === "must-see" || s === "intéressé" || s === "vu";
+  }
+  return s === filter;
+}

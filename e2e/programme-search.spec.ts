@@ -81,6 +81,27 @@ test.describe("Programme search bar", () => {
     expect(afterCount).toBeLessThanOrEqual(initialCount);
   });
 
+  test("selection filter chips are visible", async ({ page }) => {
+    const festEventId = await getFirstFestEventId(page);
+    if (!festEventId) {
+      test.skip();
+      return;
+    }
+
+    await page.goto(`/festevent/${festEventId}/programme`);
+    await page.waitForLoadState("networkidle");
+
+    const allChip = page.getByRole("button", { name: /^tous$/i }).first();
+    if (!(await allChip.isVisible())) {
+      test.skip();
+      return;
+    }
+
+    await expect(page.getByRole("button", { name: /sélectionnés/i })).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByRole("button", { name: /must-see/i })).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByRole("button", { name: /intéressé/i })).toBeVisible({ timeout: 5_000 });
+  });
+
   test("clear button removes search query", async ({ page }) => {
     const festEventId = await getFirstFestEventId(page);
     if (!festEventId) {

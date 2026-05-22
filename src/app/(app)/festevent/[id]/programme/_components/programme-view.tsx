@@ -9,7 +9,7 @@ import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 import type { SelectionStatus } from "@/types";
 import type { EventType } from "@/lib/api";
-import { matchesProgrammeQuery } from "@/lib/programme-search";
+import { matchesProgrammeQuery, matchesSelectionFilter, type SelectionFilter } from "@/lib/programme-search";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -73,6 +73,7 @@ export function ProgrammeView({
   const [activeDay, setActiveDay] = useState<string>(presenceDates[0] ?? "");
   const [activeTypes, setActiveTypes] = useState<Set<EventType>>(new Set());
   const [accessFilter, setAccessFilter] = useState<AccessFilter>("tous");
+  const [selectionFilter, setSelectionFilter] = useState<SelectionFilter>("tous");
   const [searchQuery, setSearchQuery] = useState("");
 
   const toggleType = useCallback((t: EventType) => {
@@ -118,12 +119,17 @@ export function ProgrammeView({
         return false;
       }
 
+      // Selection filter
+      if (!matchesSelectionFilter({ selectionStatus: e.selection?.status ?? null }, selectionFilter)) {
+        return false;
+      }
+
       // Text search
       if (!matchesProgrammeQuery(e, searchQuery)) return false;
 
       return true;
     });
-  }, [events, activeDay, activeTypes, accessFilter, searchQuery]);
+  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, searchQuery]);
 
   const handleSelectionCycle = useCallback(
     (eventId: string, next: SelectionStatus | null) => {
@@ -337,6 +343,51 @@ export function ProgrammeView({
             {a === "tous" ? "Tous" : a === "inclus" ? "Inclus" : "Réservation"}
           </button>
         ))}
+      </div>
+
+      {/* Selection filter chips */}
+      <div
+        style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap" }}
+        role="group"
+        aria-label="Filtrer par sélection"
+      >
+        {(
+          [
+            { key: "tous" as SelectionFilter, label: "Tous" },
+            { key: "sélectionné" as SelectionFilter, label: "Sélectionnés" },
+            { key: "must-see" as SelectionFilter, label: "★ Must-see" },
+            { key: "intéressé" as SelectionFilter, label: "Intéressé" },
+          ] as const
+        ).map(({ key, label }) => {
+          const isActive = selectionFilter === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setSelectionFilter(key)}
+              aria-pressed={isActive}
+              style={{
+                padding: "4px 12px",
+                borderRadius: "var(--radius-full)",
+                border: isActive
+                  ? "1.5px solid var(--primary-neon)"
+                  : "1.5px solid var(--border-color)",
+                backgroundColor: isActive ? "var(--neon-soft)" : "transparent",
+                color: isActive ? "var(--primary-neon)" : "var(--text-dim)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                fontWeight: "var(--fw-bold)",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                transition: "var(--transition-fast)",
+              }}
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Events list */}

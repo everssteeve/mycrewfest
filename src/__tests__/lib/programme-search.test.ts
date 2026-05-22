@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest";
-import { matchesProgrammeQuery, type SearchableEvent } from "@/lib/programme-search";
+import {
+  matchesProgrammeQuery,
+  matchesSelectionFilter,
+  type SearchableEvent,
+  type SelectionFilterable,
+} from "@/lib/programme-search";
 
 const BASE: SearchableEvent = {
   title: "Main Stage Concert",
@@ -65,5 +70,42 @@ describe("matchesProgrammeQuery", () => {
 
   it("trims leading/trailing whitespace from query", () => {
     expect(matchesProgrammeQuery(BASE, "  massive  ")).toBe(true);
+  });
+});
+
+describe("matchesSelectionFilter", () => {
+  const e = (status: string | null | undefined): SelectionFilterable => ({
+    selectionStatus: status,
+  });
+
+  it("'tous' always returns true", () => {
+    expect(matchesSelectionFilter(e(null), "tous")).toBe(true);
+    expect(matchesSelectionFilter(e("must-see"), "tous")).toBe(true);
+    expect(matchesSelectionFilter(e("intéressé"), "tous")).toBe(true);
+    expect(matchesSelectionFilter(e(undefined), "tous")).toBe(true);
+  });
+
+  it("'sélectionné' matches must-see, intéressé and vu", () => {
+    expect(matchesSelectionFilter(e("must-see"), "sélectionné")).toBe(true);
+    expect(matchesSelectionFilter(e("intéressé"), "sélectionné")).toBe(true);
+    expect(matchesSelectionFilter(e("vu"), "sélectionné")).toBe(true);
+  });
+
+  it("'sélectionné' rejects null/undefined", () => {
+    expect(matchesSelectionFilter(e(null), "sélectionné")).toBe(false);
+    expect(matchesSelectionFilter(e(undefined), "sélectionné")).toBe(false);
+  });
+
+  it("'must-see' matches only must-see", () => {
+    expect(matchesSelectionFilter(e("must-see"), "must-see")).toBe(true);
+    expect(matchesSelectionFilter(e("intéressé"), "must-see")).toBe(false);
+    expect(matchesSelectionFilter(e("vu"), "must-see")).toBe(false);
+    expect(matchesSelectionFilter(e(null), "must-see")).toBe(false);
+  });
+
+  it("'intéressé' matches only intéressé", () => {
+    expect(matchesSelectionFilter(e("intéressé"), "intéressé")).toBe(true);
+    expect(matchesSelectionFilter(e("must-see"), "intéressé")).toBe(false);
+    expect(matchesSelectionFilter(e(null), "intéressé")).toBe(false);
   });
 });
