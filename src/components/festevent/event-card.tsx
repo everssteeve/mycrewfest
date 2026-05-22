@@ -126,9 +126,10 @@ interface EventCardProps {
   event: EventWithSelectionAndConfidence;
   onSelectionCycle: (eventId: string, next: SelectionStatus | null) => void;
   hasConflict?: boolean;
+  isOngoing?: boolean;
 }
 
-export function EventCard({ event, onSelectionCycle, hasConflict = false }: EventCardProps) {
+export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngoing = false }: EventCardProps) {
   const [expanded, setExpanded] = useState(false);
   const selectionStatus = event.selection?.status ?? null;
   const typeConfig = EVENT_TYPE_COLORS[event.eventType] ?? EVENT_TYPE_COLORS.autre;
@@ -228,6 +229,34 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false }: Even
           <Badge variant="urgent" aria-label="Conflit avec un autre événement sélectionné">
             ⚠ Conflit
           </Badge>
+        )}
+
+        {/* Ongoing badge */}
+        {isOngoing && (
+          <span
+            aria-label="En cours maintenant"
+            data-testid="ongoing-badge"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "2px 8px",
+              borderRadius: "var(--radius-full)",
+              fontSize: "var(--fs-xs)",
+              fontFamily: "var(--font-body)",
+              fontWeight: "var(--fw-bold)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              backgroundColor: "var(--neon-soft)",
+              color: "var(--primary-neon)",
+              border: "1px solid var(--primary-neon)",
+              boxShadow: "var(--glow-neon)",
+              animation: "pulse 2s ease-in-out infinite",
+            }}
+          >
+            <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "var(--primary-neon)", flexShrink: 0 }} aria-hidden="true" />
+            En cours
+          </span>
         )}
 
         {/* Status badges */}

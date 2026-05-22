@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { EventCard, type EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import { useSelections } from "@/hooks/use-selections";
@@ -11,6 +11,7 @@ import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/prog
 import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds } from "@/lib/programme-conflicts";
+import { findOngoingEventIds } from "@/lib/event-status";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -84,6 +85,13 @@ export function ProgrammeView({
   const [sortMode, setSortMode] = useState<SortMode>("time");
   const [searchQuery, setSearchQuery] = useState("");
   const [upcomingOnly, setUpcomingOnly] = useState(false);
+
+  // Refresh "now" every minute for live event status
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   const allTags = useMemo(() => {
     const set = new Set<string>();
@@ -165,6 +173,9 @@ export function ProgrammeView({
 
   // Conflict detection across ALL selected events (not just filtered)
   const conflictingIds = useMemo(() => findConflictingEventIds(events), [events]);
+
+  // Live "ongoing" event detection — refreshes every minute
+  const ongoingIds = useMemo(() => findOngoingEventIds(events, now), [events, now]);
 
   const selectedCount = useMemo(
     () => filteredEvents.filter((e) => e.selection?.status != null).length,
@@ -659,6 +670,7 @@ export function ProgrammeView({
               event={e}
               onSelectionCycle={handleSelectionCycle}
               hasConflict={conflictingIds.has(e.id)}
+              isOngoing={ongoingIds.has(e.id)}
             />
           ))}
         </div>
