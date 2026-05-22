@@ -154,6 +154,104 @@ function SeenEventRow({ event }: SeenEventRowProps) {
 }
 
 // ---------------------------------------------------------------------------
+// MissedMustSeeRow
+// ---------------------------------------------------------------------------
+
+interface MissedMustSeeRowProps {
+  event: EventWithSelectionAndConfidence;
+  onMarkVu: () => void;
+}
+
+function MissedMustSeeRow({ event, onMarkVu }: MissedMustSeeRowProps) {
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "flex-start",
+        gap: "var(--space-sm)",
+        padding: "var(--space-sm) 0",
+        borderBottom: "1px solid var(--border-color)",
+      }}
+    >
+      <span
+        style={{
+          fontFamily: "var(--font-mono)",
+          fontSize: "var(--fs-xs)",
+          color: "var(--warning-orange)",
+          flexShrink: 0,
+          width: 44,
+          paddingTop: 2,
+        }}
+      >
+        {event.startTime ? formatTime(event.startTime) : "—"}
+      </span>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--text-main)",
+            margin: 0,
+          }}
+        >
+          {event.title}
+        </p>
+        {event.venue && (
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-dim)",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: 3,
+            }}
+          >
+            <MapPin size={10} aria-hidden="true" />
+            {event.venue.name}
+          </p>
+        )}
+      </div>
+      <button
+        type="button"
+        onClick={onMarkVu}
+        aria-label={`Marquer ${event.title} comme vu`}
+        data-testid={`mark-vu-${event.id}`}
+        style={{
+          flexShrink: 0,
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 4,
+          padding: "3px 10px",
+          borderRadius: "var(--radius-full)",
+          border: "1px solid var(--border-color)",
+          backgroundColor: "transparent",
+          color: "var(--text-dim)",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--fs-xs)",
+          cursor: "pointer",
+          transition: "border-color 0.2s, color 0.2s, background-color 0.2s",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLElement).style.borderColor = "var(--primary-neon)";
+          (e.currentTarget as HTMLElement).style.color = "var(--primary-neon)";
+          (e.currentTarget as HTMLElement).style.backgroundColor = "var(--neon-soft)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLElement).style.borderColor = "var(--border-color)";
+          (e.currentTarget as HTMLElement).style.color = "var(--text-dim)";
+          (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
+        }}
+      >
+        <Check size={11} aria-hidden="true" />
+        Vu
+      </button>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
 // BilanView
 // ---------------------------------------------------------------------------
 
@@ -164,7 +262,7 @@ interface BilanViewProps {
 }
 
 export function BilanView({ festEventId, festivalName, initialEvents }: BilanViewProps) {
-  const { selections } = useSelections(festEventId);
+  const { selections, updateSelection } = useSelections(festEventId);
 
   const events = useMemo(() => {
     return initialEvents.map((e) => {
@@ -389,7 +487,11 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
           </h2>
           <div>
             {missedMustSees.map((e) => (
-              <SeenEventRow key={e.id} event={e} />
+              <MissedMustSeeRow
+                key={e.id}
+                event={e}
+                onMarkVu={() => updateSelection(e.id, "vu")}
+              />
             ))}
           </div>
         </section>
