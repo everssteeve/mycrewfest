@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
+import { compareByTemporalRelevance } from "@/lib/festival-temporal";
 
 type FilterType = "tous" | FestivalType;
 
@@ -26,16 +27,18 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return initialFestivals.filter((f) => {
-      const matchesQuery =
-        !q ||
-        f.name.toLowerCase().includes(q) ||
-        f.city.toLowerCase().includes(q) ||
-        f.country.toLowerCase().includes(q);
-      const matchesType =
-        activeFilter === "tous" || f.festivalType === activeFilter;
-      return matchesQuery && matchesType;
-    });
+    return initialFestivals
+      .filter((f) => {
+        const matchesQuery =
+          !q ||
+          f.name.toLowerCase().includes(q) ||
+          f.city.toLowerCase().includes(q) ||
+          f.country.toLowerCase().includes(q);
+        const matchesType =
+          activeFilter === "tous" || f.festivalType === activeFilter;
+        return matchesQuery && matchesType;
+      })
+      .sort(compareByTemporalRelevance);
   }, [initialFestivals, query, activeFilter]);
 
   return (

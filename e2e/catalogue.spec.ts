@@ -102,6 +102,86 @@ test.describe("Catalogue page", () => {
     }
   });
 
+  test("festival cards have data-temporal attribute with a valid status", async ({
+    page,
+  }) => {
+    await page.goto("/catalogue");
+
+    const cards = page.locator("article[data-temporal]");
+    await expect(cards.first()).toBeVisible({ timeout: 8_000 });
+
+    const validStatuses = new Set(["en_cours", "imminent", "upcoming", "past"]);
+    const count = await cards.count();
+    for (let i = 0; i < count; i++) {
+      const status = await cards.nth(i).getAttribute("data-temporal");
+      expect(validStatuses.has(status ?? "")).toBe(true);
+    }
+  });
+
+  test("catalogue is sorted with en_cours before upcoming and past", async ({
+    page,
+  }) => {
+    await page.goto("/catalogue");
+
+    const cards = page.locator("article[data-temporal]");
+    await expect(cards.first()).toBeVisible({ timeout: 8_000 });
+
+    const statuses = await cards.evaluateAll((els) =>
+      els.map((el) => el.getAttribute("data-temporal") ?? "")
+    );
+
+    const ORDER: Record<string, number> = {
+      en_cours: 0,
+      imminent: 1,
+      upcoming: 2,
+      past: 3,
+    };
+
+    // Verify no card has a lower-priority status before a higher-priority one
+    for (let i = 0; i < statuses.length - 1; i++) {
+      const curr = ORDER[statuses[i]] ?? 99;
+      const next = ORDER[statuses[i + 1]] ?? 99;
+      expect(curr).toBeLessThanOrEqual(next);
+    }
+  });
+
+  test("en_cours badge is visible when a festival is ongoing", async ({
+    page,
+  }) => {
+    await page.goto("/catalogue");
+
+    const ongoingCard = page.locator('article[data-temporal="en_cours"]').first();
+
+    // Only assert if such a card exists in seed data
+    const count = await ongoingCard.count();
+    if (count > 0) {
+      await expect(ongoingCard).toBeVisible();
+      await expect(
+        ongoingCard.getByText(/en cours/i)
+      ).toBeVisible();
+    } else {
+      // No ongoing festival in seed — check imminent instead
+      const imminentCard = page.locator('article[data-temporal="imminent"]').first();
+      if (await imminentCard.count() > 0) {
+        await expect(imminentCard.getByText(/dans \d+ j/i).or(imminentCard.getByText(/demain/i))).toBeVisible();
+      }
+    }
+  });
+
+  test("past festivals are visually de-emphasised (opacity < 1)", async ({
+    page,
+  }) => {
+    await page.goto("/catalogue");
+
+    const pastCard = page.locator('article[data-temporal="past"]').first();
+    if (await pastCard.count() > 0) {
+      const opacity = await pastCard.evaluate(
+        (el) => parseFloat(getComputedStyle(el).opacity)
+      );
+      expect(opacity).toBeLessThan(1);
+    }
+  });
+
   test("clicking a festival card opens the festival detail page", async ({
     page,
   }) => {

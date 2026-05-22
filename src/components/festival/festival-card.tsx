@@ -3,6 +3,7 @@ import { MapPin, CalendarDays } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { FestivalSummary, FestivalType, ProgramStatus } from "@/lib/types";
+import { getFestivalTemporalStatus, getDaysUntilStart } from "@/lib/festival-temporal";
 
 interface FestivalCardProps {
   festival: FestivalSummary;
@@ -58,6 +59,8 @@ export function FestivalCard({ festival }: FestivalCardProps) {
     : `${format(startDate, "d MMM", { locale: fr })} – ${format(endDate, "d MMM yyyy", { locale: fr })}`;
 
   const typeLabel = TYPE_LABELS[festival.festivalType] ?? "Autre";
+  const temporalStatus = getFestivalTemporalStatus(festival.startDate, festival.endDate);
+  const daysUntil = temporalStatus === "imminent" ? getDaysUntilStart(festival.startDate) : null;
 
   return (
     <Link
@@ -67,16 +70,20 @@ export function FestivalCard({ festival }: FestivalCardProps) {
     >
       <article
         className="festival-card group"
+        data-temporal={temporalStatus}
         style={{
           backgroundColor: "var(--bg-surface)",
           borderRadius: "var(--radius-md)",
-          border: "1px solid var(--border-color)",
+          border: temporalStatus === "en_cours"
+            ? "1px solid rgba(0,255,102,0.3)"
+            : "1px solid var(--border-color)",
           padding: "var(--space-md)",
           transition: "var(--transition-fast)",
           cursor: "pointer",
           display: "flex",
           flexDirection: "column",
           gap: "var(--space-sm)",
+          opacity: temporalStatus === "past" ? 0.55 : 1,
         }}
         onMouseEnter={(e) => {
           (e.currentTarget as HTMLElement).style.boxShadow = "var(--glow-neon)";
@@ -89,31 +96,61 @@ export function FestivalCard({ festival }: FestivalCardProps) {
           (e.currentTarget as HTMLElement).style.transform = "scale(1)";
         }}
       >
-        {/* Header row: name + AI badge */}
+        {/* Header row: name + badges */}
         <div className="flex items-start justify-between gap-2">
           <h3
             className="t-h3 flex-1"
             style={{
-              color: "var(--text-main)",
+              color: temporalStatus === "past" ? "var(--text-muted)" : "var(--text-main)",
               fontSize: "var(--fs-base)",
               lineHeight: "var(--lh-snug)",
             }}
           >
             {festival.name}
           </h3>
-          {festival.confidenceLevel === "auto" && (
-            <span
-              className="inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
-              style={{
-                backgroundColor: "var(--cyan-soft)",
-                color: "var(--secondary-cyan)",
-                border: "1px solid var(--secondary-cyan)",
-              }}
-            >
-              <span aria-hidden="true" style={{ fontSize: 8 }}>✦</span>
-              IA
-            </span>
-          )}
+          <div className="flex shrink-0 items-center gap-1.5">
+            {temporalStatus === "en_cours" && (
+              <span
+                aria-label="Festival en cours"
+                className="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                style={{
+                  backgroundColor: "var(--neon-soft)",
+                  color: "var(--primary-neon)",
+                  border: "1px solid var(--primary-neon)",
+                  boxShadow: "0 0 6px rgba(0,255,102,0.4)",
+                }}
+              >
+                <span aria-hidden="true" style={{ fontSize: 7 }}>●</span>
+                En cours
+              </span>
+            )}
+            {temporalStatus === "imminent" && daysUntil !== null && (
+              <span
+                aria-label={`Festival dans ${daysUntil} jour${daysUntil > 1 ? "s" : ""}`}
+                className="inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                style={{
+                  backgroundColor: "var(--cyan-soft)",
+                  color: "var(--secondary-cyan)",
+                  border: "1px solid rgba(0,229,255,0.5)",
+                }}
+              >
+                {daysUntil === 0 ? "Demain" : `Dans ${daysUntil} j`}
+              </span>
+            )}
+            {festival.confidenceLevel === "auto" && (
+              <span
+                className="inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                style={{
+                  backgroundColor: "var(--cyan-soft)",
+                  color: "var(--secondary-cyan)",
+                  border: "1px solid var(--secondary-cyan)",
+                }}
+              >
+                <span aria-hidden="true" style={{ fontSize: 8 }}>✦</span>
+                IA
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Dates */}
