@@ -125,9 +125,10 @@ function formatTime(iso: string | null): string {
 interface EventCardProps {
   event: EventWithSelectionAndConfidence;
   onSelectionCycle: (eventId: string, next: SelectionStatus | null) => void;
+  hasConflict?: boolean;
 }
 
-export function EventCard({ event, onSelectionCycle }: EventCardProps) {
+export function EventCard({ event, onSelectionCycle, hasConflict = false }: EventCardProps) {
   const [expanded, setExpanded] = useState(false);
   const selectionStatus = event.selection?.status ?? null;
   const typeConfig = EVENT_TYPE_COLORS[event.eventType] ?? EVENT_TYPE_COLORS.autre;
@@ -160,7 +161,10 @@ export function EventCard({ event, onSelectionCycle }: EventCardProps) {
       style={{
         backgroundColor: "var(--bg-surface)",
         borderRadius: "var(--radius-md)",
-        border: "1px solid var(--border-color)",
+        border: hasConflict
+          ? "1.5px solid var(--warning-orange)"
+          : "1px solid var(--border-color)",
+        boxShadow: hasConflict ? "0 0 0 1px rgba(255,153,0,0.15)" : "none",
         padding: "var(--space-md)",
         display: "flex",
         flexDirection: "column",
@@ -217,6 +221,13 @@ export function EventCard({ event, onSelectionCycle }: EventCardProps) {
         {/* IA badge */}
         {event.confidence === "auto" && (
           <Badge variant="ai">IA</Badge>
+        )}
+
+        {/* Conflict badge */}
+        {hasConflict && (
+          <Badge variant="urgent" aria-label="Conflit avec un autre événement sélectionné">
+            ⚠ Conflit
+          </Badge>
         )}
 
         {/* Status badges */}

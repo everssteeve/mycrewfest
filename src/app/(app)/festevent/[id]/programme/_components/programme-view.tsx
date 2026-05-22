@@ -10,6 +10,7 @@ import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, type S
 import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
 import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
+import { findConflictingEventIds } from "@/lib/programme-conflicts";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -161,6 +162,9 @@ export function ProgrammeView({
     () => sortProgrammeEvents(filteredEvents, sortMode),
     [filteredEvents, sortMode],
   );
+
+  // Conflict detection across ALL selected events (not just filtered)
+  const conflictingIds = useMemo(() => findConflictingEventIds(events), [events]);
 
   const selectedCount = useMemo(
     () => filteredEvents.filter((e) => e.selection?.status != null).length,
@@ -654,6 +658,7 @@ export function ProgrammeView({
               key={e.id}
               event={e}
               onSelectionCycle={handleSelectionCycle}
+              hasConflict={conflictingIds.has(e.id)}
             />
           ))}
         </div>
