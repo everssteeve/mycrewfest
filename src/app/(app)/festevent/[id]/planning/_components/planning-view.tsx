@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ChevronDown, CalendarArrowDown, Copy, Check } from "lucide-react";
@@ -9,6 +9,7 @@ import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 import { toggleVuStatus } from "@/lib/selection";
 import { generatePlanningText } from "@/lib/planning-text";
+import { getEventTimeStatus } from "@/lib/event-status";
 import type { EventSummary, ConflictInfo, ConflictLevel } from "@/types";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import type { SelectionStatus } from "@/types";
@@ -111,24 +112,7 @@ function TimelineEventCard({
   const selectionStatus = event.selection?.status ?? null;
   const isSeen = selectionStatus === "vu";
 
-  // Determine relative status
-  let relativeStatus: "en-cours" | "prochain" | "passé" | null = null;
-  if (event.startTime) {
-    const start = new Date(event.startTime);
-    const end = event.endTime
-      ? new Date(event.endTime)
-      : event.durationMins
-      ? new Date(start.getTime() + event.durationMins * 60_000)
-      : null;
-
-    if (end && now >= start && now <= end) {
-      relativeStatus = "en-cours";
-    } else if (now < start) {
-      relativeStatus = "prochain";
-    } else {
-      relativeStatus = "passé";
-    }
-  }
+  const timeStatus = getEventTimeStatus(event, now);
 
   // Check if outside arrival/departure constraints
   let outOfRange = false;
@@ -152,7 +136,7 @@ function TimelineEventCard({
     display: "flex",
     flexDirection: "column",
     gap: "var(--space-xs)",
-    opacity: isSeen || outOfRange ? 0.5 : 1,
+    opacity: isSeen || outOfRange || timeStatus === "past" ? 0.4 : 1,
     transition: "var(--transition-fast)",
     position: "relative",
     ...(isMustSee && !conflict
@@ -165,7 +149,12 @@ function TimelineEventCard({
   };
 
   return (
-    <div style={baseStyle} role="article" aria-label={event.title}>
+    <div
+      style={baseStyle}
+      role="article"
+      aria-label={event.title}
+      data-testid={timeStatus === "past" ? "past-event-card" : timeStatus === "ongoing" ? "ongoing-event-card" : undefined}
+    >
       {/* Conflict badge */}
       {conflict && (
         <span
@@ -190,8 +179,9 @@ function TimelineEventCard({
       )}
 
       {/* Relative status badge */}
-      {relativeStatus === "en-cours" && (
+      {timeStatus === "ongoing" && (
         <span
+          data-testid="planning-ongoing-badge"
           style={{
             alignSelf: "flex-start",
             backgroundColor: "var(--neon-soft)",
@@ -324,7 +314,11 @@ export function PlanningView({
 
   const [activeDay, setActiveDay] = useState<string>(presenceDates[0] ?? "");
   const [copied, setCopied] = useState(false);
-  const now = new Date();
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   const timelineRef = useRef<HTMLDivElement>(null);
   const [showFab, setShowFab] = useState(false);
