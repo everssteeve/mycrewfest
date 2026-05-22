@@ -34,3 +34,15 @@ export function matchesSelectionFilter<T extends SelectionFilterable>(
   }
   return s === filter;
 }
+
+export interface TagFilterable {
+  tags?: string[];
+}
+
+export function matchesTagFilter<T extends TagFilterable>(
+  event: T,
+  activeTags: ReadonlySet<string>,
+): boolean {
+  if (activeTags.size === 0) return true;
+  return event.tags?.some((t) => activeTags.has(t)) ?? false;
+}

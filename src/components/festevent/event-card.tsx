@@ -322,6 +322,75 @@ export function EventCard({ event, onSelectionCycle }: EventCardProps) {
           <span>{event.venue.name}</span>
         </div>
       )}
+
+      {/* Row 4: tags */}
+      {event.tags && event.tags.length > 0 && (
+        <EventTagChips tags={event.tags} />
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// EventTagChips
+// ---------------------------------------------------------------------------
+
+const MAX_VISIBLE_TAGS = 3;
+
+interface EventTagChipsProps {
+  tags: string[];
+}
+
+export function EventTagChips({ tags }: EventTagChipsProps) {
+  const visible = tags.slice(0, MAX_VISIBLE_TAGS);
+  const overflow = tags.length - MAX_VISIBLE_TAGS;
+  return (
+    <div
+      role="group"
+      style={{
+        display: "flex",
+        flexWrap: "wrap",
+        gap: 4,
+      }}
+      aria-label="Tags"
+    >
+      {visible.map((tag) => (
+        <span
+          key={tag}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            padding: "1px 7px",
+            borderRadius: "var(--radius-full)",
+            fontSize: "var(--fs-xs)",
+            fontFamily: "var(--font-body)",
+            fontWeight: "var(--fw-medium)",
+            textTransform: "lowercase",
+            letterSpacing: "0.02em",
+            backgroundColor: "rgba(255,255,255,0.05)",
+            color: "var(--text-dim)",
+            border: "1px solid rgba(255,255,255,0.1)",
+          }}
+        >
+          #{tag}
+        </span>
+      ))}
+      {overflow > 0 && (
+        <span
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            padding: "1px 7px",
+            borderRadius: "var(--radius-full)",
+            fontSize: "var(--fs-xs)",
+            fontFamily: "var(--font-mono)",
+            color: "var(--text-dim)",
+            opacity: 0.6,
+          }}
+        >
+          +{overflow}
+        </span>
+      )}
     </div>
   );
 }

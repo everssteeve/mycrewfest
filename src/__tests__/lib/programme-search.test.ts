@@ -2,8 +2,10 @@ import { describe, it, expect } from "vitest";
 import {
   matchesProgrammeQuery,
   matchesSelectionFilter,
+  matchesTagFilter,
   type SearchableEvent,
   type SelectionFilterable,
+  type TagFilterable,
 } from "@/lib/programme-search";
 
 const BASE: SearchableEvent = {
@@ -107,5 +109,37 @@ describe("matchesSelectionFilter", () => {
     expect(matchesSelectionFilter(e("intéressé"), "intéressé")).toBe(true);
     expect(matchesSelectionFilter(e("must-see"), "intéressé")).toBe(false);
     expect(matchesSelectionFilter(e(null), "intéressé")).toBe(false);
+  });
+});
+
+describe("matchesTagFilter", () => {
+  const ev = (tags?: string[]): TagFilterable => ({ tags });
+  const active = (...tags: string[]) => new Set(tags);
+
+  it("empty active set allows all events", () => {
+    expect(matchesTagFilter(ev(["rap", "live"]), active())).toBe(true);
+    expect(matchesTagFilter(ev([]), active())).toBe(true);
+    expect(matchesTagFilter(ev(), active())).toBe(true);
+  });
+
+  it("matches when event has at least one active tag (OR logic)", () => {
+    expect(matchesTagFilter(ev(["rap", "live"]), active("rap"))).toBe(true);
+    expect(matchesTagFilter(ev(["rap", "live"]), active("live"))).toBe(true);
+    expect(matchesTagFilter(ev(["rap", "live"]), active("rap", "danse"))).toBe(true);
+  });
+
+  it("rejects when event has none of the active tags", () => {
+    expect(matchesTagFilter(ev(["rap", "live"]), active("danse"))).toBe(false);
+    expect(matchesTagFilter(ev(["rap"]), active("jazz", "soul"))).toBe(false);
+  });
+
+  it("rejects event with no tags when a tag is active", () => {
+    expect(matchesTagFilter(ev([]), active("rap"))).toBe(false);
+    expect(matchesTagFilter(ev(), active("rap"))).toBe(false);
+  });
+
+  it("is case-sensitive (tags are stored lowercase by convention)", () => {
+    expect(matchesTagFilter(ev(["rap"]), active("Rap"))).toBe(false);
+    expect(matchesTagFilter(ev(["rap"]), active("rap"))).toBe(true);
   });
 });

@@ -64,4 +64,47 @@ test.describe("EventCard enriched display", () => {
     // Planning may be empty if no selections — just verify the page renders
     await expect(page.locator("body")).toBeVisible();
   });
+
+  test("programme page renders tag chips when events have tags", async ({ page }) => {
+    const festEventId = await getFirstFestEventId(page);
+    if (!festEventId) {
+      test.skip();
+      return;
+    }
+
+    await page.goto(`/festevent/${festEventId}/programme`);
+    await page.waitForLoadState("networkidle");
+
+    // If any event has tags, tag groups should be present
+    const tagGroups = page.locator('[role="group"][aria-label="Tags"]');
+    const tagGroupCount = await tagGroups.count();
+
+    if (tagGroupCount > 0) {
+      // At least one tag chip should start with #
+      const firstTagText = await tagGroups.first().locator("span").first().textContent();
+      expect(firstTagText).toMatch(/^#/);
+    }
+    // If no events have tags, tagGroupCount === 0 is valid
+  });
+
+  test("programme tag filter row appears only when events have tags", async ({ page }) => {
+    const festEventId = await getFirstFestEventId(page);
+    if (!festEventId) {
+      test.skip();
+      return;
+    }
+
+    await page.goto(`/festevent/${festEventId}/programme`);
+    await page.waitForLoadState("networkidle");
+
+    const tagFilterGroup = page.locator('[role="group"][aria-label="Filtrer par tag"]');
+    const hasTagFilter = await tagFilterGroup.count();
+
+    // If the tag filter row exists, buttons inside should start with #
+    if (hasTagFilter > 0) {
+      const firstBtn = tagFilterGroup.locator("button").first();
+      const btnText = await firstBtn.textContent();
+      expect(btnText).toMatch(/^#/);
+    }
+  });
 });

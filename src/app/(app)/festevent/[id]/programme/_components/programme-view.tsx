@@ -9,7 +9,7 @@ import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 import type { SelectionStatus } from "@/types";
 import type { EventType } from "@/lib/api";
-import { matchesProgrammeQuery, matchesSelectionFilter, type SelectionFilter } from "@/lib/programme-search";
+import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, type SelectionFilter } from "@/lib/programme-search";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -74,7 +74,25 @@ export function ProgrammeView({
   const [activeTypes, setActiveTypes] = useState<Set<EventType>>(new Set());
   const [accessFilter, setAccessFilter] = useState<AccessFilter>("tous");
   const [selectionFilter, setSelectionFilter] = useState<SelectionFilter>("tous");
+  const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
+
+  const allTags = useMemo(() => {
+    const set = new Set<string>();
+    for (const e of initialEvents) {
+      for (const t of e.tags ?? []) set.add(t);
+    }
+    return Array.from(set).sort();
+  }, [initialEvents]);
+
+  const toggleTag = useCallback((tag: string) => {
+    setActiveTags((prev) => {
+      const next = new Set(prev);
+      if (next.has(tag)) next.delete(tag);
+      else next.add(tag);
+      return next;
+    });
+  }, []);
 
   const toggleType = useCallback((t: EventType) => {
     setActiveTypes((prev) => {
@@ -124,12 +142,15 @@ export function ProgrammeView({
         return false;
       }
 
+      // Tag filter
+      if (!matchesTagFilter(e, activeTags)) return false;
+
       // Text search
       if (!matchesProgrammeQuery(e, searchQuery)) return false;
 
       return true;
     });
-  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, searchQuery]);
+  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, searchQuery]);
 
   const handleSelectionCycle = useCallback(
     (eventId: string, next: SelectionStatus | null) => {
@@ -389,6 +410,56 @@ export function ProgrammeView({
           );
         })}
       </div>
+
+      {/* Tag filter — only rendered when events have tags */}
+      {allTags.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            gap: "var(--space-xs)",
+            overflowX: "auto",
+            scrollbarWidth: "none",
+            flexWrap: "nowrap",
+            paddingBottom: 2,
+          }}
+          role="group"
+          aria-label="Filtrer par tag"
+        >
+          {allTags.map((tag) => {
+            const isActive = activeTags.has(tag);
+            return (
+              <button
+                key={tag}
+                type="button"
+                onClick={() => toggleTag(tag)}
+                aria-pressed={isActive}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "3px 10px",
+                  borderRadius: "var(--radius-full)",
+                  border: isActive
+                    ? "1.5px solid var(--warning-orange)"
+                    : "1.5px solid rgba(255,255,255,0.1)",
+                  backgroundColor: isActive ? "var(--orange-soft)" : "transparent",
+                  color: isActive ? "var(--warning-orange)" : "var(--text-dim)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  fontWeight: "var(--fw-medium)",
+                  textTransform: "lowercase",
+                  letterSpacing: "0.02em",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                  transition: "var(--transition-fast)",
+                }}
+              >
+                #{tag}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Events list */}
       {filteredEvents.length === 0 ? (
