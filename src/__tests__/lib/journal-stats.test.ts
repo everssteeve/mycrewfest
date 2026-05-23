@@ -9,7 +9,7 @@ const entry = (overrides: Partial<JournalStatsEntry> = {}): JournalStatsEntry =>
 
 describe("computeJournalStats", () => {
   it("returns zeros for empty array", () => {
-    expect(computeJournalStats([])).toEqual({ totalEntries: 0, totalDays: 0, entriesWithPhotos: 0, totalWords: 0 });
+    expect(computeJournalStats([])).toEqual({ totalEntries: 0, totalDays: 0, entriesWithPhotos: 0, totalWords: 0, maxStreakDays: 0 });
   });
 
   it("counts total entries", () => {
@@ -118,5 +118,53 @@ describe("computeJournalStats — totalWords", () => {
   it("ignores extra whitespace when counting words", () => {
     const entries = [entry({ freeText: "  hello   world  " })];
     expect(computeJournalStats(entries).totalWords).toBe(2);
+  });
+});
+
+describe("computeJournalStats — maxStreakDays", () => {
+  it("returns 0 for empty entries", () => {
+    expect(computeJournalStats([]).maxStreakDays).toBe(0);
+  });
+
+  it("returns 1 for a single entry", () => {
+    const entries = [entry({ timestamp: "2025-07-15T10:00:00Z" })];
+    expect(computeJournalStats(entries).maxStreakDays).toBe(1);
+  });
+
+  it("returns 1 when days are not consecutive", () => {
+    const entries = [
+      entry({ timestamp: "2025-07-14T10:00:00Z" }),
+      entry({ timestamp: "2025-07-16T10:00:00Z" }),
+    ];
+    expect(computeJournalStats(entries).maxStreakDays).toBe(1);
+  });
+
+  it("counts consecutive days correctly", () => {
+    const entries = [
+      entry({ timestamp: "2025-07-14T10:00:00Z" }),
+      entry({ timestamp: "2025-07-15T10:00:00Z" }),
+      entry({ timestamp: "2025-07-16T10:00:00Z" }),
+    ];
+    expect(computeJournalStats(entries).maxStreakDays).toBe(3);
+  });
+
+  it("returns the max streak when there are multiple streaks", () => {
+    const entries = [
+      entry({ timestamp: "2025-07-14T10:00:00Z" }),
+      entry({ timestamp: "2025-07-15T10:00:00Z" }),
+      entry({ timestamp: "2025-07-17T10:00:00Z" }),
+      entry({ timestamp: "2025-07-18T10:00:00Z" }),
+      entry({ timestamp: "2025-07-19T10:00:00Z" }),
+    ];
+    expect(computeJournalStats(entries).maxStreakDays).toBe(3);
+  });
+
+  it("counts multiple entries on the same day as one day", () => {
+    const entries = [
+      entry({ timestamp: "2025-07-14T10:00:00Z" }),
+      entry({ timestamp: "2025-07-14T18:00:00Z" }),
+      entry({ timestamp: "2025-07-15T10:00:00Z" }),
+    ];
+    expect(computeJournalStats(entries).maxStreakDays).toBe(2);
   });
 });

@@ -763,6 +763,24 @@ export function JournalView({
             {stats.totalWords} mot{stats.totalWords !== 1 ? "s" : ""}
           </span>
         )}
+        {stats.maxStreakDays >= 2 && (
+          <span
+            data-testid="journal-stats-streak"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--primary-neon)",
+              background: "var(--neon-soft)",
+              border: "1px solid var(--primary-neon)",
+              borderRadius: "var(--radius-sm)",
+              padding: "2px 8px",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
+            {stats.maxStreakDays} j d&apos;affilée
+          </span>
+        )}
       </div>
 
       {/* Search bar */}

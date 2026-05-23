@@ -10,6 +10,7 @@ export interface JournalStats {
   totalDays: number;
   entriesWithPhotos: number;
   totalWords: number;
+  maxStreakDays: number;
 }
 
 export function computeJournalStats(entries: JournalStatsEntry[]): JournalStats {
@@ -34,10 +35,25 @@ export function computeJournalStats(entries: JournalStatsEntry[]): JournalStats 
     }
   }
 
+  const sortedDays = [...days].sort();
+  let maxStreakDays = sortedDays.length > 0 ? 1 : 0;
+  let currentStreak = sortedDays.length > 0 ? 1 : 0;
+  for (let i = 1; i < sortedDays.length; i++) {
+    const prev = new Date(sortedDays[i - 1]).getTime();
+    const curr = new Date(sortedDays[i]).getTime();
+    if (curr - prev === 86_400_000) {
+      currentStreak++;
+      if (currentStreak > maxStreakDays) maxStreakDays = currentStreak;
+    } else {
+      currentStreak = 1;
+    }
+  }
+
   return {
     totalEntries: entries.length,
     totalDays: days.size,
     entriesWithPhotos,
     totalWords,
+    maxStreakDays,
   };
 }
