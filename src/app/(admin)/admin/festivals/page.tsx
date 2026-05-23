@@ -18,6 +18,7 @@ async function getAdminFestivals() {
         confidenceLevel: true,
         city: true,
         country: true,
+        isFeatured: true,
       },
     }),
     prisma.festival.groupBy({

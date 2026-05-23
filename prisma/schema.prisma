@@ -121,6 +121,8 @@ model Festival {
   // map / plan
   mapImageUrl String?
 
+  isFeatured Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

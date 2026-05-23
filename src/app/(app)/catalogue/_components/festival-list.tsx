@@ -483,11 +483,45 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
 
       {/* Festival list */}
       {filtered.length > 0 ? (
-        <div className="flex flex-col gap-3">
-          {filtered.map((festival) => (
-            <FestivalCard key={festival.id} festival={festival} />
-          ))}
-        </div>
+        (() => {
+          const featured = filtered.filter((f) => f.isFeatured);
+          const rest = filtered.filter((f) => !f.isFeatured);
+          return (
+            <>
+              {featured.length > 0 && (
+                <div
+                  data-testid="catalogue-featured-section"
+                  style={{ marginBottom: "var(--space-lg)" }}
+                >
+                  <p
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "var(--fs-xs)",
+                      color: "var(--primary-neon)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.1em",
+                      marginBottom: "var(--space-sm)",
+                    }}
+                  >
+                    ★ À la une
+                  </p>
+                  <div className="flex flex-col gap-3">
+                    {featured.map((festival) => (
+                      <FestivalCard key={festival.id} festival={festival} />
+                    ))}
+                  </div>
+                </div>
+              )}
+              {rest.length > 0 && (
+                <div className="flex flex-col gap-3">
+                  {rest.map((festival) => (
+                    <FestivalCard key={festival.id} festival={festival} />
+                  ))}
+                </div>
+              )}
+            </>
+          );
+        })()
       ) : (
         <EmptyState hasFilters={!!(query || activeFilter !== "tous" || followedOnly)} />
       )}

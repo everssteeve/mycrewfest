@@ -68,6 +68,7 @@ export async function GET(request: NextRequest) {
           capacity: true,
           siteUrl: true,
           instagramHandle: true,
+          isFeatured: true,
           _count: { select: { events: true, followers: true } },
         },
       }),
@@ -103,6 +104,7 @@ export async function GET(request: NextRequest) {
       capacity: f.capacity,
       siteUrl: f.siteUrl,
       instagramHandle: f.instagramHandle,
+      isFeatured: f.isFeatured,
       _count: f._count,
       isFollowed: followedIds.has(f.id),
     }));

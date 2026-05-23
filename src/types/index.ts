@@ -63,6 +63,7 @@ export interface FestivalSummary {
   confidenceLevel: "auto" | "vérifié_humain";
   capacity?: number | null;
   isFollowed?: boolean;
+  isFeatured?: boolean;
   _count?: { events: number; followers: number };
 }
 

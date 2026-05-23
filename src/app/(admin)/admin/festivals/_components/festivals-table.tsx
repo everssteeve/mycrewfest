@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { verifyFestival, deleteFestival } from "../actions";
+import { FeaturedToggle } from "./featured-toggle";
 
 interface Festival {
   id: string;
@@ -12,6 +13,7 @@ interface Festival {
   endDate: string | Date;
   ingestionStatus: string;
   confidenceLevel: string;
+  isFeatured: boolean;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -110,6 +112,7 @@ export function FestivalsTable({ festivals }: { festivals: Festival[] }) {
               </td>
               <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
                 <div style={{ display: "flex", gap: "var(--space-xs)", alignItems: "center" }}>
+                  <FeaturedToggle festivalId={f.id} isFeatured={f.isFeatured} />
                   <Link
                     href={`/admin/festivals/${f.slug}/edit`}
                     style={{
