@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeSignalCredibility, countForteSignals } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals } from "@/lib/signal-credibility";
 
 describe("computeSignalCredibility", () => {
   it("returns 0.5 neutre when no votes", () => {
@@ -80,5 +80,39 @@ describe("countForteSignals", () => {
       { confirmations: 9, infirmations: 0 },
     ];
     expect(countForteSignals(signals)).toBe(2);
+  });
+});
+
+describe("countRecentSignals", () => {
+  const now = new Date("2026-05-23T12:00:00Z");
+  const daysAgo = (n: number) =>
+    new Date(now.getTime() - n * 24 * 60 * 60 * 1_000).toISOString();
+
+  it("returns 0 for empty array", () => {
+    expect(countRecentSignals([], 7, now)).toBe(0);
+  });
+
+  it("counts signals within the window", () => {
+    const signals = [
+      { createdAt: daysAgo(1) },
+      { createdAt: daysAgo(3) },
+      { createdAt: daysAgo(10) },
+    ];
+    expect(countRecentSignals(signals, 7, now)).toBe(2);
+  });
+
+  it("returns 0 when all signals are older than the window", () => {
+    const signals = [{ createdAt: daysAgo(8) }, { createdAt: daysAgo(30) }];
+    expect(countRecentSignals(signals, 7, now)).toBe(0);
+  });
+
+  it("includes signal exactly at the cutoff boundary", () => {
+    const signals = [{ createdAt: daysAgo(7) }];
+    expect(countRecentSignals(signals, 7, now)).toBe(1);
+  });
+
+  it("excludes signals with invalid createdAt", () => {
+    const signals = [{ createdAt: "not-a-date" }, { createdAt: daysAgo(2) }];
+    expect(countRecentSignals(signals, 7, now)).toBe(1);
   });
 });

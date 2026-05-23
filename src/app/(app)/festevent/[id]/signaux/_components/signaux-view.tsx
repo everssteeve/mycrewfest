@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
 import { filterSignalsByScope, type SignalScope } from "@/lib/signal-filter";
-import { computeSignalCredibility, countForteSignals } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals } from "@/lib/signal-credibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -584,6 +584,11 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
     [displayedSignals],
   );
 
+  const recentCount = useMemo(
+    () => countRecentSignals(displayedSignals, 7),
+    [displayedSignals],
+  );
+
   return (
     <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
       {/* Header */}
@@ -604,6 +609,18 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
               }}
             >
               · {forteCount} fiable{forteCount > 1 ? "s" : ""}
+            </span>
+          )}
+          {recentCount > 0 && recentCount < displayedSignals.length && (
+            <span
+              data-testid="signal-recent-count"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--secondary-cyan)",
+              }}
+            >
+              · {recentCount} récent{recentCount > 1 ? "s" : ""}
             </span>
           )}
         </div>
