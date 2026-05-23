@@ -148,7 +148,7 @@ describe("countFollowedFestivals", () => {
 // countActiveFestivals
 // ---------------------------------------------------------------------------
 
-import { countActiveFestivals, type ActiveFestFilterable } from "@/lib/catalogue-filter";
+import { countActiveFestivals, countUpcomingFestivals, type ActiveFestFilterable } from "@/lib/catalogue-filter";
 
 const af = (startDate: string, endDate: string): ActiveFestFilterable => ({ startDate, endDate });
 const TODAY_YMD = "2026-05-23";
@@ -186,5 +186,44 @@ describe("countActiveFestivals", () => {
 
   it("handles ISO datetime strings with slicing correctly", () => {
     expect(countActiveFestivals([af("2026-05-23T00:00:00.000Z", "2026-05-30T00:00:00.000Z")], NOW)).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// countUpcomingFestivals
+// ---------------------------------------------------------------------------
+
+describe("countUpcomingFestivals", () => {
+  it("returns 0 for empty list", () => {
+    expect(countUpcomingFestivals([], NOW, 30)).toBe(0);
+  });
+
+  it("does not count a festival currently active (already started)", () => {
+    expect(countUpcomingFestivals([af("2026-05-20", "2026-05-25")], NOW, 30)).toBe(0);
+  });
+
+  it("does not count a festival starting today (active, not upcoming)", () => {
+    expect(countUpcomingFestivals([af(TODAY_YMD, "2026-05-30")], NOW, 30)).toBe(0);
+  });
+
+  it("counts a festival starting tomorrow", () => {
+    expect(countUpcomingFestivals([af("2026-05-24", "2026-05-28")], NOW, 30)).toBe(1);
+  });
+
+  it("counts a festival starting exactly at the cutoff (30 days out)", () => {
+    expect(countUpcomingFestivals([af("2026-06-22", "2026-06-26")], NOW, 30)).toBe(1);
+  });
+
+  it("does not count a festival starting beyond the cutoff", () => {
+    expect(countUpcomingFestivals([af("2026-06-23", "2026-06-28")], NOW, 30)).toBe(0);
+  });
+
+  it("counts multiple upcoming festivals within the window", () => {
+    const festivals = [
+      af("2026-05-24", "2026-05-28"),
+      af("2026-06-01", "2026-06-05"),
+      af("2026-07-01", "2026-07-05"), // beyond 30 days
+    ];
+    expect(countUpcomingFestivals(festivals, NOW, 30)).toBe(2);
   });
 });

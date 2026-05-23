@@ -100,6 +100,25 @@ export function countActiveFestivals<T extends ActiveFestFilterable>(
   }).length;
 }
 
+/**
+ * Returns the number of festivals that start strictly after today and within
+ * `daysAhead` days from now (exclusive end boundary).
+ * Uses date-only comparison.
+ */
+export function countUpcomingFestivals<T extends ActiveFestFilterable>(
+  festivals: T[],
+  now = new Date(),
+  daysAhead = 30,
+): number {
+  const today = now.toLocaleDateString("sv-SE");
+  const cutoffMs = now.getTime() + daysAhead * 86_400_000;
+  const cutoff = new Date(cutoffMs).toLocaleDateString("sv-SE");
+  return festivals.filter((f) => {
+    const start = f.startDate.slice(0, 10);
+    return start > today && start <= cutoff;
+  }).length;
+}
+
 export const MONTH_NAMES_FR: Record<number, string> = {
   1: "Janv.",
   2: "Févr.",

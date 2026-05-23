@@ -5,7 +5,7 @@ import { Search, Heart } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
 import { compareByTemporalRelevance } from "@/lib/festival-temporal";
-import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
+import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 type FilterType = "tous" | FestivalType;
@@ -42,6 +42,11 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
 
   const activeCount = useMemo(
     () => countActiveFestivals(initialFestivals),
+    [initialFestivals],
+  );
+
+  const upcomingCount = useMemo(
+    () => countUpcomingFestivals(initialFestivals),
     [initialFestivals],
   );
 
@@ -344,6 +349,23 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
             }}
           >
             ◉ {activeCount} en cours
+          </span>
+        )}
+        {upcomingCount > 0 && (
+          <span
+            data-testid="catalogue-upcoming-count"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              fontWeight: 700,
+              color: "var(--warning-orange)",
+              background: "rgba(255,153,0,0.08)",
+              border: "1px solid rgba(255,153,0,0.25)",
+              borderRadius: "var(--radius-full)",
+              padding: "2px 8px",
+            }}
+          >
+            ▷ {upcomingCount} dans 30j
           </span>
         )}
       </div>
