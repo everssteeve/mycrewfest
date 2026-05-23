@@ -462,12 +462,34 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
     >
       {/* Header */}
       <div>
-        <h1
-          className="t-h2"
-          style={{ color: "var(--text-main)", margin: 0, marginBottom: "var(--space-xs)" }}
-        >
-          Déambulation
-        </h1>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)", marginBottom: "var(--space-xs)" }}>
+          <h1
+            className="t-h2"
+            style={{ color: "var(--text-main)", margin: 0, flex: 1 }}
+          >
+            Déambulation
+          </h1>
+          {todaySouvenirs.length > 0 && (
+            <span
+              data-testid="deambuloire-discovery-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-sm)",
+                fontWeight: "var(--fw-bold)",
+                color: "var(--primary-neon)",
+                backgroundColor: "var(--neon-soft)",
+                border: "1px solid var(--primary-neon)",
+                borderRadius: "var(--radius-full)",
+                padding: "2px 10px",
+                boxShadow: "0 0 6px rgba(0,255,102,0.3)",
+                flexShrink: 0,
+              }}
+              title="Découvertes enregistrées aujourd'hui"
+            >
+              {todaySouvenirs.length} découverte{todaySouvenirs.length > 1 ? "s" : ""}
+            </span>
+          )}
+        </div>
         <p style={{
           fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)",
           color: "var(--text-muted)", margin: 0,
