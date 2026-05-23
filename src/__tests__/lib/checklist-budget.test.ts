@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeChecklistBudget } from "@/lib/checklist-budget";
+import { computeChecklistBudget, computeCompletionRate } from "@/lib/checklist-budget";
 
 describe("computeChecklistBudget", () => {
   it("returns zeros for empty list", () => {
@@ -52,5 +52,38 @@ describe("computeChecklistBudget", () => {
 
   it("works with a single item done", () => {
     expect(computeChecklistBudget([{ cost: 42, done: true }])).toEqual({ total: 42, spent: 42, remaining: 0 });
+  });
+});
+
+describe("computeCompletionRate", () => {
+  it("returns 0 for empty list", () => {
+    expect(computeCompletionRate([])).toBe(0);
+  });
+
+  it("returns 0 when nothing is done", () => {
+    expect(computeCompletionRate([{ done: false }, { done: false }])).toBe(0);
+  });
+
+  it("returns 100 when all items are done", () => {
+    expect(computeCompletionRate([{ done: true }, { done: true }])).toBe(100);
+  });
+
+  it("computes 50% when half are done", () => {
+    const items = [{ done: true }, { done: false }];
+    expect(computeCompletionRate(items)).toBe(50);
+  });
+
+  it("rounds to nearest integer", () => {
+    const items = [{ done: true }, { done: false }, { done: false }];
+    // 1/3 ≈ 0.333 → rounds to 33
+    expect(computeCompletionRate(items)).toBe(33);
+  });
+
+  it("works with a single done item", () => {
+    expect(computeCompletionRate([{ done: true }])).toBe(100);
+  });
+
+  it("works with a single undone item", () => {
+    expect(computeCompletionRate([{ done: false }])).toBe(0);
   });
 });

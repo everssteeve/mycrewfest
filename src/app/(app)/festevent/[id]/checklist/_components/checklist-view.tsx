@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown, Copy, Check } from "lucide-react";
 import { generateChecklistText } from "@/lib/checklist-text";
 import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
-import { computeChecklistBudget } from "@/lib/checklist-budget";
+import { computeChecklistBudget, computeCompletionRate } from "@/lib/checklist-budget";
 import { filterByAssignee, getUniqueAssignees, computeAssigneeStats, countUnassignedPendingItems, getMostLoadedAssignee } from "@/lib/checklist-filter";
 import { filterChecklistByQuery } from "@/lib/checklist-search";
 import { isEscapeKey } from "@/lib/keyboard-search";
@@ -209,6 +209,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   const assigneeStats = useMemo(() => computeAssigneeStats(items), [items]);
   const unassignedPendingCount = useMemo(() => countUnassignedPendingItems(items), [items]);
   const mostLoaded = useMemo(() => getMostLoadedAssignee(items), [items]);
+  const completionRate = useMemo(() => computeCompletionRate(items), [items]);
   const displayedItems = useMemo(
     () => filterChecklistByQuery(filterByAssignee(items, activeAssignee), searchQuery),
     [items, activeAssignee, searchQuery],
@@ -416,6 +417,23 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
                 title="Membre de la crew avec le plus de tâches restantes"
               >
                 {mostLoaded.assigneeName}: {mostLoaded.pendingCount}
+              </span>
+            )}
+            {totalCount > 0 && (
+              <span
+                data-testid="checklist-completion-rate"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-xs)",
+                  color: completionRate === 100
+                    ? "var(--primary-neon)"
+                    : completionRate >= 50
+                      ? "var(--secondary-cyan)"
+                      : "var(--text-muted)",
+                }}
+                title="Taux de complétion global"
+              >
+                {completionRate}%
               </span>
             )}
           </div>
