@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
+import { filterSignalsByScope, type SignalScope } from "@/lib/signal-filter";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -432,6 +433,7 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
   const [signals, setSignals] = useState<SignalData[]>(initialSignals);
   const [showCreate, setShowCreate] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [scopeFilter, setScopeFilter] = useState<SignalScope | null>(null);
 
   // Auto-refresh every 60s
   useEffect(() => {
@@ -509,8 +511,19 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
   }, []);
 
   // Filter out expired signals from the display
-  const activeSignals = signals.filter(
-    (s) => new Date(s.expiresAt) > new Date(),
+  const activeSignals = useMemo(
+    () => signals.filter((s) => new Date(s.expiresAt) > new Date()),
+    [signals],
+  );
+
+  const hasBothScopes = useMemo(
+    () => activeSignals.some((s) => s.scope === "crew") && activeSignals.some((s) => s.scope === "communauté"),
+    [activeSignals],
+  );
+
+  const displayedSignals = useMemo(
+    () => filterSignalsByScope(activeSignals, scopeFilter),
+    [activeSignals, scopeFilter],
   );
 
   return (
@@ -520,7 +533,7 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
           <AlertTriangle size={20} style={{ color: "var(--accent-orange)" }} />
           <span style={{ color: "var(--text-main)", fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
-            {activeSignals.length} signal{activeSignals.length !== 1 ? "s" : ""} actif{activeSignals.length !== 1 ? "s" : ""}
+            {displayedSignals.length}{scopeFilter && activeSignals.length !== displayedSignals.length ? ` / ${activeSignals.length}` : ""} signal{displayedSignals.length !== 1 ? "s" : ""} actif{displayedSignals.length !== 1 ? "s" : ""}
           </span>
         </div>
         <button
@@ -547,6 +560,41 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
         </button>
       </div>
 
+      {/* Scope filter chips */}
+      {hasBothScopes && (
+        <div
+          style={{ display: "flex", gap: "var(--space-xs)" }}
+          data-testid="signal-scope-filter"
+          aria-label="Filtrer par portée"
+        >
+          {([null, "crew", "communauté"] as (SignalScope | null)[]).map((s) => {
+            const label = s === null ? "Tous" : s === "crew" ? "Crew" : "Communauté";
+            const isActive = scopeFilter === s;
+            return (
+              <button
+                key={label}
+                type="button"
+                onClick={() => setScopeFilter(s)}
+                aria-pressed={isActive}
+                style={{
+                  padding: "3px 12px",
+                  borderRadius: "var(--radius-full)",
+                  border: isActive ? "1px solid var(--warning-orange)" : "1px solid var(--border-color)",
+                  backgroundColor: isActive ? "rgba(255,153,0,0.1)" : "transparent",
+                  color: isActive ? "var(--warning-orange)" : "var(--text-dim)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  cursor: "pointer",
+                  transition: "var(--transition-fast)",
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Signals list */}
       {activeSignals.length === 0 ? (
         <div
@@ -565,7 +613,7 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
-          {activeSignals.map((signal) => (
+          {displayedSignals.map((signal) => (
             <SignalCard
               key={signal.id}
               signal={signal}
