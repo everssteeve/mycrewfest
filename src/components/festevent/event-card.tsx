@@ -157,26 +157,37 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
       : null;
   const accessLabel = getAccessLabel(event.access as "inclus" | "réservation_séparée");
 
+  const isVu = selectionStatus === "vu";
+
   return (
     <div
       style={{
-        backgroundColor: "var(--bg-surface)",
+        backgroundColor: isVu ? "rgba(0,255,102,0.04)" : "var(--bg-surface)",
         borderRadius: "var(--radius-md)",
         border: hasConflict
           ? "1.5px solid var(--warning-orange)"
+          : isVu
+          ? "1px solid rgba(0,255,102,0.25)"
+          : "1px solid var(--border-color)",
+        borderLeft: isVu
+          ? "3px solid var(--primary-neon)"
+          : hasConflict
+          ? "3px solid var(--warning-orange)"
           : "1px solid var(--border-color)",
         boxShadow: hasConflict ? "0 0 0 1px rgba(255,153,0,0.15)" : "none",
         padding: "var(--space-md)",
+        paddingLeft: isVu || hasConflict ? "calc(var(--space-md) - 2px)" : "var(--space-md)",
         display: "flex",
         flexDirection: "column",
         gap: "var(--space-sm)",
-        opacity: isCancelled ? 0.5 : 1,
+        opacity: isCancelled ? 0.5 : isVu ? 0.8 : 1,
         transition: "transform 0.12s ease-in-out",
         cursor: "default",
       }}
       // biome-ignore lint/a11y/useSemanticElements: card is not interactive
       role="article"
       aria-label={event.title}
+      data-selection={selectionStatus ?? "none"}
     >
       {/* Row 1: time + type chip + badges */}
       <div
