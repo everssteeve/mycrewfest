@@ -13,6 +13,8 @@ import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
 import { countEventsByDay } from "@/lib/programme-summary";
+import { shouldShowScrollTop } from "@/lib/scroll-top";
+import { ChevronUp } from "lucide-react";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -92,6 +94,14 @@ export function ProgrammeView({
   useEffect(() => {
     const id = setInterval(() => setNow(new Date()), 60_000);
     return () => clearInterval(id);
+  }, []);
+
+  // Scroll-to-top FAB
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => setShowScrollTop(shouldShowScrollTop(window.scrollY));
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const allTags = useMemo(() => {
@@ -725,6 +735,43 @@ export function ProgrammeView({
             />
           ))}
         </div>
+      )}
+
+      {/* Scroll-to-top FAB */}
+      {showScrollTop && (
+        <button
+          type="button"
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          data-testid="scroll-to-top-btn"
+          aria-label="Retour en haut"
+          style={{
+            position: "fixed",
+            bottom: "calc(var(--nav-height) + var(--space-md) + env(safe-area-inset-bottom, 0px))",
+            right: "var(--space-md)",
+            width: 40,
+            height: 40,
+            borderRadius: "var(--radius-full)",
+            border: "1.5px solid var(--border-color)",
+            backgroundColor: "var(--bg-surface-elevated)",
+            color: "var(--text-muted)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            zIndex: 25,
+            transition: "border-color 0.2s, color 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = "var(--accent-pink)";
+            (e.currentTarget as HTMLElement).style.color = "var(--accent-pink)";
+          }}
+          onMouseLeave={(e) => {
+            (e.currentTarget as HTMLElement).style.borderColor = "var(--border-color)";
+            (e.currentTarget as HTMLElement).style.color = "var(--text-muted)";
+          }}
+        >
+          <ChevronUp size={18} aria-hidden="true" />
+        </button>
       )}
     </div>
   );
