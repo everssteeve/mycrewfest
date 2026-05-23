@@ -72,4 +72,23 @@ test.describe("Recommandations — /recommandations", () => {
     const href = await firstItem.getAttribute("href");
     expect(href).toMatch(/^\/festival\//);
   });
+
+  test("recommendation reason labels are shown and non-empty", async ({ page }) => {
+    await page.goto("/recommandations");
+    await page.waitForLoadState("networkidle");
+
+    const list = page.locator('[data-testid="recommandations-list"]');
+    const isVisible = await list.isVisible({ timeout: 3_000 }).catch(() => false);
+    if (!isVisible) { test.skip(); return; }
+
+    const reasonLabels = page.locator('[data-testid^="recommandation-reason-"]');
+    const count = await reasonLabels.count();
+    expect(count).toBeGreaterThan(0);
+
+    // each reason label should have non-empty text
+    for (let i = 0; i < Math.min(count, 3); i++) {
+      const text = await reasonLabels.nth(i).textContent();
+      expect(text?.trim().length).toBeGreaterThan(0);
+    }
+  });
 });

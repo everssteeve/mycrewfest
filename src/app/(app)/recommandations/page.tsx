@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { buildRecommendationScores, topRecommendations, hasEnoughData } from "@/lib/festival-recommendations";
+import { buildRecommendationReason } from "@/lib/recommendation-reason";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Sparkles, CalendarDays, ArrowLeft } from "lucide-react";
@@ -25,13 +26,14 @@ async function fetchRecommendations(userId: string) {
     where: { userId },
     select: {
       festival: {
-        select: { id: true, slug: true, festivalType: true, country: true, startDate: true, endDate: true },
+        select: { id: true, name: true, slug: true, festivalType: true, country: true, startDate: true, endDate: true },
       },
     },
   });
 
   const followedFestivals = followedRows.map((r) => ({
     id: r.festival.id,
+    name: r.festival.name,
     slug: r.festival.slug,
     festivalType: r.festival.festivalType,
     country: r.festival.country,
@@ -39,7 +41,7 @@ async function fetchRecommendations(userId: string) {
     endDate: r.festival.endDate.toISOString(),
   }));
 
-  if (!hasEnoughData(followedFestivals.length)) return { recommendations: [], followedCount: 0 };
+  if (!hasEnoughData(followedFestivals.length)) return { recommendations: [], followedCount: 0, followedFestivals: [] };
 
   const followedIds = new Set(followedFestivals.map((f) => f.id));
 
@@ -85,14 +87,14 @@ async function fetchRecommendations(userId: string) {
     }))
     .sort((a, b) => b.score - a.score);
 
-  return { recommendations, followedCount: followedFestivals.length };
+  return { recommendations, followedCount: followedFestivals.length, followedFestivals };
 }
 
 export default async function RecommandationsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const { recommendations, followedCount } = await fetchRecommendations(session.user.id);
+  const { recommendations, followedCount, followedFestivals } = await fetchRecommendations(session.user.id);
 
   return (
     <main
@@ -244,6 +246,18 @@ export default async function RecommandationsPage() {
                     >
                       {festival.city} ·{" "}
                       {format(new Date(festival.startDate), "d MMM yyyy", { locale: fr })}
+                    </p>
+                    <p
+                      data-testid={`recommandation-reason-${festival.slug}`}
+                      style={{
+                        margin: "4px 0 0",
+                        fontSize: "0.7rem",
+                        fontWeight: 600,
+                        color: "var(--primary-neon, #00FF66)",
+                        letterSpacing: "0.02em",
+                      }}
+                    >
+                      {buildRecommendationReason(festival, followedFestivals)}
                     </p>
                   </div>
                   {FESTIVAL_TYPE_LABELS[festival.festivalType] && (
