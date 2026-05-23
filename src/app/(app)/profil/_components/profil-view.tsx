@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { Edit3, LogOut, Trash2, Download, Bell } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useAppStore } from "@/store/use-app-store";
 import Link from "next/link";
 import { PushToggle } from "@/components/notifications/push-toggle";
+import { computeFestivalierScore } from "@/lib/festivalier-score";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -286,6 +287,20 @@ export function ProfilView({ data }: { data: ProfilData }) {
     isPast(fe.festival.endDate),
   );
 
+  const festivalierScore = useMemo(
+    () => computeFestivalierScore(data.stats),
+    [data.stats],
+  );
+
+  const RANK_COLORS: Record<string, { bg: string; color: string; border: string }> = {
+    rookie: { bg: "rgba(255,255,255,0.04)", color: "var(--text-dim)", border: "var(--border-color)" },
+    passionné: { bg: "rgba(0,229,255,0.08)", color: "var(--secondary-cyan)", border: "rgba(0,229,255,0.3)" },
+    expert: { bg: "rgba(0,255,102,0.08)", color: "var(--primary-neon)", border: "rgba(0,255,102,0.3)" },
+    légende: { bg: "rgba(255,0,122,0.08)", color: "var(--accent-pink)", border: "rgba(255,0,122,0.3)" },
+  };
+
+  const rankStyle = RANK_COLORS[festivalierScore.rank];
+
   return (
     <div
       style={{
@@ -406,6 +421,77 @@ export function ProfilView({ data }: { data: ProfilData }) {
           </div>
         )}
       </section>
+
+      {/* === Festivalier Score === */}
+      <div
+        data-testid="profil-festivalier-score"
+        style={{
+          backgroundColor: rankStyle.bg,
+          border: `1px solid ${rankStyle.border}`,
+          borderRadius: "var(--radius-md)",
+          padding: "var(--space-md)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "var(--space-md)",
+        }}
+      >
+        <div>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-dim)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              margin: 0,
+            }}
+          >
+            Festivalier Score
+          </p>
+          <p
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "var(--fs-md)",
+              color: rankStyle.color,
+              margin: "4px 0 0",
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+            }}
+          >
+            {festivalierScore.label}
+          </p>
+          {festivalierScore.nextRankThreshold !== null && (
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-muted)",
+                margin: "2px 0 0",
+              }}
+            >
+              Prochain rang à {festivalierScore.nextRankThreshold} pts
+            </p>
+          )}
+        </div>
+        <div
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-xl)",
+            fontWeight: "var(--fw-bold)",
+            color: rankStyle.color,
+            flexShrink: 0,
+          }}
+          aria-label={`${festivalierScore.score} points`}
+        >
+          {festivalierScore.score}
+          <span
+            style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", marginLeft: 2 }}
+          >
+            pts
+          </span>
+        </div>
+      </div>
 
       {/* === Stats === */}
       <section
