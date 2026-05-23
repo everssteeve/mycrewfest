@@ -343,3 +343,54 @@ describe("computeAvgFestivalDurationDays", () => {
     expect(computeAvgFestivalDurationDays([{ startDate: "bad", endDate: "bad" }])).toBeNull();
   });
 });
+
+// ---------------------------------------------------------------------------
+// countFestivalsByType
+// ---------------------------------------------------------------------------
+
+import { countFestivalsByType, type TypeFilterable } from "@/lib/catalogue-filter";
+
+const mkType = (festivalType: string): TypeFilterable => ({ festivalType });
+
+describe("countFestivalsByType", () => {
+  it("returns empty map for empty list", () => {
+    expect(countFestivalsByType([])).toEqual(new Map());
+  });
+
+  it("counts a single type", () => {
+    const result = countFestivalsByType([mkType("musique"), mkType("musique")]);
+    expect(result.get("musique")).toBe(2);
+    expect(result.size).toBe(1);
+  });
+
+  it("counts multiple types independently", () => {
+    const result = countFestivalsByType([
+      mkType("musique"),
+      mkType("cirque"),
+      mkType("musique"),
+      mkType("world"),
+      mkType("cirque"),
+    ]);
+    expect(result.get("musique")).toBe(2);
+    expect(result.get("cirque")).toBe(2);
+    expect(result.get("world")).toBe(1);
+    expect(result.size).toBe(3);
+  });
+
+  it("does not include types with zero count", () => {
+    const result = countFestivalsByType([mkType("musique")]);
+    expect(result.has("cirque")).toBe(false);
+  });
+
+  it("handles a single festival", () => {
+    const result = countFestivalsByType([mkType("théâtre_rue")]);
+    expect(result.get("théâtre_rue")).toBe(1);
+  });
+
+  it("all counts sum to total festival count", () => {
+    const festivals = [mkType("musique"), mkType("cirque"), mkType("musique"), mkType("world")];
+    const result = countFestivalsByType(festivals);
+    const total = Array.from(result.values()).reduce((a, b) => a + b, 0);
+    expect(total).toBe(festivals.length);
+  });
+});

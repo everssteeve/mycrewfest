@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { Search, Heart, MapPin } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
-import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, countVerifiedFestivals, computeAvgFestivalDurationDays, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
+import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, countVerifiedFestivals, computeAvgFestivalDurationDays, countFestivalsByType, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 import { sortFestivals, SORT_MODES, SORT_MODE_LABELS, getSortModeAriaLabel, getDefaultSortMode, type CatalogueSortMode } from "@/lib/catalogue-sort";
 import { sortByDistance } from "@/lib/geo-festival";
@@ -78,6 +78,11 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
 
   const verifiedCount = useMemo(
     () => countVerifiedFestivals(initialFestivals),
+    [initialFestivals],
+  );
+
+  const typeCounts = useMemo(
+    () => countFestivalsByType(initialFestivals),
     [initialFestivals],
   );
 
@@ -184,6 +189,7 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
             <button
               key={chip.key}
               type="button"
+              data-testid={`catalogue-type-chip-${chip.key}`}
               onClick={() => setActiveFilter(chip.key)}
               style={{
                 flexShrink: 0,
@@ -206,9 +212,25 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
                 letterSpacing: "0.06em",
                 cursor: "pointer",
                 transition: "var(--transition-fast)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 5,
               }}
             >
               {chip.label}
+              {chip.key !== "tous" && typeCounts.get(chip.key) !== undefined && (
+                <span
+                  data-testid={`catalogue-type-count-${chip.key}`}
+                  style={{
+                    fontSize: 10,
+                    fontWeight: 800,
+                    opacity: isActive ? 0.75 : 0.5,
+                    lineHeight: 1,
+                  }}
+                >
+                  {typeCounts.get(chip.key)}
+                </span>
+              )}
             </button>
           );
         })}

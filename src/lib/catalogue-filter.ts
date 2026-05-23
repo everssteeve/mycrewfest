@@ -185,6 +185,24 @@ export function computeAvgFestivalDurationDays<T extends FestivalDurationComputa
   return count === 0 ? null : Math.round((total / count) * 10) / 10;
 }
 
+export interface TypeFilterable {
+  festivalType: string;
+}
+
+/**
+ * Returns a map from festivalType → count of festivals with that type.
+ * Types with zero festivals are not included.
+ */
+export function countFestivalsByType<T extends TypeFilterable>(
+  festivals: T[],
+): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const f of festivals) {
+    counts.set(f.festivalType, (counts.get(f.festivalType) ?? 0) + 1);
+  }
+  return counts;
+}
+
 export const MONTH_NAMES_FR: Record<number, string> = {
   1: "Janv.",
   2: "Févr.",
