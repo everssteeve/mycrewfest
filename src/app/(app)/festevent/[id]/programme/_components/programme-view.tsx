@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -239,6 +239,11 @@ export function ProgrammeView({
 
   const vuCount = useMemo(
     () => filteredEvents.filter((e) => e.selection?.status === "vu").length,
+    [filteredEvents],
+  );
+
+  const venueCount = useMemo(
+    () => countUniqueVenues(filteredEvents),
     [filteredEvents],
   );
 
@@ -756,6 +761,21 @@ export function ProgrammeView({
               }}
             >
               {formatBilanDuration(totalFilteredDurationMins)}
+            </span>
+          </>
+        )}
+        {venueCount > 1 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-venue-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--secondary-cyan)",
+              }}
+            >
+              {venueCount} lieux
             </span>
           </>
         )}

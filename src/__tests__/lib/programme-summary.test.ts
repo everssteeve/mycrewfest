@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -147,5 +147,40 @@ describe("computeProgrammeDurationMins", () => {
   it("rounds the result to nearest minute", () => {
     const result = computeProgrammeDurationMins([{ durationMins: 45 }, { durationMins: 30 }]);
     expect(Number.isInteger(result)).toBe(true);
+  });
+});
+
+describe("countUniqueVenues", () => {
+  it("returns 0 for empty array", () => {
+    expect(countUniqueVenues([])).toBe(0);
+  });
+
+  it("returns 0 when no events have a venue", () => {
+    const events = [{ venue: null }, { venue: undefined }];
+    expect(countUniqueVenues(events)).toBe(0);
+  });
+
+  it("counts a single venue", () => {
+    const events = [{ venue: { id: "v1" } }, { venue: { id: "v1" } }];
+    expect(countUniqueVenues(events)).toBe(1);
+  });
+
+  it("counts multiple distinct venues", () => {
+    const events = [
+      { venue: { id: "v1" } },
+      { venue: { id: "v2" } },
+      { venue: { id: "v1" } },
+      { venue: { id: "v3" } },
+    ];
+    expect(countUniqueVenues(events)).toBe(3);
+  });
+
+  it("ignores events without a venue", () => {
+    const events = [
+      { venue: { id: "v1" } },
+      { venue: null },
+      { venue: { id: "v2" } },
+    ];
+    expect(countUniqueVenues(events)).toBe(2);
   });
 });

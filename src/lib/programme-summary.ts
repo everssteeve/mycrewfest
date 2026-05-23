@@ -73,3 +73,19 @@ export function countVuEventsByDay<T extends VuCountFilterable>(
   }
   return counts;
 }
+
+export interface VenueCountable {
+  venue?: { id: string } | null;
+}
+
+/**
+ * Returns the number of distinct venue IDs across the given events.
+ * Events without a venue are ignored.
+ */
+export function countUniqueVenues<T extends VenueCountable>(events: T[]): number {
+  const ids = new Set<string>();
+  for (const e of events) {
+    if (e.venue?.id) ids.add(e.venue.id);
+  }
+  return ids.size;
+}
