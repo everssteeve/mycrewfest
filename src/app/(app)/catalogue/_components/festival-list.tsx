@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search, Heart } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
+import { Search, Heart, MapPin } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
 import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, countVerifiedFestivals, computeAvgFestivalDurationDays, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 import { sortFestivals, SORT_MODES, SORT_MODE_LABELS, getSortModeAriaLabel, getDefaultSortMode, type CatalogueSortMode } from "@/lib/catalogue-sort";
+import { sortByDistance } from "@/lib/geo-festival";
 
 type FilterType = "tous" | FestivalType;
 
@@ -30,6 +31,25 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
   const [hidePast, setHidePast] = useState(true);
   const [activeMonth, setActiveMonth] = useState<number | null>(null);
   const [sortMode, setSortMode] = useState<CatalogueSortMode>(getDefaultSortMode());
+  const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [geoLoading, setGeoLoading] = useState(false);
+
+  const handleNearby = useCallback(() => {
+    if (userCoords) {
+      setUserCoords(null);
+      return;
+    }
+    if (!navigator.geolocation) return;
+    setGeoLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        setGeoLoading(false);
+      },
+      () => { setGeoLoading(false); },
+      { timeout: 8000 },
+    );
+  }, [userCoords]);
 
   const hasFollowed = useMemo(
     () => initialFestivals.some((f) => f.isFollowed),
@@ -78,8 +98,11 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
         activeFilter === "tous" || f.festivalType === activeFilter;
       return matchesQuery && matchesType && matchesFollowFilter(f, followedOnly) && matchesMonthFilter(f, activeMonth) && matchesTemporalFilter(f, hidePast);
     });
+    if (userCoords) {
+      return sortByDistance(base, userCoords.lat, userCoords.lng) as unknown as FestivalSummary[];
+    }
     return sortFestivals(base, sortMode);
-  }, [initialFestivals, query, activeFilter, followedOnly, activeMonth, hidePast, sortMode]);
+  }, [initialFestivals, query, activeFilter, followedOnly, activeMonth, hidePast, sortMode, userCoords]);
 
   const avgDurationDays = useMemo(
     () => computeAvgFestivalDurationDays(filtered),
@@ -216,6 +239,40 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
           }}
         >
           {hidePast ? "Actifs seulement" : "Tous (passés inclus)"}
+        </button>
+        <button
+          type="button"
+          onClick={handleNearby}
+          aria-pressed={!!userCoords}
+          data-testid="catalogue-nearby"
+          disabled={geoLoading}
+          style={{
+            flexShrink: 0,
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 5,
+            paddingLeft: 12,
+            paddingRight: 12,
+            paddingTop: 6,
+            paddingBottom: 6,
+            borderRadius: "var(--radius-full)",
+            border: userCoords
+              ? "1px solid var(--primary-neon)"
+              : "1px solid var(--border-color)",
+            backgroundColor: userCoords ? "rgba(0,255,102,0.1)" : "transparent",
+            color: userCoords ? "var(--primary-neon)" : "var(--text-muted)",
+            fontFamily: "var(--font-body)",
+            fontSize: 12,
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            cursor: geoLoading ? "wait" : "pointer",
+            transition: "var(--transition-fast)",
+            opacity: geoLoading ? 0.6 : 1,
+          }}
+        >
+          <MapPin size={11} aria-hidden="true" />
+          {geoLoading ? "Localisation…" : userCoords ? "Près de moi ✓" : "Près de moi"}
         </button>
         {hasFollowed && (
           <button

@@ -62,6 +62,8 @@ export interface FestivalSummary {
   programStatus: "complet" | "partiel" | "bientôt_disponible";
   confidenceLevel: "auto" | "vérifié_humain";
   capacity?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
   isFollowed?: boolean;
   isFeatured?: boolean;
   _count?: { events: number; followers: number };

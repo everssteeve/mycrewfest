@@ -85,6 +85,7 @@ export default async function AdminLayout({
           {[
             { href: "/admin", label: "Dashboard" },
             { href: "/admin/festivals", label: "Festivals" },
+            { href: "/admin/festivals/programme", label: "Programme" },
             { href: "/admin/artists", label: "Artistes" },
             { href: "/admin/submissions", label: "Soumissions" },
             { href: "/admin/users", label: "Utilisateurs" },
