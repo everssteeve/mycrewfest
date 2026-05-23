@@ -18,6 +18,7 @@ import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
 import { buildProgrammeIcs, countExportableEvents } from "@/lib/programme-ics";
+import { computeTotalProgrammeDurationMins, computeSelectedDurationMins, computeTimeCoveragePercent, getDensityLabel, getDensityColor, formatDensityBadge } from "@/lib/programme-density";
 import { Copy, Check, CalendarArrowDown } from "lucide-react";
 import { ChevronUp } from "lucide-react";
 
@@ -415,6 +416,14 @@ export function ProgrammeView({
     () => countExportableEvents(events, "selected"),
     [events],
   );
+
+  const totalDurationMins = useMemo(() => computeTotalProgrammeDurationMins(events), [events]);
+  const selectedDurationMins = useMemo(() => computeSelectedDurationMins(events), [events]);
+  const densityPercent = useMemo(
+    () => computeTimeCoveragePercent(selectedDurationMins, totalDurationMins),
+    [selectedDurationMins, totalDurationMins],
+  );
+  const densityColor = getDensityColor(densityPercent);
 
   return (
     <div
@@ -1131,6 +1140,22 @@ export function ProgrammeView({
               title={`Jour le plus chargé de ta sélection : ${peakSelectionDay.count} événements`}
             >
               ★ {new Date(peakSelectionDay.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short" })} +{peakSelectionDay.count}
+            </span>
+          </>
+        )}
+        {selectedDurationMins > 0 && totalDurationMins > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-day-density"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: densityColor,
+              }}
+              title={`${getDensityLabel(densityPercent)} — ${densityPercent}% du programme sélectionné`}
+            >
+              {formatDensityBadge(densityPercent, selectedDurationMins)}
             </span>
           </>
         )}
