@@ -93,6 +93,7 @@ export function ProgrammeView({
   const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
   const [activeVenueId, setActiveVenueId] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<SortMode>("time");
+  const [shuffleSeed, setShuffleSeed] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [upcomingOnly, setUpcomingOnly] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -200,9 +201,10 @@ export function ProgrammeView({
     });
   }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, activeVenueId, searchQuery, upcomingOnly]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const sortedFilteredEvents = useMemo(
     () => sortProgrammeEvents(filteredEvents, sortMode),
-    [filteredEvents, sortMode],
+    [filteredEvents, sortMode, shuffleSeed],
   );
 
   // Conflict detection across ALL selected events (not just filtered)
@@ -857,13 +859,20 @@ export function ProgrammeView({
           role="group"
           aria-label="Trier par"
         >
-          {(["time", "alpha", "venue"] as SortMode[]).map((mode) => {
+          {(["time", "alpha", "venue", "random"] as SortMode[]).map((mode) => {
             const isActive = sortMode === mode;
             return (
               <button
                 key={mode}
                 type="button"
-                onClick={() => setSortMode(mode)}
+                data-testid={mode === "random" ? "programme-sort-random" : undefined}
+                onClick={() => {
+                  if (mode === "random" && sortMode === "random") {
+                    setShuffleSeed((s) => s + 1);
+                  } else {
+                    setSortMode(mode);
+                  }
+                }}
                 aria-pressed={isActive}
                 style={{
                   padding: "2px 8px",

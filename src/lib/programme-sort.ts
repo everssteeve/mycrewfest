@@ -1,4 +1,4 @@
-export type SortMode = "time" | "alpha" | "venue";
+export type SortMode = "time" | "alpha" | "venue" | "random";
 
 export interface SortableEvent {
   title: string;
@@ -36,6 +36,13 @@ export function sortProgrammeEvents<T extends SortableEvent>(
         return a.startTime.localeCompare(b.startTime);
       });
 
+    case "random":
+      for (let i = sorted.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [sorted[i], sorted[j]] = [sorted[j], sorted[i]];
+      }
+      return sorted;
+
     default:
       return sorted;
   }
@@ -45,4 +52,5 @@ export const SORT_MODE_LABELS: Record<SortMode, string> = {
   time: "Horaire",
   alpha: "A→Z",
   venue: "Scène",
+  random: "🎲",
 };

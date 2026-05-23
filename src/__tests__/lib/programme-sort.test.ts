@@ -96,11 +96,54 @@ describe("sortProgrammeEvents — venue mode", () => {
   });
 });
 
+describe("sortProgrammeEvents — random mode", () => {
+  it("returns an empty array for empty input", () => {
+    expect(sortProgrammeEvents([], "random")).toEqual([]);
+  });
+
+  it("returns an array of the same length", () => {
+    const events = [
+      ev("A", "2026-07-15T14:00:00"),
+      ev("B", "2026-07-15T16:00:00"),
+      ev("C", "2026-07-15T18:00:00"),
+      ev("D", "2026-07-15T20:00:00"),
+    ];
+    expect(sortProgrammeEvents(events, "random")).toHaveLength(4);
+  });
+
+  it("contains all original elements after shuffle", () => {
+    const events = [
+      ev("A", "2026-07-15T14:00:00"),
+      ev("B", "2026-07-15T16:00:00"),
+      ev("C", "2026-07-15T18:00:00"),
+    ];
+    const shuffled = sortProgrammeEvents(events, "random");
+    const originalTitles = events.map((e) => e.title).sort();
+    const shuffledTitles = shuffled.map((e) => e.title).sort();
+    expect(shuffledTitles).toEqual(originalTitles);
+  });
+
+  it("does not mutate the original array", () => {
+    const events = [ev("A"), ev("B"), ev("C")];
+    const originalFirst = events[0].title;
+    sortProgrammeEvents(events, "random");
+    expect(events[0].title).toBe(originalFirst);
+  });
+
+  it("returns the single element for a one-item array", () => {
+    const events = [ev("Solo", "2026-07-15T10:00:00")];
+    const result = sortProgrammeEvents(events, "random");
+    expect(result).toHaveLength(1);
+    expect(result[0].title).toBe("Solo");
+  });
+});
+
 describe("sortProgrammeEvents — edge cases", () => {
   it("returns empty array unchanged", () => {
     expect(sortProgrammeEvents([], "time")).toEqual([]);
     expect(sortProgrammeEvents([], "alpha")).toEqual([]);
     expect(sortProgrammeEvents([], "venue")).toEqual([]);
+    expect(sortProgrammeEvents([], "random")).toEqual([]);
   });
 
   it("returns single-element array unchanged in any mode", () => {
@@ -108,5 +151,6 @@ describe("sortProgrammeEvents — edge cases", () => {
     expect(sortProgrammeEvents(single, "time")).toHaveLength(1);
     expect(sortProgrammeEvents(single, "alpha")).toHaveLength(1);
     expect(sortProgrammeEvents(single, "venue")).toHaveLength(1);
+    expect(sortProgrammeEvents(single, "random")).toHaveLength(1);
   });
 });
