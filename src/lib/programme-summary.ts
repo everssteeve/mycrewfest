@@ -430,3 +430,48 @@ export function countNightEvents<T extends NightFilterable>(
     return new Date(e.startTime).getHours() >= nightHour;
   }).length;
 }
+
+export interface TimeRangeFilterable {
+  startTime?: string | null;
+  endTime?: string | null;
+  durationMins?: number | null;
+}
+
+/**
+ * Returns the ISO string of the earliest event startTime, or null when no events
+ * have a startTime.
+ */
+export function getEarliestEventStartTime<T extends TimeRangeFilterable>(
+  events: T[],
+): string | null {
+  let earliest: string | null = null;
+  for (const e of events) {
+    if (!e.startTime) continue;
+    if (earliest === null || e.startTime < earliest) earliest = e.startTime;
+  }
+  return earliest;
+}
+
+/**
+ * Returns the ISO string of the latest event end time (endTime, or derived from
+ * startTime + durationMins, or startTime + 1h as fallback), or null when no
+ * events have a startTime.
+ */
+export function getLatestEventEndTime<T extends TimeRangeFilterable>(
+  events: T[],
+): string | null {
+  let latest: string | null = null;
+  for (const e of events) {
+    if (!e.startTime) continue;
+    let endIso: string;
+    if (e.endTime) {
+      endIso = e.endTime;
+    } else if (e.durationMins) {
+      endIso = new Date(new Date(e.startTime).getTime() + e.durationMins * 60_000).toISOString();
+    } else {
+      endIso = new Date(new Date(e.startTime).getTime() + 60 * 60_000).toISOString();
+    }
+    if (latest === null || endIso > latest) latest = endIso;
+  }
+  return latest;
+}

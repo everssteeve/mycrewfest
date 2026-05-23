@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countUniqueEventTypes, countNightEvents } from "@/lib/programme-summary";
+import { countUniqueEventTypes, countNightEvents, getEarliestEventStartTime, getLatestEventEndTime } from "@/lib/programme-summary";
 import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
@@ -847,5 +847,82 @@ describe("countNightEvents", () => {
 
   it("returns 0 when all events are daytime with custom nightHour", () => {
     expect(countNightEvents([night(18), night(19)], 20)).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getEarliestEventStartTime
+// ---------------------------------------------------------------------------
+
+describe("getEarliestEventStartTime", () => {
+  const t = (h: number) => ({ startTime: `2024-07-20T${h.toString().padStart(2, "0")}:00:00` });
+
+  it("returns null for empty list", () => {
+    expect(getEarliestEventStartTime([])).toBeNull();
+  });
+
+  it("returns null when all events have no startTime", () => {
+    expect(getEarliestEventStartTime([{ startTime: null }, { startTime: undefined }])).toBeNull();
+  });
+
+  it("returns the single event's startTime", () => {
+    expect(getEarliestEventStartTime([t(14)])).toBe("2024-07-20T14:00:00");
+  });
+
+  it("returns the earliest among multiple times", () => {
+    const result = getEarliestEventStartTime([t(18), t(10), t(14)]);
+    expect(result).toBe("2024-07-20T10:00:00");
+  });
+
+  it("ignores events without startTime", () => {
+    const events = [{ startTime: null }, t(12), t(9)];
+    expect(getEarliestEventStartTime(events)).toBe("2024-07-20T09:00:00");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getLatestEventEndTime
+// ---------------------------------------------------------------------------
+
+describe("getLatestEventEndTime", () => {
+  it("returns null for empty list", () => {
+    expect(getLatestEventEndTime([])).toBeNull();
+  });
+
+  it("returns null when no events have startTime", () => {
+    expect(getLatestEventEndTime([{ startTime: null }])).toBeNull();
+  });
+
+  it("uses endTime when available", () => {
+    const events = [{ startTime: "2024-07-20T10:00:00", endTime: "2024-07-20T11:30:00" }];
+    const result = getLatestEventEndTime(events);
+    expect(result).toBe("2024-07-20T11:30:00");
+  });
+
+  it("derives end from durationMins when endTime absent", () => {
+    const events = [{ startTime: "2024-07-20T22:00:00", durationMins: 90 }];
+    const result = getLatestEventEndTime(events);
+    expect(result).not.toBeNull();
+    const endMs = new Date(result!).getTime();
+    const expectedMs = new Date("2024-07-20T22:00:00").getTime() + 90 * 60_000;
+    expect(endMs).toBe(expectedMs);
+  });
+
+  it("falls back to startTime + 1h when no end info", () => {
+    const events = [{ startTime: "2024-07-20T23:00:00" }];
+    const result = getLatestEventEndTime(events);
+    expect(result).not.toBeNull();
+    const endMs = new Date(result!).getTime();
+    const expectedMs = new Date("2024-07-20T23:00:00").getTime() + 60 * 60_000;
+    expect(endMs).toBe(expectedMs);
+  });
+
+  it("returns the latest end across multiple events", () => {
+    const events = [
+      { startTime: "2024-07-20T10:00:00", endTime: "2024-07-20T11:00:00" },
+      { startTime: "2024-07-20T22:00:00", endTime: "2024-07-20T23:30:00" },
+    ];
+    const result = getLatestEventEndTime(events);
+    expect(result).toBe("2024-07-20T23:30:00");
   });
 });
