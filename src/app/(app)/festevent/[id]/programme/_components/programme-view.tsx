@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing, countUpcomingEvents } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents, countUniqueEventTypes } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents, countUniqueEventTypes, countNightEvents } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -340,6 +340,11 @@ export function ProgrammeView({
 
   const eventTypeCount = useMemo(
     () => countUniqueEventTypes(filteredEvents),
+    [filteredEvents],
+  );
+
+  const nightEventCount = useMemo(
+    () => countNightEvents(filteredEvents),
     [filteredEvents],
   );
 
@@ -1239,6 +1244,22 @@ export function ProgrammeView({
               title={`${eventTypeCount} types d'événements différents`}
             >
               ◈ {eventTypeCount} types
+            </span>
+          </>
+        )}
+        {nightEventCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-night-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--accent-pink)",
+              }}
+              title={`${nightEventCount} événement${nightEventCount > 1 ? "s" : ""} après 22h`}
+            >
+              ☽ {nightEventCount} nuit
             </span>
           </>
         )}

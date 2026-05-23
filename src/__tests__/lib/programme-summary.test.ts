@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countUniqueEventTypes } from "@/lib/programme-summary";
+import { countUniqueEventTypes, countNightEvents } from "@/lib/programme-summary";
 import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
@@ -811,5 +811,41 @@ describe("countUniqueEventTypes", () => {
 
   it("returns 1 when only one type among many nulls", () => {
     expect(countUniqueEventTypes([{ eventType: null }, { eventType: "scène" }, { eventType: null }])).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// countNightEvents
+// ---------------------------------------------------------------------------
+
+describe("countNightEvents", () => {
+  const night = (h: number) => ({ startTime: `2024-07-20T${h.toString().padStart(2, "0")}:00:00` });
+
+  it("returns 0 for empty list", () => {
+    expect(countNightEvents([])).toBe(0);
+  });
+
+  it("returns 0 when no events start after 22h", () => {
+    expect(countNightEvents([night(21), night(18), night(10)])).toBe(0);
+  });
+
+  it("counts events starting at exactly 22h as night", () => {
+    expect(countNightEvents([night(22)])).toBe(1);
+  });
+
+  it("counts events starting after 22h", () => {
+    expect(countNightEvents([night(23), night(22), night(21)])).toBe(2);
+  });
+
+  it("excludes events without startTime", () => {
+    expect(countNightEvents([{ startTime: null }, { startTime: undefined }, night(23)])).toBe(1);
+  });
+
+  it("respects custom nightHour parameter", () => {
+    expect(countNightEvents([night(20), night(21), night(22)], 20)).toBe(3);
+  });
+
+  it("returns 0 when all events are daytime with custom nightHour", () => {
+    expect(countNightEvents([night(18), night(19)], 20)).toBe(0);
   });
 });

@@ -412,3 +412,21 @@ export function countUniqueEventTypes<T extends EventTypeCountable>(events: T[])
   }
   return types.size;
 }
+
+export interface NightFilterable {
+  startTime?: string | null;
+}
+
+/**
+ * Returns the count of events that start at or after `nightHour` (default: 22h).
+ * Events without a startTime are excluded.
+ */
+export function countNightEvents<T extends NightFilterable>(
+  events: T[],
+  nightHour = 22,
+): number {
+  return events.filter((e) => {
+    if (!e.startTime) return false;
+    return new Date(e.startTime).getHours() >= nightHour;
+  }).length;
+}
