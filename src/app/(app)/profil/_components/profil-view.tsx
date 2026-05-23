@@ -10,6 +10,7 @@ import { computeFestivalierScore, computeScoreBreakdown } from "@/lib/festivalie
 import { getFestivalTemporalStatus, getDaysUntilStart, formatTemporalBadge } from "@/lib/festival-temporal";
 import { countUpcomingFestEvents, countActiveFestEvents, countPastFestEvents } from "@/lib/profil-stats";
 import { findNextFestEvent, computeDaysUntilFestival, isFestivalActive, formatCountdownLabel, getCountdownUrgency, getCountdownColor } from "@/lib/profil-countdown";
+import { aggregateDisciplines, buildDisciplineRanking, getDisciplineColor, hasGenreData } from "@/lib/profil-genres";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -1366,6 +1367,87 @@ export function ProfilView({ data }: { data: ProfilData }) {
           </div>
         </section>
       )}
+
+      {/* Mes genres — aggregated from seen artists */}
+      {(() => {
+        const disciplineCounts = aggregateDisciplines(data.seenArtists);
+        if (!hasGenreData(disciplineCounts)) return null;
+        const genres = buildDisciplineRanking(disciplineCounts, 5);
+        return (
+          <section
+            data-testid="profil-genres-section"
+            style={{ marginTop: "var(--space-lg)" }}
+          >
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "var(--fs-xs)",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "var(--primary-neon)",
+                margin: "0 0 var(--space-sm)",
+              }}
+            >
+              Mes genres
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {genres.map((g, i) => (
+                <div key={g.discipline} data-testid={`profil-genre-${i}`} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: "var(--fs-sm)",
+                      color: getDisciplineColor(i),
+                      fontWeight: 600,
+                      minWidth: 0,
+                      flex: 1,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                      textTransform: "capitalize",
+                    }}
+                  >
+                    {g.discipline}
+                  </span>
+                  <div
+                    style={{
+                      height: 6,
+                      borderRadius: 3,
+                      background: "var(--border-color)",
+                      width: 80,
+                      flexShrink: 0,
+                      overflow: "hidden",
+                    }}
+                  >
+                    <div
+                      style={{
+                        height: "100%",
+                        width: `${g.percentage}%`,
+                        borderRadius: 3,
+                        background: getDisciplineColor(i),
+                        transition: "width 0.4s ease",
+                      }}
+                    />
+                  </div>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "var(--fs-xs)",
+                      color: "var(--text-dim)",
+                      flexShrink: 0,
+                      minWidth: 32,
+                      textAlign: "right",
+                    }}
+                  >
+                    {g.percentage}%
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })()}
 
       {/* Quick link to artistes catalogue */}
       <Link
