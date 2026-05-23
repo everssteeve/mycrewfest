@@ -1,0 +1,302 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Search, X, Music2, CalendarDays } from "lucide-react";
+import type { GlobalSearchResponse } from "@/lib/global-search";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+
+function useDebounce<T>(value: T, delay: number): T {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(t);
+  }, [value, delay]);
+  return debounced;
+}
+
+const FESTIVAL_TYPE_LABELS: Record<string, string> = {
+  musique: "Musique",
+  théâtre_rue: "Théâtre de rue",
+  cirque: "Cirque",
+  world: "World",
+  multidisciplinaire: "Multi",
+};
+
+export default function RecherchePage() {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<GlobalSearchResponse | null>(null);
+  const [loading, setLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
+  const debouncedQuery = useDebounce(query, 300);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    if (debouncedQuery.length < 2) {
+      setResults(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`)
+      .then((r) => r.json())
+      .then((data: GlobalSearchResponse) => {
+        setResults(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [debouncedQuery]);
+
+  const isEmpty =
+    results && results.total === 0 && debouncedQuery.length >= 2 && !loading;
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-md)",
+        paddingTop: "var(--space-sm)",
+      }}
+    >
+      {/* Search input */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          backgroundColor: "var(--bg-surface)",
+          border: "1px solid var(--border-strong)",
+          borderRadius: "var(--radius-md)",
+          padding: "10px 14px",
+        }}
+      >
+        <Search size={18} color="var(--text-dim)" aria-hidden="true" />
+        <input
+          ref={inputRef}
+          data-testid="search-input"
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Rechercher un festival, un artiste…"
+          aria-label="Recherche globale"
+          style={{
+            flex: 1,
+            background: "transparent",
+            border: "none",
+            outline: "none",
+            color: "var(--text-main)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-base)",
+          }}
+        />
+        {query && (
+          <button
+            onClick={() => setQuery("")}
+            aria-label="Effacer la recherche"
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "var(--text-dim)",
+              display: "flex",
+              padding: 2,
+            }}
+          >
+            <X size={16} />
+          </button>
+        )}
+      </div>
+
+      {/* Loading */}
+      {loading && (
+        <p
+          className="t-caption"
+          style={{ color: "var(--text-dim)", textAlign: "center" }}
+          aria-live="polite"
+        >
+          Recherche…
+        </p>
+      )}
+
+      {/* Empty state */}
+      {isEmpty && (
+        <p
+          data-testid="search-empty"
+          className="t-caption"
+          style={{ color: "var(--text-dim)", textAlign: "center", marginTop: "var(--space-lg)" }}
+        >
+          Aucun résultat pour «&nbsp;{debouncedQuery}&nbsp;»
+        </p>
+      )}
+
+      {/* Results */}
+      {results && results.total > 0 && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+
+          {/* Festivals section */}
+          {results.festivals.length > 0 && (
+            <section data-testid="search-festivals-section">
+              <h2
+                className="t-caption"
+                style={{
+                  color: "var(--text-dim)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  fontSize: "var(--fs-xs, 11px)",
+                  fontWeight: 700,
+                  marginBottom: "var(--space-xs)",
+                }}
+              >
+                Festivals
+              </h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {results.festivals.map((f) => (
+                  <Link
+                    key={f.id}
+                    href={`/festival/${f.slug}`}
+                    data-testid={`search-result-festival-${f.slug}`}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      backgroundColor: "var(--bg-surface)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "var(--radius-md)",
+                      padding: "10px 14px",
+                      textDecoration: "none",
+                      transition: "var(--transition-fast)",
+                    }}
+                  >
+                    <CalendarDays size={16} color="var(--accent-pink)" aria-hidden="true" />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p
+                        className="t-body"
+                        style={{
+                          color: "var(--text-main)",
+                          fontWeight: 600,
+                          fontSize: "var(--fs-sm)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {f.name}
+                      </p>
+                      <p
+                        className="t-caption"
+                        style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 11px)" }}
+                      >
+                        {f.city} · {format(new Date(f.startDate), "d MMM yyyy", { locale: fr })}
+                      </p>
+                    </div>
+                    {FESTIVAL_TYPE_LABELS[f.festivalType] && (
+                      <span
+                        className="t-meta"
+                        style={{
+                          color: "var(--secondary-cyan)",
+                          fontSize: "var(--fs-xs, 10px)",
+                          fontWeight: 700,
+                          textTransform: "uppercase",
+                          letterSpacing: "0.06em",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {FESTIVAL_TYPE_LABELS[f.festivalType]}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Artists section */}
+          {results.artists.length > 0 && (
+            <section data-testid="search-artists-section">
+              <h2
+                className="t-caption"
+                style={{
+                  color: "var(--text-dim)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  fontSize: "var(--fs-xs, 11px)",
+                  fontWeight: 700,
+                  marginBottom: "var(--space-xs)",
+                }}
+              >
+                Artistes
+              </h2>
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                {results.artists.map((a) => (
+                  <Link
+                    key={a.id}
+                    href={`/artiste/${a.id}`}
+                    data-testid={`search-result-artist-${a.id}`}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      backgroundColor: "var(--bg-surface)",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "var(--radius-md)",
+                      padding: "10px 14px",
+                      textDecoration: "none",
+                      transition: "var(--transition-fast)",
+                    }}
+                  >
+                    <Music2 size={16} color="var(--secondary-cyan)" aria-hidden="true" />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <p
+                        className="t-body"
+                        style={{
+                          color: "var(--text-main)",
+                          fontWeight: 600,
+                          fontSize: "var(--fs-sm)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {a.name}
+                      </p>
+                      {a.disciplines.length > 0 && (
+                        <p
+                          className="t-caption"
+                          style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 11px)" }}
+                        >
+                          {a.disciplines.slice(0, 2).join(", ")}
+                          {a.festivalCount > 0 && ` · ${a.festivalCount} fest.`}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
+      )}
+
+      {/* Hint when idle */}
+      {!results && !loading && (
+        <p
+          className="t-caption"
+          style={{
+            color: "var(--text-dim)",
+            textAlign: "center",
+            marginTop: "var(--space-xl)",
+          }}
+        >
+          Commence à taper pour chercher…
+        </p>
+      )}
+    </div>
+  );
+}

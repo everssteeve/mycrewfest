@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
+import { Search } from "lucide-react";
 import { TopHeader } from "@/components/ui";
 import { CatalogueContent } from "./_components/catalogue-content";
 import { CatalogueSkeleton } from "./_components/catalogue-skeleton";
@@ -14,28 +15,48 @@ export default function CataloguePage() {
       <TopHeader
         title="FESTIVALS"
         right={
-          <Link
-            href="/festival/soumettre"
-            aria-label="Soumettre un festival manquant"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: 36,
-              height: 36,
-              borderRadius: "var(--radius-full)",
-              backgroundColor: "var(--primary-neon)",
-              color: "var(--text-on-neon)",
-              fontFamily: "var(--font-display)",
-              fontSize: 22,
-              fontWeight: 900,
-              lineHeight: 1,
-              boxShadow: "var(--glow-neon)",
-              textDecoration: "none",
-            }}
-          >
-            +
-          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Link
+              href="/recherche"
+              aria-label="Recherche globale"
+              data-testid="catalogue-search-link"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 36,
+                height: 36,
+                borderRadius: "var(--radius-full)",
+                border: "1px solid var(--border-strong)",
+                color: "var(--text-muted)",
+                textDecoration: "none",
+              }}
+            >
+              <Search size={16} aria-hidden="true" />
+            </Link>
+            <Link
+              href="/festival/soumettre"
+              aria-label="Soumettre un festival manquant"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 36,
+                height: 36,
+                borderRadius: "var(--radius-full)",
+                backgroundColor: "var(--primary-neon)",
+                color: "var(--text-on-neon)",
+                fontFamily: "var(--font-display)",
+                fontSize: 22,
+                fontWeight: 900,
+                lineHeight: 1,
+                boxShadow: "var(--glow-neon)",
+                textDecoration: "none",
+              }}
+            >
+              +
+            </Link>
+          </div>
         }
       />
 
