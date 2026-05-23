@@ -82,8 +82,10 @@ export default async function AdminLayout({
         {/* Navigation */}
         <nav style={{ display: "flex", flexDirection: "column", gap: 2, padding: "0 var(--space-sm)" }}>
           {[
+            { href: "/admin", label: "Dashboard" },
             { href: "/admin/festivals", label: "Festivals" },
             { href: "/admin/submissions", label: "Soumissions" },
+            { href: "/admin/users", label: "Utilisateurs" },
             { href: "/admin/agents", label: "Agents IA" },
           ].map(({ href, label }) => (
             <Link
