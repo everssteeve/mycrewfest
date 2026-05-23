@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { Search, Heart, MapPin } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
-import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, countVerifiedFestivals, computeAvgFestivalDurationDays, countFestivalsByType, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
+import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, countVerifiedFestivals, computeAvgFestivalDurationDays, countFestivalsByType, getAvailableCountries, matchesCountryFilter, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 import { sortFestivals, SORT_MODES, SORT_MODE_LABELS, getSortModeAriaLabel, getDefaultSortMode, type CatalogueSortMode } from "@/lib/catalogue-sort";
 import { sortByDistance } from "@/lib/geo-festival";
@@ -31,6 +31,7 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
   const [hidePast, setHidePast] = useState(true);
   const [activeMonth, setActiveMonth] = useState<number | null>(null);
   const [sortMode, setSortMode] = useState<CatalogueSortMode>(getDefaultSortMode());
+  const [activeCountry, setActiveCountry] = useState<string | null>(null);
   const [userCoords, setUserCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [geoLoading, setGeoLoading] = useState(false);
 
@@ -86,6 +87,11 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
     [initialFestivals],
   );
 
+  const availableCountries = useMemo(
+    () => getAvailableCountries(initialFestivals),
+    [initialFestivals],
+  );
+
   const availableMonths = useMemo(
     () => getAvailableMonths(initialFestivals),
     [initialFestivals],
@@ -101,13 +107,13 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
         f.country.toLowerCase().includes(q);
       const matchesType =
         activeFilter === "tous" || f.festivalType === activeFilter;
-      return matchesQuery && matchesType && matchesFollowFilter(f, followedOnly) && matchesMonthFilter(f, activeMonth) && matchesTemporalFilter(f, hidePast);
+      return matchesQuery && matchesType && matchesFollowFilter(f, followedOnly) && matchesMonthFilter(f, activeMonth) && matchesTemporalFilter(f, hidePast) && matchesCountryFilter(f, activeCountry);
     });
     if (userCoords) {
       return sortByDistance(base, userCoords.lat, userCoords.lng) as unknown as FestivalSummary[];
     }
     return sortFestivals(base, sortMode);
-  }, [initialFestivals, query, activeFilter, followedOnly, activeMonth, hidePast, sortMode, userCoords]);
+  }, [initialFestivals, query, activeFilter, followedOnly, activeMonth, hidePast, sortMode, userCoords, activeCountry]);
 
   const avgDurationDays = useMemo(
     () => computeAvgFestivalDurationDays(filtered),
@@ -419,6 +425,47 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
         </div>
       )}
 
+      {/* Country filter — only when multiple countries available */}
+      {availableCountries.length > 1 && (
+        <div style={{ marginBottom: "var(--space-sm)" }}>
+          <select
+            data-testid="catalogue-country-filter"
+            value={activeCountry ?? ""}
+            onChange={(e) => setActiveCountry(e.target.value || null)}
+            aria-label="Filtrer par pays"
+            style={{
+              backgroundColor: activeCountry ? "rgba(0,229,255,0.08)" : "var(--bg-surface)",
+              color: activeCountry ? "var(--secondary-cyan)" : "var(--text-muted)",
+              border: activeCountry
+                ? "1px solid rgba(0,229,255,0.5)"
+                : "1px solid var(--border-color)",
+              borderRadius: "var(--radius-full)",
+              fontFamily: "var(--font-body)",
+              fontSize: 12,
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              paddingLeft: 12,
+              paddingRight: 24,
+              paddingTop: 6,
+              paddingBottom: 6,
+              cursor: "pointer",
+              appearance: "none",
+              WebkitAppearance: "none",
+              backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23666'/%3E%3C/svg%3E")`,
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "right 8px center",
+              backgroundSize: "8px",
+            }}
+          >
+            <option value="">Tous les pays</option>
+            {availableCountries.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       {/* Sort mode toggle */}
       <div
         data-testid="catalogue-sort-toggle"
@@ -470,7 +517,7 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
           style={{ color: "var(--text-dim)", margin: 0 }}
         >
           {filtered.length} festival{filtered.length !== 1 ? "s" : ""}
-          {(query || activeFilter !== "tous" || followedOnly || activeMonth !== null) ? " trouvé" + (filtered.length !== 1 ? "s" : "") : ""}
+          {(query || activeFilter !== "tous" || followedOnly || activeMonth !== null || activeCountry) ? " trouvé" + (filtered.length !== 1 ? "s" : "") : ""}
         </p>
         {activeCount > 0 && (
           <span

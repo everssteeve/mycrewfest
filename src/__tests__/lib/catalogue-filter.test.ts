@@ -394,3 +394,49 @@ describe("countFestivalsByType", () => {
     expect(total).toBe(festivals.length);
   });
 });
+
+// ---------------------------------------------------------------------------
+// getAvailableCountries / matchesCountryFilter
+// ---------------------------------------------------------------------------
+
+import { getAvailableCountries, matchesCountryFilter, type CountryFilterable } from "@/lib/catalogue-filter";
+
+const mkCountry = (country: string): CountryFilterable => ({ country });
+
+describe("getAvailableCountries", () => {
+  it("returns empty array for empty list", () => {
+    expect(getAvailableCountries([])).toEqual([]);
+  });
+
+  it("deduplicates countries", () => {
+    const result = getAvailableCountries([mkCountry("FR"), mkCountry("FR"), mkCountry("UK")]);
+    expect(result).toEqual(["FR", "UK"]);
+  });
+
+  it("returns countries sorted alphabetically", () => {
+    const result = getAvailableCountries([mkCountry("UK"), mkCountry("ES"), mkCountry("FR")]);
+    expect(result).toEqual(["ES", "FR", "UK"]);
+  });
+
+  it("handles a single country", () => {
+    expect(getAvailableCountries([mkCountry("DE")])).toEqual(["DE"]);
+  });
+});
+
+describe("matchesCountryFilter", () => {
+  it("returns true when no country filter is set", () => {
+    expect(matchesCountryFilter(mkCountry("FR"), null)).toBe(true);
+  });
+
+  it("returns true when festival country matches filter", () => {
+    expect(matchesCountryFilter(mkCountry("FR"), "FR")).toBe(true);
+  });
+
+  it("returns false when festival country does not match filter", () => {
+    expect(matchesCountryFilter(mkCountry("UK"), "FR")).toBe(false);
+  });
+
+  it("is case-sensitive", () => {
+    expect(matchesCountryFilter(mkCountry("fr"), "FR")).toBe(false);
+  });
+});

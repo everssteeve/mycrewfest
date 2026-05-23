@@ -203,6 +203,32 @@ export function countFestivalsByType<T extends TypeFilterable>(
   return counts;
 }
 
+export interface CountryFilterable {
+  country: string;
+}
+
+/**
+ * Returns the sorted list of unique country codes present across the given festivals.
+ */
+export function getAvailableCountries<T extends CountryFilterable>(festivals: T[]): string[] {
+  const set = new Set<string>();
+  for (const f of festivals) {
+    if (f.country) set.add(f.country);
+  }
+  return Array.from(set).sort();
+}
+
+/**
+ * Returns false only when a country is selected and the festival's country does not match.
+ */
+export function matchesCountryFilter<T extends CountryFilterable>(
+  festival: T,
+  country: string | null,
+): boolean {
+  if (!country) return true;
+  return festival.country === country;
+}
+
 export const MONTH_NAMES_FR: Record<number, string> = {
   1: "Janv.",
   2: "Févr.",
