@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeJournalStats, type JournalStatsEntry } from "@/lib/journal-stats";
+import { computeJournalStats, getMostActiveJournalDay, type JournalStatsEntry } from "@/lib/journal-stats";
 
 const entry = (overrides: Partial<JournalStatsEntry> = {}): JournalStatsEntry => ({
   timestamp: "2025-07-15T14:30:00Z",
@@ -202,5 +202,62 @@ describe("computeJournalStats — avgWordsPerEntry", () => {
     ];
     // avg = 1.5 → rounds to 2
     expect(computeJournalStats(entries).avgWordsPerEntry).toBe(2);
+  });
+});
+
+describe("getMostActiveJournalDay", () => {
+  it("returns null for empty array", () => {
+    expect(getMostActiveJournalDay([])).toBeNull();
+  });
+
+  it("returns null when all timestamps are invalid", () => {
+    const entries = [{ timestamp: "invalid" }, { timestamp: "bad" }];
+    expect(getMostActiveJournalDay(entries)).toBeNull();
+  });
+
+  it("returns the only day with its count", () => {
+    const entries = [{ timestamp: "2025-07-15T10:00:00Z" }];
+    const result = getMostActiveJournalDay(entries);
+    expect(result?.count).toBe(1);
+  });
+
+  it("groups multiple entries on the same day", () => {
+    const entries = [
+      { timestamp: "2025-07-15T10:00:00Z" },
+      { timestamp: "2025-07-15T14:00:00Z" },
+      { timestamp: "2025-07-15T20:00:00Z" },
+    ];
+    const result = getMostActiveJournalDay(entries);
+    expect(result?.count).toBe(3);
+  });
+
+  it("returns the day with the most entries", () => {
+    const entries = [
+      { timestamp: "2025-07-14T10:00:00Z" },
+      { timestamp: "2025-07-15T10:00:00Z" },
+      { timestamp: "2025-07-15T14:00:00Z" },
+      { timestamp: "2025-07-16T10:00:00Z" },
+    ];
+    const result = getMostActiveJournalDay(entries);
+    expect(result?.count).toBe(2);
+  });
+
+  it("breaks ties by earliest date", () => {
+    const entries = [
+      { timestamp: "2025-07-14T10:00:00Z" },
+      { timestamp: "2025-07-16T10:00:00Z" },
+    ];
+    const result = getMostActiveJournalDay(entries);
+    expect(result?.count).toBe(1);
+  });
+
+  it("ignores invalid timestamps in the count", () => {
+    const entries = [
+      { timestamp: "invalid" },
+      { timestamp: "2025-07-15T10:00:00Z" },
+      { timestamp: "2025-07-15T12:00:00Z" },
+    ];
+    const result = getMostActiveJournalDay(entries);
+    expect(result?.count).toBe(2);
   });
 });

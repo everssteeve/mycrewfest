@@ -14,6 +14,35 @@ export interface JournalStats {
   avgWordsPerEntry: number;
 }
 
+export interface MostActiveDay {
+  date: string;
+  count: number;
+}
+
+/**
+ * Returns the date (YYYY-MM-DD) with the most journal entries, or null for empty input.
+ * Ties are broken by earliest date.
+ */
+export function getMostActiveJournalDay(
+  entries: Pick<JournalStatsEntry, "timestamp">[],
+): MostActiveDay | null {
+  const counts = new Map<string, number>();
+  for (const e of entries) {
+    const d = new Date(e.timestamp);
+    if (isNaN(d.getTime())) continue;
+    const ymd = d.toLocaleDateString("sv-SE");
+    counts.set(ymd, (counts.get(ymd) ?? 0) + 1);
+  }
+  if (counts.size === 0) return null;
+  let top: MostActiveDay | null = null;
+  for (const [date, count] of counts) {
+    if (!top || count > top.count || (count === top.count && date < top.date)) {
+      top = { date, count };
+    }
+  }
+  return top;
+}
+
 export function computeJournalStats(entries: JournalStatsEntry[]): JournalStats {
   const days = new Set<string>();
   let entriesWithPhotos = 0;

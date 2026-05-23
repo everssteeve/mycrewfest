@@ -6,7 +6,7 @@ import { filterAndGroupByDay, countCrewSharedEntries, type JournalEntryTypeFilte
 import { Users } from "lucide-react";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
 import { isEscapeKey } from "@/lib/keyboard-search";
-import { computeJournalStats } from "@/lib/journal-stats";
+import { computeJournalStats, getMostActiveJournalDay } from "@/lib/journal-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -635,6 +635,8 @@ export function JournalView({
 
   const crewSharedCount = useMemo(() => countCrewSharedEntries(souvenirs), [souvenirs]);
 
+  const mostActiveDay = useMemo(() => getMostActiveJournalDay(souvenirs), [souvenirs]);
+
   const hasCrewEntries = useMemo(() => souvenirs.some((s) => s.shareWithCrew), [souvenirs]);
   const hasEventEntries = useMemo(() => souvenirs.some((s) => s.eventId !== null), [souvenirs]);
 
@@ -811,6 +813,19 @@ export function JournalView({
             title="Entrées partagées avec la crew"
           >
             {crewSharedCount} crew
+          </span>
+        )}
+        {mostActiveDay !== null && stats.totalDays > 1 && (
+          <span
+            data-testid="journal-stats-best-day"
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--primary-neon)",
+            }}
+            title={`Jour le plus actif : ${mostActiveDay.date}`}
+          >
+            ★ {new Date(mostActiveDay.date).toLocaleDateString("fr-FR", { weekday: "short" })} ({mostActiveDay.count})
           </span>
         )}
       </div>
