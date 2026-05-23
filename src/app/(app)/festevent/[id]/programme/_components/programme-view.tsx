@@ -24,6 +24,7 @@ import { useEventNotes } from "@/hooks/use-event-notes";
 import { buildTimelineSlots } from "@/lib/programme-timeline";
 import { matchesArtistFilter, countArtistAppearances } from "@/lib/programme-artist";
 import { findTightTransitionIds, findSelectedEventGaps, formatGapDuration } from "@/lib/programme-gaps";
+import { computeDayScores, getDayLoadLevel, getDayLoadColor, formatDayDuration } from "@/lib/programme-day-score";
 import { Copy, Check, CalendarArrowDown } from "lucide-react";
 import { ChevronUp } from "lucide-react";
 
@@ -246,6 +247,12 @@ export function ProgrammeView({
     }
     return map;
   }, [filteredEvents]);
+
+  // Day-by-day selection score (must-see / interested / duration per day)
+  const dayScores = useMemo(
+    () => computeDayScores(events, eventDays),
+    [events, eventDays],
+  );
 
   // Live "ongoing" event detection — refreshes every minute
   const ongoingIds = useMemo(() => findOngoingEventIds(events, now), [events, now]);
@@ -633,6 +640,58 @@ export function ProgrammeView({
                   </span>
                 )}
               </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Day score summary — shown when multiple days and at least one selection */}
+      {dayScores.length > 1 && dayScores.some((s) => s.total > 0) && (
+        <div
+          data-testid="programme-day-score-summary"
+          role="group"
+          aria-label="Résumé des sélections par jour"
+          style={{
+            display: "flex",
+            gap: "var(--space-xs)",
+            overflowX: "auto",
+            scrollbarWidth: "none",
+            paddingBottom: 4,
+          }}
+        >
+          {dayScores.map((score) => {
+            const level = getDayLoadLevel(score);
+            const color = getDayLoadColor(level);
+            return (
+              <div
+                key={score.day}
+                data-testid={`day-score-${score.day}`}
+                style={{
+                  flexShrink: 0,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  padding: "3px 10px",
+                  borderRadius: "var(--radius-full)",
+                  border: `1px solid ${color}`,
+                  backgroundColor: "transparent",
+                  color,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  opacity: score.total === 0 ? 0.35 : 1,
+                }}
+              >
+                <span>{formatDayLabel(score.day)}</span>
+                {score.mustSee > 0 && (
+                  <span aria-label={`${score.mustSee} must-see`}>★{score.mustSee}</span>
+                )}
+                {score.durationMins > 0 && (
+                  <span aria-label={`${formatDayDuration(score.durationMins)} sélectionnés`}>
+                    {formatDayDuration(score.durationMins)}
+                  </span>
+                )}
+              </div>
             );
           })}
         </div>
