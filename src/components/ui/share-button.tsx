@@ -7,9 +7,10 @@ import { shareOrCopy, type SharePayload } from "@/lib/share";
 interface ShareButtonProps {
   payload: SharePayload;
   label?: string;
+  "data-testid"?: string;
 }
 
-export function ShareButton({ payload, label = "Partager" }: ShareButtonProps) {
+export function ShareButton({ payload, label = "Partager", "data-testid": testId }: ShareButtonProps) {
   const [result, setResult] = useState<"idle" | "copied" | "shared">("idle");
   const [isPending, startTransition] = useTransition();
 
@@ -32,6 +33,7 @@ export function ShareButton({ payload, label = "Partager" }: ShareButtonProps) {
       disabled={isPending || isSuccess}
       aria-label={isSuccess ? "Lien copié !" : label}
       aria-live="polite"
+      data-testid={testId}
       style={{
         display: "inline-flex",
         alignItems: "center",

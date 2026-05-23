@@ -15,6 +15,8 @@ import {
   type ArtistFestivalAppearance,
 } from "@/lib/artist-profile";
 import { buildArtistOgDescription } from "@/lib/og-metadata";
+import { ShareButton } from "@/components/ui/share-button";
+import { buildArtistSharePayload } from "@/lib/share";
 
 type PageContext = { params: Promise<{ id: string }> };
 
@@ -282,6 +284,15 @@ export default async function ArtistePage({ params }: PageContext) {
               Spotify
             </a>
           )}
+        </div>
+
+        {/* Share */}
+        <div style={{ marginTop: 20 }}>
+          <ShareButton
+            payload={buildArtistSharePayload(artist.name, artist.id)}
+            label="Partager"
+            data-testid="artiste-share-button"
+          />
         </div>
       </div>
 

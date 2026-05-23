@@ -49,3 +49,16 @@ export function buildFestivalSharePayload(
     url,
   };
 }
+
+export function buildArtistSharePayload(
+  artistName: string,
+  artistId: string,
+  baseUrl = ""
+): SharePayload {
+  const url = `${baseUrl}/artiste/${artistId}`;
+  return {
+    title: artistName,
+    text: `Découvre ${artistName} sur MyCrewFest`,
+    url,
+  };
+}
