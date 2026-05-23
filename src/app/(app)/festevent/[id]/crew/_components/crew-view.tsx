@@ -9,7 +9,7 @@ import { QuickStatusBar } from "@/components/crew/quick-status-bar";
 import { RallyPoint } from "@/components/crew/rally-point";
 import { useCrewStore } from "@/store/use-crew-store";
 import type { CrewData, CrewMemberData, EventSummary, QuickStatus } from "@/types";
-import { countCrewAdmins, countCrewMembersWithGeoloc } from "@/lib/crew-stats";
+import { countCrewAdmins, countCrewMembersWithGeoloc, countCrewMembersActiveGeoloc } from "@/lib/crew-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -489,6 +489,7 @@ function WithCrewView({
 
   const adminCount = useMemo(() => countCrewAdmins(localCrew.members), [localCrew.members]);
   const geolocCount = useMemo(() => countCrewMembersWithGeoloc(localCrew.members), [localCrew.members]);
+  const activeGeolocCount = useMemo(() => countCrewMembersActiveGeoloc(localCrew.members), [localCrew.members]);
 
   // Copy invite link
   async function handleCopyCode() {
@@ -702,10 +703,26 @@ function WithCrewView({
                   fontSize: "var(--fs-xs)",
                   color: "var(--primary-neon)",
                 }}
-                title="Membres partageant leur position"
+                title="Membres partageant leur position (actif + arrière-plan)"
               >
                 ◉ {geolocCount} en ligne
               </span>
+            )}
+            {activeGeolocCount > 0 && activeGeolocCount < geolocCount && (
+              <>
+                <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+                <span
+                  data-testid="crew-active-geoloc-count"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--secondary-cyan)",
+                  }}
+                  title="Membres en partage temps réel (premier plan)"
+                >
+                  ⬤ {activeGeolocCount} en direct
+                </span>
+              </>
             )}
             {geolocCount > 0 && adminCount > 0 && (
               <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
