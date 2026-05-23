@@ -64,3 +64,18 @@ export function countAdminUsers(users: Pick<AdminUserRow, "role">[]): number {
 export function countRegularUsers(users: Pick<AdminUserRow, "role">[]): number {
   return users.filter((u) => u.role !== "admin").length;
 }
+
+/**
+ * Client-side filter: matches displayName, email, or role label (case-insensitive).
+ * Empty query returns all users.
+ */
+export function filterAdminUsers(users: AdminUserRow[], query: string): AdminUserRow[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return users;
+  return users.filter(
+    (u) =>
+      u.displayName.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q) ||
+      formatUserRole(u.role).toLowerCase().includes(q),
+  );
+}

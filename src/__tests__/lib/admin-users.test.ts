@@ -6,6 +6,7 @@ import {
   sortAdminUsers,
   countAdminUsers,
   countRegularUsers,
+  filterAdminUsers,
   type AdminUserRow,
 } from "@/lib/admin-users";
 
@@ -138,5 +139,52 @@ describe("countRegularUsers", () => {
 
   it("counts non-admin users", () => {
     expect(countRegularUsers([{ role: "admin" }, { role: "user" }, { role: "user" }])).toBe(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// filterAdminUsers
+// ---------------------------------------------------------------------------
+
+const users: AdminUserRow[] = [
+  makeUser({ id: "u1", displayName: "Alice", email: "alice@example.com", role: "user" }),
+  makeUser({ id: "u2", displayName: "Bob Admin", email: "bob@example.com", role: "admin" }),
+  makeUser({ id: "u3", displayName: "Charlie", email: "charlie@fest.io", role: "user" }),
+];
+
+describe("filterAdminUsers", () => {
+  it("returns all users for empty query", () => {
+    expect(filterAdminUsers(users, "")).toHaveLength(3);
+  });
+
+  it("filters by displayName (case-insensitive)", () => {
+    const result = filterAdminUsers(users, "alice");
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("u1");
+  });
+
+  it("filters by email", () => {
+    const result = filterAdminUsers(users, "fest.io");
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("u3");
+  });
+
+  it("filters by role label (admin)", () => {
+    const result = filterAdminUsers(users, "admin");
+    expect(result.length).toBeGreaterThanOrEqual(1);
+    expect(result.every((u) => u.role === "admin" || u.displayName.toLowerCase().includes("admin"))).toBe(true);
+  });
+
+  it("returns empty for no match", () => {
+    expect(filterAdminUsers(users, "zzz999")).toHaveLength(0);
+  });
+
+  it("returns empty for empty input array", () => {
+    expect(filterAdminUsers([], "alice")).toHaveLength(0);
+  });
+
+  it("does not mutate original array", () => {
+    filterAdminUsers(users, "alice");
+    expect(users).toHaveLength(3);
   });
 });
