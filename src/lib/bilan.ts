@@ -5,6 +5,7 @@ export interface BilantableEvent {
   venue?: { name: string } | null;
   tags?: string[] | null;
   startTime?: string | null;
+  eventType?: string | null;
 }
 
 export interface BilanStats {
@@ -17,6 +18,8 @@ export interface BilanStats {
   topTag: string | null;
   avgStartHour: number | null;
   bestDay: { date: string; count: number } | null;
+  topEventType: string | null;
+  uniqueEventTypes: number;
 }
 
 export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats {
@@ -82,6 +85,21 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     }
   }
 
+  const eventTypeCounts = new Map<string, number>();
+  for (const e of seen) {
+    if (e.eventType) {
+      eventTypeCounts.set(e.eventType, (eventTypeCounts.get(e.eventType) ?? 0) + 1);
+    }
+  }
+  let topEventType: string | null = null;
+  let maxTypeCount = 0;
+  for (const [type, count] of eventTypeCounts) {
+    if (count > maxTypeCount) {
+      maxTypeCount = count;
+      topEventType = type;
+    }
+  }
+
   return {
     totalSeen: seen.length,
     totalDurationMins,
@@ -92,6 +110,8 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     topTag,
     avgStartHour,
     bestDay,
+    topEventType,
+    uniqueEventTypes: eventTypeCounts.size,
   };
 }
 

@@ -647,6 +647,62 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
         </div>
       )}
 
+      {/* Top event type */}
+      {stats.topEventType && (
+        <div
+          data-testid="bilan-top-event-type"
+          style={{
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-md)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-sm)",
+          }}
+        >
+          <span style={{ fontSize: 18, lineHeight: 1 }} aria-hidden="true">🎭</span>
+          <div>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                margin: 0,
+              }}
+            >
+              Type préféré
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-base)",
+                fontWeight: "var(--fw-medium)",
+                color: "var(--text-main)",
+                margin: 0,
+                textTransform: "capitalize",
+              }}
+            >
+              {stats.topEventType}
+              {stats.uniqueEventTypes > 1 && (
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--text-muted)",
+                    marginLeft: "var(--space-sm)",
+                  }}
+                >
+                  +{stats.uniqueEventTypes - 1} autre{stats.uniqueEventTypes > 2 ? "s" : ""}
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Seen events list */}
       {seenEvents.length > 0 && (
         <section aria-label="Événements vus">

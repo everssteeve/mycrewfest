@@ -263,3 +263,68 @@ describe("formatAvgHour", () => {
     expect(formatAvgHour(14 * 60 + 5)).toBe("14h05");
   });
 });
+
+// ---------------------------------------------------------------------------
+// topEventType / uniqueEventTypes
+// ---------------------------------------------------------------------------
+
+function evWithType(
+  status: string | null,
+  eventType: string | null,
+): BilantableEvent {
+  return {
+    title: "Event",
+    durationMins: null,
+    selection: status ? { status } : null,
+    venue: null,
+    tags: null,
+    startTime: null,
+    eventType,
+  };
+}
+
+describe("computeBilan — topEventType / uniqueEventTypes", () => {
+  it("returns null topEventType and 0 uniqueEventTypes for no seen events", () => {
+    const stats = computeBilan([evWithType("must-see", "concert")]);
+    expect(stats.topEventType).toBeNull();
+    expect(stats.uniqueEventTypes).toBe(0);
+  });
+
+  it("returns null topEventType when seen events have no eventType", () => {
+    const stats = computeBilan([evWithType("vu", null)]);
+    expect(stats.topEventType).toBeNull();
+    expect(stats.uniqueEventTypes).toBe(0);
+  });
+
+  it("returns the only event type when all seen events share one type", () => {
+    const events = [
+      evWithType("vu", "concert"),
+      evWithType("vu", "concert"),
+    ];
+    const stats = computeBilan(events);
+    expect(stats.topEventType).toBe("concert");
+    expect(stats.uniqueEventTypes).toBe(1);
+  });
+
+  it("returns the most frequent event type", () => {
+    const events = [
+      evWithType("vu", "concert"),
+      evWithType("vu", "concert"),
+      evWithType("vu", "théâtre"),
+    ];
+    const stats = computeBilan(events);
+    expect(stats.topEventType).toBe("concert");
+    expect(stats.uniqueEventTypes).toBe(2);
+  });
+
+  it("ignores non-seen events when computing topEventType", () => {
+    const events = [
+      evWithType("vu", "cirque"),
+      evWithType("must-see", "concert"),
+      evWithType("must-see", "concert"),
+    ];
+    const stats = computeBilan(events);
+    expect(stats.topEventType).toBe("cirque");
+    expect(stats.uniqueEventTypes).toBe(1);
+  });
+});
