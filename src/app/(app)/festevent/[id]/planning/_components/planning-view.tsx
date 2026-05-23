@@ -10,6 +10,7 @@ import { useFestEventStore } from "@/store/use-fest-event-store";
 import { toggleVuStatus } from "@/lib/selection";
 import { generatePlanningText } from "@/lib/planning-text";
 import { formatBilanDuration } from "@/lib/bilan";
+import { countUniqueVenues } from "@/lib/programme-summary";
 import { applyPlanningMustSeeFilter } from "@/lib/planning-filter";
 import { computeTravelTimeMins } from "@/lib/travel-time";
 import { getEventTimeStatus } from "@/lib/event-status";
@@ -417,6 +418,8 @@ export function PlanningView({
 
   const mustSeeCount = useMemo(() => countMustSeeEvents(dayEvents), [dayEvents]);
 
+  const uniqueVenueCount = useMemo(() => countUniqueVenues(dayEvents), [dayEvents]);
+
   // Apply must-see-only filter for display (conflicts/totalMins use full dayEvents)
   const displayedEvents = useMemo(
     () => applyPlanningMustSeeFilter(dayEvents, mustSeeOnly),
@@ -592,6 +595,22 @@ export function PlanningView({
               title="Part de ta journée couverte par les événements"
             >
               {dayCoverage.percent}% couvert
+            </span>
+          </>
+        )}
+        {uniqueVenueCount >= 2 && (
+          <>
+            <span style={{ color: "var(--border-strong)" }}>·</span>
+            <span
+              data-testid="planning-unique-venues"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-sm)",
+                color: "var(--text-muted)",
+              }}
+              title="Nombre de scènes distinctes dans ton planning"
+            >
+              {uniqueVenueCount} lieux
             </span>
           </>
         )}
