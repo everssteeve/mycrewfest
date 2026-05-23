@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/api";
 import type { FestivalType } from "@/lib/api";
 import { FestEventShell } from "./_components/fest-event-shell";
+import { UrgentNewsBanner } from "@/components/festevent/urgent-news-banner";
+import { filterUrgentNews } from "@/lib/news-urgency";
 
 type LayoutContext = { params: Promise<{ id: string }> };
 
@@ -38,6 +40,18 @@ async function fetchFestEvent(id: string, userId: string) {
   return fe;
 }
 
+async function fetchUrgentNews(festivalId: string) {
+  const items = await prisma.newsItem.findMany({
+    where: { festivalId, urgencyLevel: "critique" },
+    orderBy: { publishedAt: "desc" },
+    take: 5,
+    select: { id: true, summary: true, category: true, publishedAt: true, urgencyLevel: true },
+  });
+  return filterUrgentNews(
+    items.map((n) => ({ ...n, publishedAt: n.publishedAt.toISOString() }))
+  );
+}
+
 export default async function FestEventLayout({
   children,
   params,
@@ -66,13 +80,21 @@ export default async function FestEventLayout({
     programType: fe.festival.programType as "structuré" | "déambulatoire" | "hybride",
   };
 
+  const urgentNews = await fetchUrgentNews(fe.festival.id);
+
   return (
-    <FestEventShell
-      festEventId={id}
-      festival={festivalForShell}
-      presenceDates={presenceDates}
-    >
-      {children}
-    </FestEventShell>
+    <>
+      <UrgentNewsBanner
+        urgentNews={urgentNews}
+        newsPageHref={`/festevent/${id}/news`}
+      />
+      <FestEventShell
+        festEventId={id}
+        festival={festivalForShell}
+        presenceDates={presenceDates}
+      >
+        {children}
+      </FestEventShell>
+    </>
   );
 }
