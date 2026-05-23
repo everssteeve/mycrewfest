@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Newspaper, Pin, RefreshCw, Filter, Search, X } from "lucide-react";
 import { matchesNewsQuery } from "@/lib/news-search";
-import { computeNewsStats } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource } from "@/lib/news-stats";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 // ---------------------------------------------------------------------------
@@ -324,6 +324,7 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
   );
 
   const newsStats = useMemo(() => computeNewsStats(filteredNews), [filteredNews]);
+  const topSource = useMemo(() => getTopNewsSource(filteredNews), [filteredNews]);
 
   // Separate pinned from the rest
   const pinnedItems = filteredNews.filter((item) => item.isPinned);
@@ -462,6 +463,18 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
               }}
             >
               · {newsStats.critiques} critique{newsStats.critiques > 1 ? "s" : ""}
+            </span>
+          )}
+          {topSource && newsStats.total > 1 && (
+            <span
+              data-testid="news-stats-top-source"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--secondary-cyan)",
+              }}
+            >
+              · {topSource}
             </span>
           )}
           {selectedCategory && (

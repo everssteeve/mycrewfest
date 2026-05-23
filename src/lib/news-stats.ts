@@ -21,3 +21,28 @@ export function computeNewsStats<T extends StatsableNewsItem>(items: T[]): NewsS
   }
   return { total: items.length, critiques, pinned };
 }
+
+export interface SourceCountable {
+  source: string;
+}
+
+/**
+ * Returns the source name with the most news items, or null when the list is empty.
+ * Ties are broken by insertion order (first encountered wins).
+ */
+export function getTopNewsSource<T extends SourceCountable>(items: T[]): string | null {
+  if (items.length === 0) return null;
+  const counts = new Map<string, number>();
+  for (const item of items) {
+    counts.set(item.source, (counts.get(item.source) ?? 0) + 1);
+  }
+  let topSource: string | null = null;
+  let max = 0;
+  for (const [source, count] of counts) {
+    if (count > max) {
+      max = count;
+      topSource = source;
+    }
+  }
+  return topSource;
+}
