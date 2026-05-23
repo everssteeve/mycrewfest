@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Newspaper, Pin, RefreshCw, Filter, Search, X } from "lucide-react";
 import { matchesNewsQuery } from "@/lib/news-search";
-import { computeNewsStats, getTopNewsSource } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems } from "@/lib/news-stats";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 // ---------------------------------------------------------------------------
@@ -325,6 +325,7 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
 
   const newsStats = useMemo(() => computeNewsStats(filteredNews), [filteredNews]);
   const topSource = useMemo(() => getTopNewsSource(filteredNews), [filteredNews]);
+  const pinnedCount = useMemo(() => countPinnedNewsItems(filteredNews), [filteredNews]);
 
   // Separate pinned from the rest
   const pinnedItems = filteredNews.filter((item) => item.isPinned);
@@ -475,6 +476,19 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
               }}
             >
               · {topSource}
+            </span>
+          )}
+          {pinnedCount > 0 && pinnedCount < newsStats.total && (
+            <span
+              data-testid="news-stats-pinned"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--warning-orange)",
+              }}
+              title="Actualités épinglées par l'organisateur"
+            >
+              · 📌 {pinnedCount}
             </span>
           )}
           {selectedCategory && (

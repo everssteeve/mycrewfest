@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeNewsStats, getTopNewsSource } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems } from "@/lib/news-stats";
 
 const item = (urgencyLevel: "normal" | "critique", isPinned = false) => ({
   urgencyLevel,
@@ -37,6 +37,30 @@ describe("computeNewsStats", () => {
   it("returns zero critiques when all are normal", () => {
     const items = [item("normal"), item("normal")];
     expect(computeNewsStats(items).critiques).toBe(0);
+  });
+});
+
+describe("countPinnedNewsItems", () => {
+  const pinned = (isPinned: boolean) => ({ isPinned });
+
+  it("returns 0 for empty array", () => {
+    expect(countPinnedNewsItems([])).toBe(0);
+  });
+
+  it("returns 0 when no items are pinned", () => {
+    expect(countPinnedNewsItems([pinned(false), pinned(false)])).toBe(0);
+  });
+
+  it("counts a single pinned item", () => {
+    expect(countPinnedNewsItems([pinned(true), pinned(false)])).toBe(1);
+  });
+
+  it("counts multiple pinned items", () => {
+    expect(countPinnedNewsItems([pinned(true), pinned(true), pinned(false)])).toBe(2);
+  });
+
+  it("returns total when all are pinned", () => {
+    expect(countPinnedNewsItems([pinned(true), pinned(true), pinned(true)])).toBe(3);
   });
 });
 

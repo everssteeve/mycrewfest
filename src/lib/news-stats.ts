@@ -22,6 +22,17 @@ export function computeNewsStats<T extends StatsableNewsItem>(items: T[]): NewsS
   return { total: items.length, critiques, pinned };
 }
 
+export interface PinnableNewsItem {
+  isPinned: boolean;
+}
+
+/**
+ * Returns the count of pinned news items.
+ */
+export function countPinnedNewsItems<T extends PinnableNewsItem>(items: T[]): number {
+  return items.filter((i) => i.isPinned).length;
+}
+
 export interface SourceCountable {
   source: string;
 }
