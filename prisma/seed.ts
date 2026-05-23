@@ -1521,6 +1521,458 @@ async function main() {
 
   console.log(`  ✓ Festival: ${suds.name} (${sudsEvents.length} events, ${sudsNews.length} news)`);
 
+  // ── 7. Les Vieilles Charrues 2026 (34ème édition) ──────────────────────
+  const vc = await prisma.festival.upsert({
+    where: { slug: "vieilles-charrues-2026" },
+    update: {},
+    create: {
+      slug: "vieilles-charrues-2026",
+      name: "Festival des Vieilles Charrues 2026",
+      description:
+        "Le plus grand festival de musique de France, 100% associatif et profondément breton. Fondé en 1992, l'événement réunit chaque année 70 000 festivaliers par jour sur la prairie de Kerampuilh à Carhaix-Plouguer. La 34ème édition célèbre un line-up éclectique allant du rock à la pop en passant par le rap, l'électro et la musique bretonne.",
+      startDate: dt("2026-07-16T12:00:00Z"),
+      endDate: dt("2026-07-19T23:59:00Z"),
+      city: "Carhaix-Plouguer",
+      country: "France",
+      latitude: 48.2708,
+      longitude: -3.5583,
+      address: "Prairie de Kerampuilh, 29270 Carhaix-Plouguer",
+      festivalType: "musique",
+      programType: "scène",
+      capacity: 70000,
+      siteUrl: "https://www.vieillescharrues.asso.fr",
+      instagramHandle: "vieillescharruesofficiel",
+      facebookPage: "https://www.facebook.com/lesvieillescharruesofficiel",
+      xHandle: "vieillescharrues",
+      ingestionStatus: "enrichi",
+      confidenceLevel: "vérifié_humain",
+      programStatus: "complet",
+    },
+  });
+
+  // Artists — Vieilles Charrues 2026
+  const vcArtistKatyPerry = await prisma.artist.upsert({
+    where: { id: "artist-katy-perry" },
+    update: {},
+    create: {
+      id: "artist-katy-perry",
+      name: "Katy Perry",
+      description: "Superstar américaine de la pop, auteure de nombreux hits mondiaux dont Roar, Firework et Dark Horse.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+      instagram: "katyperry",
+    },
+  });
+
+  const vcArtistGims = await prisma.artist.upsert({
+    where: { id: "artist-gims" },
+    update: {},
+    create: {
+      id: "artist-gims",
+      name: "Gims",
+      description: "Rappeur et chanteur franco-congolais, l'un des artistes les plus écoutés en France. Ancien membre de Sexion d'Assaut.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+      instagram: "maître.gims",
+    },
+  });
+
+  const vcArtistNickCave = await prisma.artist.upsert({
+    where: { id: "artist-nick-cave-bad-seeds" },
+    update: {},
+    create: {
+      id: "artist-nick-cave-bad-seeds",
+      name: "Nick Cave & The Bad Seeds",
+      description: "Formation australienne légendaire autour de Nick Cave, figure incontournable du post-punk et du rock gothique depuis 1983.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "AU",
+      siteUrl: "https://www.nickcave.com",
+      instagram: "nickcaveofficial",
+    },
+  });
+
+  const vcArtistJLAubert = await prisma.artist.upsert({
+    where: { id: "artist-jean-louis-aubert" },
+    update: {},
+    create: {
+      id: "artist-jean-louis-aubert",
+      name: "Jean-Louis Aubert",
+      description: "Chanteur et guitariste français, cofondateur et frontman du groupe Téléphone, monument du rock français.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+    },
+  });
+
+  const vcArtistAyaNakamura = await prisma.artist.upsert({
+    where: { id: "artist-aya-nakamura" },
+    update: {},
+    create: {
+      id: "artist-aya-nakamura",
+      name: "Aya Nakamura",
+      description: "Chanteuse franco-malienne, artiste francophone la plus écoutée au monde. Ses tubes Djadja et Pookie ont conquis la planète.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+      instagram: "ayanakamuraofficial",
+    },
+  });
+
+  const vcArtistMika = await prisma.artist.upsert({
+    where: { id: "artist-mika" },
+    update: {},
+    create: {
+      id: "artist-mika",
+      name: "Mika",
+      description: "Chanteur britannique d'origine libanaise, auteur de Grace Kelly et Relax, Take It Easy. Pop colorée et performances scéniques spectaculaires.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "GB",
+      instagram: "mikainstagram",
+    },
+  });
+
+  const vcArtistInterpol = await prisma.artist.upsert({
+    where: { id: "artist-interpol" },
+    update: {},
+    create: {
+      id: "artist-interpol",
+      name: "Interpol",
+      description: "Groupe de post-punk revival new-yorkais, connu pour Turn on the Bright Lights et une esthétique sombre et élégante.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+      siteUrl: "https://www.interpolnyc.com",
+    },
+  });
+
+  const vcArtistOrelsan = await prisma.artist.upsert({
+    where: { id: "artist-orelsan" },
+    update: {},
+    create: {
+      id: "artist-orelsan",
+      name: "Orelsan",
+      description: "Rappeur normand, l'une des voix les plus importantes du rap français. Son album La Fête est finie a marqué une génération.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+      instagram: "orelsanofficial",
+    },
+  });
+
+  const vcArtistVanessaParadis = await prisma.artist.upsert({
+    where: { id: "artist-vanessa-paradis" },
+    update: {},
+    create: {
+      id: "artist-vanessa-paradis",
+      name: "Vanessa Paradis",
+      description: "Chanteuse et actrice française, icône de la chanson française. De Joe le taxi à Be My Baby, une carrière jalonnée de succès.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+    },
+  });
+
+  const vcArtistFeuChatterton = await prisma.artist.upsert({
+    where: { id: "artist-feu-chatterton" },
+    update: {},
+    create: {
+      id: "artist-feu-chatterton",
+      name: "Feu! Chatterton",
+      description: "Groupe de rock français poétique et psychédélique, auteur de Hier encore et Côte Concorde. Textes ciselés et univers scénique hypnotique.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+      instagram: "feuchatterton",
+    },
+  });
+
+  const vcArtistPatrickWatson = await prisma.artist.upsert({
+    where: { id: "artist-patrick-watson" },
+    update: {},
+    create: {
+      id: "artist-patrick-watson",
+      name: "Patrick Watson",
+      description: "Musicien folk-pop canadien, auteur de compositions intimistes et planantes. Reconnu pour ses performances live épurées.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "CA",
+    },
+  });
+
+  // Venues — Vieilles Charrues 2026
+  const vcSceneKerampuilh = await prisma.venue.upsert({
+    where: { id: "venue-vc-kerampuilh" },
+    update: {},
+    create: {
+      id: "venue-vc-kerampuilh",
+      festivalId: vc.id,
+      name: "Scène Kerampuilh",
+      type: "scène",
+      capacity: 50000,
+      latitude: 48.2710,
+      longitude: -3.5580,
+    },
+  });
+
+  const vcSceneMarcelGuern = await prisma.venue.upsert({
+    where: { id: "venue-vc-marcel-guern" },
+    update: {},
+    create: {
+      id: "venue-vc-marcel-guern",
+      festivalId: vc.id,
+      name: "Scène Marcel Guern",
+      type: "scène",
+      capacity: 25000,
+      latitude: 48.2705,
+      longitude: -3.5590,
+    },
+  });
+
+  const vcSceneGrune = await prisma.venue.upsert({
+    where: { id: "venue-vc-grune-erde" },
+    update: {},
+    create: {
+      id: "venue-vc-grune-erde",
+      festivalId: vc.id,
+      name: "Scène Grüne Erde",
+      type: "scène",
+      capacity: 8000,
+      latitude: 48.2700,
+      longitude: -3.5575,
+    },
+  });
+
+  const vcSceneFestNoz = await prisma.venue.upsert({
+    where: { id: "venue-vc-fest-noz" },
+    update: {},
+    create: {
+      id: "venue-vc-fest-noz",
+      festivalId: vc.id,
+      name: "Espace Fest Noz",
+      type: "scène",
+      capacity: 3000,
+      latitude: 48.2695,
+      longitude: -3.5570,
+    },
+  });
+
+  // Events — Vieilles Charrues 2026
+  const vcEvents = [
+    // Jeudi 16 juillet
+    {
+      id: "evt-vc-katy-perry",
+      festivalId: vc.id,
+      venueId: vcSceneKerampuilh.id,
+      artistId: vcArtistKatyPerry.id,
+      title: "Katy Perry",
+      eventType: "concert",
+      startTime: dt("2026-07-16T21:00:00Z"),
+      endTime: dt("2026-07-16T22:30:00Z"),
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["pop", "tête-d-affiche", "incontournable"]),
+    },
+    {
+      id: "evt-vc-gims-jeudi",
+      festivalId: vc.id,
+      venueId: vcSceneMarcelGuern.id,
+      artistId: vcArtistGims.id,
+      title: "Gims",
+      eventType: "concert",
+      startTime: dt("2026-07-16T19:00:00Z"),
+      endTime: dt("2026-07-16T20:30:00Z"),
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rap", "urban"]),
+    },
+    // Vendredi 17 juillet
+    {
+      id: "evt-vc-nick-cave",
+      festivalId: vc.id,
+      venueId: vcSceneKerampuilh.id,
+      artistId: vcArtistNickCave.id,
+      title: "Nick Cave & The Bad Seeds",
+      eventType: "concert",
+      startTime: dt("2026-07-17T21:00:00Z"),
+      endTime: dt("2026-07-17T22:45:00Z"),
+      durationMins: 105,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rock", "post-punk", "légende", "incontournable"]),
+    },
+    {
+      id: "evt-vc-jl-aubert",
+      festivalId: vc.id,
+      venueId: vcSceneMarcelGuern.id,
+      artistId: vcArtistJLAubert.id,
+      title: "Jean-Louis Aubert",
+      eventType: "concert",
+      startTime: dt("2026-07-17T19:00:00Z"),
+      endTime: dt("2026-07-17T20:30:00Z"),
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rock", "française"]),
+    },
+    {
+      id: "evt-vc-patrick-watson",
+      festivalId: vc.id,
+      venueId: vcSceneGrune.id,
+      artistId: vcArtistPatrickWatson.id,
+      title: "Patrick Watson",
+      eventType: "concert",
+      startTime: dt("2026-07-17T17:00:00Z"),
+      endTime: dt("2026-07-17T18:00:00Z"),
+      durationMins: 60,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["folk", "indie", "intimiste"]),
+    },
+    // Samedi 18 juillet
+    {
+      id: "evt-vc-aya-nakamura",
+      festivalId: vc.id,
+      venueId: vcSceneKerampuilh.id,
+      artistId: vcArtistAyaNakamura.id,
+      title: "Aya Nakamura",
+      eventType: "concert",
+      startTime: dt("2026-07-18T21:00:00Z"),
+      endTime: dt("2026-07-18T22:30:00Z"),
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["pop", "afropop", "tête-d-affiche"]),
+    },
+    {
+      id: "evt-vc-mika",
+      festivalId: vc.id,
+      venueId: vcSceneMarcelGuern.id,
+      artistId: vcArtistMika.id,
+      title: "Mika",
+      eventType: "concert",
+      startTime: dt("2026-07-18T19:00:00Z"),
+      endTime: dt("2026-07-18T20:30:00Z"),
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["pop", "electropop", "festif"]),
+    },
+    {
+      id: "evt-vc-interpol",
+      festivalId: vc.id,
+      venueId: vcSceneKerampuilh.id,
+      artistId: vcArtistInterpol.id,
+      title: "Interpol",
+      eventType: "concert",
+      startTime: dt("2026-07-18T18:00:00Z"),
+      endTime: dt("2026-07-18T19:15:00Z"),
+      durationMins: 75,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["indie-rock", "post-punk", "new-york"]),
+    },
+    // Dimanche 19 juillet
+    {
+      id: "evt-vc-orelsan",
+      festivalId: vc.id,
+      venueId: vcSceneKerampuilh.id,
+      artistId: vcArtistOrelsan.id,
+      title: "Orelsan",
+      eventType: "concert",
+      startTime: dt("2026-07-19T21:00:00Z"),
+      endTime: dt("2026-07-19T22:30:00Z"),
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rap", "tête-d-affiche", "incontournable"]),
+    },
+    {
+      id: "evt-vc-vanessa-paradis",
+      festivalId: vc.id,
+      venueId: vcSceneMarcelGuern.id,
+      artistId: vcArtistVanessaParadis.id,
+      title: "Vanessa Paradis",
+      eventType: "concert",
+      startTime: dt("2026-07-19T19:00:00Z"),
+      endTime: dt("2026-07-19T20:15:00Z"),
+      durationMins: 75,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["chanson", "pop", "icône"]),
+    },
+    {
+      id: "evt-vc-feu-chatterton",
+      festivalId: vc.id,
+      venueId: vcSceneGrune.id,
+      artistId: vcArtistFeuChatterton.id,
+      title: "Feu! Chatterton",
+      eventType: "concert",
+      startTime: dt("2026-07-19T17:30:00Z"),
+      endTime: dt("2026-07-19T18:45:00Z"),
+      durationMins: 75,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rock", "poétique", "français"]),
+    },
+  ];
+
+  for (const evt of vcEvents) {
+    await prisma.event.upsert({
+      where: { id: evt.id },
+      update: {},
+      create: evt,
+    });
+  }
+
+  // News — Vieilles Charrues 2026
+  const vcNews = [
+    {
+      id: "news-vc-2026-lineup",
+      festivalId: vc.id,
+      summary: "Programmation complète dévoilée — 70+ artistes sur 4 jours. Katy Perry, Nick Cave, Aya Nakamura, Orelsan et Mika parmi les têtes d'affiche de la 34ème édition.",
+      urgencyLevel: "normal" as const,
+      isPinned: true,
+      publishedAt: dt("2026-03-15T10:00:00Z"),
+      category: "programmation",
+      source: "site_officiel",
+    },
+    {
+      id: "news-vc-2026-camping",
+      festivalId: vc.id,
+      summary: "Camping : ouverture anticipée le 15 juillet à 8h. Les festivaliers peuvent s'installer la veille du premier concert pour éviter les files d'attente. Réservation indispensable.",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-05-01T09:00:00Z"),
+      category: "logistique",
+      source: "site_officiel",
+    },
+    {
+      id: "news-vc-2026-pass-sold-out",
+      festivalId: vc.id,
+      summary: "Pass 4 jours et 3 jours sold out. Des billets à la journée restent disponibles à partir de 52€ (jeudi) et 61€ (vendredi-dimanche) sur le site officiel.",
+      urgencyLevel: "critique" as const,
+      isPinned: true,
+      publishedAt: dt("2026-04-10T12:00:00Z"),
+      category: "billetterie",
+      source: "site_officiel",
+    },
+    {
+      id: "news-vc-2026-mobilite",
+      festivalId: vc.id,
+      summary: "Plan mobilité douce : navettes depuis Brest, Quimper et Rennes. Covoiturage BlaBlaCar disponible. Trains spéciaux ajoutés les 16 et 19 juillet.",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-06-01T08:00:00Z"),
+      category: "logistique",
+      source: "site_officiel",
+    },
+  ];
+
+  for (const news of vcNews) {
+    await prisma.newsItem.upsert({
+      where: { id: news.id },
+      update: {},
+      create: news,
+    });
+  }
+
+  console.log(`  ✓ Festival: ${vc.name} (${vcEvents.length} events, ${vcNews.length} news)`);
+
   console.log("\n✅ Seed terminé avec succès !");
   console.log("   Utilisateur test : test@mycrewfest.dev / password123");
 }
