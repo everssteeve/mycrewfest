@@ -11,6 +11,7 @@ import { toggleVuStatus } from "@/lib/selection";
 import { generatePlanningText } from "@/lib/planning-text";
 import { formatBilanDuration } from "@/lib/bilan";
 import { applyPlanningMustSeeFilter } from "@/lib/planning-filter";
+import { computeTravelTimeMins } from "@/lib/travel-time";
 import { getEventTimeStatus } from "@/lib/event-status";
 import type { EventSummary, ConflictInfo, ConflictLevel } from "@/types";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
@@ -405,6 +406,21 @@ export function PlanningView({
     () => applyPlanningMustSeeFilter(dayEvents, mustSeeOnly),
     [dayEvents, mustSeeOnly],
   );
+
+  // Travel time (minutes) between each consecutive pair of displayed events (null = same venue or no coords)
+  const travelTimes = useMemo(() => {
+    return displayedEvents.map((e, idx) => {
+      if (idx === 0) return null;
+      const prev = events.find((ev) => ev.id === displayedEvents[idx - 1].id);
+      const curr = events.find((ev) => ev.id === e.id);
+      const pv = prev?.venue;
+      const cv = curr?.venue;
+      if (!pv || !cv || pv.id === cv.id) return null;
+      if (pv.latitude == null || pv.longitude == null || cv.latitude == null || cv.longitude == null) return null;
+      const mins = computeTravelTimeMins(pv.latitude, pv.longitude, cv.latitude, cv.longitude);
+      return mins > 0 ? mins : null;
+    });
+  }, [displayedEvents, events]);
 
   // Copy planning as text to clipboard
   const copyPlanning = useCallback(async () => {
@@ -812,9 +828,37 @@ export function PlanningView({
 
             const conflict = conflictMap.get(e.id);
             const isNext = e.id === nextEvent?.id;
+            const travelMins = travelTimes[idx];
 
             return (
-              <div key={e.id} style={{ display: "flex", gap: "var(--space-sm)" }}>
+              <div key={e.id} style={{ display: "flex", flexDirection: "column", gap: 0 }}>
+              {travelMins != null && (
+                <div
+                  data-testid={`travel-time-${e.id}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "var(--space-xs)",
+                    paddingLeft: 52,
+                    paddingBottom: "var(--space-xs)",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "10px",
+                      color: "var(--warning-orange)",
+                      background: "rgba(255,153,0,0.08)",
+                      border: "1px solid rgba(255,153,0,0.3)",
+                      borderRadius: "var(--radius-full)",
+                      padding: "1px 8px",
+                    }}
+                  >
+                    → ~{travelMins} min à pied
+                  </span>
+                </div>
+              )}
+              <div style={{ display: "flex", gap: "var(--space-sm)" }}>
                 {/* Time column */}
                 <div
                   style={{
@@ -868,6 +912,7 @@ export function PlanningView({
                     }
                   />
                 </div>
+              </div>
               </div>
             );
           })
