@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -229,6 +229,11 @@ export function ProgrammeView({
 
   const totalFilteredDurationMins = useMemo(
     () => computeProgrammeDurationMins(filteredEvents),
+    [filteredEvents],
+  );
+
+  const itinerantCount = useMemo(
+    () => countItinerantEvents(filteredEvents),
     [filteredEvents],
   );
 
@@ -746,6 +751,21 @@ export function ProgrammeView({
               }}
             >
               {formatBilanDuration(totalFilteredDurationMins)}
+            </span>
+          </>
+        )}
+        {itinerantCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-itinerant-count"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--primary-neon)",
+              }}
+            >
+              {itinerantCount} itinérant{itinerantCount !== 1 ? "s" : ""}
             </span>
           </>
         )}
