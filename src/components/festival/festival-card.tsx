@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { MapPin, CalendarDays, Heart } from "lucide-react";
+import { MapPin, CalendarDays, Heart, Users } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { FestivalSummary, FestivalType, ProgramStatus } from "@/lib/types";
 import { getFestivalTemporalStatus, getDaysUntilStart } from "@/lib/festival-temporal";
 import { formatFestivalStats } from "@/lib/format-count";
+import { formatFollowerCount, getFollowerTier, getFollowerTierColor, getFollowerTierBg } from "@/lib/festival-community";
 
 interface FestivalCardProps {
   festival: FestivalSummary;
@@ -199,6 +200,26 @@ export function FestivalCard({ festival }: FestivalCardProps) {
             {formatFestivalStats(festival._count)}
           </p>
         )}
+
+        {/* Followers badge */}
+        {festival._count && festival._count.followers > 0 && (() => {
+          const tier = getFollowerTier(festival._count.followers);
+          return (
+            <span
+              data-testid="festival-follower-badge"
+              aria-label={`${festival._count.followers} personnes suivent ce festival`}
+              className="inline-flex items-center gap-1 self-start rounded-full px-2 py-0.5 text-[11px] font-bold"
+              style={{
+                backgroundColor: getFollowerTierBg(tier),
+                color: getFollowerTierColor(tier),
+                border: `1px solid ${getFollowerTierColor(tier)}40`,
+              }}
+            >
+              <Users size={10} aria-hidden="true" />
+              {formatFollowerCount(festival._count.followers)}
+            </span>
+          );
+        })()}
 
         {/* Chips row */}
         <div className="flex flex-wrap items-center gap-2 pt-1">
