@@ -81,4 +81,25 @@ test.describe("Page artiste", () => {
     const response = await page.goto("/artiste/nonexistent-artist-id-xyz");
     expect(response?.status()).toBe(404);
   });
+
+  test("upcoming festival cards have follow button when logged in", async ({ page }) => {
+    await page.goto("/festival/hellfest-2026");
+    await page.waitForLoadState("networkidle");
+
+    const artistLink = page.locator('a[href^="/artiste/"]').first();
+    const hasLink = await artistLink.isVisible({ timeout: 5_000 }).catch(() => false);
+    if (!hasLink) { test.skip(); return; }
+
+    const href = await artistLink.getAttribute("href");
+    await page.goto(href!);
+    await page.waitForLoadState("networkidle");
+
+    const upcoming = page.locator('[data-testid="artiste-upcoming"]');
+    const hasUpcoming = await upcoming.isVisible({ timeout: 3_000 }).catch(() => false);
+    if (!hasUpcoming) { test.skip(); return; }
+
+    // Follow button should exist in the upcoming section (FollowButton renders a <button>)
+    const followBtn = upcoming.locator("button").first();
+    await expect(followBtn).toBeVisible();
+  });
 });

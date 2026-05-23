@@ -4,6 +4,8 @@ import { ArrowLeft, Globe, Music } from "lucide-react";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/api";
+import { auth } from "@/auth";
+import { FollowButton } from "@/app/(app)/festival/[slug]/_components/follow-button";
 import {
   sortAppearancesByDate,
   splitByTemporality,
@@ -102,9 +104,18 @@ export async function generateMetadata({ params }: PageContext): Promise<Metadat
 
 export default async function ArtistePage({ params }: PageContext) {
   const { id } = await params;
-  const artist = await fetchArtistData(id);
+  const [artist, session] = await Promise.all([fetchArtistData(id), auth()]);
 
   if (!artist) notFound();
+
+  const followedIds = new Set<string>();
+  if (session?.user?.id) {
+    const followed = await prisma.userFollowsFestival.findMany({
+      where: { userId: session.user.id },
+      select: { festivalId: true },
+    });
+    followed.forEach((f) => followedIds.add(f.festivalId));
+  }
 
   return (
     <div
@@ -295,26 +306,25 @@ export default async function ArtistePage({ params }: PageContext) {
             style={{ display: "flex", flexDirection: "column", gap: 8 }}
           >
             {artist.upcoming.map((app) => (
-              <Link
+              <div
                 key={`${app.festivalId}-${app.eventTitle}`}
-                href={`/festival/${app.festivalSlug}`}
-                data-testid={`artiste-appearance-${app.festivalSlug}`}
-                style={{ textDecoration: "none" }}
+                style={{
+                  background: "var(--bg-card, #141519)",
+                  border: "1px solid var(--border-subtle, #1E1F26)",
+                  borderLeft: "3px solid var(--primary-neon, #00FF66)",
+                  borderRadius: 10,
+                  padding: "12px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}
               >
-                <div
-                  style={{
-                    background: "var(--bg-card, #141519)",
-                    border: "1px solid var(--border-subtle, #1E1F26)",
-                    borderLeft: "3px solid var(--primary-neon, #00FF66)",
-                    borderRadius: 10,
-                    padding: "12px 16px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 12,
-                  }}
+                <Link
+                  href={`/festival/${app.festivalSlug}`}
+                  data-testid={`artiste-appearance-${app.festivalSlug}`}
+                  style={{ textDecoration: "none", flex: 1, minWidth: 0 }}
                 >
-                  <div style={{ minWidth: 0, flex: 1 }}>
+                  <div style={{ minWidth: 0 }}>
                     <p
                       style={{
                         fontFamily: "var(--font-display, sans-serif)",
@@ -346,11 +356,15 @@ export default async function ArtistePage({ params }: PageContext) {
                       })}
                     </p>
                   </div>
-                  <span style={{ fontSize: "0.7rem", color: "var(--primary-neon, #00FF66)", flexShrink: 0 }}>
-                    →
-                  </span>
+                </Link>
+                <div style={{ flexShrink: 0 }}>
+                  <FollowButton
+                    festivalId={app.festivalId}
+                    festivalSlug={app.festivalSlug}
+                    initialFollowed={followedIds.has(app.festivalId)}
+                  />
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </section>
