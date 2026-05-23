@@ -10,6 +10,7 @@ import { getFestivalTemporalStatus, getDaysUntilStart } from "@/lib/festival-tem
 import { formatFestivalStats } from "@/lib/format-count";
 import { formatFollowerCount, getFollowerTier, getFollowerTierColor, getFollowerTierBg } from "@/lib/festival-community";
 import { buildFollowApiUrl, getFollowToggleAriaLabel, getFollowToggleMethod } from "@/lib/catalogue-quick-follow";
+import { getCapacityTier, getCapacityTierColor, getCapacityTierBg, formatCapacityLabel, buildCapacityAriaLabel } from "@/lib/festival-capacity";
 
 interface FestivalCardProps {
   festival: FestivalSummary;
@@ -277,6 +278,25 @@ export function FestivalCard({ festival }: FestivalCardProps) {
           >
             {programStatusCfg.label}
           </span>
+
+          {/* Capacity tier chip */}
+          {festival.capacity && festival.capacity > 0 && (() => {
+            const tier = getCapacityTier(festival.capacity);
+            return (
+              <span
+                data-testid="festival-capacity-badge"
+                aria-label={buildCapacityAriaLabel(festival.capacity, tier)}
+                className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                style={{
+                  backgroundColor: getCapacityTierBg(tier),
+                  color: getCapacityTierColor(tier),
+                  border: `1px solid ${getCapacityTierColor(tier)}30`,
+                }}
+              >
+                {formatCapacityLabel(festival.capacity)} · {tier}
+              </span>
+            );
+          })()}
         </div>
       </article>
     </Link>
