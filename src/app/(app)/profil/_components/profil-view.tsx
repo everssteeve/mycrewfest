@@ -1329,6 +1329,37 @@ export function ProfilView({ data }: { data: ProfilData }) {
           Top festivaliers →
         </span>
       </Link>
+      <Link
+        href="/fil"
+        data-testid="profil-fil-link"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border-color)",
+          borderRadius: "var(--radius-md)",
+          padding: "var(--space-sm) var(--space-md)",
+          textDecoration: "none",
+          marginTop: "var(--space-sm)",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--secondary-cyan)",
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+            fontWeight: 900,
+          }}
+        >
+          Fil d'actu
+        </span>
+        <span style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs)" }}>
+          News de mes festivals →
+        </span>
+      </Link>
     </div>
   );
 }
