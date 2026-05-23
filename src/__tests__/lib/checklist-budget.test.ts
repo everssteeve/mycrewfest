@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeChecklistBudget, computeCompletionRate } from "@/lib/checklist-budget";
+import { computeChecklistBudget, computeCompletionRate, getOldestPendingItemAgeDays } from "@/lib/checklist-budget";
 
 describe("computeChecklistBudget", () => {
   it("returns zeros for empty list", () => {
@@ -85,5 +85,52 @@ describe("computeCompletionRate", () => {
 
   it("works with a single undone item", () => {
     expect(computeCompletionRate([{ done: false }])).toBe(0);
+  });
+});
+
+describe("getOldestPendingItemAgeDays", () => {
+  const now = new Date("2026-07-15T12:00:00Z");
+  const daysAgo = (d: number) => new Date(now.getTime() - d * 24 * 60 * 60_000).toISOString();
+
+  it("returns null for empty list", () => {
+    expect(getOldestPendingItemAgeDays([], now)).toBeNull();
+  });
+
+  it("returns null when all items are done", () => {
+    const items = [
+      { done: true, createdAt: daysAgo(5) },
+      { done: true, createdAt: daysAgo(10) },
+    ];
+    expect(getOldestPendingItemAgeDays(items, now)).toBeNull();
+  });
+
+  it("returns the age of the oldest pending item", () => {
+    const items = [
+      { done: false, createdAt: daysAgo(3) },
+      { done: false, createdAt: daysAgo(7) },
+      { done: true, createdAt: daysAgo(15) },
+    ];
+    expect(getOldestPendingItemAgeDays(items, now)).toBe(7);
+  });
+
+  it("ignores done items when computing oldest", () => {
+    const items = [
+      { done: true, createdAt: daysAgo(20) },
+      { done: false, createdAt: daysAgo(2) },
+    ];
+    expect(getOldestPendingItemAgeDays(items, now)).toBe(2);
+  });
+
+  it("ignores items with unparseable createdAt", () => {
+    const items = [
+      { done: false, createdAt: "not-a-date" },
+      { done: false, createdAt: daysAgo(4) },
+    ];
+    expect(getOldestPendingItemAgeDays(items, now)).toBe(4);
+  });
+
+  it("returns 0 for a pending item created today", () => {
+    const items = [{ done: false, createdAt: daysAgo(0) }];
+    expect(getOldestPendingItemAgeDays(items, now)).toBe(0);
   });
 });

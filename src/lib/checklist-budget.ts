@@ -33,3 +33,28 @@ export function computeCompletionRate(items: CompletionRateItem[]): number {
   const done = items.filter((i) => i.done).length;
   return Math.round((done / items.length) * 100);
 }
+
+export interface AgableItem {
+  done: boolean;
+  createdAt: string;
+}
+
+/**
+ * Returns the age in whole days of the oldest pending (not done) item,
+ * relative to `now`. Returns null when all items are done or the list is empty.
+ * Items with unparseable createdAt are ignored.
+ */
+export function getOldestPendingItemAgeDays(
+  items: AgableItem[],
+  now: Date = new Date(),
+): number | null {
+  let oldest: number | null = null;
+  for (const item of items) {
+    if (item.done) continue;
+    const t = new Date(item.createdAt).getTime();
+    if (Number.isNaN(t)) continue;
+    const ageDays = Math.floor((now.getTime() - t) / (24 * 60 * 60_000));
+    if (oldest === null || ageDays > oldest) oldest = ageDays;
+  }
+  return oldest;
+}

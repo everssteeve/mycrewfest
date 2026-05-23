@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown, Copy, Check } from "lucide-react";
 import { generateChecklistText } from "@/lib/checklist-text";
 import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
-import { computeChecklistBudget, computeCompletionRate } from "@/lib/checklist-budget";
+import { computeChecklistBudget, computeCompletionRate, getOldestPendingItemAgeDays } from "@/lib/checklist-budget";
 import { filterByAssignee, getUniqueAssignees, computeAssigneeStats, countUnassignedPendingItems, getMostLoadedAssignee } from "@/lib/checklist-filter";
 import { filterChecklistByQuery } from "@/lib/checklist-search";
 import { isEscapeKey } from "@/lib/keyboard-search";
@@ -210,6 +210,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   const unassignedPendingCount = useMemo(() => countUnassignedPendingItems(items), [items]);
   const mostLoaded = useMemo(() => getMostLoadedAssignee(items), [items]);
   const completionRate = useMemo(() => computeCompletionRate(items), [items]);
+  const oldestPendingDays = useMemo(() => getOldestPendingItemAgeDays(items), [items]);
   const displayedItems = useMemo(
     () => filterChecklistByQuery(filterByAssignee(items, activeAssignee), searchQuery),
     [items, activeAssignee, searchQuery],
@@ -434,6 +435,19 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
                 title="Taux de complétion global"
               >
                 {completionRate}%
+              </span>
+            )}
+            {oldestPendingDays !== null && oldestPendingDays > 0 && completionRate < 100 && (
+              <span
+                data-testid="checklist-oldest-pending"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-xs)",
+                  color: oldestPendingDays >= 7 ? "var(--warning-orange)" : "var(--text-muted)",
+                }}
+                title={`La tâche en attente la plus ancienne date d'il y a ${oldestPendingDays}j`}
+              >
+                ⏰ {oldestPendingDays}j
               </span>
             )}
           </div>
