@@ -10,7 +10,7 @@ import { useFestEventStore } from "@/store/use-fest-event-store";
 import { toggleVuStatus } from "@/lib/selection";
 import { generatePlanningText } from "@/lib/planning-text";
 import { formatBilanDuration } from "@/lib/bilan";
-import { countUniqueVenues } from "@/lib/programme-summary";
+import { countUniqueVenues, computeProgrammeDurationMins } from "@/lib/programme-summary";
 import { applyPlanningMustSeeFilter } from "@/lib/planning-filter";
 import { computeTravelTimeMins } from "@/lib/travel-time";
 import { getEventTimeStatus } from "@/lib/event-status";
@@ -420,6 +420,8 @@ export function PlanningView({
 
   const uniqueVenueCount = useMemo(() => countUniqueVenues(dayEvents), [dayEvents]);
 
+  const totalDayDurationMins = useMemo(() => computeProgrammeDurationMins(dayEvents), [dayEvents]);
+
   // Apply must-see-only filter for display (conflicts/totalMins use full dayEvents)
   const displayedEvents = useMemo(
     () => applyPlanningMustSeeFilter(dayEvents, mustSeeOnly),
@@ -611,6 +613,22 @@ export function PlanningView({
               title="Nombre de scènes distinctes dans ton planning"
             >
               {uniqueVenueCount} lieux
+            </span>
+          </>
+        )}
+        {totalDayDurationMins > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)" }}>·</span>
+            <span
+              data-testid="planning-total-duration"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-sm)",
+                color: "var(--text-muted)",
+              }}
+              title={`Durée totale des événements planifiés`}
+            >
+              {formatBilanDuration(totalDayDurationMins)}
             </span>
           </>
         )}
