@@ -45,4 +45,26 @@ test.describe("Admin — News management page", () => {
     const newsLink = page.locator('a[href="/admin/news"]');
     await expect(newsLink).toBeVisible();
   });
+
+  test("create news toggle shows form", async ({ page }) => {
+    await expect(page.getByTestId("admin-news-create-toggle")).toBeVisible();
+    await page.getByTestId("admin-news-create-toggle").click();
+    await expect(page.getByTestId("admin-news-create-form")).toBeVisible();
+  });
+
+  test("create news form has required fields", async ({ page }) => {
+    await page.getByTestId("admin-news-create-toggle").click();
+    await expect(page.locator('select[name="festivalId"]')).toBeVisible();
+    await expect(page.locator('select[name="source"]')).toBeVisible();
+    await expect(page.locator('select[name="category"]')).toBeVisible();
+    await expect(page.locator('textarea[name="summary"]')).toBeVisible();
+    await expect(page.getByTestId("admin-news-create-submit")).toBeVisible();
+  });
+
+  test("create news toggle closes form on second click", async ({ page }) => {
+    await page.getByTestId("admin-news-create-toggle").click();
+    await expect(page.getByTestId("admin-news-create-form")).toBeVisible();
+    await page.getByTestId("admin-news-create-toggle").click();
+    await expect(page.getByTestId("admin-news-create-form")).not.toBeVisible();
+  });
 });

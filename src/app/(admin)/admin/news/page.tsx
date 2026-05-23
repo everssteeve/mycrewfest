@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { computeNewsStats } from "@/lib/news-stats";
+import { CreateNewsForm } from "./_components/create-news-form";
 
 async function getNewsItems() {
   return prisma.newsItem.findMany({
@@ -8,6 +9,13 @@ async function getNewsItems() {
     include: {
       festival: { select: { name: true, slug: true } },
     },
+  });
+}
+
+async function getFestivals() {
+  return prisma.festival.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
   });
 }
 
@@ -44,7 +52,7 @@ function getCategoryColor(category: string): string {
 }
 
 export default async function AdminNewsPage() {
-  const newsItems = await getNewsItems();
+  const [newsItems, festivals] = await Promise.all([getNewsItems(), getFestivals()]);
 
   // computeNewsStats expects urgencyLevel typed as "normal" | "critique"
   const statsInput = newsItems.map((item) => ({
@@ -109,6 +117,8 @@ export default async function AdminNewsPage() {
       >
         News &amp; Annonces
       </h1>
+
+      <CreateNewsForm festivals={festivals} />
 
       {/* KPIs */}
       <div
