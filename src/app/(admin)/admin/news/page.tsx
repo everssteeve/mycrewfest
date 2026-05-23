@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { computeNewsStats } from "@/lib/news-stats";
 import { CreateNewsForm } from "./_components/create-news-form";
+import { NewsToggleButtons } from "./_components/news-toggle-buttons";
 
 async function getNewsItems() {
   return prisma.newsItem.findMany({
@@ -363,7 +364,14 @@ export default async function AdminNewsPage() {
 
                     {/* Actions */}
                     <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                      <DeleteButton id={item.id} />
+                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                        <NewsToggleButtons
+                          id={item.id}
+                          initialIsPinned={item.isPinned}
+                          initialUrgencyLevel={item.urgencyLevel}
+                        />
+                        <DeleteButton id={item.id} />
+                      </div>
                     </td>
                   </tr>
                 );

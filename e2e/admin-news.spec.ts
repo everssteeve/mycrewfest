@@ -67,4 +67,44 @@ test.describe("Admin — News management page", () => {
     await page.getByTestId("admin-news-create-toggle").click();
     await expect(page.getByTestId("admin-news-create-form")).not.toBeVisible();
   });
+
+  test("pin toggle button is visible for news items", async ({ page }) => {
+    const hasTable = await page
+      .locator('[data-testid="admin-news-table"] tbody tr')
+      .first()
+      .isVisible({ timeout: 3_000 })
+      .catch(() => false);
+    if (!hasTable) { test.skip(); return; }
+
+    const pinBtn = page.locator('[data-testid^="admin-news-pin-toggle-"]').first();
+    await expect(pinBtn).toBeVisible();
+  });
+
+  test("urgency toggle button is visible for news items", async ({ page }) => {
+    const hasTable = await page
+      .locator('[data-testid="admin-news-table"] tbody tr')
+      .first()
+      .isVisible({ timeout: 3_000 })
+      .catch(() => false);
+    if (!hasTable) { test.skip(); return; }
+
+    const urgencyBtn = page.locator('[data-testid^="admin-news-urgency-toggle-"]').first();
+    await expect(urgencyBtn).toBeVisible();
+  });
+
+  test("pin toggle changes button label on click", async ({ page }) => {
+    const hasTable = await page
+      .locator('[data-testid="admin-news-table"] tbody tr')
+      .first()
+      .isVisible({ timeout: 3_000 })
+      .catch(() => false);
+    if (!hasTable) { test.skip(); return; }
+
+    const pinBtn = page.locator('[data-testid^="admin-news-pin-toggle-"]').first();
+    const labelBefore = await pinBtn.textContent();
+    await pinBtn.click();
+    await page.waitForTimeout(500);
+    const labelAfter = await pinBtn.textContent();
+    expect(labelBefore).not.toBe(labelAfter);
+  });
 });
