@@ -5,7 +5,7 @@ import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown, Copy, Check
 import { generateChecklistText } from "@/lib/checklist-text";
 import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
 import { computeChecklistBudget } from "@/lib/checklist-budget";
-import { filterByAssignee, getUniqueAssignees } from "@/lib/checklist-filter";
+import { filterByAssignee, getUniqueAssignees, computeAssigneeStats } from "@/lib/checklist-filter";
 import { filterChecklistByQuery } from "@/lib/checklist-search";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
@@ -206,6 +206,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   const completedCount = items.filter((i) => i.done).length;
   const totalCount = items.length;
   const allAssignees = useMemo(() => getUniqueAssignees(items), [items]);
+  const assigneeStats = useMemo(() => computeAssigneeStats(items), [items]);
   const displayedItems = useMemo(
     () => filterChecklistByQuery(filterByAssignee(items, activeAssignee), searchQuery),
     [items, activeAssignee, searchQuery],
@@ -751,6 +752,36 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
             >
               {a}
             </button>
+          ))}
+        </div>
+      )}
+
+      {/* Assignee stats */}
+      {allAssignees.length >= 2 && (
+        <div
+          data-testid="checklist-assignee-stats"
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "var(--space-xs)",
+          }}
+        >
+          {assigneeStats.map((s) => (
+            <span
+              key={s.assigneeName}
+              data-testid={`assignee-stat-${s.assigneeName}`}
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: s.percent === 100 ? "var(--primary-neon)" : "var(--text-dim)",
+                background: "var(--bg-surface-elevated)",
+                border: `1px solid ${s.percent === 100 ? "var(--primary-neon)" : "var(--border-color)"}`,
+                borderRadius: "var(--radius-sm)",
+                padding: "2px 8px",
+              }}
+            >
+              {s.assigneeName} {s.done}/{s.total}
+            </span>
           ))}
         </div>
       )}

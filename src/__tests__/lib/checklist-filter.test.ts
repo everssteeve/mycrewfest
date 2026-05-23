@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { filterByAssignee, getUniqueAssignees } from "@/lib/checklist-filter";
+import { filterByAssignee, getUniqueAssignees, computeAssigneeStats } from "@/lib/checklist-filter";
 
 describe("filterByAssignee", () => {
   const items = [
@@ -56,5 +56,64 @@ describe("getUniqueAssignees", () => {
 
   it("returns empty array for empty list", () => {
     expect(getUniqueAssignees([])).toEqual([]);
+  });
+});
+
+describe("computeAssigneeStats", () => {
+  const items = [
+    { assigneeName: "Alice", done: true },
+    { assigneeName: "Alice", done: false },
+    { assigneeName: "Alice", done: true },
+    { assigneeName: "Bob", done: false },
+    { assigneeName: null, done: true },
+  ];
+
+  it("returns stats sorted alphabetically by name", () => {
+    const result = computeAssigneeStats(items);
+    expect(result.map((r) => r.assigneeName)).toEqual(["Alice", "Bob"]);
+  });
+
+  it("counts total and done correctly for each assignee", () => {
+    const result = computeAssigneeStats(items);
+    const alice = result.find((r) => r.assigneeName === "Alice")!;
+    expect(alice.total).toBe(3);
+    expect(alice.done).toBe(2);
+
+    const bob = result.find((r) => r.assigneeName === "Bob")!;
+    expect(bob.total).toBe(1);
+    expect(bob.done).toBe(0);
+  });
+
+  it("computes percent correctly", () => {
+    const result = computeAssigneeStats(items);
+    const alice = result.find((r) => r.assigneeName === "Alice")!;
+    expect(alice.percent).toBe(67);
+
+    const bob = result.find((r) => r.assigneeName === "Bob")!;
+    expect(bob.percent).toBe(0);
+  });
+
+  it("excludes items with null assigneeName", () => {
+    const result = computeAssigneeStats(items);
+    expect(result.find((r) => r.assigneeName === null)).toBeUndefined();
+    expect(result).toHaveLength(2);
+  });
+
+  it("returns 100% when all tasks done", () => {
+    const all = [
+      { assigneeName: "Carol", done: true },
+      { assigneeName: "Carol", done: true },
+    ];
+    const result = computeAssigneeStats(all);
+    expect(result[0].percent).toBe(100);
+  });
+
+  it("returns empty array for empty list", () => {
+    expect(computeAssigneeStats([])).toEqual([]);
+  });
+
+  it("returns empty array when all items have no assignee", () => {
+    const noAssignee = [{ assigneeName: null, done: false }];
+    expect(computeAssigneeStats(noAssignee)).toEqual([]);
   });
 });
