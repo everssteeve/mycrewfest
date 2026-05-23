@@ -237,6 +237,11 @@ export function ProgrammeView({
     [filteredEvents],
   );
 
+  const vuCount = useMemo(
+    () => filteredEvents.filter((e) => e.selection?.status === "vu").length,
+    [filteredEvents],
+  );
+
   const hasActiveFilter =
     activeTypes.size > 0 ||
     accessFilter !== "tous" ||
@@ -766,6 +771,22 @@ export function ProgrammeView({
               }}
             >
               {itinerantCount} itinérant{itinerantCount !== 1 ? "s" : ""}
+            </span>
+          </>
+        )}
+        {vuCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-vu-count"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--primary-neon)",
+                fontWeight: "var(--fw-bold)",
+              }}
+            >
+              ✓ {vuCount} vu{vuCount !== 1 ? "s" : ""}
             </span>
           </>
         )}

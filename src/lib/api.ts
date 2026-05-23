@@ -120,6 +120,8 @@ export interface EventSummary {
   startTime: string | null; // ISO
   endTime: string | null; // ISO
   durationMins: number | null;
+  ageMin?: number | null;
+  ageMax?: number | null;
   access: string;
   status: string;
   tags: string[];
