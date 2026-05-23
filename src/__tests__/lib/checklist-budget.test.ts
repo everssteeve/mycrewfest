@@ -1,0 +1,56 @@
+import { describe, it, expect } from "vitest";
+import { computeChecklistBudget } from "@/lib/checklist-budget";
+
+describe("computeChecklistBudget", () => {
+  it("returns zeros for empty list", () => {
+    expect(computeChecklistBudget([])).toEqual({ total: 0, spent: 0, remaining: 0 });
+  });
+
+  it("counts done items as spent", () => {
+    const items = [
+      { cost: 20, done: true },
+      { cost: 30, done: false },
+    ];
+    expect(computeChecklistBudget(items)).toEqual({ total: 50, spent: 20, remaining: 30 });
+  });
+
+  it("counts all as spent when all done", () => {
+    const items = [
+      { cost: 10, done: true },
+      { cost: 15, done: true },
+    ];
+    expect(computeChecklistBudget(items)).toEqual({ total: 25, spent: 25, remaining: 0 });
+  });
+
+  it("remaining equals total when nothing done", () => {
+    const items = [
+      { cost: 10, done: false },
+      { cost: 5, done: false },
+    ];
+    expect(computeChecklistBudget(items)).toEqual({ total: 15, spent: 0, remaining: 15 });
+  });
+
+  it("treats null cost as 0", () => {
+    const items = [
+      { cost: null, done: true },
+      { cost: 10, done: false },
+    ];
+    expect(computeChecklistBudget(items)).toEqual({ total: 10, spent: 0, remaining: 10 });
+  });
+
+  it("treats undefined cost as 0", () => {
+    const items = [
+      { done: true },
+      { cost: 8, done: true },
+    ];
+    expect(computeChecklistBudget(items)).toEqual({ total: 8, spent: 8, remaining: 0 });
+  });
+
+  it("works with a single item not done", () => {
+    expect(computeChecklistBudget([{ cost: 42, done: false }])).toEqual({ total: 42, spent: 0, remaining: 42 });
+  });
+
+  it("works with a single item done", () => {
+    expect(computeChecklistBudget([{ cost: 42, done: true }])).toEqual({ total: 42, spent: 42, remaining: 0 });
+  });
+});

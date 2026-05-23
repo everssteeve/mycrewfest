@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown, Copy, Check } from "lucide-react";
 import { generateChecklistText } from "@/lib/checklist-text";
 import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
+import { computeChecklistBudget } from "@/lib/checklist-budget";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -199,7 +200,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   // Computed stats
   const completedCount = items.filter((i) => i.done).length;
   const totalCount = items.length;
-  const totalCost = items.reduce((sum, i) => sum + (i.cost ?? 0), 0);
+  const { total: totalCost, spent: spentCost, remaining: remainingCost } = computeChecklistBudget(items);
 
   const copyChecklist = useCallback(async () => {
     const text = generateChecklistText(
@@ -375,19 +376,56 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
             {completedCount} / {totalCount} complétés
           </span>
           {totalCost > 0 && (
-            <span
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "var(--fs-xs)",
-                color: "var(--primary-neon)",
-                background: "rgba(0,255,102,0.08)",
-                border: "1px solid var(--primary-neon)",
-                borderRadius: "var(--radius-full)",
-                padding: "2px 10px",
-              }}
+            <div
+              data-testid="checklist-budget"
+              style={{ display: "flex", gap: "var(--space-xs)", flexWrap: "wrap" }}
             >
-              {formatCost(totalCost)}
-            </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-dim)",
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "var(--radius-full)",
+                  padding: "2px 10px",
+                }}
+              >
+                Total {formatCost(totalCost)}
+              </span>
+              {spentCost > 0 && (
+                <span
+                  data-testid="checklist-budget-spent"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--primary-neon)",
+                    background: "rgba(0,255,102,0.08)",
+                    border: "1px solid var(--primary-neon)",
+                    borderRadius: "var(--radius-full)",
+                    padding: "2px 10px",
+                  }}
+                >
+                  Dépensé {formatCost(spentCost)}
+                </span>
+              )}
+              {remainingCost > 0 && (
+                <span
+                  data-testid="checklist-budget-remaining"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--warning-orange)",
+                    background: "rgba(255,153,0,0.08)",
+                    border: "1px solid var(--warning-orange)",
+                    borderRadius: "var(--radius-full)",
+                    padding: "2px 10px",
+                  }}
+                >
+                  Restant {formatCost(remainingCost)}
+                </span>
+              )}
+            </div>
           )}
         </div>
 
