@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown, Copy, Check } from "lucide-react";
 import { generateChecklistText } from "@/lib/checklist-text";
 import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
 import { computeChecklistBudget } from "@/lib/checklist-budget";
+import { filterByAssignee, getUniqueAssignees } from "@/lib/checklist-filter";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -194,12 +195,15 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [activeAssignee, setActiveAssignee] = useState<string | null>(null);
 
   const baseUrl = `/api/festevents/${festEventId}/checklist`;
 
   // Computed stats
   const completedCount = items.filter((i) => i.done).length;
   const totalCount = items.length;
+  const allAssignees = useMemo(() => getUniqueAssignees(items), [items]);
+  const displayedItems = useMemo(() => filterByAssignee(items, activeAssignee), [items, activeAssignee]);
   const { total: totalCost, spent: spentCost, remaining: remainingCost } = computeChecklistBudget(items);
 
   const copyChecklist = useCallback(async () => {
@@ -646,6 +650,56 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
         </div>
       )}
 
+      {/* Assignee filter chips */}
+      {allAssignees.length >= 2 && (
+        <div
+          style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-xs)" }}
+          aria-label="Filtrer par assigné"
+          data-testid="assignee-filter"
+        >
+          <button
+            type="button"
+            onClick={() => setActiveAssignee(null)}
+            aria-pressed={activeAssignee === null}
+            style={{
+              padding: "4px 12px",
+              borderRadius: "var(--radius-full)",
+              border: activeAssignee === null ? "1px solid var(--primary-neon)" : "1px solid var(--border-color)",
+              backgroundColor: activeAssignee === null ? "var(--neon-soft)" : "transparent",
+              color: activeAssignee === null ? "var(--primary-neon)" : "var(--text-dim)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              cursor: "pointer",
+              transition: "var(--transition-fast)",
+            }}
+          >
+            Tous
+          </button>
+          {allAssignees.map((a) => (
+            <button
+              key={a}
+              type="button"
+              onClick={() => setActiveAssignee(a)}
+              aria-pressed={activeAssignee === a}
+              data-testid={`assignee-filter-${a}`}
+              style={{
+                padding: "4px 12px",
+                borderRadius: "var(--radius-full)",
+                border: activeAssignee === a ? "1px solid var(--secondary-cyan)" : "1px solid var(--border-color)",
+                backgroundColor: activeAssignee === a ? "var(--cyan-soft)" : "transparent",
+                color: activeAssignee === a ? "var(--secondary-cyan)" : "var(--text-dim)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                cursor: "pointer",
+                transition: "var(--transition-fast)",
+              }}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Items list */}
       {items.length === 0 && !showAddForm ? (
         <div
@@ -665,7 +719,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
           {/* Pending items */}
-          {items.filter((i) => !i.done).map((item) => (
+          {displayedItems.filter((i) => !i.done).map((item) => (
             <ChecklistItemRow
               key={item.id}
               item={item}
@@ -676,7 +730,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
           ))}
 
           {/* Separator + clear done button */}
-          {items.some((i) => i.done) && (
+          {displayedItems.some((i) => i.done) && (
             <div
               style={{
                 display: "flex",
@@ -723,7 +777,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
           )}
 
           {/* Done items */}
-          {items.filter((i) => i.done).map((item) => (
+          {displayedItems.filter((i) => i.done).map((item) => (
             <ChecklistItemRow
               key={item.id}
               item={item}
