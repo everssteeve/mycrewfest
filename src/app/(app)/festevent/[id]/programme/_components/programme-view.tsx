@@ -6,7 +6,7 @@ import { EventCard, type EventWithSelectionAndConfidence } from "@/components/fe
 import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
 import type { EventType } from "@/lib/api";
-import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, type SelectionFilter } from "@/lib/programme-search";
+import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, matchesVenueFilter, type SelectionFilter } from "@/lib/programme-search";
 import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
 import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
@@ -85,6 +85,7 @@ export function ProgrammeView({
   const [accessFilter, setAccessFilter] = useState<AccessFilter>("tous");
   const [selectionFilter, setSelectionFilter] = useState<SelectionFilter>("tous");
   const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
+  const [activeVenueId, setActiveVenueId] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<SortMode>("time");
   const [searchQuery, setSearchQuery] = useState("");
   const [upcomingOnly, setUpcomingOnly] = useState(false);
@@ -110,6 +111,18 @@ export function ProgrammeView({
       for (const t of e.tags ?? []) set.add(t);
     }
     return Array.from(set).sort();
+  }, [initialEvents]);
+
+  const allVenues = useMemo(() => {
+    const map = new Map<string, { id: string; name: string }>();
+    for (const e of initialEvents) {
+      if (e.venue && !map.has(e.venue.id)) {
+        map.set(e.venue.id, { id: e.venue.id, name: e.venue.name });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) =>
+      a.name.localeCompare(b.name, "fr"),
+    );
   }, [initialEvents]);
 
   const toggleTag = useCallback((tag: string) => {
@@ -167,6 +180,9 @@ export function ProgrammeView({
       // Tag filter
       if (!matchesTagFilter(e, activeTags)) return false;
 
+      // Venue filter
+      if (!matchesVenueFilter(e, activeVenueId)) return false;
+
       // Text search
       if (!matchesProgrammeQuery(e, searchQuery)) return false;
 
@@ -175,7 +191,7 @@ export function ProgrammeView({
 
       return true;
     });
-  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, searchQuery, upcomingOnly]);
+  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, activeVenueId, searchQuery, upcomingOnly]);
 
   const sortedFilteredEvents = useMemo(
     () => sortProgrammeEvents(filteredEvents, sortMode),
@@ -201,6 +217,7 @@ export function ProgrammeView({
     accessFilter !== "tous" ||
     selectionFilter !== "tous" ||
     activeTags.size > 0 ||
+    activeVenueId !== null ||
     searchQuery.trim().length > 0 ||
     upcomingOnly;
 
@@ -216,6 +233,7 @@ export function ProgrammeView({
     setAccessFilter("tous");
     setSelectionFilter("tous");
     setActiveTags(new Set());
+    setActiveVenueId(null);
     setSearchQuery("");
     setUpcomingOnly(false);
   }, []);
@@ -555,6 +573,89 @@ export function ProgrammeView({
                 }}
               >
                 #{tag}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Venue filter — only when ≥2 distinct venues */}
+      {allVenues.length >= 2 && (
+        <div
+          style={{
+            display: "flex",
+            gap: "var(--space-xs)",
+            overflowX: "auto",
+            scrollbarWidth: "none",
+            flexWrap: "nowrap",
+            paddingBottom: 2,
+          }}
+          role="group"
+          aria-label="Filtrer par scène"
+        >
+          <button
+            key="venue-tous"
+            type="button"
+            onClick={() => setActiveVenueId(null)}
+            aria-pressed={activeVenueId === null}
+            data-testid="venue-filter-tous"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "3px 10px",
+              borderRadius: "var(--radius-full)",
+              border:
+                activeVenueId === null
+                  ? "1.5px solid var(--accent-pink)"
+                  : "1.5px solid rgba(255,255,255,0.1)",
+              backgroundColor:
+                activeVenueId === null ? "var(--pink-soft)" : "transparent",
+              color:
+                activeVenueId === null ? "var(--accent-pink)" : "var(--text-dim)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              fontWeight: "var(--fw-bold)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+              transition: "var(--transition-fast)",
+            }}
+          >
+            Toutes
+          </button>
+          {allVenues.map((v) => {
+            const isActive = activeVenueId === v.id;
+            return (
+              <button
+                key={v.id}
+                type="button"
+                onClick={() => setActiveVenueId(isActive ? null : v.id)}
+                aria-pressed={isActive}
+                data-testid={`venue-filter-${v.id}`}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "3px 10px",
+                  borderRadius: "var(--radius-full)",
+                  border: isActive
+                    ? "1.5px solid var(--accent-pink)"
+                    : "1.5px solid rgba(255,255,255,0.1)",
+                  backgroundColor: isActive ? "var(--pink-soft)" : "transparent",
+                  color: isActive ? "var(--accent-pink)" : "var(--text-dim)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  fontWeight: "var(--fw-medium)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                  flexShrink: 0,
+                  transition: "var(--transition-fast)",
+                }}
+              >
+                {v.name}
               </button>
             );
           })}

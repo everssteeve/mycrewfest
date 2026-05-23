@@ -3,9 +3,11 @@ import {
   matchesProgrammeQuery,
   matchesSelectionFilter,
   matchesTagFilter,
+  matchesVenueFilter,
   type SearchableEvent,
   type SelectionFilterable,
   type TagFilterable,
+  type VenueFilterable,
 } from "@/lib/programme-search";
 
 const BASE: SearchableEvent = {
@@ -158,5 +160,30 @@ describe("matchesTagFilter", () => {
   it("is case-sensitive (tags are stored lowercase by convention)", () => {
     expect(matchesTagFilter(ev(["rap"]), active("Rap"))).toBe(false);
     expect(matchesTagFilter(ev(["rap"]), active("rap"))).toBe(true);
+  });
+});
+
+describe("matchesVenueFilter", () => {
+  const ev = (venueId?: string | null): VenueFilterable => ({
+    venue: venueId != null ? { id: venueId } : venueId === null ? null : undefined,
+  });
+
+  it("null venueId matches all events", () => {
+    expect(matchesVenueFilter(ev("v1"), null)).toBe(true);
+    expect(matchesVenueFilter(ev(null), null)).toBe(true);
+    expect(matchesVenueFilter(ev(), null)).toBe(true);
+  });
+
+  it("matches event with the same venue id", () => {
+    expect(matchesVenueFilter(ev("v1"), "v1")).toBe(true);
+  });
+
+  it("rejects event with different venue id", () => {
+    expect(matchesVenueFilter(ev("v2"), "v1")).toBe(false);
+  });
+
+  it("rejects event with no venue when a venue is selected", () => {
+    expect(matchesVenueFilter(ev(null), "v1")).toBe(false);
+    expect(matchesVenueFilter(ev(), "v1")).toBe(false);
   });
 });

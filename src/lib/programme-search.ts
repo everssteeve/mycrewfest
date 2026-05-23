@@ -48,3 +48,15 @@ export function matchesTagFilter<T extends TagFilterable>(
   if (activeTags.size === 0) return true;
   return event.tags?.some((t) => activeTags.has(t)) ?? false;
 }
+
+export interface VenueFilterable {
+  venue?: { id: string } | null;
+}
+
+export function matchesVenueFilter<T extends VenueFilterable>(
+  event: T,
+  venueId: string | null,
+): boolean {
+  if (venueId === null) return true;
+  return event.venue?.id === venueId;
+}
