@@ -10,6 +10,7 @@ import { useFestEventStore } from "@/store/use-fest-event-store";
 import { toggleVuStatus } from "@/lib/selection";
 import { generatePlanningText } from "@/lib/planning-text";
 import { formatBilanDuration } from "@/lib/bilan";
+import { applyPlanningMustSeeFilter } from "@/lib/planning-filter";
 import { getEventTimeStatus } from "@/lib/event-status";
 import type { EventSummary, ConflictInfo, ConflictLevel } from "@/types";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
@@ -314,6 +315,7 @@ export function PlanningView({
   );
 
   const [activeDay, setActiveDay] = useState<string>(presenceDates[0] ?? "");
+  const [mustSeeOnly, setMustSeeOnly] = useState(false);
   const [copied, setCopied] = useState(false);
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
@@ -398,6 +400,12 @@ export function PlanningView({
     return Math.round(mins);
   }, [dayEvents]);
 
+  // Apply must-see-only filter for display (conflicts/totalMins use full dayEvents)
+  const displayedEvents = useMemo(
+    () => applyPlanningMustSeeFilter(dayEvents, mustSeeOnly),
+    [dayEvents, mustSeeOnly],
+  );
+
   // Copy planning as text to clipboard
   const copyPlanning = useCallback(async () => {
     const planningEvents = events
@@ -467,7 +475,10 @@ export function PlanningView({
             color: "var(--text-muted)",
           }}
         >
-          {dayEvents.length} event{dayEvents.length !== 1 ? "s" : ""}
+          {mustSeeOnly && displayedEvents.length !== dayEvents.length
+            ? `${displayedEvents.length} / ${dayEvents.length}`
+            : dayEvents.length}{" "}
+          event{dayEvents.length !== 1 ? "s" : ""}
         </span>
         <span style={{ color: "var(--border-strong)" }}>·</span>
         <span
@@ -492,6 +503,31 @@ export function PlanningView({
         >
           {formatBilanDuration(totalMins)}
         </span>
+        <button
+          type="button"
+          onClick={() => setMustSeeOnly((v) => !v)}
+          aria-pressed={mustSeeOnly}
+          data-testid="planning-must-see-filter"
+          style={{
+            padding: "2px 9px",
+            borderRadius: "var(--radius-full)",
+            border: mustSeeOnly
+              ? "1.5px solid var(--accent-pink)"
+              : "1.5px solid rgba(255,255,255,0.12)",
+            backgroundColor: mustSeeOnly ? "var(--pink-soft)" : "transparent",
+            color: mustSeeOnly ? "var(--accent-pink)" : "var(--text-dim)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-xs)",
+            fontWeight: "var(--fw-bold)",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+            transition: "var(--transition-fast)",
+          }}
+        >
+          ★ Must-see
+        </button>
         <div style={{ flex: 1 }} />
         <a
           href={`/api/festevents/${festEventId}/planning/export`}
@@ -742,7 +778,7 @@ export function PlanningView({
         ref={timelineRef}
         style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}
       >
-        {dayEvents.length === 0 ? (
+        {displayedEvents.length === 0 ? (
           <div
             style={{
               display: "flex",
@@ -769,7 +805,7 @@ export function PlanningView({
             </p>
           </div>
         ) : (
-          dayEvents.map((e, idx) => {
+          displayedEvents.map((e, idx) => {
             // Find the full enriched event
             const enriched = events.find((ev) => ev.id === e.id);
             if (!enriched) return null;
@@ -799,7 +835,7 @@ export function PlanningView({
                   >
                     {e.startTime ? formatTime(e.startTime) : ""}
                   </span>
-                  {idx < dayEvents.length - 1 && (
+                  {idx < displayedEvents.length - 1 && (
                     <div
                       style={{
                         flex: 1,
