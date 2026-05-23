@@ -1,4 +1,5 @@
 export type CountdownState = "upcoming" | "ongoing" | "past";
+export type CountdownBadgeState = "upcoming_urgent" | "upcoming_soon" | "upcoming" | "ongoing" | "past";
 
 export interface CountdownInfo {
   state: CountdownState;
@@ -51,4 +52,58 @@ export function getFestivalCountdown(
     label: `J-${daysRemaining}`,
     ariaLabel: `Festival dans ${daysRemaining} jour${daysRemaining > 1 ? "s" : ""}`,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Badge countdown (granular states for the festival detail page badge)
+// ---------------------------------------------------------------------------
+
+function daysUntilStartFromIso(startDateIso: string, now: Date): number {
+  return Math.floor((new Date(startDateIso).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+}
+
+export function getCountdownBadgeState(
+  startDateIso: string,
+  endDateIso: string,
+  now: Date = new Date(),
+): CountdownBadgeState {
+  const start = new Date(startDateIso);
+  const end = new Date(endDateIso);
+  if (end < now) return "past";
+  if (start <= now) return "ongoing";
+  const days = daysUntilStartFromIso(startDateIso, now);
+  if (days <= 3) return "upcoming_urgent";
+  if (days <= 14) return "upcoming_soon";
+  return "upcoming";
+}
+
+export function getCountdownBadgeLabel(
+  startDateIso: string,
+  endDateIso: string,
+  now: Date = new Date(),
+): string {
+  const state = getCountdownBadgeState(startDateIso, endDateIso, now);
+  switch (state) {
+    case "ongoing":
+      return "EN COURS";
+    case "upcoming_urgent":
+      return `J-${daysUntilStartFromIso(startDateIso, now)}`;
+    case "upcoming_soon":
+      return `DANS ${daysUntilStartFromIso(startDateIso, now)} JOURS`;
+    default:
+      return "";
+  }
+}
+
+export function getCountdownBadgeColor(state: CountdownBadgeState): string {
+  switch (state) {
+    case "upcoming_urgent":
+      return "#FF3355";
+    case "upcoming_soon":
+      return "#FF9900";
+    case "ongoing":
+      return "#00FF66";
+    default:
+      return "";
+  }
 }

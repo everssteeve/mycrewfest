@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import type { FestivalSummary } from "@/lib/types";
 import { FestivalList } from "./festival-list";
+import { TrendingFestivals } from "./trending-festivals";
 
 interface FestivalsApiResponse {
   data: FestivalSummary[];
@@ -26,5 +28,12 @@ async function fetchFestivals(): Promise<FestivalSummary[]> {
 
 export async function CatalogueContent() {
   const festivals = await fetchFestivals();
-  return <FestivalList initialFestivals={festivals} />;
+  return (
+    <>
+      <Suspense fallback={null}>
+        <TrendingFestivals />
+      </Suspense>
+      <FestivalList initialFestivals={festivals} />
+    </>
+  );
 }

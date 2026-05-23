@@ -5,6 +5,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ArrowLeft, Globe, MapPin, Users, ExternalLink } from "lucide-react";
 import { buildFestivalOgDescription } from "@/lib/og-metadata";
+import { getCountdownBadgeLabel, getCountdownBadgeColor, getCountdownBadgeState } from "@/lib/festival-countdown";
 import { formatFestivalStats } from "@/lib/format-count";
 import type { Metadata } from "next";
 import { Badge } from "@/components/ui";
@@ -125,6 +126,10 @@ export default async function FestivalPage({
     festival.programType === "déambulatoire" ||
     festival.programType === "hybride";
 
+  const countdownLabel = getCountdownBadgeLabel(festival.startDate, festival.endDate);
+  const countdownState = getCountdownBadgeState(festival.startDate, festival.endDate);
+  const countdownColor = getCountdownBadgeColor(countdownState);
+
   return (
     <div className="flex flex-col gap-0">
       {/* Back nav */}
@@ -177,16 +182,37 @@ export default async function FestivalPage({
         </h1>
 
         {/* Dates */}
-        <p
-          className="t-mono"
-          style={{
-            color: "var(--accent-pink)",
-            fontSize: "var(--fs-md)",
-            fontFamily: "var(--font-mono)",
-          }}
-        >
-          {dateLabel}
-        </p>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+          <p
+            className="t-mono"
+            style={{
+              color: "var(--accent-pink)",
+              fontSize: "var(--fs-md)",
+              fontFamily: "var(--font-mono)",
+              margin: 0,
+            }}
+          >
+            {dateLabel}
+          </p>
+          {countdownLabel && (
+            <span
+              data-testid="festival-countdown-badge"
+              style={{
+                display: "inline-block",
+                padding: "2px 10px",
+                borderRadius: "var(--radius-md)",
+                border: `1px solid ${countdownColor}`,
+                color: countdownColor,
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs, 11px)",
+                fontWeight: 700,
+                letterSpacing: "0.1em",
+              }}
+            >
+              {countdownLabel}
+            </span>
+          )}
+        </div>
 
         {/* Location */}
         <p
