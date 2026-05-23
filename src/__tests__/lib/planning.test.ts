@@ -11,6 +11,7 @@ import {
   sortEventsByTime,
   computeDayFreeTime,
   optimizePlanning,
+  countMustSeeEvents,
   type FreeTimeEvent,
 } from "@/lib/planning";
 import type { EventSummary } from "@/types";
@@ -421,5 +422,36 @@ describe("optimizePlanning", () => {
     expect(r.toArbitrate).toHaveLength(0);
     expect(r.dropped).toHaveLength(0);
     expect(r.cancelled).toHaveLength(0);
+  });
+});
+
+describe("countMustSeeEvents", () => {
+  it("returns 0 for empty array", () => {
+    expect(countMustSeeEvents([])).toBe(0);
+  });
+
+  it("returns 0 when no events are must-see", () => {
+    const events = [
+      makeEvent("a", "2025-07-19T14:00:00Z", 60, { selectionStatus: "intéressé" }),
+      makeEvent("b", "2025-07-19T16:00:00Z", 60, { selectionStatus: "vu" }),
+    ];
+    expect(countMustSeeEvents(events)).toBe(0);
+  });
+
+  it("counts must-see events correctly", () => {
+    const events = [
+      makeEvent("a", "2025-07-19T14:00:00Z", 60, { selectionStatus: "must-see" }),
+      makeEvent("b", "2025-07-19T16:00:00Z", 60, { selectionStatus: "intéressé" }),
+      makeEvent("c", "2025-07-19T18:00:00Z", 60, { selectionStatus: "must-see" }),
+    ];
+    expect(countMustSeeEvents(events)).toBe(2);
+  });
+
+  it("ignores events without a selectionStatus", () => {
+    const events = [
+      makeEvent("a", "2025-07-19T14:00:00Z", 60),
+      makeEvent("b", "2025-07-19T16:00:00Z", 60, { selectionStatus: "must-see" }),
+    ];
+    expect(countMustSeeEvents(events)).toBe(1);
   });
 });

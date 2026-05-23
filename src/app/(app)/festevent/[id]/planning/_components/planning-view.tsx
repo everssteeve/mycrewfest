@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ChevronDown, CalendarArrowDown, Copy, Check, Sparkles, X } from "lucide-react";
-import { detectConflicts, filterEventsByDay, sortEventsByTime, computeDayFreeTime, computeDayCoverage, optimizePlanning, type OptimizeResult } from "@/lib/planning";
+import { detectConflicts, filterEventsByDay, sortEventsByTime, computeDayFreeTime, computeDayCoverage, optimizePlanning, countMustSeeEvents, type OptimizeResult } from "@/lib/planning";
 import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 import { toggleVuStatus } from "@/lib/selection";
@@ -415,6 +415,8 @@ export function PlanningView({
 
   const dayCoverage = useMemo(() => computeDayCoverage(dayEvents), [dayEvents]);
 
+  const mustSeeCount = useMemo(() => countMustSeeEvents(dayEvents), [dayEvents]);
+
   // Apply must-see-only filter for display (conflicts/totalMins use full dayEvents)
   const displayedEvents = useMemo(
     () => applyPlanningMustSeeFilter(dayEvents, mustSeeOnly),
@@ -523,6 +525,21 @@ export function PlanningView({
             : dayEvents.length}{" "}
           event{dayEvents.length !== 1 ? "s" : ""}
         </span>
+        {mustSeeCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)" }}>·</span>
+            <span
+              data-testid="planning-must-see-count"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-sm)",
+                color: "var(--accent-pink)",
+              }}
+            >
+              ★ {mustSeeCount}
+            </span>
+          </>
+        )}
         <span style={{ color: "var(--border-strong)" }}>·</span>
         <span
           style={{

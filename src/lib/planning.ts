@@ -398,3 +398,15 @@ export function computeDayFreeTime(events: FreeTimeEvent[]): number {
 
   return Math.round(freeTime);
 }
+
+// ---------------------------------------------------------------------------
+// countMustSeeEvents
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns the number of events with selectionStatus === "must-see".
+ * Events without a selectionStatus are ignored.
+ */
+export function countMustSeeEvents(events: EventSummary[]): number {
+  return events.filter((e) => e.selectionStatus === "must-see").length;
+}
