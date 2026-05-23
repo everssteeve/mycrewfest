@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -249,6 +249,11 @@ export function ProgrammeView({
 
   const artistCount = useMemo(
     () => countUniqueArtists(filteredEvents),
+    [filteredEvents],
+  );
+
+  const verifiedCount = useMemo(
+    () => countVerifiedEvents(filteredEvents),
     [filteredEvents],
   );
 
@@ -811,6 +816,21 @@ export function ProgrammeView({
               }}
             >
               {itinerantCount} itinérant{itinerantCount !== 1 ? "s" : ""}
+            </span>
+          </>
+        )}
+        {verifiedCount > 0 && verifiedCount < filteredEvents.length && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-verified-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--primary-neon)",
+              }}
+            >
+              ✓ {verifiedCount} vérifi{verifiedCount !== 1 ? "és" : "é"}
             </span>
           </>
         )}

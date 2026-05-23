@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -217,5 +217,35 @@ describe("countUniqueArtists", () => {
       { artist: { id: "a2" } },
     ];
     expect(countUniqueArtists(events)).toBe(2);
+  });
+});
+
+describe("countVerifiedEvents", () => {
+  it("returns 0 for empty array", () => {
+    expect(countVerifiedEvents([])).toBe(0);
+  });
+
+  it("counts only vérifié_humain events", () => {
+    const events = [
+      { confidence: "vérifié_humain" },
+      { confidence: "auto" },
+      { confidence: "vérifié_humain" },
+    ];
+    expect(countVerifiedEvents(events)).toBe(2);
+  });
+
+  it("returns 0 when all events are auto", () => {
+    const events = [{ confidence: "auto" }, { confidence: "auto" }];
+    expect(countVerifiedEvents(events)).toBe(0);
+  });
+
+  it("returns total when all events are verified", () => {
+    const events = [{ confidence: "vérifié_humain" }, { confidence: "vérifié_humain" }];
+    expect(countVerifiedEvents(events)).toBe(2);
+  });
+
+  it("is case-sensitive — does not match partial strings", () => {
+    const events = [{ confidence: "vérifié" }, { confidence: "humain" }];
+    expect(countVerifiedEvents(events)).toBe(0);
   });
 });

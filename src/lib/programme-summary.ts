@@ -105,3 +105,14 @@ export function countUniqueArtists<T extends ArtistCountable>(events: T[]): numb
   }
   return ids.size;
 }
+
+export interface ConfidenceFilterable {
+  confidence?: string | null;
+}
+
+/**
+ * Returns the number of events with confidence === "vérifié_humain".
+ */
+export function countVerifiedEvents<T extends ConfidenceFilterable>(events: T[]): number {
+  return events.filter((e) => e.confidence === "vérifié_humain").length;
+}
