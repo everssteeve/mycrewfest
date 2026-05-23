@@ -5,7 +5,7 @@ import { Search, Heart } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
 import { compareByTemporalRelevance } from "@/lib/festival-temporal";
-import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
+import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 type FilterType = "tous" | FestivalType;
@@ -32,6 +32,11 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
 
   const hasFollowed = useMemo(
     () => initialFestivals.some((f) => f.isFollowed),
+    [initialFestivals],
+  );
+
+  const followedCount = useMemo(
+    () => countFollowedFestivals(initialFestivals),
     [initialFestivals],
   );
 
@@ -218,6 +223,22 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
           >
             <Heart size={11} aria-hidden="true" fill={followedOnly ? "currentColor" : "none"} />
             Suivis
+            <span
+              data-testid="catalogue-followed-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 10,
+                fontWeight: 700,
+                letterSpacing: 0,
+                background: followedOnly ? "rgba(255,0,122,0.25)" : "var(--bg-card)",
+                borderRadius: "var(--radius-full)",
+                padding: "1px 5px",
+                minWidth: 16,
+                textAlign: "center",
+              }}
+            >
+              {followedCount}
+            </span>
           </button>
         )}
       </div>

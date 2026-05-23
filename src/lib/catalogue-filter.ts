@@ -2,6 +2,11 @@ export interface FollowFilterable {
   isFollowed?: boolean;
 }
 
+/** Returns the number of festivals marked as followed. */
+export function countFollowedFestivals<T extends FollowFilterable>(festivals: T[]): number {
+  return festivals.filter((f) => f.isFollowed === true).length;
+}
+
 /** Returns false only when `followedOnly` is true AND the event is not followed. */
 export function matchesFollowFilter<T extends FollowFilterable>(
   festival: T,

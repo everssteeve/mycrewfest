@@ -3,6 +3,7 @@ import {
   matchesFollowFilter,
   matchesMonthFilter,
   getAvailableMonths,
+  countFollowedFestivals,
   type FollowFilterable,
   type MonthFilterable,
 } from "@/lib/catalogue-filter";
@@ -114,5 +115,31 @@ describe("matchesTemporalFilter", () => {
 
   it("returns true for a festival ending today when hidePast is true", () => {
     expect(matchesTemporalFilter(tf(TODAY), true)).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// countFollowedFestivals
+// ---------------------------------------------------------------------------
+
+describe("countFollowedFestivals", () => {
+  it("returns 0 for empty list", () => {
+    expect(countFollowedFestivals([])).toBe(0);
+  });
+
+  it("returns 0 when no festival is followed", () => {
+    expect(countFollowedFestivals([f(false), f(false)])).toBe(0);
+  });
+
+  it("counts followed festivals correctly", () => {
+    expect(countFollowedFestivals([f(true), f(false), f(true)])).toBe(2);
+  });
+
+  it("treats undefined isFollowed as not followed", () => {
+    expect(countFollowedFestivals([f(undefined), f(true)])).toBe(1);
+  });
+
+  it("returns total when all are followed", () => {
+    expect(countFollowedFestivals([f(true), f(true), f(true)])).toBe(3);
   });
 });
