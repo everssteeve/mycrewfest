@@ -11,6 +11,7 @@ export interface JournalStats {
   entriesWithPhotos: number;
   totalWords: number;
   maxStreakDays: number;
+  avgWordsPerEntry: number;
 }
 
 export function computeJournalStats(entries: JournalStatsEntry[]): JournalStats {
@@ -49,11 +50,14 @@ export function computeJournalStats(entries: JournalStatsEntry[]): JournalStats 
     }
   }
 
+  const avgWordsPerEntry = entries.length > 0 ? Math.round(totalWords / entries.length) : 0;
+
   return {
     totalEntries: entries.length,
     totalDays: days.size,
     entriesWithPhotos,
     totalWords,
     maxStreakDays,
+    avgWordsPerEntry,
   };
 }

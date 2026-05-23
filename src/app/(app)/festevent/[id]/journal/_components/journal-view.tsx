@@ -781,6 +781,19 @@ export function JournalView({
             {stats.maxStreakDays} j d&apos;affilée
           </span>
         )}
+        {stats.avgWordsPerEntry >= 10 && (
+          <span
+            data-testid="journal-stats-avg-words"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--secondary-cyan)",
+            }}
+            title="Moyenne de mots par entrée"
+          >
+            ~{stats.avgWordsPerEntry} mots/entrée
+          </span>
+        )}
       </div>
 
       {/* Search bar */}

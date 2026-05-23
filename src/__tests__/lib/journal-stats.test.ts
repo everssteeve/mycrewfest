@@ -9,7 +9,7 @@ const entry = (overrides: Partial<JournalStatsEntry> = {}): JournalStatsEntry =>
 
 describe("computeJournalStats", () => {
   it("returns zeros for empty array", () => {
-    expect(computeJournalStats([])).toEqual({ totalEntries: 0, totalDays: 0, entriesWithPhotos: 0, totalWords: 0, maxStreakDays: 0 });
+    expect(computeJournalStats([])).toEqual({ totalEntries: 0, totalDays: 0, entriesWithPhotos: 0, totalWords: 0, maxStreakDays: 0, avgWordsPerEntry: 0 });
   });
 
   it("counts total entries", () => {
@@ -166,5 +166,41 @@ describe("computeJournalStats — maxStreakDays", () => {
       entry({ timestamp: "2025-07-15T10:00:00Z" }),
     ];
     expect(computeJournalStats(entries).maxStreakDays).toBe(2);
+  });
+});
+
+describe("computeJournalStats — avgWordsPerEntry", () => {
+  it("returns 0 for empty array", () => {
+    expect(computeJournalStats([]).avgWordsPerEntry).toBe(0);
+  });
+
+  it("returns 0 when entries have no text", () => {
+    const entries = [entry(), entry()];
+    expect(computeJournalStats(entries).avgWordsPerEntry).toBe(0);
+  });
+
+  it("computes average from freeText", () => {
+    const entries = [
+      entry({ freeText: "hello world" }),       // 2 words
+      entry({ freeText: "one two three four" }), // 4 words
+    ];
+    // avg = (2+4)/2 = 3
+    expect(computeJournalStats(entries).avgWordsPerEntry).toBe(3);
+  });
+
+  it("combines freeText and note for each entry", () => {
+    const entries = [
+      entry({ freeText: "a b", note: "c d e" }), // 5 words
+    ];
+    expect(computeJournalStats(entries).avgWordsPerEntry).toBe(5);
+  });
+
+  it("rounds to nearest integer", () => {
+    const entries = [
+      entry({ freeText: "one" }),      // 1 word
+      entry({ freeText: "a b" }),      // 2 words
+    ];
+    // avg = 1.5 → rounds to 2
+    expect(computeJournalStats(entries).avgWordsPerEntry).toBe(2);
   });
 });
