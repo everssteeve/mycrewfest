@@ -17,6 +17,7 @@ import {
 import { buildArtistOgDescription } from "@/lib/og-metadata";
 import { ShareButton } from "@/components/ui/share-button";
 import { buildArtistSharePayload } from "@/lib/share";
+import { rankCoAfficheArtists, type CoAfficheArtist } from "@/lib/artist-coaffiche";
 
 type PageContext = { params: Promise<{ id: string }> };
 
@@ -74,6 +75,50 @@ async function fetchArtistData(id: string) {
   };
 }
 
+async function fetchCoAfficheArtists(artistId: string): Promise<CoAfficheArtist[]> {
+  // Find festival IDs where this artist appears
+  const events = await prisma.event.findMany({
+    where: { artistId },
+    select: { festivalId: true },
+  });
+  const festivalIds = [...new Set(events.map((e) => e.festivalId))];
+  if (festivalIds.length === 0) return [];
+
+  // Find other artists in those same festivals
+  const coEvents = await prisma.event.findMany({
+    where: {
+      festivalId: { in: festivalIds },
+      artistId: { not: artistId },
+      artist: { isNot: null },
+    },
+    select: {
+      festivalId: true,
+      artist: {
+        select: { id: true, name: true, disciplines: true, countryCode: true },
+      },
+    },
+  });
+
+  // Count shared festivals per co-artist
+  const countMap = new Map<string, { artist: NonNullable<(typeof coEvents)[0]["artist"]>; festivalIds: Set<string> }>();
+  for (const ev of coEvents) {
+    if (!ev.artist) continue;
+    const entry = countMap.get(ev.artist.id) ?? { artist: ev.artist, festivalIds: new Set() };
+    entry.festivalIds.add(ev.festivalId);
+    countMap.set(ev.artist.id, entry);
+  }
+
+  const candidates: CoAfficheArtist[] = [...countMap.values()].map(({ artist, festivalIds: fids }) => ({
+    id: artist.id,
+    name: artist.name,
+    disciplines: parseJsonArray(artist.disciplines) as string[],
+    countryCode: artist.countryCode,
+    sharedFestivalCount: fids.size,
+  }));
+
+  return rankCoAfficheArtists(candidates, 4);
+}
+
 export async function generateMetadata({ params }: PageContext): Promise<Metadata> {
   const { id } = await params;
   const artist = await prisma.artist.findUnique({
@@ -110,14 +155,20 @@ export default async function ArtistePage({ params }: PageContext) {
 
   if (!artist) notFound();
 
-  const followedIds = new Set<string>();
-  if (session?.user?.id) {
-    const followed = await prisma.userFollowsFestival.findMany({
-      where: { userId: session.user.id },
-      select: { festivalId: true },
-    });
-    followed.forEach((f) => followedIds.add(f.festivalId));
-  }
+  const [coAfficheArtists, followedIds] = await Promise.all([
+    fetchCoAfficheArtists(id),
+    (async () => {
+      const set = new Set<string>();
+      if (session?.user?.id) {
+        const followed = await prisma.userFollowsFestival.findMany({
+          where: { userId: session.user.id },
+          select: { festivalId: true },
+        });
+        followed.forEach((f) => set.add(f.festivalId));
+      }
+      return set;
+    })(),
+  ]);
 
   return (
     <div
@@ -448,6 +499,80 @@ export default async function ArtistePage({ params }: PageContext) {
         >
           Aucun festival référencé pour cet artiste.
         </p>
+      )}
+
+      {/* Co-affichés */}
+      {coAfficheArtists.length > 0 && (
+        <section style={{ marginTop: 40 }}>
+          <h2
+            style={{
+              fontFamily: "var(--font-display, sans-serif)",
+              fontSize: "0.9rem",
+              fontWeight: 900,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              color: "var(--secondary-cyan, #00E5FF)",
+              margin: "0 0 12px",
+            }}
+          >
+            Co-affichés
+          </h2>
+          <div
+            data-testid="artiste-coaffiche"
+            style={{ display: "flex", flexDirection: "column", gap: 6 }}
+          >
+            {coAfficheArtists.map((co) => (
+              <Link
+                key={co.id}
+                href={`/artiste/${co.id}`}
+                data-testid={`artiste-coaffiche-${co.id}`}
+                style={{ textDecoration: "none" }}
+              >
+                <div
+                  style={{
+                    background: "var(--bg-card, #141519)",
+                    border: "1px solid var(--border-subtle, #1E1F26)",
+                    borderRadius: 10,
+                    padding: "10px 16px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 12,
+                  }}
+                >
+                  <div>
+                    <p
+                      style={{
+                        margin: 0,
+                        fontSize: "0.85rem",
+                        fontWeight: 700,
+                        color: "var(--text-primary, #F0F0F0)",
+                      }}
+                    >
+                      {co.name}
+                    </p>
+                    {co.disciplines.length > 0 && (
+                      <p style={{ margin: "2px 0 0", fontSize: "0.72rem", color: "var(--text-dim, #666)" }}>
+                        {co.disciplines.join(", ")}
+                      </p>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+                    {co.countryCode && (
+                      <span style={{ fontSize: "0.72rem", color: "var(--text-dim, #666)" }}>
+                        {co.countryCode}
+                      </span>
+                    )}
+                    <span style={{ fontSize: "0.68rem", color: "var(--secondary-cyan, #00E5FF)", fontFamily: "var(--font-mono, monospace)" }}>
+                      ×{co.sharedFestivalCount}
+                    </span>
+                    <span style={{ color: "var(--accent-pink, #FF007A)", fontSize: "0.75rem" }}>→</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );
