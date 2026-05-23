@@ -13,6 +13,7 @@ import {
   optimizePlanning,
   countMustSeeEvents,
   countIntéresséPlanningEvents,
+  countPlanningConflictPairs,
   type FreeTimeEvent,
 } from "@/lib/planning";
 import type { EventSummary } from "@/types";
@@ -496,5 +497,44 @@ describe("countIntéresséPlanningEvents", () => {
       makeEvent("e", "2025-07-19T18:00:00Z", 60),
     ];
     expect(countIntéresséPlanningEvents(events)).toBe(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// countPlanningConflictPairs
+// ---------------------------------------------------------------------------
+
+describe("countPlanningConflictPairs", () => {
+  it("returns 0 for empty list", () => {
+    expect(countPlanningConflictPairs([], 15)).toBe(0);
+  });
+
+  it("returns 0 when no conflicts exist", () => {
+    const events = [
+      makeEvent("a", "2026-07-01T14:00:00Z", 60),
+      makeEvent("b", "2026-07-01T16:00:00Z", 60),
+    ];
+    expect(countPlanningConflictPairs(events, 15)).toBe(0);
+  });
+
+  it("counts one overlap conflict", () => {
+    const events = [
+      makeEvent("a", "2026-07-01T14:00:00Z", 60),
+      makeEvent("b", "2026-07-01T14:30:00Z", 60),
+    ];
+    expect(countPlanningConflictPairs(events, 15)).toBe(1);
+  });
+
+  it("counts multiple conflict pairs", () => {
+    const events = [
+      makeEvent("a", "2026-07-01T14:00:00Z", 90),
+      makeEvent("b", "2026-07-01T14:30:00Z", 60),
+      makeEvent("c", "2026-07-01T14:45:00Z", 60),
+    ];
+    expect(countPlanningConflictPairs(events, 15)).toBeGreaterThanOrEqual(2);
+  });
+
+  it("returns 0 for a single event", () => {
+    expect(countPlanningConflictPairs([makeEvent("a", "2026-07-01T14:00:00Z", 60)], 15)).toBe(0);
   });
 });

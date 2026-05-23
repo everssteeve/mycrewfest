@@ -418,3 +418,14 @@ export function countMustSeeEvents(events: EventSummary[]): number {
 export function countIntéresséPlanningEvents(events: EventSummary[]): number {
   return events.filter((e) => e.selectionStatus === "intéressé").length;
 }
+
+/**
+ * Returns the number of conflict pairs detected in the given events.
+ * Delegates to detectConflicts with the provided comfort margin.
+ */
+export function countPlanningConflictPairs(
+  events: EventSummary[],
+  comfortMarginMins: number,
+): number {
+  return detectConflicts(events, comfortMarginMins).length;
+}

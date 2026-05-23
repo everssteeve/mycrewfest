@@ -563,6 +563,7 @@ export function PlanningView({
         )}
         <span style={{ color: "var(--border-strong)" }}>·</span>
         <span
+          data-testid="planning-conflict-count"
           style={{
             fontFamily: "var(--font-body)",
             fontSize: "var(--fs-sm)",
@@ -571,6 +572,7 @@ export function PlanningView({
                 ? "var(--warning-orange)"
                 : "var(--text-muted)",
           }}
+          title={conflicts.length > 0 ? `${conflicts.length} conflit${conflicts.length !== 1 ? "s" : ""} détecté${conflicts.length !== 1 ? "s" : ""} dans ton planning` : "Aucun conflit"}
         >
           {conflicts.length} conflit{conflicts.length !== 1 ? "s" : ""}
         </span>
