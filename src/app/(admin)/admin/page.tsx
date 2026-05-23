@@ -78,6 +78,20 @@ async function getDashboardData() {
   };
 }
 
+async function getUrgentProgramme() {
+  const now = new Date();
+  const in60days = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
+  return prisma.festival.findMany({
+    where: {
+      programStatus: "bientôt_disponible",
+      startDate: { gte: now, lte: in60days },
+    },
+    orderBy: { startDate: "asc" },
+    take: 10,
+    select: { id: true, name: true, slug: true, startDate: true },
+  });
+}
+
 async function getRecentActivity() {
   const [recentFestivals, recentUsers] = await Promise.all([
     prisma.festival.findMany({
@@ -95,7 +109,7 @@ async function getRecentActivity() {
 }
 
 export default async function AdminDashboardPage() {
-  const [raw, activity] = await Promise.all([getDashboardData(), getRecentActivity()]);
+  const [raw, activity, urgentProgramme] = await Promise.all([getDashboardData(), getRecentActivity(), getUrgentProgramme()]);
   const kpis = buildAdminKpis(raw);
   const alertPending = hasPendingAlert(raw.pendingSubmissions);
 
@@ -399,6 +413,74 @@ export default async function AdminDashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Urgent programme */}
+      {urgentProgramme.length > 0 && (
+        <div
+          data-testid="admin-urgent-programme"
+          style={{
+            background: "rgba(255,153,0,0.06)",
+            border: "1px solid var(--warning-orange)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-lg)",
+            marginBottom: "var(--space-xl)",
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "var(--fs-sm)",
+              color: "var(--warning-orange)",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              margin: "0 0 var(--space-md)",
+            }}
+          >
+            Programme manquant — dans les 60 jours
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+            {urgentProgramme.map((f) => {
+              const daysLeft = Math.ceil(
+                (new Date(f.startDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24),
+              );
+              return (
+                <div
+                  key={f.id}
+                  data-testid={`admin-urgent-programme-item-${f.slug}`}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "var(--space-sm)",
+                  }}
+                >
+                  <Link
+                    href={`/admin/festivals/${f.slug}/edit`}
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: "var(--fs-sm)",
+                      color: "var(--text-main)",
+                      textDecoration: "none",
+                    }}
+                  >
+                    {f.name}
+                  </Link>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "var(--fs-xs)",
+                      color: daysLeft <= 30 ? "var(--danger-red)" : "var(--warning-orange)",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    J-{daysLeft}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Quick links */}
       <div
