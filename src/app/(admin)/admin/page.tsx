@@ -7,6 +7,7 @@ import {
   getHealthScoreLabel,
   getHealthScoreColor,
 } from "@/lib/admin-health";
+import { computeDataQualityScore, getQualityGrade, getQualityGradeColor } from "@/lib/festival-data-quality";
 
 async function getDashboardData() {
   const todayStart = new Date();
@@ -21,6 +22,7 @@ async function getDashboardData() {
     enrichedFestivals,
     usersWithPseudo,
     totalSignals,
+    festivalQualityRows,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.festival.count(),
@@ -30,7 +32,38 @@ async function getDashboardData() {
     prisma.festival.count({ where: { ingestionStatus: "enrichi" } }),
     prisma.user.count({ where: { pseudo: { not: null } } }),
     prisma.signal.count(),
+    prisma.festival.findMany({
+      select: {
+        name: true,
+        description: true,
+        city: true,
+        latitude: true,
+        longitude: true,
+        capacity: true,
+        siteUrl: true,
+        instagramHandle: true,
+        programStatus: true,
+        ingestionStatus: true,
+        _count: { select: { events: true } },
+      },
+    }),
   ]);
+
+  const avgQualityScore = festivalQualityRows.length === 0 ? 0 : Math.round(
+    festivalQualityRows.reduce((sum, f) => sum + computeDataQualityScore({
+      name: f.name,
+      description: f.description,
+      city: f.city,
+      latitude: f.latitude,
+      longitude: f.longitude,
+      capacity: f.capacity,
+      siteUrl: f.siteUrl,
+      instagramHandle: f.instagramHandle,
+      programStatus: f.programStatus,
+      ingestionStatus: f.ingestionStatus,
+      eventCount: f._count.events,
+    }), 0) / festivalQualityRows.length
+  );
 
   return {
     totalUsers,
@@ -41,6 +74,7 @@ async function getDashboardData() {
     enrichedFestivals,
     usersWithPseudo,
     totalSignals,
+    avgQualityScore,
   };
 }
 
@@ -78,6 +112,9 @@ export default async function AdminDashboardPage() {
   const healthColor = getHealthScoreColor(healthScore);
   const healthMetrics = buildHealthMetrics(healthInput);
 
+  const qualityGrade = getQualityGrade(raw.avgQualityScore);
+  const qualityColor = getQualityGradeColor(qualityGrade);
+
   return (
     <div>
       {/* Header */}
@@ -112,7 +149,7 @@ export default async function AdminDashboardPage() {
         data-testid="admin-kpi-grid"
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
+          gridTemplateColumns: "repeat(6, 1fr)",
           gap: "var(--space-sm)",
           marginBottom: "var(--space-xl)",
         }}
@@ -154,6 +191,44 @@ export default async function AdminDashboardPage() {
             </p>
           </div>
         ))}
+        {/* Quality KPI */}
+        <Link
+          href="/admin/festivals/qualite"
+          data-testid="admin-kpi-avg-quality"
+          style={{
+            background: "var(--bg-surface)",
+            border: `1px solid ${qualityColor}44`,
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-md)",
+            textAlign: "center",
+            textDecoration: "none",
+            display: "block",
+          }}
+        >
+          <p
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-2xl)",
+              color: qualityColor,
+              margin: 0,
+              fontWeight: "var(--fw-bold)",
+            }}
+          >
+            {qualityGrade} <span style={{ fontSize: "var(--fs-sm)", opacity: 0.7 }}>{raw.avgQualityScore}/100</span>
+          </p>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-muted)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              margin: "4px 0 0",
+            }}
+          >
+            Qualité moy.
+          </p>
+        </Link>
       </div>
 
       {/* Pending alert */}

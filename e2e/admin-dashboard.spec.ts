@@ -54,6 +54,26 @@ test.describe("Admin dashboard", () => {
     await expect(page.getByTestId("admin-kpi-fest-events")).toBeVisible();
   });
 
+  test("quality KPI card shows grade and score", async ({ page }) => {
+    const isAdmin = await loginAsAdmin(page);
+    if (!isAdmin) { test.skip(); return; }
+
+    const kpi = page.getByTestId("admin-kpi-avg-quality");
+    await expect(kpi).toBeVisible();
+    const text = await kpi.textContent();
+    expect(text).toMatch(/[ABCD]/);
+    expect(text).toMatch(/\d+\/100/);
+  });
+
+  test("quality KPI links to quality page", async ({ page }) => {
+    const isAdmin = await loginAsAdmin(page);
+    if (!isAdmin) { test.skip(); return; }
+
+    const kpi = page.getByTestId("admin-kpi-avg-quality");
+    const href = await kpi.getAttribute("href");
+    expect(href).toContain("/admin/festivals/qualite");
+  });
+
   test("quick links to festivals, submissions, users are shown", async ({ page }) => {
     const isAdmin = await loginAsAdmin(page);
     if (!isAdmin) {
