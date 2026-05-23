@@ -5,8 +5,10 @@ import {
   buildCsvContent,
   festivalsToCsv,
   usersToCsv,
+  submissionsToCsv,
   type FestivalExportRow,
   type UserExportRow,
+  type SubmissionExportRow,
 } from "@/lib/admin-export";
 
 describe("escapeCsvCell", () => {
@@ -116,5 +118,43 @@ describe("usersToCsv", () => {
     const u: UserExportRow = { ...user, pseudo: null, name: null };
     const csv = usersToCsv([u]);
     expect(csv.split("\n")[1]).toBeTruthy();
+  });
+});
+
+describe("submissionsToCsv", () => {
+  const sub: SubmissionExportRow = {
+    id: "s1",
+    nameProposed: "Pixel Fest",
+    siteUrl: "https://pixelfest.fr",
+    authorEmail: "author@example.com",
+    status: "en_attente",
+    submittedAt: "2026-03-15T00:00:00Z",
+  };
+
+  it("produces a header row with expected columns", () => {
+    const csv = submissionsToCsv([sub]);
+    const header = csv.split("\n")[0];
+    expect(header).toContain("Nom proposé");
+    expect(header).toContain("Statut");
+    expect(header).toContain("Auteur");
+  });
+
+  it("includes submission data in data row", () => {
+    const csv = submissionsToCsv([sub]);
+    const dataLine = csv.split("\n")[1];
+    expect(dataLine).toContain("Pixel Fest");
+    expect(dataLine).toContain("author@example.com");
+    expect(dataLine).toContain("en_attente");
+  });
+
+  it("handles null siteUrl gracefully", () => {
+    const s: SubmissionExportRow = { ...sub, siteUrl: null };
+    const csv = submissionsToCsv([s]);
+    expect(csv.split("\n")[1]).toBeTruthy();
+  });
+
+  it("returns only header row for empty input", () => {
+    const csv = submissionsToCsv([]);
+    expect(csv.split("\n")).toHaveLength(1);
   });
 });

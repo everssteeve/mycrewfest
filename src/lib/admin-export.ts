@@ -68,3 +68,25 @@ export function usersToCsv(users: UserExportRow[]): string {
   ]);
   return buildCsvContent(headers, rows);
 }
+
+export interface SubmissionExportRow {
+  id: string;
+  nameProposed: string;
+  siteUrl: string | null;
+  authorEmail: string;
+  status: string;
+  submittedAt: Date | string;
+}
+
+export function submissionsToCsv(submissions: SubmissionExportRow[]): string {
+  const headers = ["ID", "Nom proposé", "URL", "Auteur", "Statut", "Date soumission"];
+  const rows = submissions.map((s) => [
+    s.id,
+    s.nameProposed,
+    s.siteUrl,
+    s.authorEmail,
+    s.status,
+    new Date(s.submittedAt).toLocaleDateString("fr-FR"),
+  ]);
+  return buildCsvContent(headers, rows);
+}

@@ -47,6 +47,14 @@ export default async function AdminExportPage() {
       filename: "utilisateurs.csv",
       icon: "👥",
     },
+    {
+      id: "submissions",
+      label: "Soumissions",
+      description: `${stats.submissionCount} soumission${stats.submissionCount !== 1 ? "s" : ""} — nom proposé, auteur, statut, date`,
+      apiPath: "/api/admin/export/submissions",
+      filename: "soumissions.csv",
+      icon: "📬",
+    },
   ];
 
   return (
