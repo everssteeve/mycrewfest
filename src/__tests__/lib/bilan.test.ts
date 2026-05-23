@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeBilan, formatBilanDuration, formatAvgHour, type BilantableEvent } from "@/lib/bilan";
+import { computeBilan, formatBilanDuration, formatAvgHour, formatBestDay, type BilantableEvent } from "@/lib/bilan";
 
 function ev(
   status: string | null,
@@ -179,6 +179,76 @@ describe("computeBilan — avgStartHour", () => {
     const stats = computeBilan(events);
     const singleStats = computeBilan([ev("vu", { startTime: "2025-07-15T20:00:00Z" })]);
     expect(stats.avgStartHour).toBe(singleStats.avgStartHour);
+  });
+});
+
+describe("computeBilan — bestDay", () => {
+  it("returns null when no seen events have startTime", () => {
+    const events = [ev("vu"), ev("vu")];
+    expect(computeBilan(events).bestDay).toBeNull();
+  });
+
+  it("returns null for empty event list", () => {
+    expect(computeBilan([]).bestDay).toBeNull();
+  });
+
+  it("returns the single day when all events are on the same day", () => {
+    const events = [
+      ev("vu", { startTime: "2025-07-19T10:00:00Z" }),
+      ev("vu", { startTime: "2025-07-19T14:00:00Z" }),
+      ev("vu", { startTime: "2025-07-19T20:00:00Z" }),
+    ];
+    const stats = computeBilan(events);
+    expect(stats.bestDay).not.toBeNull();
+    expect(stats.bestDay!.count).toBe(3);
+  });
+
+  it("returns the day with the most vu events", () => {
+    const events = [
+      ev("vu", { startTime: "2025-07-18T10:00:00Z" }),
+      ev("vu", { startTime: "2025-07-19T10:00:00Z" }),
+      ev("vu", { startTime: "2025-07-19T14:00:00Z" }),
+      ev("vu", { startTime: "2025-07-19T20:00:00Z" }),
+      ev("vu", { startTime: "2025-07-20T10:00:00Z" }),
+    ];
+    const stats = computeBilan(events);
+    expect(stats.bestDay).not.toBeNull();
+    expect(stats.bestDay!.count).toBe(3);
+  });
+
+  it("ignores non-vu events when computing best day", () => {
+    const events = [
+      ev("must-see", { startTime: "2025-07-18T10:00:00Z" }),
+      ev("must-see", { startTime: "2025-07-18T14:00:00Z" }),
+      ev("vu", { startTime: "2025-07-19T10:00:00Z" }),
+    ];
+    const stats = computeBilan(events);
+    expect(stats.bestDay).not.toBeNull();
+    expect(stats.bestDay!.count).toBe(1);
+  });
+
+  it("ignores vu events without startTime", () => {
+    const events = [
+      ev("vu"),
+      ev("vu"),
+      ev("vu", { startTime: "2025-07-19T10:00:00Z" }),
+    ];
+    const stats = computeBilan(events);
+    expect(stats.bestDay).not.toBeNull();
+    expect(stats.bestDay!.count).toBe(1);
+  });
+});
+
+describe("formatBestDay", () => {
+  it("returns a non-empty French date string", () => {
+    const result = formatBestDay("2025-07-19");
+    expect(result.length).toBeGreaterThan(5);
+    expect(typeof result).toBe("string");
+  });
+
+  it("includes the day number in the output", () => {
+    const result = formatBestDay("2025-07-19");
+    expect(result).toContain("19");
   });
 });
 

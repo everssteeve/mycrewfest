@@ -1,11 +1,11 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { MapPin, Eye, Clock, Star, Copy, Check, Tag } from "lucide-react";
+import { MapPin, Eye, Clock, Star, Copy, Check, Tag, Trophy } from "lucide-react";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
-import { computeBilan, formatBilanDuration, formatAvgHour } from "@/lib/bilan";
+import { computeBilan, formatBilanDuration, formatAvgHour, formatBestDay } from "@/lib/bilan";
 import { generateBilanText } from "@/lib/bilan-text";
 import { computeSelectionCompletionPercent, computeTotalSelected } from "@/lib/bilan-progress";
 
@@ -588,6 +588,60 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
               }}
             >
               {formatAvgHour(stats.avgStartHour)}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Best day */}
+      {stats.bestDay !== null && (
+        <div
+          data-testid="bilan-best-day"
+          style={{
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-md)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-sm)",
+          }}
+        >
+          <Trophy size={16} style={{ color: "var(--primary-neon)", flexShrink: 0 }} aria-hidden="true" />
+          <div>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                margin: 0,
+              }}
+            >
+              Meilleur jour
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-base)",
+                fontWeight: "var(--fw-medium)",
+                color: "var(--text-main)",
+                margin: 0,
+                textTransform: "capitalize",
+              }}
+            >
+              {formatBestDay(stats.bestDay.date)}
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-dim)",
+                  marginLeft: "var(--space-sm)",
+                }}
+              >
+                {stats.bestDay.count} vu{stats.bestDay.count > 1 ? "s" : ""}
+              </span>
             </p>
           </div>
         </div>

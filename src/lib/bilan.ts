@@ -16,6 +16,7 @@ export interface BilanStats {
   uniqueVenues: number;
   topTag: string | null;
   avgStartHour: number | null;
+  bestDay: { date: string; count: number } | null;
 }
 
 export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats {
@@ -67,6 +68,20 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     avgStartHour = Math.round(avgMins * 10) / 10;
   }
 
+  const dayCounts = new Map<string, number>();
+  for (const e of seen) {
+    if (!e.startTime) continue;
+    const d = new Date(e.startTime);
+    const day = d.toLocaleDateString("sv-SE");
+    dayCounts.set(day, (dayCounts.get(day) ?? 0) + 1);
+  }
+  let bestDay: { date: string; count: number } | null = null;
+  for (const [date, count] of dayCounts) {
+    if (!bestDay || count > bestDay.count) {
+      bestDay = { date, count };
+    }
+  }
+
   return {
     totalSeen: seen.length,
     totalDurationMins,
@@ -76,6 +91,7 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     uniqueVenues: venueCounts.size,
     topTag,
     avgStartHour,
+    bestDay,
   };
 }
 
@@ -88,6 +104,15 @@ export function formatAvgHour(avgMins: number): string {
   const h = Math.floor(avgMins / 60);
   const m = Math.round(avgMins % 60);
   return m === 0 ? `${h}h` : `${h}h${m.toString().padStart(2, "0")}`;
+}
+
+export function formatBestDay(date: string): string {
+  const d = new Date(`${date}T12:00:00`);
+  return d.toLocaleDateString("fr-FR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  });
 }
 
 export function formatBilanDuration(mins: number): string {
