@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -331,5 +331,52 @@ describe("countCancelledEvents and countModifiedEvents", () => {
     const events = [{ status: "annulé" }, { status: "modifié" }, { status: "confirmé" }];
     expect(countCancelledEvents(events)).toBe(1);
     expect(countModifiedEvents(events)).toBe(1);
+  });
+});
+
+describe("getTopProgrammeTag", () => {
+  it("returns null for empty array", () => {
+    expect(getTopProgrammeTag([])).toBeNull();
+  });
+
+  it("returns null when no events have tags", () => {
+    const events = [{ tags: null }, { tags: [] }, { tags: undefined }];
+    expect(getTopProgrammeTag(events)).toBeNull();
+  });
+
+  it("returns the only tag present", () => {
+    const events = [{ tags: ["Techno"] }];
+    expect(getTopProgrammeTag(events)).toEqual({ tag: "Techno", count: 1 });
+  });
+
+  it("returns the most frequent tag", () => {
+    const events = [
+      { tags: ["Techno", "Electronic"] },
+      { tags: ["Techno"] },
+      { tags: ["Jazz"] },
+    ];
+    expect(getTopProgrammeTag(events)).toEqual({ tag: "Techno", count: 2 });
+  });
+
+  it("breaks ties alphabetically", () => {
+    const events = [
+      { tags: ["Techno"] },
+      { tags: ["Jazz"] },
+    ];
+    expect(getTopProgrammeTag(events)).toEqual({ tag: "Jazz", count: 1 });
+  });
+
+  it("ignores empty string tags", () => {
+    const events = [{ tags: ["", "Rock"] }, { tags: ["Rock"] }];
+    expect(getTopProgrammeTag(events)).toEqual({ tag: "Rock", count: 2 });
+  });
+
+  it("counts tags across all events correctly", () => {
+    const events = [
+      { tags: ["A", "B"] },
+      { tags: ["B", "C"] },
+      { tags: ["B"] },
+    ];
+    expect(getTopProgrammeTag(events)).toEqual({ tag: "B", count: 3 });
   });
 });

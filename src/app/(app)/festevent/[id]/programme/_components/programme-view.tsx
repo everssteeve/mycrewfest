@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -274,6 +274,11 @@ export function ProgrammeView({
 
   const modifiedCount = useMemo(
     () => countModifiedEvents(filteredEvents),
+    [filteredEvents],
+  );
+
+  const topTag = useMemo(
+    () => getTopProgrammeTag(filteredEvents),
     [filteredEvents],
   );
 
@@ -962,6 +967,22 @@ export function ProgrammeView({
               title="Heure de pointe du programme"
             >
               Pic à {peakHour}h
+            </span>
+          </>
+        )}
+        {topTag !== null && filteredEvents.length > 1 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-top-tag"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--secondary-cyan)",
+              }}
+              title={`Tag dominant dans cette sélection (${topTag.count} événements)`}
+            >
+              #{topTag.tag}
             </span>
           </>
         )}

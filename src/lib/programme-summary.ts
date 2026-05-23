@@ -173,3 +173,35 @@ export interface ConfidenceFilterable {
 export function countVerifiedEvents<T extends ConfidenceFilterable>(events: T[]): number {
   return events.filter((e) => e.confidence === "vérifié_humain").length;
 }
+
+export interface TaggableEvent {
+  tags?: string[] | null;
+}
+
+export interface TopTagResult {
+  tag: string;
+  count: number;
+}
+
+/**
+ * Returns the most common tag across all events, or null when no tags are present.
+ * Ties are broken alphabetically (lowest tag name wins).
+ */
+export function getTopProgrammeTag<T extends TaggableEvent>(
+  events: T[],
+): TopTagResult | null {
+  const counts = new Map<string, number>();
+  for (const e of events) {
+    for (const tag of e.tags ?? []) {
+      if (tag) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+  }
+  if (counts.size === 0) return null;
+  let top: TopTagResult | null = null;
+  for (const [tag, count] of counts) {
+    if (!top || count > top.count || (count === top.count && tag < top.tag)) {
+      top = { tag, count };
+    }
+  }
+  return top;
+}
