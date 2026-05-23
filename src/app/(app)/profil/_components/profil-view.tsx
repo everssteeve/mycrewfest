@@ -9,6 +9,7 @@ import { PushToggle } from "@/components/notifications/push-toggle";
 import { computeFestivalierScore, computeScoreBreakdown } from "@/lib/festivalier-score";
 import { getFestivalTemporalStatus, getDaysUntilStart, formatTemporalBadge } from "@/lib/festival-temporal";
 import { countUpcomingFestEvents, countActiveFestEvents, countPastFestEvents } from "@/lib/profil-stats";
+import { findNextFestEvent, computeDaysUntilFestival, isFestivalActive, formatCountdownLabel, getCountdownUrgency, getCountdownColor } from "@/lib/profil-countdown";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -304,6 +305,20 @@ export function ProfilView({ data }: { data: ProfilData }) {
     [data.festEvents],
   );
 
+  const nextFestEvent = useMemo(() => findNextFestEvent(data.festEvents), [data.festEvents]);
+  const nextFestDays = useMemo(
+    () => (nextFestEvent ? computeDaysUntilFestival(nextFestEvent.festival.startDate) : null),
+    [nextFestEvent],
+  );
+  const nextFestActive = useMemo(
+    () => (nextFestEvent ? isFestivalActive(nextFestEvent.festival.startDate, nextFestEvent.festival.endDate) : false),
+    [nextFestEvent],
+  );
+  const nextFestUrgency = useMemo(
+    () => (nextFestDays !== null ? getCountdownUrgency(nextFestDays, nextFestActive) : null),
+    [nextFestDays, nextFestActive],
+  );
+
   const activeFestEventCount = useMemo(
     () => countActiveFestEvents(data.festEvents),
     [data.festEvents],
@@ -443,6 +458,84 @@ export function ProfilView({ data }: { data: ProfilData }) {
           </div>
         )}
       </section>
+
+      {/* === Prochain festival countdown === */}
+      {nextFestEvent && nextFestDays !== null && nextFestUrgency && (
+        <Link
+          href={`/festevent/${nextFestEvent.id}/programme`}
+          data-testid="profil-next-festival-countdown"
+          style={{ textDecoration: "none" }}
+        >
+          <div
+            style={{
+              backgroundColor: "var(--bg-surface)",
+              border: `1px solid ${getCountdownColor(nextFestUrgency)}40`,
+              borderRadius: "var(--radius-md)",
+              padding: "var(--space-md)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: "var(--space-md)",
+              boxShadow: nextFestUrgency === "active" ? "var(--glow-neon)" : "none",
+            }}
+          >
+            <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              <span
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-dim)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                Prochain festival
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "var(--fs-base)",
+                  color: "var(--text-main)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                }}
+              >
+                {nextFestEvent.festival.name}
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-dim)",
+                }}
+              >
+                {nextFestEvent.festival.city}
+              </span>
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+                gap: 2,
+                flexShrink: 0,
+              }}
+            >
+              <span
+                data-testid="profil-countdown-label"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-lg)",
+                  fontWeight: 700,
+                  color: getCountdownColor(nextFestUrgency),
+                }}
+              >
+                {formatCountdownLabel(nextFestDays, nextFestActive)}
+              </span>
+            </div>
+          </div>
+        </Link>
+      )}
 
       {/* === Festivalier Score === */}
       <div
