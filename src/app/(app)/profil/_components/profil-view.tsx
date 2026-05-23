@@ -1298,6 +1298,37 @@ export function ProfilView({ data }: { data: ProfilData }) {
           Tous mes événements →
         </span>
       </Link>
+      <Link
+        href="/classement"
+        data-testid="profil-classement-link"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border-color)",
+          borderRadius: "var(--radius-md)",
+          padding: "var(--space-sm) var(--space-md)",
+          textDecoration: "none",
+          marginTop: "var(--space-sm)",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--warning-orange)",
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+            fontWeight: 900,
+          }}
+        >
+          Classement
+        </span>
+        <span style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs)" }}>
+          Top festivaliers →
+        </span>
+      </Link>
     </div>
   );
 }
