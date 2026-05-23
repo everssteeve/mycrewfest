@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeChecklistBudget, computeCompletionRate, getOldestPendingItemAgeDays } from "@/lib/checklist-budget";
+import { computeChecklistBudget, computeCompletionRate, getOldestPendingItemAgeDays, computeAvgDaysToComplete } from "@/lib/checklist-budget";
 
 describe("computeChecklistBudget", () => {
   it("returns zeros for empty list", () => {
@@ -132,5 +132,54 @@ describe("getOldestPendingItemAgeDays", () => {
   it("returns 0 for a pending item created today", () => {
     const items = [{ done: false, createdAt: daysAgo(0) }];
     expect(getOldestPendingItemAgeDays(items, now)).toBe(0);
+  });
+});
+
+describe("computeAvgDaysToComplete", () => {
+  const makeItem = (done: boolean, createdDaysAgo: number, updatedDaysAgo: number) => ({
+    done,
+    createdAt: new Date("2026-07-15T12:00:00Z").toISOString().replace(
+      "2026-07-15",
+      new Date(new Date("2026-07-15").getTime() - createdDaysAgo * 86_400_000).toISOString().slice(0, 10),
+    ),
+    updatedAt: new Date("2026-07-15T12:00:00Z").toISOString().replace(
+      "2026-07-15",
+      new Date(new Date("2026-07-15").getTime() - updatedDaysAgo * 86_400_000).toISOString().slice(0, 10),
+    ),
+  });
+
+  it("returns null for empty list", () => {
+    expect(computeAvgDaysToComplete([])).toBeNull();
+  });
+
+  it("returns null when all items are pending", () => {
+    const items = [
+      { done: false, createdAt: "2026-07-01T00:00:00Z", updatedAt: "2026-07-10T00:00:00Z" },
+    ];
+    expect(computeAvgDaysToComplete(items)).toBeNull();
+  });
+
+  it("returns 0 when item was completed the same day it was created", () => {
+    const items = [
+      { done: true, createdAt: "2026-07-10T08:00:00Z", updatedAt: "2026-07-10T22:00:00Z" },
+    ];
+    expect(computeAvgDaysToComplete(items)).toBe(0);
+  });
+
+  it("computes correct average for multiple done items", () => {
+    const items = [
+      { done: true, createdAt: "2026-07-01T00:00:00Z", updatedAt: "2026-07-03T00:00:00Z" },
+      { done: true, createdAt: "2026-07-01T00:00:00Z", updatedAt: "2026-07-05T00:00:00Z" },
+      { done: false, createdAt: "2026-07-01T00:00:00Z", updatedAt: "2026-07-10T00:00:00Z" },
+    ];
+    expect(computeAvgDaysToComplete(items)).toBe(3);
+  });
+
+  it("ignores items with unparseable timestamps", () => {
+    const items = [
+      { done: true, createdAt: "bad", updatedAt: "also-bad" },
+      { done: true, createdAt: "2026-07-01T00:00:00Z", updatedAt: "2026-07-07T00:00:00Z" },
+    ];
+    expect(computeAvgDaysToComplete(items)).toBe(6);
   });
 });

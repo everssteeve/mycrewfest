@@ -58,3 +58,32 @@ export function getOldestPendingItemAgeDays(
   }
   return oldest;
 }
+
+export interface CompletedAgableItem {
+  done: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * Returns the average number of whole days between createdAt and updatedAt
+ * for items that are done. Uses updatedAt as a proxy for completion time.
+ * Returns null when no done items have parseable timestamps or the list has no
+ * done items.
+ */
+export function computeAvgDaysToComplete(
+  items: CompletedAgableItem[],
+): number | null {
+  let total = 0;
+  let count = 0;
+  for (const item of items) {
+    if (!item.done) continue;
+    const created = new Date(item.createdAt).getTime();
+    const updated = new Date(item.updatedAt).getTime();
+    if (Number.isNaN(created) || Number.isNaN(updated)) continue;
+    const days = Math.max(0, Math.floor((updated - created) / (24 * 60 * 60_000)));
+    total += days;
+    count++;
+  }
+  return count === 0 ? null : Math.round(total / count);
+}

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState, useTransition } from "react"
 import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown, Copy, Check } from "lucide-react";
 import { generateChecklistText } from "@/lib/checklist-text";
 import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
-import { computeChecklistBudget, computeCompletionRate, getOldestPendingItemAgeDays } from "@/lib/checklist-budget";
+import { computeChecklistBudget, computeCompletionRate, getOldestPendingItemAgeDays, computeAvgDaysToComplete } from "@/lib/checklist-budget";
 import { filterByAssignee, getUniqueAssignees, computeAssigneeStats, countUnassignedPendingItems, getMostLoadedAssignee } from "@/lib/checklist-filter";
 import { filterChecklistByQuery } from "@/lib/checklist-search";
 import { isEscapeKey } from "@/lib/keyboard-search";
@@ -211,6 +211,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   const mostLoaded = useMemo(() => getMostLoadedAssignee(items), [items]);
   const completionRate = useMemo(() => computeCompletionRate(items), [items]);
   const oldestPendingDays = useMemo(() => getOldestPendingItemAgeDays(items), [items]);
+  const avgCompletionDays = useMemo(() => computeAvgDaysToComplete(items), [items]);
   const displayedItems = useMemo(
     () => filterChecklistByQuery(filterByAssignee(items, activeAssignee), searchQuery),
     [items, activeAssignee, searchQuery],
@@ -448,6 +449,19 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
                 title={`La tâche en attente la plus ancienne date d'il y a ${oldestPendingDays}j`}
               >
                 ⏰ {oldestPendingDays}j
+              </span>
+            )}
+            {avgCompletionDays !== null && (
+              <span
+                data-testid="checklist-avg-completion-days"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-muted)",
+                }}
+                title="Nombre de jours moyen pour terminer une tâche"
+              >
+                moy. {avgCompletionDays}j
               </span>
             )}
           </div>
