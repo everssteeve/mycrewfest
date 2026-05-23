@@ -288,3 +288,75 @@ describe("computeDayFreeTime", () => {
     expect(computeDayFreeTime(events)).toBe(60);
   });
 });
+
+// ---------------------------------------------------------------------------
+// computeDayCoverage
+// ---------------------------------------------------------------------------
+
+import { computeDayCoverage } from "@/lib/planning";
+
+const cov = (startTime: string | null, endTime?: string | null, durationMins?: number | null) =>
+  ({ startTime, endTime: endTime ?? null, durationMins: durationMins ?? null });
+
+describe("computeDayCoverage", () => {
+  it("returns zeros for an empty array", () => {
+    const r = computeDayCoverage([]);
+    expect(r.coveredMins).toBe(0);
+    expect(r.spanMins).toBe(0);
+    expect(r.percent).toBe(0);
+  });
+
+  it("returns zeros when no events have startTime", () => {
+    const r = computeDayCoverage([cov(null, null, 60)]);
+    expect(r.percent).toBe(0);
+  });
+
+  it("single event covers 100% of its own span", () => {
+    const r = computeDayCoverage([cov("2025-07-19T14:00:00Z", "2025-07-19T15:00:00Z")]);
+    expect(r.coveredMins).toBe(60);
+    expect(r.spanMins).toBe(60);
+    expect(r.percent).toBe(100);
+  });
+
+  it("two back-to-back events cover 100%", () => {
+    const r = computeDayCoverage([
+      cov("2025-07-19T14:00:00Z", "2025-07-19T15:00:00Z"),
+      cov("2025-07-19T15:00:00Z", "2025-07-19T16:00:00Z"),
+    ]);
+    expect(r.coveredMins).toBe(120);
+    expect(r.spanMins).toBe(120);
+    expect(r.percent).toBe(100);
+  });
+
+  it("two events with a gap give less than 100%", () => {
+    const r = computeDayCoverage([
+      cov("2025-07-19T14:00:00Z", "2025-07-19T15:00:00Z"),
+      cov("2025-07-19T16:00:00Z", "2025-07-19T17:00:00Z"),
+    ]);
+    // span = 3h = 180min, covered = 2h = 120min
+    expect(r.spanMins).toBe(180);
+    expect(r.coveredMins).toBe(120);
+    expect(r.percent).toBe(67);
+  });
+
+  it("overlapping events are merged, not double-counted", () => {
+    const r = computeDayCoverage([
+      cov("2025-07-19T14:00:00Z", "2025-07-19T16:00:00Z"),
+      cov("2025-07-19T15:00:00Z", "2025-07-19T17:00:00Z"),
+    ]);
+    // span = 3h, covered after merge = 3h → 100%
+    expect(r.coveredMins).toBe(180);
+    expect(r.spanMins).toBe(180);
+    expect(r.percent).toBe(100);
+  });
+
+  it("uses durationMins when endTime is absent", () => {
+    const r = computeDayCoverage([
+      cov("2025-07-19T14:00:00Z", null, 60),
+      cov("2025-07-19T16:00:00Z", null, 60),
+    ]);
+    // 14h–15h, 16h–17h → span 3h, covered 2h
+    expect(r.coveredMins).toBe(120);
+    expect(r.spanMins).toBe(180);
+  });
+});

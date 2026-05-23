@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ChevronDown, CalendarArrowDown, Copy, Check } from "lucide-react";
-import { detectConflicts, filterEventsByDay, sortEventsByTime, computeDayFreeTime } from "@/lib/planning";
+import { detectConflicts, filterEventsByDay, sortEventsByTime, computeDayFreeTime, computeDayCoverage } from "@/lib/planning";
 import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 import { toggleVuStatus } from "@/lib/selection";
@@ -412,6 +412,8 @@ export function PlanningView({
 
   const freeTimeMins = useMemo(() => computeDayFreeTime(dayEvents), [dayEvents]);
 
+  const dayCoverage = useMemo(() => computeDayCoverage(dayEvents), [dayEvents]);
+
   // Apply must-see-only filter for display (conflicts/totalMins use full dayEvents)
   const displayedEvents = useMemo(
     () => applyPlanningMustSeeFilter(dayEvents, mustSeeOnly),
@@ -543,6 +545,22 @@ export function PlanningView({
               title="Temps libre entre tes concerts"
             >
               {formatBilanDuration(freeTimeMins)} libre{freeTimeMins > 60 ? "s" : ""}
+            </span>
+          </>
+        )}
+        {dayCoverage.percent > 0 && dayCoverage.spanMins > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)" }}>·</span>
+            <span
+              data-testid="planning-day-coverage"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-sm)",
+                color: "var(--secondary-cyan)",
+              }}
+              title="Part de ta journée couverte par les événements"
+            >
+              {dayCoverage.percent}% couvert
             </span>
           </>
         )}

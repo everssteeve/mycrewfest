@@ -304,6 +304,66 @@ export interface FreeTimeEvent {
   durationMins?: number | null;
 }
 
+export interface DayCoverageResult {
+  coveredMins: number;
+  spanMins: number;
+  percent: number;
+}
+
+/**
+ * Computes how much of the day's time window is "covered" by events.
+ *
+ * coveredMins: total event time after merging overlapping intervals
+ * spanMins: from first event start to last event end
+ * percent: coveredMins / spanMins × 100 (0 when span is 0)
+ *
+ * Events without startTime are ignored.
+ */
+export function computeDayCoverage(events: FreeTimeEvent[]): DayCoverageResult {
+  const withTime = events
+    .filter((e) => !!e.startTime)
+    .map((e) => {
+      const start = new Date(e.startTime!).getTime();
+      let end: number;
+      if (e.endTime) {
+        end = new Date(e.endTime).getTime();
+      } else if (e.durationMins) {
+        end = start + e.durationMins * 60_000;
+      } else {
+        end = start + 60 * 60_000;
+      }
+      return { start, end };
+    })
+    .sort((a, b) => a.start - b.start);
+
+  if (withTime.length === 0) return { coveredMins: 0, spanMins: 0, percent: 0 };
+
+  const spanStart = withTime[0].start;
+  const spanEnd = Math.max(...withTime.map((e) => e.end));
+  const spanMins = Math.round((spanEnd - spanStart) / 60_000);
+
+  // Merge overlapping intervals
+  let coveredMs = 0;
+  let mergeStart = withTime[0].start;
+  let mergeEnd = withTime[0].end;
+  for (let i = 1; i < withTime.length; i++) {
+    const { start, end } = withTime[i];
+    if (start <= mergeEnd) {
+      mergeEnd = Math.max(mergeEnd, end);
+    } else {
+      coveredMs += mergeEnd - mergeStart;
+      mergeStart = start;
+      mergeEnd = end;
+    }
+  }
+  coveredMs += mergeEnd - mergeStart;
+
+  const coveredMins = Math.round(coveredMs / 60_000);
+  const percent = spanMins > 0 ? Math.round((coveredMins / spanMins) * 100) : 0;
+
+  return { coveredMins, spanMins, percent };
+}
+
 /**
  * Computes the total gap time (in minutes) between consecutive events in a day.
  * Only positive gaps are counted — overlapping events contribute 0.
