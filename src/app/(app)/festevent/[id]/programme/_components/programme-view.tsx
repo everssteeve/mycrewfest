@@ -19,6 +19,7 @@ import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
 import { buildProgrammeIcs, countExportableEvents } from "@/lib/programme-ics";
 import { computeTotalProgrammeDurationMins, computeSelectedDurationMins, computeTimeCoveragePercent, getDensityLabel, getDensityColor, formatDensityBadge } from "@/lib/programme-density";
+import { groupEventsByVenue, sortVenueGroups, sortEventsWithinGroup } from "@/lib/programme-group";
 import { Copy, Check, CalendarArrowDown } from "lucide-react";
 import { ChevronUp } from "lucide-react";
 
@@ -101,6 +102,7 @@ export function ProgrammeView({
   const [searchQuery, setSearchQuery] = useState("");
   const [upcomingOnly, setUpcomingOnly] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "by-venue">("list");
 
   // Refresh "now" every minute for live event status
   const [now, setNow] = useState(() => new Date());
@@ -1516,6 +1518,59 @@ export function ProgrammeView({
           </button>
         )}
         <div style={{ flex: 1 }} />
+        {/* View mode toggle */}
+        {allVenues.length > 1 && (
+          <div style={{ display: "flex", gap: 2 }}>
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              aria-pressed={viewMode === "list"}
+              data-testid="programme-view-list"
+              title="Vue liste chronologique"
+              style={{
+                padding: "2px 8px",
+                borderRadius: "var(--radius-full)",
+                border: viewMode === "list"
+                  ? "1.5px solid var(--accent-pink)"
+                  : "1.5px solid rgba(255,255,255,0.1)",
+                backgroundColor: viewMode === "list" ? "rgba(255,0,122,0.1)" : "transparent",
+                color: viewMode === "list" ? "var(--accent-pink)" : "var(--text-dim)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                fontWeight: "var(--fw-medium)",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                transition: "var(--transition-fast)",
+              }}
+            >
+              ≡ Liste
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("by-venue")}
+              aria-pressed={viewMode === "by-venue"}
+              data-testid="programme-view-by-venue"
+              title="Vue par scène"
+              style={{
+                padding: "2px 8px",
+                borderRadius: "var(--radius-full)",
+                border: viewMode === "by-venue"
+                  ? "1.5px solid var(--accent-pink)"
+                  : "1.5px solid rgba(255,255,255,0.1)",
+                backgroundColor: viewMode === "by-venue" ? "rgba(255,0,122,0.1)" : "transparent",
+                color: viewMode === "by-venue" ? "var(--accent-pink)" : "var(--text-dim)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                fontWeight: "var(--fw-medium)",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                transition: "var(--transition-fast)",
+              }}
+            >
+              ⊞ Scènes
+            </button>
+          </div>
+        )}
         {/* Sort controls */}
         <div
           style={{ display: "flex", gap: 4 }}
@@ -1590,6 +1645,55 @@ export function ProgrammeView({
           >
             Aucun événement pour ce jour ou ces filtres.
           </p>
+        </div>
+      ) : viewMode === "by-venue" ? (
+        <div
+          data-testid="programme-by-venue-view"
+          style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)" }}
+        >
+          {sortVenueGroups(groupEventsByVenue(filteredEvents)).map((group) => (
+            <section key={group.venueId ?? "__no_venue__"}>
+              <h3
+                data-testid={`venue-group-header-${group.venueId ?? "unknown"}`}
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "var(--fs-sm)",
+                  fontWeight: 900,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.08em",
+                  color: "var(--accent-pink)",
+                  marginBottom: "var(--space-sm)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "var(--space-xs)",
+                }}
+              >
+                <span aria-hidden="true">⊞</span>
+                {group.venueName}
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    fontWeight: 400,
+                    color: "var(--text-dim)",
+                  }}
+                >
+                  · {group.events.length}
+                </span>
+              </h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+                {sortEventsWithinGroup(group.events).map((e) => (
+                  <EventCard
+                    key={e.id}
+                    event={e}
+                    onSelectionCycle={handleSelectionCycle}
+                    hasConflict={conflictingIds.has(e.id)}
+                    isOngoing={ongoingIds.has(e.id)}
+                  />
+                ))}
+              </div>
+            </section>
+          ))}
         </div>
       ) : (
         <div
