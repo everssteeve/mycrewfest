@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory } from "@/lib/news-stats";
 
 const item = (urgencyLevel: "normal" | "critique", isPinned = false) => ({
   urgencyLevel,
@@ -152,5 +152,33 @@ describe("countRecentNewsItems", () => {
   it("uses 24h window by default when no custom window is specified", () => {
     const items = [{ publishedAt: hoursAgo(2) }, { publishedAt: hoursAgo(30) }];
     expect(countRecentNewsItems(items, 24, now)).toBe(1);
+  });
+});
+
+describe("getTopNewsCategory", () => {
+  const cat = (category: string) => ({ category });
+
+  it("returns null for empty list", () => {
+    expect(getTopNewsCategory([])).toBeNull();
+  });
+
+  it("returns the category with the most items", () => {
+    const items = [cat("Programme"), cat("Programme"), cat("Logistique")];
+    expect(getTopNewsCategory(items)).toBe("Programme");
+  });
+
+  it("breaks ties alphabetically", () => {
+    const items = [cat("Logistique"), cat("Programme")];
+    expect(getTopNewsCategory(items)).toBe("Logistique");
+  });
+
+  it("returns the single category when all items share one", () => {
+    const items = [cat("Artiste"), cat("Artiste"), cat("Artiste")];
+    expect(getTopNewsCategory(items)).toBe("Artiste");
+  });
+
+  it("handles three-way tie alphabetically", () => {
+    const items = [cat("Zéro"), cat("Artiste"), cat("Programme")];
+    expect(getTopNewsCategory(items)).toBe("Artiste");
   });
 });

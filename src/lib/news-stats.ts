@@ -44,6 +44,27 @@ export function countUniqueNewsCategories<T extends CategorizableNewsItem>(items
   return new Set(items.map((i) => i.category)).size;
 }
 
+/**
+ * Returns the category name with the most news items, or null when the list is empty.
+ * Ties are broken alphabetically (lowest category name wins).
+ */
+export function getTopNewsCategory<T extends CategorizableNewsItem>(items: T[]): string | null {
+  if (items.length === 0) return null;
+  const counts = new Map<string, number>();
+  for (const item of items) {
+    counts.set(item.category, (counts.get(item.category) ?? 0) + 1);
+  }
+  let topCategory: string | null = null;
+  let max = 0;
+  for (const [category, count] of counts) {
+    if (count > max || (count === max && topCategory !== null && category < topCategory)) {
+      max = count;
+      topCategory = category;
+    }
+  }
+  return topCategory;
+}
+
 export interface TimestampedNewsItem {
   publishedAt: string;
 }
