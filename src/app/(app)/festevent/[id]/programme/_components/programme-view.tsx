@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing, countUpcomingEvents } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -326,6 +326,11 @@ export function ProgrammeView({
 
   const peakDay = useMemo(
     () => getPeakProgrammeDay(filteredEvents),
+    [filteredEvents],
+  );
+
+  const ageRestrictedCount = useMemo(
+    () => countAgeRestrictedEvents(filteredEvents),
     [filteredEvents],
   );
 
@@ -1209,6 +1214,22 @@ export function ProgrammeView({
               title={`Jour le plus chargé : ${peakDay.date} (${peakDay.count} événements)`}
             >
               {new Date(peakDay.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short" })} +{peakDay.count}
+            </span>
+          </>
+        )}
+        {ageRestrictedCount > 0 && ageRestrictedCount < filteredEvents.length && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-age-restricted-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--warning-orange)",
+              }}
+              title={`${ageRestrictedCount} événement${ageRestrictedCount !== 1 ? "s" : ""} avec restriction d'âge`}
+            >
+              {ageRestrictedCount} limite âge
             </span>
           </>
         )}

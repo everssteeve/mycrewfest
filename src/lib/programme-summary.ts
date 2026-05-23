@@ -379,3 +379,20 @@ export function getPeakProgrammeDay<T extends SummaryFilterable>(
   }
   return peak;
 }
+
+export interface AgeRestrictedFilterable {
+  ageMin?: number | null;
+  ageMax?: number | null;
+}
+
+/**
+ * Returns the count of events that have any age restriction (ageMin or ageMax set
+ * to a positive value).
+ */
+export function countAgeRestrictedEvents<T extends AgeRestrictedFilterable>(
+  events: T[],
+): number {
+  return events.filter(
+    (e) => (e.ageMin != null && e.ageMin > 0) || (e.ageMax != null && e.ageMax > 0),
+  ).length;
+}

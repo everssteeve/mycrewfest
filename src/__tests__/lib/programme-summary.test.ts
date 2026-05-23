@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -728,5 +728,45 @@ describe("getPeakProgrammeDay", () => {
       { startTime: "2026-07-16T14:00:00" },
     ];
     expect(getPeakProgrammeDay(events)).toEqual({ date: "2026-07-16", count: 2 });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// countAgeRestrictedEvents
+// ---------------------------------------------------------------------------
+
+describe("countAgeRestrictedEvents", () => {
+  it("returns 0 for empty list", () => {
+    expect(countAgeRestrictedEvents([])).toBe(0);
+  });
+
+  it("returns 0 when no events have age restrictions", () => {
+    expect(countAgeRestrictedEvents([{ ageMin: null, ageMax: null }, { ageMin: undefined }])).toBe(0);
+  });
+
+  it("counts events with ageMin set", () => {
+    expect(countAgeRestrictedEvents([{ ageMin: 18 }, { ageMin: null }])).toBe(1);
+  });
+
+  it("counts events with ageMax set", () => {
+    expect(countAgeRestrictedEvents([{ ageMax: 12 }, { ageMax: null }])).toBe(1);
+  });
+
+  it("counts events with both ageMin and ageMax set once", () => {
+    expect(countAgeRestrictedEvents([{ ageMin: 18, ageMax: 60 }])).toBe(1);
+  });
+
+  it("does not count events with ageMin or ageMax equal to 0", () => {
+    expect(countAgeRestrictedEvents([{ ageMin: 0, ageMax: 0 }])).toBe(0);
+  });
+
+  it("counts multiple restricted events correctly", () => {
+    const events = [
+      { ageMin: 18 },
+      { ageMax: 12 },
+      { ageMin: null, ageMax: null },
+      { ageMin: 16, ageMax: null },
+    ];
+    expect(countAgeRestrictedEvents(events)).toBe(3);
   });
 });
