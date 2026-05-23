@@ -129,6 +129,13 @@ describe("matchesSelectionFilter", () => {
     expect(matchesSelectionFilter(e("must-see"), "intéressé")).toBe(false);
     expect(matchesSelectionFilter(e(null), "intéressé")).toBe(false);
   });
+
+  it("'vu' matches only vu events", () => {
+    expect(matchesSelectionFilter(e("vu"), "vu")).toBe(true);
+    expect(matchesSelectionFilter(e("must-see"), "vu")).toBe(false);
+    expect(matchesSelectionFilter(e("intéressé"), "vu")).toBe(false);
+    expect(matchesSelectionFilter(e(null), "vu")).toBe(false);
+  });
 });
 
 describe("matchesTagFilter", () => {

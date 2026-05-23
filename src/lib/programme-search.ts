@@ -19,7 +19,7 @@ export function matchesProgrammeQuery<T extends SearchableEvent>(
   );
 }
 
-export type SelectionFilter = "tous" | "sélectionné" | "must-see" | "intéressé";
+export type SelectionFilter = "tous" | "sélectionné" | "must-see" | "intéressé" | "vu";
 
 export interface SelectionFilterable {
   selectionStatus?: string | null;

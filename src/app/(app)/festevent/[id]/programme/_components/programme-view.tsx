@@ -534,6 +534,7 @@ export function ProgrammeView({
             { key: "sélectionné" as SelectionFilter, label: "Sélectionnés" },
             { key: "must-see" as SelectionFilter, label: "★ Must-see" },
             { key: "intéressé" as SelectionFilter, label: "Intéressé" },
+            { key: "vu" as SelectionFilter, label: "✓ Vus" },
           ] as const
         ).map(({ key, label }) => {
           const isActive = selectionFilter === key;
