@@ -6,7 +6,7 @@ import { filterAndGroupByDay, countCrewSharedEntries, countEventLinkedEntries, t
 import { Users } from "lucide-react";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
 import { isEscapeKey } from "@/lib/keyboard-search";
-import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos } from "@/lib/journal-stats";
+import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos, getDaysSinceLastEntry } from "@/lib/journal-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -639,6 +639,7 @@ export function JournalView({
 
   const daysWithPhotos = useMemo(() => countDaysWithPhotos(souvenirs), [souvenirs]);
   const totalPhotos = useMemo(() => countTotalJournalPhotos(souvenirs), [souvenirs]);
+  const daysSinceLastEntry = useMemo(() => getDaysSinceLastEntry(souvenirs), [souvenirs]);
 
   const eventLinkedCount = useMemo(() => countEventLinkedEntries(souvenirs), [souvenirs]);
 
@@ -870,6 +871,19 @@ export function JournalView({
             title="Entrées liées à un événement du programme"
           >
             {eventLinkedCount} liés
+          </span>
+        )}
+        {daysSinceLastEntry !== null && daysSinceLastEntry > 0 && (
+          <span
+            data-testid="journal-stats-last-entry-days"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--warning-orange)",
+            }}
+            title={`Dernière entrée il y a ${daysSinceLastEntry} jour${daysSinceLastEntry > 1 ? "s" : ""}`}
+          >
+            {daysSinceLastEntry}j sans log
           </span>
         )}
       </div>

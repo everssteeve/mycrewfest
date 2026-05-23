@@ -71,6 +71,30 @@ export function getMostActiveJournalDay(
   return top;
 }
 
+export interface TimestampedEntry {
+  timestamp: string;
+}
+
+/**
+ * Returns the number of whole days since the most recent journal entry,
+ * or null when there are no entries. Returns 0 when the last entry was today.
+ */
+export function getDaysSinceLastEntry(
+  entries: TimestampedEntry[],
+  now = new Date(),
+): number | null {
+  if (entries.length === 0) return null;
+  let latestMs = -Infinity;
+  for (const e of entries) {
+    const ms = new Date(e.timestamp).getTime();
+    if (!isNaN(ms) && ms > latestMs) latestMs = ms;
+  }
+  if (latestMs === -Infinity) return null;
+  const todayStart = new Date(now.toLocaleDateString("sv-SE")).getTime();
+  const latestStart = new Date(new Date(latestMs).toLocaleDateString("sv-SE")).getTime();
+  return Math.max(0, Math.round((todayStart - latestStart) / 86_400_000));
+}
+
 export function computeJournalStats(entries: JournalStatsEntry[]): JournalStats {
   const days = new Set<string>();
   let entriesWithPhotos = 0;

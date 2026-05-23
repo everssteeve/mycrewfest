@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos, type JournalStatsEntry } from "@/lib/journal-stats";
+import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos, getDaysSinceLastEntry, type JournalStatsEntry } from "@/lib/journal-stats";
 
 const entry = (overrides: Partial<JournalStatsEntry> = {}): JournalStatsEntry => ({
   timestamp: "2025-07-15T14:30:00Z",
@@ -342,5 +342,50 @@ describe("countTotalJournalPhotos", () => {
       { timestamp: "2025-07-15T12:00:00Z", photos: ["a.jpg"] },
     ];
     expect(countTotalJournalPhotos(entries)).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getDaysSinceLastEntry
+// ---------------------------------------------------------------------------
+
+const NOW = new Date("2026-05-23T12:00:00");
+
+describe("getDaysSinceLastEntry", () => {
+  it("returns null for empty list", () => {
+    expect(getDaysSinceLastEntry([], NOW)).toBeNull();
+  });
+
+  it("returns 0 when the last entry was today", () => {
+    expect(getDaysSinceLastEntry([{ timestamp: "2026-05-23T08:00:00Z" }], NOW)).toBe(0);
+  });
+
+  it("returns 1 when the last entry was yesterday", () => {
+    expect(getDaysSinceLastEntry([{ timestamp: "2026-05-22T20:00:00Z" }], NOW)).toBe(1);
+  });
+
+  it("returns 3 when the last entry was 3 days ago", () => {
+    expect(getDaysSinceLastEntry([{ timestamp: "2026-05-20T10:00:00Z" }], NOW)).toBe(3);
+  });
+
+  it("picks the most recent entry among multiple", () => {
+    const entries = [
+      { timestamp: "2026-05-19T10:00:00Z" },
+      { timestamp: "2026-05-22T20:00:00Z" },
+      { timestamp: "2026-05-21T09:00:00Z" },
+    ];
+    expect(getDaysSinceLastEntry(entries, NOW)).toBe(1);
+  });
+
+  it("ignores entries with invalid timestamps", () => {
+    const entries = [
+      { timestamp: "invalid" },
+      { timestamp: "2026-05-22T10:00:00Z" },
+    ];
+    expect(getDaysSinceLastEntry(entries, NOW)).toBe(1);
+  });
+
+  it("returns null when all timestamps are invalid", () => {
+    expect(getDaysSinceLastEntry([{ timestamp: "bad" }], NOW)).toBeNull();
   });
 });
