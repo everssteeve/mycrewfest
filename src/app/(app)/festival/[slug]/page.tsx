@@ -296,6 +296,30 @@ export default async function FestivalPage({
           <ShareButton
             payload={buildFestivalSharePayload(festival.name, festival.slug)}
           />
+          <a
+            href={`/api/festivals/${festival.slug}/ics`}
+            download={`${festival.slug}.ics`}
+            data-testid="festival-ics-download"
+            aria-label="Ajouter au calendrier (.ics)"
+            title="Ajouter au calendrier"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "8px 14px",
+              border: "1px solid var(--border-strong)",
+              borderRadius: "var(--radius-md)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              fontWeight: "var(--fw-bold)",
+              color: "var(--secondary-cyan)",
+              textDecoration: "none",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+            }}
+          >
+            📅 .ics
+          </a>
         </div>
       </div>
 
