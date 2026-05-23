@@ -2,53 +2,66 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { clsx } from "clsx";
-import { CalendarDays, Map, Users, Home } from "lucide-react";
+import { House, CalendarDays, MapPin, Users, CircleUser } from "lucide-react";
+import { extractFestEventId, buildContextualHref, isTabActive } from "@/lib/bottom-nav";
 
 interface NavTab {
-  href: string;
+  href: (festEventId: string | null) => string;
   label: string;
   icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
   activeColor: string;
-  activeGlow: string;
+  section?: string;
+  dataTestid: string;
 }
 
 const TABS: NavTab[] = [
   {
-    href: "/lineup",
-    label: "Line-up",
+    href: () => "/catalogue",
+    label: "Accueil",
+    icon: House,
+    activeColor: "var(--primary-neon)",
+    dataTestid: "nav-accueil",
+  },
+  {
+    href: (id) => buildContextualHref("programme", id, "/catalogue"),
+    label: "Programme",
     icon: CalendarDays,
     activeColor: "var(--accent-pink)",
-    activeGlow: "var(--glow-pink)",
+    section: "programme",
+    dataTestid: "nav-programme",
   },
   {
-    href: "/map",
-    label: "La Carte",
-    icon: Map,
+    href: (id) => buildContextualHref("carte", id, "/catalogue"),
+    label: "Carte",
+    icon: MapPin,
     activeColor: "var(--primary-neon)",
-    activeGlow: "var(--glow-neon)",
+    section: "carte",
+    dataTestid: "nav-carte",
   },
   {
-    href: "/crew",
-    label: "Mon Crew",
+    href: (id) => buildContextualHref("crew", id, "/profil"),
+    label: "Crew",
     icon: Users,
     activeColor: "var(--secondary-cyan)",
-    activeGlow: "var(--glow-cyan)",
+    section: "crew",
+    dataTestid: "nav-crew",
   },
   {
-    href: "/profil",
-    label: "Le QG",
-    icon: Home,
-    activeColor: "var(--text-main)",
-    activeGlow: "none",
+    href: () => "/profil",
+    label: "Profil",
+    icon: CircleUser,
+    activeColor: "var(--warning-orange)",
+    dataTestid: "nav-profil",
   },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
+  const festEventId = extractFestEventId(pathname);
 
   return (
     <nav
+      data-testid="bottom-nav"
       className="fixed bottom-0 left-0 right-0 z-50 flex items-end justify-around"
       style={{
         height: "var(--nav-height)",
@@ -60,26 +73,24 @@ export function BottomNav() {
       }}
     >
       {TABS.map((tab) => {
-        const isActive = pathname.startsWith(tab.href);
+        const href = tab.href(festEventId);
+        const active = isTabActive(pathname, href, tab.section);
         const Icon = tab.icon;
 
         return (
           <Link
-            key={tab.href}
-            href={tab.href}
-            className={clsx(
-              "flex flex-col items-center gap-1 px-4 pt-2 transition",
-              "text-[var(--text-dim)]",
-            )}
+            key={tab.dataTestid}
+            href={href}
+            data-testid={tab.dataTestid}
+            aria-current={active ? "page" : undefined}
+            className="flex flex-col items-center gap-1 px-3 pt-2 transition"
             style={{
-              color: isActive ? tab.activeColor : "var(--text-dim)",
-              filter: isActive && tab.activeGlow !== "none"
-                ? `drop-shadow(0 0 6px ${tab.activeColor}80)`
-                : "none",
+              color: active ? tab.activeColor : "var(--text-dim)",
+              filter: active ? `drop-shadow(0 0 6px ${tab.activeColor}80)` : "none",
               transition: "var(--transition-fast)",
             }}
           >
-            <Icon size={22} strokeWidth={isActive ? 2.5 : 1.8} />
+            <Icon size={22} strokeWidth={active ? 2.5 : 1.8} />
             <span
               className="text-[10px] font-bold uppercase tracking-wider"
               style={{ fontFamily: "var(--font-body)" }}
