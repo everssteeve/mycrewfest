@@ -22,6 +22,7 @@ import { computeTotalProgrammeDurationMins, computeSelectedDurationMins, compute
 import { groupEventsByVenue, sortVenueGroups, sortEventsWithinGroup } from "@/lib/programme-group";
 import { useEventNotes } from "@/hooks/use-event-notes";
 import { buildTimelineSlots } from "@/lib/programme-timeline";
+import { matchesArtistFilter, countArtistAppearances } from "@/lib/programme-artist";
 import { Copy, Check, CalendarArrowDown } from "lucide-react";
 import { ChevronUp } from "lucide-react";
 
@@ -106,6 +107,7 @@ export function ProgrammeView({
   const [upcomingOnly, setUpcomingOnly] = useState(false);
   const [copied, setCopied] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "by-venue">("list");
+  const [activeArtist, setActiveArtist] = useState<string | null>(null);
 
   // Refresh "now" every minute for live event status
   const [now, setNow] = useState(() => new Date());
@@ -212,9 +214,12 @@ export function ProgrammeView({
       // Age restriction filter
       if (!matchesAgeRestrictionFilter(e, showOnlyAgeRestricted)) return false;
 
+      // Artist filter
+      if (!matchesArtistFilter(e, activeArtist)) return false;
+
       return true;
     });
-  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, activeVenueId, searchQuery, upcomingOnly, activeDurationFilter, showOnlyAgeRestricted]);
+  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, activeVenueId, searchQuery, upcomingOnly, activeDurationFilter, showOnlyAgeRestricted, activeArtist]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const sortedFilteredEvents = useMemo(
@@ -378,7 +383,8 @@ export function ProgrammeView({
     activeVenueId !== null ||
     searchQuery.trim().length > 0 ||
     upcomingOnly ||
-    activeDurationFilter !== "tous";
+    activeDurationFilter !== "tous" ||
+    activeArtist !== null;
 
   const handleSelectionCycle = useCallback(
     (eventId: string, next: SelectionStatus | null) => {
@@ -396,6 +402,7 @@ export function ProgrammeView({
     setSearchQuery("");
     setUpcomingOnly(false);
     setActiveDurationFilter("tous");
+    setActiveArtist(null);
   }, []);
 
   const copyShortlist = useCallback(async () => {
@@ -1414,6 +1421,33 @@ export function ProgrammeView({
           );
         })}
 
+        {/* Active artist filter chip */}
+        {activeArtist && (
+          <button
+            type="button"
+            data-testid="programme-artist-filter-active"
+            onClick={() => setActiveArtist(null)}
+            aria-label={`Supprimer le filtre artiste : ${activeArtist}`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "2px 9px",
+              borderRadius: "var(--radius-full)",
+              border: "1.5px solid var(--accent-pink)",
+              backgroundColor: "rgba(255,0,122,0.1)",
+              color: "var(--accent-pink)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              fontWeight: "var(--fw-bold)",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              transition: "var(--transition-fast)",
+            }}
+          >
+            ♪ {activeArtist} ✕
+          </button>
+        )}
         {/* À venir chip */}
         <button
           type="button"
@@ -1694,6 +1728,7 @@ export function ProgrammeView({
                     isOngoing={ongoingIds.has(e.id)}
                     note={notes[e.id]}
                     onNoteChange={(text) => setNote(e.id, text)}
+                    onArtistClick={setActiveArtist}
                   />
                 ))}
               </div>
@@ -1746,6 +1781,7 @@ export function ProgrammeView({
                     isOngoing={ongoingIds.has(slot.event.id)}
                     note={notes[slot.event.id]}
                     onNoteChange={(text) => setNote(slot.event.id, text)}
+                    onArtistClick={setActiveArtist}
                   />
                 )
               )
@@ -1758,6 +1794,7 @@ export function ProgrammeView({
                   isOngoing={ongoingIds.has(e.id)}
                   note={notes[e.id]}
                   onNoteChange={(text) => setNote(e.id, text)}
+                  onArtistClick={setActiveArtist}
                 />
               ))
           }

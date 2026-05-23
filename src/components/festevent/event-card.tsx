@@ -131,9 +131,10 @@ interface EventCardProps {
   isOngoing?: boolean;
   note?: string;
   onNoteChange?: (text: string) => void;
+  onArtistClick?: (artistName: string) => void;
 }
 
-export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngoing = false, note, onNoteChange }: EventCardProps) {
+export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngoing = false, note, onNoteChange, onArtistClick }: EventCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const selectionStatus = event.selection?.status ?? null;
@@ -364,15 +365,39 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
             {event.title}
           </span>
           {event.artist && (
-            <span
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "var(--fs-sm)",
-                color: "var(--text-muted)",
-              }}
-            >
-              {event.artist.name}
-            </span>
+            onArtistClick ? (
+              <button
+                type="button"
+                data-testid={`event-artist-filter-${event.id}`}
+                onClick={(e) => { e.stopPropagation(); onArtistClick(event.artist!.name); }}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-sm)",
+                  color: "var(--accent-pink)",
+                  cursor: "pointer",
+                  textAlign: "left",
+                  textDecoration: "underline",
+                  textDecorationStyle: "dotted",
+                  textUnderlineOffset: 2,
+                }}
+                aria-label={`Filtrer le programme sur ${event.artist.name}`}
+              >
+                {event.artist.name}
+              </button>
+            ) : (
+              <span
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-sm)",
+                  color: "var(--text-muted)",
+                }}
+              >
+                {event.artist.name}
+              </span>
+            )
           )}
         </div>
 
