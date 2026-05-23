@@ -13,6 +13,7 @@ async function fetchProgramme(
 ): Promise<{
   presenceDates: string[];
   events: EventWithSelectionAndConfidence[];
+  festivalName: string;
 } | null> {
   const fe = await prisma.festEvent.findFirst({
     where: { id: festEventId, userId },
@@ -20,6 +21,7 @@ async function fetchProgramme(
       id: true,
       festivalId: true,
       presenceDates: true,
+      festival: { select: { name: true } },
     },
   });
 
@@ -91,6 +93,7 @@ async function fetchProgramme(
   return {
     presenceDates: parseJsonArray(fe.presenceDates),
     events: mapped,
+    festivalName: fe.festival.name,
   };
 }
 
@@ -112,6 +115,7 @@ export default async function ProgrammePage({ params }: PageContext) {
       festEventId={id}
       presenceDates={data.presenceDates}
       initialEvents={data.events}
+      festivalName={data.festivalName}
     />
   );
 }

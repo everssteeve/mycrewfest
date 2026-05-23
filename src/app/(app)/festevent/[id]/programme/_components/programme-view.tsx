@@ -16,6 +16,8 @@ import { findOngoingEventIds } from "@/lib/event-status";
 import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
+import { generateProgrammeShareText } from "@/lib/programme-share";
+import { Copy, Check } from "lucide-react";
 import { ChevronUp } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -54,12 +56,14 @@ interface ProgrammeViewProps {
   festEventId: string;
   presenceDates: string[];
   initialEvents: EventWithSelectionAndConfidence[];
+  festivalName: string;
 }
 
 export function ProgrammeView({
   festEventId,
   presenceDates,
   initialEvents,
+  festivalName,
 }: ProgrammeViewProps) {
   const { selections, updateSelection } = useSelections(festEventId);
 
@@ -91,6 +95,7 @@ export function ProgrammeView({
   const [sortMode, setSortMode] = useState<SortMode>("time");
   const [searchQuery, setSearchQuery] = useState("");
   const [upcomingOnly, setUpcomingOnly] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Refresh "now" every minute for live event status
   const [now, setNow] = useState(() => new Date());
@@ -246,6 +251,14 @@ export function ProgrammeView({
     setSearchQuery("");
     setUpcomingOnly(false);
   }, []);
+
+  const copyShortlist = useCallback(async () => {
+    const text = generateProgrammeShareText(filteredEvents, festivalName);
+    if (!text) return;
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, [filteredEvents, festivalName]);
 
   return (
     <div
@@ -807,6 +820,33 @@ export function ProgrammeView({
             }}
           >
             ✕ Effacer
+          </button>
+        )}
+        {/* Copy shortlist */}
+        {selectedCount > 0 && (
+          <button
+            type="button"
+            onClick={() => void copyShortlist()}
+            aria-label={copied ? "Sélection copiée" : "Copier la sélection"}
+            data-testid="copy-shortlist-btn"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "2px 9px",
+              borderRadius: "var(--radius-full)",
+              border: `1.5px solid ${copied ? "var(--primary-neon)" : "rgba(255,255,255,0.15)"}`,
+              backgroundColor: copied ? "var(--neon-soft)" : "transparent",
+              color: copied ? "var(--primary-neon)" : "var(--text-dim)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              transition: "var(--transition-fast)",
+            }}
+          >
+            {copied ? <Check size={11} /> : <Copy size={11} />}
+            {copied ? "Copié" : "Copier"}
           </button>
         )}
         <div style={{ flex: 1 }} />
