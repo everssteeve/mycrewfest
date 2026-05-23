@@ -1973,6 +1973,454 @@ async function main() {
 
   console.log(`  ✓ Festival: ${vc.name} (${vcEvents.length} events, ${vcNews.length} news)`);
 
+  // ── 7. Eurockéennes de Belfort 2026 ─────────────────────────────────────
+  const eurocks = await prisma.festival.upsert({
+    where: { slug: "eurockeennes-belfort-2026" },
+    update: {},
+    create: {
+      slug: "eurockeennes-belfort-2026",
+      name: "Eurockéennes de Belfort 2026",
+      description:
+        "36ème édition des Eurockéennes sur la Presqu'île du Malsaucy. Quatre jours et quatre scènes entre rock, rap, électro et pop sur l'un des sites naturels les plus spectaculaires de France.",
+      startDate: dt("2026-07-02T15:00:00Z"),
+      endDate: dt("2026-07-05T23:59:00Z"),
+      city: "Belfort",
+      country: "France",
+      latitude: 47.6189,
+      longitude: 6.8378,
+      address: "Presqu'île du Malsaucy, 90120 Sermamagny",
+      festivalType: "musique",
+      programType: "structuré",
+      capacity: 90000,
+      siteUrl: "https://www.eurockeennes.fr",
+      instagramHandle: "eurockeennes",
+      ingestionStatus: "enrichi",
+      confidenceLevel: "vérifié_humain",
+      programStatus: "complet",
+    },
+  });
+
+  // Artists — Eurockéennes 2026 (nouveaux)
+  const artistTheOffspring = await prisma.artist.upsert({
+    where: { id: "artist-the-offspring" },
+    update: {},
+    create: {
+      id: "artist-the-offspring",
+      name: "The Offspring",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+    },
+  });
+
+  const artistAirbourne = await prisma.artist.upsert({
+    where: { id: "artist-airbourne" },
+    update: {},
+    create: {
+      id: "artist-airbourne",
+      name: "Airbourne",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "AU",
+    },
+  });
+
+  const artistSocialDistortion = await prisma.artist.upsert({
+    where: { id: "artist-social-distortion" },
+    update: {},
+    create: {
+      id: "artist-social-distortion",
+      name: "Social Distortion",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+    },
+  });
+
+  const artistPulp = await prisma.artist.upsert({
+    where: { id: "artist-pulp" },
+    update: {},
+    create: {
+      id: "artist-pulp",
+      name: "Pulp",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "GB",
+    },
+  });
+
+  const artistTheLumineers = await prisma.artist.upsert({
+    where: { id: "artist-the-lumineers" },
+    update: {},
+    create: {
+      id: "artist-the-lumineers",
+      name: "The Lumineers",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+    },
+  });
+
+  const artistBenHarper = await prisma.artist.upsert({
+    where: { id: "artist-ben-harper" },
+    update: {},
+    create: {
+      id: "artist-ben-harper",
+      name: "Ben Harper & The Innocent Criminals",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+    },
+  });
+
+  const artistJosman = await prisma.artist.upsert({
+    where: { id: "artist-josman" },
+    update: {},
+    create: {
+      id: "artist-josman",
+      name: "Josman",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+    },
+  });
+
+  const artistAlonzo = await prisma.artist.upsert({
+    where: { id: "artist-alonzo" },
+    update: {},
+    create: {
+      id: "artist-alonzo",
+      name: "Alonzo",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+    },
+  });
+
+  const artistUltraVomit = await prisma.artist.upsert({
+    where: { id: "artist-ultra-vomit" },
+    update: {},
+    create: {
+      id: "artist-ultra-vomit",
+      name: "Ultra Vomit",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+    },
+  });
+
+  const artistJehnneyBeth = await prisma.artist.upsert({
+    where: { id: "artist-jehnny-beth" },
+    update: {},
+    create: {
+      id: "artist-jehnny-beth",
+      name: "Jehnny Beth",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+    },
+  });
+
+  // Venues — Eurockéennes 2026
+  const eurocksGrandeScene = await prisma.venue.upsert({
+    where: { id: "venue-eurocks-grande-scene" },
+    update: {},
+    create: {
+      id: "venue-eurocks-grande-scene",
+      festivalId: eurocks.id,
+      name: "Grande Scène",
+      type: "scène",
+      capacity: 45000,
+      latitude: 47.619,
+      longitude: 6.8375,
+    },
+  });
+
+  const eurocksGreenroom = await prisma.venue.upsert({
+    where: { id: "venue-eurocks-greenroom" },
+    update: {},
+    create: {
+      id: "venue-eurocks-greenroom",
+      festivalId: eurocks.id,
+      name: "Chapiteau Greenroom",
+      type: "chapiteau",
+      capacity: 8000,
+      latitude: 47.618,
+      longitude: 6.8365,
+    },
+  });
+
+  const eurocksPlage = await prisma.venue.upsert({
+    where: { id: "venue-eurocks-plage" },
+    update: {},
+    create: {
+      id: "venue-eurocks-plage",
+      festivalId: eurocks.id,
+      name: "La Plage",
+      type: "plein_air",
+      capacity: 5000,
+      latitude: 47.617,
+      longitude: 6.839,
+    },
+  });
+
+  const eurocksLoggia = await prisma.venue.upsert({
+    where: { id: "venue-eurocks-loggia" },
+    update: {},
+    create: {
+      id: "venue-eurocks-loggia",
+      festivalId: eurocks.id,
+      name: "La Loggia",
+      type: "espace",
+      capacity: 2000,
+      latitude: 47.6195,
+      longitude: 6.838,
+    },
+  });
+
+  // Events — Eurockéennes 2026 (têtes d'affiche par jour)
+  // All times converted from CEST (UTC+2) to UTC
+  const eurocksEvents = [
+    // Jeudi 2 juillet — scène unique rock/punk
+    {
+      id: "evt-eurocks-social-distortion",
+      festivalId: eurocks.id,
+      venueId: eurocksGrandeScene.id,
+      artistId: artistSocialDistortion.id,
+      title: "Social Distortion",
+      eventType: "concert",
+      startTime: dt("2026-07-02T17:15:00Z"), // 19h15 CEST
+      endTime: dt("2026-07-02T18:45:00Z"),   // 20h45 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["punk-rock", "country-punk"]),
+    },
+    {
+      id: "evt-eurocks-the-offspring",
+      festivalId: eurocks.id,
+      venueId: eurocksGrandeScene.id,
+      artistId: artistTheOffspring.id,
+      title: "The Offspring",
+      eventType: "concert",
+      startTime: dt("2026-07-02T19:00:00Z"), // 21h00 CEST
+      endTime: dt("2026-07-02T20:45:00Z"),   // 22h45 CEST
+      durationMins: 105,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["punk-rock", "têtes_d_affiche"]),
+    },
+    {
+      id: "evt-eurocks-airbourne",
+      festivalId: eurocks.id,
+      venueId: eurocksGrandeScene.id,
+      artistId: artistAirbourne.id,
+      title: "Airbourne",
+      eventType: "concert",
+      startTime: dt("2026-07-02T21:15:00Z"), // 23h15 CEST
+      endTime: dt("2026-07-02T22:45:00Z"),   // 00h45 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["hard-rock", "rock"]),
+    },
+    // Vendredi 3 juillet
+    {
+      id: "evt-eurocks-ultra-vomit",
+      festivalId: eurocks.id,
+      venueId: eurocksGrandeScene.id,
+      artistId: artistUltraVomit.id,
+      title: "Ultra Vomit",
+      eventType: "concert",
+      startTime: dt("2026-07-03T17:30:00Z"), // 19h30 CEST
+      endTime: dt("2026-07-03T19:00:00Z"),   // 21h00 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["metal", "metal-humoristique"]),
+    },
+    {
+      id: "evt-eurocks-orelsan",
+      festivalId: eurocks.id,
+      venueId: eurocksGrandeScene.id,
+      artistId: vcArtistOrelsan.id,
+      title: "Orelsan",
+      eventType: "concert",
+      startTime: dt("2026-07-03T19:45:00Z"), // 21h45 CEST
+      endTime: dt("2026-07-03T21:30:00Z"),   // 23h30 CEST
+      durationMins: 105,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rap", "têtes_d_affiche"]),
+    },
+    // Samedi 4 juillet
+    {
+      id: "evt-eurocks-josman",
+      festivalId: eurocks.id,
+      venueId: eurocksGrandeScene.id,
+      artistId: artistJosman.id,
+      title: "Josman",
+      eventType: "concert",
+      startTime: dt("2026-07-04T16:15:00Z"), // 18h15 CEST
+      endTime: dt("2026-07-04T17:45:00Z"),   // 19h45 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rap", "trap"]),
+    },
+    {
+      id: "evt-eurocks-the-lumineers",
+      festivalId: eurocks.id,
+      venueId: eurocksGrandeScene.id,
+      artistId: artistTheLumineers.id,
+      title: "The Lumineers",
+      eventType: "concert",
+      startTime: dt("2026-07-04T18:30:00Z"), // 20h30 CEST
+      endTime: dt("2026-07-04T20:30:00Z"),   // 22h30 CEST
+      durationMins: 120,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["folk-rock", "indie-folk"]),
+    },
+    {
+      id: "evt-eurocks-alonzo",
+      festivalId: eurocks.id,
+      venueId: eurocksGreenroom.id,
+      artistId: artistAlonzo.id,
+      title: "Alonzo",
+      eventType: "concert",
+      startTime: dt("2026-07-04T19:30:00Z"), // 21h30 CEST
+      endTime: dt("2026-07-04T21:00:00Z"),   // 23h00 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rap", "hip-hop"]),
+    },
+    {
+      id: "evt-eurocks-pulp",
+      festivalId: eurocks.id,
+      venueId: eurocksGrandeScene.id,
+      artistId: artistPulp.id,
+      title: "Pulp",
+      eventType: "concert",
+      startTime: dt("2026-07-04T21:00:00Z"), // 23h00 CEST
+      endTime: dt("2026-07-04T22:45:00Z"),   // 00h45 CEST
+      durationMins: 105,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["britpop", "indie-rock", "têtes_d_affiche"]),
+    },
+    // Dimanche 5 juillet
+    {
+      id: "evt-eurocks-jehnny-beth",
+      festivalId: eurocks.id,
+      venueId: eurocksPlage.id,
+      artistId: artistJehnneyBeth.id,
+      title: "Jehnny Beth",
+      eventType: "concert",
+      startTime: dt("2026-07-05T17:30:00Z"), // 19h30 CEST
+      endTime: dt("2026-07-05T18:45:00Z"),   // 20h45 CEST
+      durationMins: 75,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rock", "post-punk", "alternative"]),
+    },
+    {
+      id: "evt-eurocks-aya-nakamura",
+      festivalId: eurocks.id,
+      venueId: eurocksGrandeScene.id,
+      artistId: vcArtistAyaNakamura.id,
+      title: "Aya Nakamura",
+      eventType: "concert",
+      startTime: dt("2026-07-05T18:15:00Z"), // 20h15 CEST
+      endTime: dt("2026-07-05T20:00:00Z"),   // 22h00 CEST
+      durationMins: 105,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["pop", "afropop", "têtes_d_affiche"]),
+    },
+    {
+      id: "evt-eurocks-feu-chatterton",
+      festivalId: eurocks.id,
+      venueId: eurocksGreenroom.id,
+      artistId: vcArtistFeuChatterton.id,
+      title: "Feu! Chatterton",
+      eventType: "concert",
+      startTime: dt("2026-07-05T19:30:00Z"), // 21h30 CEST
+      endTime: dt("2026-07-05T21:00:00Z"),   // 23h00 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rock", "pop-rock"]),
+    },
+    {
+      id: "evt-eurocks-ben-harper",
+      festivalId: eurocks.id,
+      venueId: eurocksGrandeScene.id,
+      artistId: artistBenHarper.id,
+      title: "Ben Harper & The Innocent Criminals",
+      eventType: "concert",
+      startTime: dt("2026-07-05T21:00:00Z"), // 23h00 CEST
+      endTime: dt("2026-07-05T23:00:00Z"),   // 01h00 CEST
+      durationMins: 120,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["blues", "soul", "rock", "têtes_d_affiche"]),
+    },
+  ];
+
+  for (const ev of eurocksEvents) {
+    await prisma.event.upsert({
+      where: { id: ev.id },
+      update: {},
+      create: ev,
+    });
+  }
+
+  // News — Eurockéennes 2026
+  const eurocksNews = [
+    {
+      id: "news-eurocks-2026-lineup",
+      festivalId: eurocks.id,
+      summary: "Programmation complète dévoilée — 51 artistes sur 4 jours et 4 scènes. The Offspring, Pulp, Aya Nakamura, Orelsan et Ben Harper en têtes d'affiche de la 36ème édition.",
+      urgencyLevel: "normal" as const,
+      isPinned: true,
+      publishedAt: dt("2026-02-15T10:00:00Z"),
+      category: "programmation",
+      source: "site_officiel",
+    },
+    {
+      id: "news-eurocks-2026-billets",
+      festivalId: eurocks.id,
+      summary: "Pass 4 jours disponibles à 209 € (+ frais). Billets à la journée de 67 € (jeudi) à 77 € (samedi/dimanche). Camping et hébergements partenaires à réserver séparément.",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-01-20T09:00:00Z"),
+      category: "billetterie",
+      source: "site_officiel",
+    },
+    {
+      id: "news-eurocks-2026-mobilite",
+      festivalId: eurocks.id,
+      summary: "Navettes spéciales depuis Belfort, Mulhouse et Strasbourg. Le site est accessible uniquement via transports organisés les soirs de concerts. Parking vélo gratuit au Malsaucy.",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-05-10T08:00:00Z"),
+      category: "logistique",
+      source: "site_officiel",
+    },
+    {
+      id: "news-eurocks-2026-headliners-vague2",
+      festivalId: eurocks.id,
+      summary: "2ème vague : Ben Harper, Alonzo, Jehnny Beth, Ecca Vandal et 25 nouveaux artistes complètent l'affiche. Seul 1 artiste reste à confirmer sur les 52 attendus.",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-03-28T12:00:00Z"),
+      category: "programmation",
+      source: "instagram",
+    },
+  ];
+
+  for (const news of eurocksNews) {
+    await prisma.newsItem.upsert({
+      where: { id: news.id },
+      update: {},
+      create: news,
+    });
+  }
+
+  console.log(`  ✓ Festival: ${eurocks.name} (${eurocksEvents.length} events, ${eurocksNews.length} news)`);
+
   console.log("\n✅ Seed terminé avec succès !");
   console.log("   Utilisateur test : test@mycrewfest.dev / password123");
 }
