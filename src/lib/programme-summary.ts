@@ -106,6 +106,34 @@ export function countUniqueArtists<T extends ArtistCountable>(events: T[]): numb
   return ids.size;
 }
 
+export interface PeakHourFilterable {
+  startTime?: string | null;
+}
+
+/**
+ * Returns the local hour (0–23) with the most events starting in it,
+ * or null when no events have a startTime.
+ * Ties are broken by lowest hour value.
+ */
+export function getPeakEventHour<T extends PeakHourFilterable>(events: T[]): number | null {
+  const counts = new Map<number, number>();
+  for (const e of events) {
+    if (!e.startTime) continue;
+    const hour = new Date(e.startTime).getHours();
+    counts.set(hour, (counts.get(hour) ?? 0) + 1);
+  }
+  if (counts.size === 0) return null;
+  let peakHour: number | null = null;
+  let max = 0;
+  for (const [hour, count] of counts) {
+    if (count > max || (count === max && peakHour !== null && hour < peakHour)) {
+      max = count;
+      peakHour = hour;
+    }
+  }
+  return peakHour;
+}
+
 export interface ConfidenceFilterable {
   confidence?: string | null;
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -247,5 +247,37 @@ describe("countVerifiedEvents", () => {
   it("is case-sensitive — does not match partial strings", () => {
     const events = [{ confidence: "vérifié" }, { confidence: "humain" }];
     expect(countVerifiedEvents(events)).toBe(0);
+  });
+});
+
+describe("getPeakEventHour", () => {
+  it("returns null for empty array", () => {
+    expect(getPeakEventHour([])).toBeNull();
+  });
+
+  it("returns null when no events have startTime", () => {
+    expect(getPeakEventHour([{ startTime: null }, { startTime: undefined }])).toBeNull();
+  });
+
+  it("returns the hour of the only event", () => {
+    const events = [{ startTime: "2026-07-15T21:00:00" }];
+    expect(getPeakEventHour(events)).toBe(21);
+  });
+
+  it("returns the hour with the most events", () => {
+    const events = [
+      { startTime: "2026-07-15T21:00:00" },
+      { startTime: "2026-07-15T21:30:00" },
+      { startTime: "2026-07-15T22:00:00" },
+    ];
+    expect(getPeakEventHour(events)).toBe(21);
+  });
+
+  it("breaks ties by returning the lowest hour", () => {
+    const events = [
+      { startTime: "2026-07-15T20:00:00" },
+      { startTime: "2026-07-15T22:00:00" },
+    ];
+    expect(getPeakEventHour(events)).toBe(20);
   });
 });

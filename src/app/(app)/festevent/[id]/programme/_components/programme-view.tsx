@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -254,6 +254,11 @@ export function ProgrammeView({
 
   const verifiedCount = useMemo(
     () => countVerifiedEvents(filteredEvents),
+    [filteredEvents],
+  );
+
+  const peakHour = useMemo(
+    () => getPeakEventHour(filteredEvents),
     [filteredEvents],
   );
 
@@ -877,6 +882,22 @@ export function ProgrammeView({
               }}
             >
               ⚡ {conflictPairCount} conflit{conflictPairCount !== 1 ? "s" : ""}
+            </span>
+          </>
+        )}
+        {peakHour !== null && filteredEvents.length > 2 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-peak-hour"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-muted)",
+              }}
+              title="Heure de pointe du programme"
+            >
+              Pic à {peakHour}h
             </span>
           </>
         )}
