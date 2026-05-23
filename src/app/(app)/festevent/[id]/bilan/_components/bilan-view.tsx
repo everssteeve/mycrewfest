@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { MapPin, Eye, Clock, Star, Copy, Check, Tag, Trophy } from "lucide-react";
+import { MapPin, Eye, Clock, Star, Copy, Check, Tag, Trophy, Flame } from "lucide-react";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
@@ -642,6 +642,49 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
               >
                 {stats.bestDay.count} vu{stats.bestDay.count > 1 ? "s" : ""}
               </span>
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Attendance streak */}
+      {stats.attendanceStreak >= 2 && (
+        <div
+          data-testid="bilan-attendance-streak"
+          style={{
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid rgba(255,153,0,0.3)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-md)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-sm)",
+          }}
+        >
+          <Flame size={16} style={{ color: "var(--warning-orange)", flexShrink: 0 }} aria-hidden="true" />
+          <div>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                margin: 0,
+              }}
+            >
+              Série de présence
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-base)",
+                fontWeight: "var(--fw-medium)",
+                color: "var(--warning-orange)",
+                margin: 0,
+              }}
+            >
+              {stats.attendanceStreak} jour{stats.attendanceStreak > 1 ? "s" : ""} consécutifs
             </p>
           </div>
         </div>

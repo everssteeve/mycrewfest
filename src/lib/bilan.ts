@@ -20,6 +20,7 @@ export interface BilanStats {
   bestDay: { date: string; count: number } | null;
   topEventType: string | null;
   uniqueEventTypes: number;
+  attendanceStreak: number;
 }
 
 export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats {
@@ -100,6 +101,22 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     }
   }
 
+  // Compute attendance streak (consecutive days with at least one seen event)
+  const attendanceDays = Array.from(dayCounts.keys()).sort();
+  let streak = 0;
+  let maxStreak = 0;
+  for (let i = 0; i < attendanceDays.length; i++) {
+    if (i === 0) {
+      streak = 1;
+    } else {
+      const prev = new Date(attendanceDays[i - 1]);
+      const curr = new Date(attendanceDays[i]);
+      const diffDays = Math.round((curr.getTime() - prev.getTime()) / 86_400_000);
+      streak = diffDays === 1 ? streak + 1 : 1;
+    }
+    if (streak > maxStreak) maxStreak = streak;
+  }
+
   return {
     totalSeen: seen.length,
     totalDurationMins,
@@ -112,6 +129,7 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     bestDay,
     topEventType,
     uniqueEventTypes: eventTypeCounts.size,
+    attendanceStreak: maxStreak,
   };
 }
 

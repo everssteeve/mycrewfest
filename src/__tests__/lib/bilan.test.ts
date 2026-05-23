@@ -328,3 +328,59 @@ describe("computeBilan — topEventType / uniqueEventTypes", () => {
     expect(stats.uniqueEventTypes).toBe(1);
   });
 });
+
+// ---------------------------------------------------------------------------
+// attendanceStreak
+// ---------------------------------------------------------------------------
+
+function evOnDay(dateStr: string): BilantableEvent {
+  return {
+    title: "Event",
+    durationMins: 60,
+    selection: { status: "vu" },
+    venue: null,
+    tags: null,
+    startTime: `${dateStr}T20:00:00`,
+    eventType: null,
+  };
+}
+
+describe("computeBilan — attendanceStreak", () => {
+  it("returns 0 when no seen events", () => {
+    expect(computeBilan([]).attendanceStreak).toBe(0);
+  });
+
+  it("returns 1 for a single day", () => {
+    expect(computeBilan([evOnDay("2025-07-19")]).attendanceStreak).toBe(1);
+  });
+
+  it("returns 2 for two consecutive days", () => {
+    const events = [evOnDay("2025-07-19"), evOnDay("2025-07-20")];
+    expect(computeBilan(events).attendanceStreak).toBe(2);
+  });
+
+  it("returns 1 when days are not consecutive (gap)", () => {
+    const events = [evOnDay("2025-07-19"), evOnDay("2025-07-21")];
+    expect(computeBilan(events).attendanceStreak).toBe(1);
+  });
+
+  it("returns the longest streak when broken in the middle", () => {
+    const events = [
+      evOnDay("2025-07-17"),
+      evOnDay("2025-07-18"),
+      evOnDay("2025-07-19"),
+      evOnDay("2025-07-21"), // gap
+      evOnDay("2025-07-22"),
+    ];
+    expect(computeBilan(events).attendanceStreak).toBe(3);
+  });
+
+  it("handles multiple events on the same day as a single day", () => {
+    const events = [
+      evOnDay("2025-07-19"),
+      evOnDay("2025-07-19"),
+      evOnDay("2025-07-20"),
+    ];
+    expect(computeBilan(events).attendanceStreak).toBe(2);
+  });
+});
