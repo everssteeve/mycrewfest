@@ -3,6 +3,8 @@ import {
   filterArtists,
   getAvailableDisciplines,
   sortArtistsByName,
+  sortArtistsByFestivalCount,
+  sortArtists,
   type ArtistListItem,
 } from "@/lib/artist-filter";
 
@@ -106,5 +108,50 @@ describe("sortArtistsByName", () => {
 
   it("handles empty array", () => {
     expect(sortArtistsByName([])).toEqual([]);
+  });
+});
+
+describe("sortArtistsByFestivalCount", () => {
+  const artists: ArtistListItem[] = [
+    { id: "a", name: "B-artist", disciplines: [], countryCode: null, festivalCount: 1 },
+    { id: "b", name: "A-artist", disciplines: [], countryCode: null, festivalCount: 5 },
+    { id: "c", name: "C-artist", disciplines: [], countryCode: null, festivalCount: 5 },
+    { id: "d", name: "D-artist", disciplines: [], countryCode: null, festivalCount: 2 },
+  ];
+
+  it("sorts by festivalCount descending", () => {
+    const result = sortArtistsByFestivalCount(artists);
+    expect(result[0].festivalCount).toBeGreaterThanOrEqual(result[1].festivalCount);
+    expect(result[1].festivalCount).toBeGreaterThanOrEqual(result[2].festivalCount);
+  });
+
+  it("uses name as tiebreaker for equal festival count", () => {
+    const result = sortArtistsByFestivalCount(artists);
+    const aIdx = result.findIndex((a) => a.id === "b"); // A-artist, count 5
+    const cIdx = result.findIndex((a) => a.id === "c"); // C-artist, count 5
+    expect(aIdx).toBeLessThan(cIdx);
+  });
+
+  it("does not mutate original array", () => {
+    const original = [...artists];
+    sortArtistsByFestivalCount(artists);
+    expect(artists).toEqual(original);
+  });
+});
+
+describe("sortArtists", () => {
+  const artists: ArtistListItem[] = [
+    { id: "1", name: "Zaz", disciplines: [], countryCode: null, festivalCount: 1 },
+    { id: "2", name: "Aya", disciplines: [], countryCode: null, festivalCount: 5 },
+  ];
+
+  it("delegates to sortArtistsByName for 'name' mode", () => {
+    const result = sortArtists(artists, "name");
+    expect(result[0].name).toBe("Aya");
+  });
+
+  it("delegates to sortArtistsByFestivalCount for 'festivals' mode", () => {
+    const result = sortArtists(artists, "festivals");
+    expect(result[0].festivalCount).toBeGreaterThanOrEqual(result[1].festivalCount);
   });
 });

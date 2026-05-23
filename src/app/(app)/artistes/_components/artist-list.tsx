@@ -6,8 +6,9 @@ import { Search } from "lucide-react";
 import {
   filterArtists,
   getAvailableDisciplines,
-  sortArtistsByName,
+  sortArtists,
   type ArtistListItem,
+  type ArtistSortMode,
 } from "@/lib/artist-filter";
 
 interface Props {
@@ -17,9 +18,10 @@ interface Props {
 export function ArtistList({ initialArtists }: Props) {
   const [query, setQuery] = useState("");
   const [discipline, setDiscipline] = useState("");
+  const [sortMode, setSortMode] = useState<ArtistSortMode>("name");
 
-  const sorted = useMemo(() => sortArtistsByName(initialArtists), [initialArtists]);
-  const disciplines = useMemo(() => getAvailableDisciplines(sorted), [sorted]);
+  const sorted = useMemo(() => sortArtists(initialArtists, sortMode), [initialArtists, sortMode]);
+  const disciplines = useMemo(() => getAvailableDisciplines(initialArtists), [initialArtists]);
 
   const filtered = useMemo(
     () => filterArtists(sorted, query, discipline),
@@ -115,18 +117,50 @@ export function ArtistList({ initialArtists }: Props) {
         </div>
       )}
 
-      {/* Count */}
-      <p
-        data-testid="artistes-count"
-        style={{
-          fontFamily: "var(--font-mono)",
-          fontSize: "var(--fs-xs)",
-          color: "var(--text-dim)",
-          margin: 0,
-        }}
-      >
-        {filtered.length} artiste{filtered.length !== 1 ? "s" : ""}
-      </p>
+      {/* Sort toggle + count */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+        <p
+          data-testid="artistes-count"
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-xs)",
+            color: "var(--text-dim)",
+            margin: 0,
+          }}
+        >
+          {filtered.length} artiste{filtered.length !== 1 ? "s" : ""}
+        </p>
+        <div
+          data-testid="artistes-sort"
+          style={{ display: "flex", gap: 4 }}
+        >
+          {(["name", "festivals"] as ArtistSortMode[]).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              data-testid={`artistes-sort-${mode}`}
+              onClick={() => setSortMode(mode)}
+              aria-pressed={sortMode === mode}
+              style={{
+                padding: "3px 10px",
+                borderRadius: 20,
+                border: sortMode === mode
+                  ? "1px solid var(--secondary-cyan, #00E5FF)"
+                  : "1px solid var(--border-color)",
+                background: sortMode === mode ? "rgba(0,229,255,0.1)" : "transparent",
+                color: sortMode === mode ? "var(--secondary-cyan, #00E5FF)" : "var(--text-dim)",
+                fontSize: "0.68rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                cursor: "pointer",
+              }}
+            >
+              {mode === "name" ? "A–Z" : "Festivals"}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Artist cards */}
       {filtered.length > 0 ? (

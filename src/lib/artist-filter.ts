@@ -36,3 +36,15 @@ export function getAvailableDisciplines(artists: ArtistListItem[]): string[] {
 export function sortArtistsByName(artists: ArtistListItem[]): ArtistListItem[] {
   return [...artists].sort((a, b) => a.name.localeCompare(b.name, "fr"));
 }
+
+export function sortArtistsByFestivalCount(artists: ArtistListItem[]): ArtistListItem[] {
+  return [...artists].sort(
+    (a, b) => b.festivalCount - a.festivalCount || a.name.localeCompare(b.name, "fr"),
+  );
+}
+
+export type ArtistSortMode = "name" | "festivals";
+
+export function sortArtists(artists: ArtistListItem[], mode: ArtistSortMode): ArtistListItem[] {
+  return mode === "festivals" ? sortArtistsByFestivalCount(artists) : sortArtistsByName(artists);
+}
