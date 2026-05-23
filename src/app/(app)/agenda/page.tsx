@@ -92,20 +92,50 @@ export default async function AgendaPage() {
     >
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <h1
-          data-testid="agenda-title"
-          style={{
-            fontFamily: "var(--font-display, sans-serif)",
-            fontSize: "1.5rem",
-            fontWeight: 900,
-            textTransform: "uppercase",
-            letterSpacing: "0.04em",
-            color: "var(--text-primary)",
-            margin: 0,
-          }}
-        >
-          Mon agenda
-        </h1>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+          <h1
+            data-testid="agenda-title"
+            style={{
+              fontFamily: "var(--font-display, sans-serif)",
+              fontSize: "1.5rem",
+              fontWeight: 900,
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+              color: "var(--text-primary)",
+              margin: 0,
+            }}
+          >
+            Mon agenda
+          </h1>
+          {totalEvents > 0 && (
+            <a
+              href="/api/agenda/ics"
+              download="agenda-mycrewfest.ics"
+              data-testid="agenda-ics-export"
+              aria-label="Exporter l'agenda au format iCalendar"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "6px 12px",
+                background: "transparent",
+                color: "var(--secondary-cyan, #00E5FF)",
+                border: "1px solid var(--secondary-cyan, #00E5FF)",
+                borderRadius: 8,
+                fontFamily: "var(--font-body, sans-serif)",
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                textDecoration: "none",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+              }}
+            >
+              .ics
+            </a>
+          )}
+        </div>
         {totalEvents > 0 && (
           <p
             data-testid="agenda-total-count"
