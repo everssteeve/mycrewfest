@@ -462,16 +462,43 @@ export function ProfilView({ data }: { data: ProfilData }) {
             {festivalierScore.label}
           </p>
           {festivalierScore.nextRankThreshold !== null && (
-            <p
-              style={{
-                fontFamily: "var(--font-body)",
-                fontSize: "var(--fs-xs)",
-                color: "var(--text-muted)",
-                margin: "2px 0 0",
-              }}
-            >
-              Prochain rang à {festivalierScore.nextRankThreshold} pts
-            </p>
+            <>
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-muted)",
+                  margin: "2px 0 4px",
+                }}
+              >
+                Prochain rang à {festivalierScore.nextRankThreshold} pts
+              </p>
+              <div
+                data-testid="profil-rank-progress-bar"
+                style={{
+                  width: "100%",
+                  height: 4,
+                  borderRadius: 2,
+                  backgroundColor: "rgba(255,255,255,0.08)",
+                  overflow: "hidden",
+                }}
+                role="progressbar"
+                aria-valuenow={festivalierScore.rankProgressPercent}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-label={`Progression vers le prochain rang : ${festivalierScore.rankProgressPercent}%`}
+              >
+                <div
+                  style={{
+                    width: `${festivalierScore.rankProgressPercent}%`,
+                    height: "100%",
+                    borderRadius: 2,
+                    backgroundColor: rankStyle.color,
+                    transition: "width 0.4s ease",
+                  }}
+                />
+              </div>
+            </>
           )}
         </div>
         <div

@@ -12,6 +12,8 @@ export interface FestivalierScore {
   rank: FestivalierRank;
   label: string;
   nextRankThreshold: number | null;
+  currentRankMin: number;
+  rankProgressPercent: number;
 }
 
 const RANK_THRESHOLDS: { rank: FestivalierRank; label: string; min: number }[] = [
@@ -32,10 +34,19 @@ export function computeFestivalierScore(stats: FestivalierStats): FestivalierSco
   const currentIdx = RANK_THRESHOLDS.indexOf(current);
   const next = currentIdx > 0 ? RANK_THRESHOLDS[currentIdx - 1] : null;
 
+  const currentRankMin = current.min;
+  const nextMin = next?.min ?? null;
+  const rankProgressPercent =
+    nextMin !== null && nextMin > currentRankMin
+      ? Math.min(100, Math.round(((score - currentRankMin) / (nextMin - currentRankMin)) * 100))
+      : 100;
+
   return {
     score,
     rank: current.rank,
     label: current.label,
-    nextRankThreshold: next?.min ?? null,
+    nextRankThreshold: nextMin,
+    currentRankMin,
+    rankProgressPercent,
   };
 }

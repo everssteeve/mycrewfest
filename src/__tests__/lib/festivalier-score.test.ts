@@ -87,3 +87,39 @@ describe("computeFestivalierScore", () => {
     expect(computeFestivalierScore(s(30)).label.length).toBeGreaterThan(0);
   });
 });
+
+describe("computeFestivalierScore — rankProgressPercent / currentRankMin", () => {
+  it("rookie at score 0: 0% progress toward passionné (30)", () => {
+    const r = computeFestivalierScore(s(0, 0, 0, 0));
+    expect(r.currentRankMin).toBe(0);
+    expect(r.rankProgressPercent).toBe(0);
+  });
+
+  it("rookie at score 15: 50% toward passionné (30)", () => {
+    const r = computeFestivalierScore(s(0, 15, 0, 0)); // 15 pts
+    expect(r.rankProgressPercent).toBe(50);
+  });
+
+  it("passionné at exactly 30: 0% toward expert (100)", () => {
+    const r = computeFestivalierScore(s(3, 0, 0, 0)); // 30 pts
+    expect(r.currentRankMin).toBe(30);
+    expect(r.rankProgressPercent).toBe(0);
+  });
+
+  it("passionné at 65 pts: 50% toward expert (100)", () => {
+    const r = computeFestivalierScore(s(0, 65, 0, 0)); // 65 pts
+    expect(r.rankProgressPercent).toBe(50);
+  });
+
+  it("légende: 100% progress (top rank, no next threshold)", () => {
+    const r = computeFestivalierScore(s(30, 0, 0, 0)); // 300 pts
+    expect(r.rankProgressPercent).toBe(100);
+    expect(r.currentRankMin).toBe(300);
+  });
+
+  it("does not exceed 100%", () => {
+    const r = computeFestivalierScore(s(0, 29, 0, 0)); // 29 pts
+    expect(r.rankProgressPercent).toBeLessThanOrEqual(100);
+    expect(r.rankProgressPercent).toBeGreaterThanOrEqual(0);
+  });
+});
