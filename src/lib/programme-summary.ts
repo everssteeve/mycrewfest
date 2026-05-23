@@ -72,6 +72,15 @@ export function countMustSeePendingEvents<T extends SelectionFilterable>(
   return events.filter((e) => e.selection?.status === "must-see").length;
 }
 
+/**
+ * Returns the count of events with selection.status === "intéressé".
+ */
+export function countIntéresséEvents<T extends SelectionFilterable>(
+  events: T[],
+): number {
+  return events.filter((e) => e.selection?.status === "intéressé").length;
+}
+
 export interface SelectionDayFilterable {
   startTime?: string | null;
   selection?: { status: string } | null;

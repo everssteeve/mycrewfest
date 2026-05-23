@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -492,5 +492,35 @@ describe("countSelectionDays", () => {
   it("ignores events without startTime", () => {
     const events = [ev(null, "must-see"), ev("2026-07-15T10:00:00", "intéressé")];
     expect(countSelectionDays(events)).toBe(1);
+  });
+});
+
+describe("countIntéresséEvents", () => {
+  const ev = (status: string | null | undefined) => ({
+    selection: status != null ? { status } : null,
+  });
+
+  it("returns 0 for empty list", () => {
+    expect(countIntéresséEvents([])).toBe(0);
+  });
+
+  it("counts events with status intéressé", () => {
+    const events = [ev("intéressé"), ev("intéressé"), ev("must-see"), ev("vu")];
+    expect(countIntéresséEvents(events)).toBe(2);
+  });
+
+  it("returns 0 when none are intéressé", () => {
+    const events = [ev("must-see"), ev("vu"), ev(null)];
+    expect(countIntéresséEvents(events)).toBe(0);
+  });
+
+  it("ignores events with no selection", () => {
+    const events = [{ selection: null }, { selection: undefined }, ev("intéressé")];
+    expect(countIntéresséEvents(events)).toBe(1);
+  });
+
+  it("is case-sensitive — does not count must-see as intéressé", () => {
+    const events = [ev("must-see"), ev("INTÉRESSÉ"), ev("intéressé")];
+    expect(countIntéresséEvents(events)).toBe(1);
   });
 });
