@@ -3093,6 +3093,366 @@ async function main() {
 
   console.log(`  ✓ Festival: ${rockEnSeine.name} (${resEvents.length} events, ${resNews.length} news)`);
 
+  // ── 10. Hellfest Open Air 2026 — Clisson ─────────────────────────────────
+  const hellfest = await prisma.festival.upsert({
+    where: { slug: "hellfest-2026" },
+    update: {},
+    create: {
+      slug: "hellfest-2026",
+      name: "Hellfest Open Air 2026",
+      description:
+        "Le plus grand festival de metal d'Europe sur le site du Val de Moine à Clisson. 183 artistes, 6 scènes légendaires — Mainstage, Altar, Temple, Valley, Warzone, Hellcity. Iron Maiden, Bring Me The Horizon, Limp Bizkit et The Offspring en têtes d'affiche.",
+      startDate: dt("2026-06-18T10:00:00Z"), // 12h CEST
+      endDate: dt("2026-06-21T23:59:00Z"),
+      city: "Clisson",
+      country: "France",
+      latitude: 47.0869,
+      longitude: -1.2801,
+      address: "Domaine du Val de Moine, 44190 Clisson",
+      festivalType: "musique",
+      programType: "structuré",
+      capacity: 60000,
+      siteUrl: "https://hellfest.fr",
+      instagramHandle: "hellfestopenair",
+      facebookPage: "https://www.facebook.com/hellfest/",
+      ingestionStatus: "enrichi",
+      confidenceLevel: "vérifié_humain",
+      programStatus: "complet",
+    },
+  });
+
+  // Artists — Hellfest 2026
+  const hfArtistIronMaiden = await prisma.artist.upsert({
+    where: { id: "artist-iron-maiden" },
+    update: {},
+    create: {
+      id: "artist-iron-maiden",
+      name: "Iron Maiden",
+      description: "Légende du heavy metal britannique. En tournée mondiale pour leurs 50 ans avec 'Run For Your Lives'.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "GB",
+      siteUrl: "https://www.ironmaiden.com",
+      instagram: "ironmaiden",
+    },
+  });
+
+  const hfArtistBMTH = await prisma.artist.upsert({
+    where: { id: "artist-bring-me-the-horizon" },
+    update: {},
+    create: {
+      id: "artist-bring-me-the-horizon",
+      name: "Bring Me The Horizon",
+      description: "Groupe de metal alternatif de Sheffield, tête d'affiche du premier jour.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "GB",
+      instagram: "bmthofficial",
+    },
+  });
+
+  const hfArtistLimpBizkit = await prisma.artist.upsert({
+    where: { id: "artist-limp-bizkit" },
+    update: {},
+    create: {
+      id: "artist-limp-bizkit",
+      name: "Limp Bizkit",
+      description: "Pionniers du rap-metal, de retour sur scène après leur hiatus.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+    },
+  });
+
+  const hfArtistTheOffspring = await prisma.artist.upsert({
+    where: { id: "artist-the-offspring" },
+    update: {},
+    create: {
+      id: "artist-the-offspring",
+      name: "The Offspring",
+      description: "Légendes du punk-rock californien, tête d'affiche du dernier soir.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+      siteUrl: "https://www.offspring.com",
+    },
+  });
+
+  const hfArtistDeepPurple = await prisma.artist.upsert({
+    where: { id: "artist-deep-purple" },
+    update: {},
+    create: {
+      id: "artist-deep-purple",
+      name: "Deep Purple",
+      description: "Pionniers du hard rock et du heavy metal britannique.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "GB",
+    },
+  });
+
+  const hfArtistMegadeth = await prisma.artist.upsert({
+    where: { id: "artist-megadeth" },
+    update: {},
+    create: {
+      id: "artist-megadeth",
+      name: "Megadeth",
+      description: "L'un des quatre grands du thrash metal américain, fondé par Dave Mustaine.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+      siteUrl: "https://www.megadeth.com",
+      instagram: "megadeth",
+    },
+  });
+
+  const hfArtistAliceCooper = await prisma.artist.upsert({
+    where: { id: "artist-alice-cooper" },
+    update: {},
+    create: {
+      id: "artist-alice-cooper",
+      name: "Alice Cooper",
+      description: "Pionnier du shock rock, figure incontournable du rock américain depuis 50 ans.",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+    },
+  });
+
+  // Venues — Hellfest 2026
+  const hfVenueMainstage1 = await prisma.venue.upsert({
+    where: { id: "venue-hellfest-mainstage1" },
+    update: {},
+    create: {
+      id: "venue-hellfest-mainstage1",
+      festivalId: hellfest.id,
+      name: "Mainstage 1",
+      type: "scène principale",
+      capacity: 60000,
+    },
+  });
+
+  const hfVenueMainstage2 = await prisma.venue.upsert({
+    where: { id: "venue-hellfest-mainstage2" },
+    update: {},
+    create: {
+      id: "venue-hellfest-mainstage2",
+      festivalId: hellfest.id,
+      name: "Mainstage 2",
+      type: "scène principale",
+      capacity: 60000,
+    },
+  });
+
+  const hfVenueAltar = await prisma.venue.upsert({
+    where: { id: "venue-hellfest-altar" },
+    update: {},
+    create: {
+      id: "venue-hellfest-altar",
+      festivalId: hellfest.id,
+      name: "Altar",
+      type: "scène couverte",
+      capacity: 15000,
+    },
+  });
+
+  const hfVenueTemple = await prisma.venue.upsert({
+    where: { id: "venue-hellfest-temple" },
+    update: {},
+    create: {
+      id: "venue-hellfest-temple",
+      festivalId: hellfest.id,
+      name: "Temple",
+      type: "scène couverte",
+      capacity: 10000,
+    },
+  });
+
+  // Events — Hellfest 2026 (représentatif, tous horaires UTC = CEST-2)
+  const hfEvents = [
+    // Day 1 — jeudi 18 juin
+    {
+      id: "event-hf2026-bmth",
+      festivalId: hellfest.id,
+      venueId: hfVenueMainstage1.id,
+      artistId: hfArtistBMTH.id,
+      title: "Bring Me The Horizon",
+      eventType: "concert",
+      startTime: dt("2026-06-18T19:30:00Z"), // 21h30 CEST
+      endTime: dt("2026-06-18T21:00:00Z"),   // 23h00 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["metal alternatif", "metalcore", "headliner"]),
+    },
+    {
+      id: "event-hf2026-megadeth",
+      festivalId: hellfest.id,
+      venueId: hfVenueMainstage2.id,
+      artistId: hfArtistMegadeth.id,
+      title: "Megadeth",
+      eventType: "concert",
+      startTime: dt("2026-06-18T17:00:00Z"), // 19h00 CEST
+      endTime: dt("2026-06-18T18:30:00Z"),   // 20h30 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["thrash metal", "heavy metal"]),
+    },
+    // Day 2 — vendredi 19 juin
+    {
+      id: "event-hf2026-ironmaiden",
+      festivalId: hellfest.id,
+      venueId: hfVenueMainstage1.id,
+      artistId: hfArtistIronMaiden.id,
+      title: "Iron Maiden — Run For Your Lives Tour",
+      eventType: "concert",
+      startTime: dt("2026-06-19T19:30:00Z"), // 21h30 CEST
+      endTime: dt("2026-06-19T21:30:00Z"),   // 23h30 CEST
+      durationMins: 120,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["heavy metal", "headliner", "50 ans"]),
+    },
+    {
+      id: "event-hf2026-deeppurple",
+      festivalId: hellfest.id,
+      venueId: hfVenueMainstage2.id,
+      artistId: hfArtistDeepPurple.id,
+      title: "Deep Purple",
+      eventType: "concert",
+      startTime: dt("2026-06-19T17:30:00Z"), // 19h30 CEST
+      endTime: dt("2026-06-19T19:00:00Z"),   // 21h00 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["hard rock", "classic rock"]),
+    },
+    // Day 3 — samedi 20 juin
+    {
+      id: "event-hf2026-limpbizkit",
+      festivalId: hellfest.id,
+      venueId: hfVenueMainstage1.id,
+      artistId: hfArtistLimpBizkit.id,
+      title: "Limp Bizkit",
+      eventType: "concert",
+      startTime: dt("2026-06-20T18:00:00Z"), // 20h00 CEST
+      endTime: dt("2026-06-20T19:30:00Z"),   // 21h30 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rap-metal", "nu-metal"]),
+    },
+    {
+      id: "event-hf2026-alicecooper",
+      festivalId: hellfest.id,
+      venueId: hfVenueAltar.id,
+      artistId: hfArtistAliceCooper.id,
+      title: "Alice Cooper",
+      eventType: "concert",
+      startTime: dt("2026-06-20T15:00:00Z"), // 17h00 CEST
+      endTime: dt("2026-06-20T16:30:00Z"),   // 18h30 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["shock rock", "hard rock", "légende"]),
+    },
+    // Day 4 — dimanche 21 juin
+    {
+      id: "event-hf2026-theoffspring",
+      festivalId: hellfest.id,
+      venueId: hfVenueMainstage1.id,
+      artistId: hfArtistTheOffspring.id,
+      title: "The Offspring — Closing Night",
+      eventType: "concert",
+      startTime: dt("2026-06-21T19:30:00Z"), // 21h30 CEST
+      endTime: dt("2026-06-21T21:00:00Z"),   // 23h00 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["punk-rock", "headliner", "closing"]),
+    },
+    {
+      id: "event-hf2026-ironmaiden-mainstage2",
+      festivalId: hellfest.id,
+      venueId: hfVenueMainstage2.id,
+      artistId: hfArtistIronMaiden.id,
+      title: "Iron Maiden — Acoustic & B-sides set",
+      eventType: "concert",
+      startTime: dt("2026-06-21T15:00:00Z"), // 17h00 CEST
+      endTime: dt("2026-06-21T16:00:00Z"),
+      durationMins: 60,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["heavy metal", "acoustique"]),
+    },
+  ];
+
+  for (const ev of hfEvents) {
+    await prisma.event.upsert({
+      where: { id: ev.id },
+      update: {},
+      create: ev,
+    });
+  }
+
+  // News — Hellfest 2026
+  const hfNews = [
+    {
+      id: "news-hf2026-lineup",
+      festivalId: hellfest.id,
+      summary: "Programmation complète dévoilée : 183 artistes dont Iron Maiden (50 ans), Bring Me The Horizon, Limp Bizkit, The Offspring, Deep Purple, Alice Cooper, Megadeth, Papa Roach, Bad Omens et Sabaton.",
+      urgencyLevel: "normal" as const,
+      isPinned: true,
+      publishedAt: dt("2026-01-15T10:00:00Z"),
+      category: "line-up",
+      source: "site_officiel",
+    },
+    {
+      id: "news-hf2026-soldout",
+      festivalId: hellfest.id,
+      summary: "Les pass 4 jours sont ÉPUISÉS avant même l'annonce du line-up — un record historique pour Hellfest. Des billets à la journée seront disponibles selon les disponibilités.",
+      urgencyLevel: "critique" as const,
+      isPinned: true,
+      publishedAt: dt("2026-01-10T09:00:00Z"),
+      category: "billetterie",
+      source: "site_officiel",
+    },
+    {
+      id: "news-hf2026-ironmaiden-50",
+      festivalId: hellfest.id,
+      summary: "Iron Maiden célèbre 50 ans de carrière avec leur tournée 'Run For Your Lives' — le concert à Hellfest le 19 juin sera l'un des sommets de la tournée mondiale.",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-02-05T11:00:00Z"),
+      category: "line-up",
+      source: "instagram",
+    },
+    {
+      id: "news-hf2026-camping",
+      festivalId: hellfest.id,
+      summary: "Camping Hell City ouvert dès le 17 juin. Navettes gratuites depuis la gare de Clisson incluses avec le pass. Consignes bagage disponibles sur place.",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-03-20T10:00:00Z"),
+      category: "logistique",
+      source: "site_officiel",
+    },
+    {
+      id: "news-hf2026-reformation-dillingerr",
+      festivalId: hellfest.id,
+      summary: "Reformation exclusive : The Dillinger Escape Plan et Acid Bath se reforment spécialement pour Hellfest 2026 — uniquement sur ce festival mondial.",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-04-01T12:00:00Z"),
+      category: "line-up",
+      source: "instagram",
+    },
+  ];
+
+  for (const news of hfNews) {
+    await prisma.newsItem.upsert({
+      where: { id: news.id },
+      update: {},
+      create: news,
+    });
+  }
+
+  console.log(`  ✓ Festival: ${hellfest.name} (${hfEvents.length} events, ${hfNews.length} news)`);
+
   console.log("\n✅ Seed terminé avec succès !");
   console.log("   Utilisateur test : test@mycrewfest.dev / password123");
 }
