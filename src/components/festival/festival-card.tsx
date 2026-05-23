@@ -12,6 +12,7 @@ import { formatFestivalStats } from "@/lib/format-count";
 import { formatFollowerCount, getFollowerTier, getFollowerTierColor, getFollowerTierBg } from "@/lib/festival-community";
 import { buildFollowApiUrl, getFollowToggleAriaLabel, getFollowToggleMethod } from "@/lib/catalogue-quick-follow";
 import { getCapacityTier, getCapacityTierColor, getCapacityTierBg, formatCapacityLabel, buildCapacityAriaLabel } from "@/lib/festival-capacity";
+import { computeNewsStatus, getNewsBadgeLabel, getNewsBadgeColor } from "@/lib/news-badge";
 
 interface FestivalCardProps {
   festival: FestivalSummary;
@@ -91,6 +92,10 @@ export function FestivalCard({ festival }: FestivalCardProps) {
   const temporalStatus = getFestivalTemporalStatus(festival.startDate, festival.endDate);
   const daysUntil = temporalStatus === "imminent" ? getDaysUntilStart(festival.startDate) : null;
   const countdown = getFestivalCountdown(startDate, endDate);
+  const newsBadge = computeNewsStatus(
+    festival.recentNewsCount ?? 0,
+    festival.hasUrgentNews ?? false,
+  );
 
   return (
     <Link
@@ -165,6 +170,20 @@ export function FestivalCard({ festival }: FestivalCardProps) {
                 }}
               >
                 {daysUntil === 0 ? "Demain" : `Dans ${daysUntil} j`}
+              </span>
+            )}
+            {newsBadge && (
+              <span
+                data-testid={`festival-news-badge-${festival.slug}`}
+                aria-label={getNewsBadgeLabel(newsBadge)}
+                className="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                style={{
+                  backgroundColor: `${getNewsBadgeColor(newsBadge)}22`,
+                  color: getNewsBadgeColor(newsBadge),
+                  border: `1px solid ${getNewsBadgeColor(newsBadge)}66`,
+                }}
+              >
+                {getNewsBadgeLabel(newsBadge)}
               </span>
             )}
             <button

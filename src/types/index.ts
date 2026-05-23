@@ -65,6 +65,8 @@ export interface FestivalSummary {
   isFollowed?: boolean;
   isFeatured?: boolean;
   _count?: { events: number; followers: number };
+  recentNewsCount?: number;
+  hasUrgentNews?: boolean;
 }
 
 export interface FestivalDetail extends FestivalSummary {

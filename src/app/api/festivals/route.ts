@@ -74,40 +74,66 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    // When authenticated, fetch follow statuses in a second query
+    // When authenticated, fetch follow statuses + recent news counts
     let followedIds = new Set<string>();
+    const recentNewsMap = new Map<string, { count: number; hasUrgent: boolean }>();
     if (userId && festivals.length > 0) {
       const festivalIds = festivals.map((f) => f.id);
-      const followed = await prisma.userFollowsFestival.findMany({
-        where: { userId, festivalId: { in: festivalIds } },
-        select: { festivalId: true },
-      });
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+      const [followed, recentNews] = await Promise.all([
+        prisma.userFollowsFestival.findMany({
+          where: { userId, festivalId: { in: festivalIds } },
+          select: { festivalId: true },
+        }),
+        prisma.newsItem.findMany({
+          where: {
+            festivalId: { in: festivalIds },
+            publishedAt: { gte: sevenDaysAgo },
+          },
+          select: { festivalId: true, urgencyLevel: true },
+        }),
+      ]);
+
       followedIds = new Set(followed.map((f) => f.festivalId));
+
+      for (const n of recentNews) {
+        const entry = recentNewsMap.get(n.festivalId) ?? { count: 0, hasUrgent: false };
+        entry.count += 1;
+        if (n.urgencyLevel === "critique") entry.hasUrgent = true;
+        recentNewsMap.set(n.festivalId, entry);
+      }
     }
 
-    const data = festivals.map((f) => ({
-      id: f.id,
-      name: f.name,
-      slug: f.slug,
-      description: f.description,
-      startDate: f.startDate.toISOString(),
-      endDate: f.endDate.toISOString(),
-      city: f.city,
-      country: f.country,
-      latitude: f.latitude,
-      longitude: f.longitude,
-      festivalType: f.festivalType,
-      programType: f.programType,
-      programStatus: f.programStatus,
-      ingestionStatus: f.ingestionStatus,
-      confidenceLevel: f.confidenceLevel,
-      capacity: f.capacity,
-      siteUrl: f.siteUrl,
-      instagramHandle: f.instagramHandle,
-      isFeatured: f.isFeatured,
-      _count: f._count,
-      isFollowed: followedIds.has(f.id),
-    }));
+    const data = festivals.map((f) => {
+      const isFollowed = followedIds.has(f.id);
+      const news = isFollowed ? recentNewsMap.get(f.id) : undefined;
+      return {
+        id: f.id,
+        name: f.name,
+        slug: f.slug,
+        description: f.description,
+        startDate: f.startDate.toISOString(),
+        endDate: f.endDate.toISOString(),
+        city: f.city,
+        country: f.country,
+        latitude: f.latitude,
+        longitude: f.longitude,
+        festivalType: f.festivalType,
+        programType: f.programType,
+        programStatus: f.programStatus,
+        ingestionStatus: f.ingestionStatus,
+        confidenceLevel: f.confidenceLevel,
+        capacity: f.capacity,
+        siteUrl: f.siteUrl,
+        instagramHandle: f.instagramHandle,
+        isFeatured: f.isFeatured,
+        _count: f._count,
+        isFollowed,
+        recentNewsCount: news?.count ?? 0,
+        hasUrgentNews: news?.hasUrgent ?? false,
+      };
+    });
 
     return NextResponse.json({
       data,
