@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing, countUpcomingEvents } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents, countUniqueEventTypes, countNightEvents, getEarliestEventStartTime, getLatestEventEndTime } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents, countUniqueEventTypes, countNightEvents, getEarliestEventStartTime, getLatestEventEndTime, getPeakSelectionDay } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -356,6 +356,11 @@ export function ProgrammeView({
   const latestEnd = useMemo(
     () => getLatestEventEndTime(filteredEvents),
     [filteredEvents],
+  );
+
+  const peakSelectionDay = useMemo(
+    () => getPeakSelectionDay(events),
+    [events],
   );
 
   const hasActiveFilter =
@@ -1093,6 +1098,22 @@ export function ProgrammeView({
               title="Nombre de jours couverts par ta sélection"
             >
               {selectionDays}j sélection
+            </span>
+          </>
+        )}
+        {peakSelectionDay && selectionDays > 1 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-peak-selection-day"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--secondary-cyan)",
+              }}
+              title={`Jour le plus chargé de ta sélection : ${peakSelectionDay.count} événements`}
+            >
+              ★ {new Date(peakSelectionDay.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short" })} +{peakSelectionDay.count}
             </span>
           </>
         )}

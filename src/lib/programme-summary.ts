@@ -431,6 +431,48 @@ export function countNightEvents<T extends NightFilterable>(
   }).length;
 }
 
+export interface SelectionDensityFilterable {
+  startTime?: string | null;
+  selection?: { status: string } | null;
+}
+
+/**
+ * Returns a Map of YYYY-MM-DD → count for events that are selected
+ * (must-see or intéressé or vu) and have a startTime.
+ * Days with no selected events are not included.
+ */
+export function computeSelectedEventsDensityByDay<T extends SelectionDensityFilterable>(
+  events: T[],
+): Map<string, number> {
+  const map = new Map<string, number>();
+  for (const e of events) {
+    if (!e.startTime) continue;
+    const status = e.selection?.status;
+    if (status !== "must-see" && status !== "intéressé" && status !== "vu") continue;
+    const day = new Date(e.startTime).toLocaleDateString("sv-SE");
+    map.set(day, (map.get(day) ?? 0) + 1);
+  }
+  return map;
+}
+
+/**
+ * Returns the day (YYYY-MM-DD) with the most selected events, or null when none
+ * are selected. Ties are broken by earliest date.
+ */
+export function getPeakSelectionDay<T extends SelectionDensityFilterable>(
+  events: T[],
+): PeakDayResult | null {
+  const density = computeSelectedEventsDensityByDay(events);
+  if (density.size === 0) return null;
+  let peak: PeakDayResult | null = null;
+  for (const [date, count] of density) {
+    if (!peak || count > peak.count || (count === peak.count && date < peak.date)) {
+      peak = { date, count };
+    }
+  }
+  return peak;
+}
+
 export interface TimeRangeFilterable {
   startTime?: string | null;
   endTime?: string | null;

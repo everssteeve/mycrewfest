@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countUniqueEventTypes, countNightEvents, getEarliestEventStartTime, getLatestEventEndTime } from "@/lib/programme-summary";
+import { countUniqueEventTypes, countNightEvents, getEarliestEventStartTime, getLatestEventEndTime, computeSelectedEventsDensityByDay, getPeakSelectionDay } from "@/lib/programme-summary";
 import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
@@ -924,5 +924,69 @@ describe("getLatestEventEndTime", () => {
     ];
     const result = getLatestEventEndTime(events);
     expect(result).toBe("2024-07-20T23:30:00");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// computeSelectedEventsDensityByDay
+// ---------------------------------------------------------------------------
+
+describe("computeSelectedEventsDensityByDay", () => {
+  const sel = (status: string | null, day: number) => ({
+    startTime: `2024-07-${day.toString().padStart(2, "0")}T12:00:00`,
+    selection: status ? { status } : null,
+  });
+
+  it("returns empty map for empty list", () => {
+    expect(computeSelectedEventsDensityByDay([])).toEqual(new Map());
+  });
+
+  it("ignores unselected events", () => {
+    const map = computeSelectedEventsDensityByDay([sel(null, 20)]);
+    expect(map.size).toBe(0);
+  });
+
+  it("counts must-see, intéressé and vu events", () => {
+    const events = [sel("must-see", 20), sel("intéressé", 20), sel("vu", 21), sel(null, 20)];
+    const map = computeSelectedEventsDensityByDay(events);
+    expect(map.get("2024-07-20")).toBe(2);
+    expect(map.get("2024-07-21")).toBe(1);
+  });
+
+  it("excludes events without startTime", () => {
+    const events = [{ startTime: null, selection: { status: "must-see" } }];
+    expect(computeSelectedEventsDensityByDay(events)).toEqual(new Map());
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getPeakSelectionDay
+// ---------------------------------------------------------------------------
+
+describe("getPeakSelectionDay", () => {
+  const sel = (status: string, day: number) => ({
+    startTime: `2024-07-${day.toString().padStart(2, "0")}T12:00:00`,
+    selection: { status },
+  });
+
+  it("returns null for empty list", () => {
+    expect(getPeakSelectionDay([])).toBeNull();
+  });
+
+  it("returns null when no events are selected", () => {
+    expect(getPeakSelectionDay([{ startTime: "2024-07-20T12:00:00", selection: null }])).toBeNull();
+  });
+
+  it("returns the busiest day", () => {
+    const events = [sel("must-see", 20), sel("must-see", 20), sel("vu", 21)];
+    const result = getPeakSelectionDay(events);
+    expect(result?.date).toBe("2024-07-20");
+    expect(result?.count).toBe(2);
+  });
+
+  it("breaks ties by earliest date", () => {
+    const events = [sel("must-see", 22), sel("must-see", 20)];
+    const result = getPeakSelectionDay(events);
+    expect(result?.date).toBe("2024-07-20");
   });
 });
