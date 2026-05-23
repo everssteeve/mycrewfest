@@ -7,6 +7,7 @@ import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
 import { computeBilan, formatBilanDuration } from "@/lib/bilan";
 import { generateBilanText } from "@/lib/bilan-text";
+import { computeSelectionCompletionPercent, computeTotalSelected } from "@/lib/bilan-progress";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -366,6 +367,67 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
           {copied ? "Copié !" : "Copier"}
         </button>
       </div>
+
+      {/* Selection completion progress bar */}
+      {computeTotalSelected(stats.totalSeen, stats.mustSeePending, stats.intéresséPending) > 0 && (() => {
+        const total = computeTotalSelected(stats.totalSeen, stats.mustSeePending, stats.intéresséPending);
+        const percent = computeSelectionCompletionPercent(stats.totalSeen, stats.mustSeePending, stats.intéresséPending);
+        return (
+          <div
+            data-testid="bilan-progress"
+            style={{ display: "flex", flexDirection: "column", gap: 6 }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "baseline",
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                }}
+              >
+                {stats.totalSeen} / {total} sélections vues
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-sm)",
+                  color: percent === 100 ? "var(--primary-neon)" : "var(--text-dim)",
+                  fontWeight: "var(--fw-bold)",
+                }}
+              >
+                {percent}%
+              </span>
+            </div>
+            <div
+              style={{
+                height: 6,
+                borderRadius: "var(--radius-full)",
+                backgroundColor: "var(--bg-surface)",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  height: "100%",
+                  width: `${percent}%`,
+                  borderRadius: "var(--radius-full)",
+                  backgroundColor: percent === 100 ? "var(--primary-neon)" : "var(--secondary-cyan)",
+                  transition: "width 0.4s ease",
+                  boxShadow: percent === 100 ? "0 0 8px var(--primary-neon)" : "none",
+                }}
+              />
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Stats grid */}
       <div style={{ display: "flex", gap: "var(--space-sm)" }}>
