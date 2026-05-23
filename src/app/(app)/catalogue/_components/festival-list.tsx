@@ -5,7 +5,7 @@ import { Search, Heart } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
 import { compareByTemporalRelevance } from "@/lib/festival-temporal";
-import { matchesFollowFilter } from "@/lib/catalogue-filter";
+import { matchesFollowFilter, matchesMonthFilter, getAvailableMonths, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 type FilterType = "tous" | FestivalType;
@@ -27,9 +27,15 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("tous");
   const [followedOnly, setFollowedOnly] = useState(false);
+  const [activeMonth, setActiveMonth] = useState<number | null>(null);
 
   const hasFollowed = useMemo(
     () => initialFestivals.some((f) => f.isFollowed),
+    [initialFestivals],
+  );
+
+  const availableMonths = useMemo(
+    () => getAvailableMonths(initialFestivals),
     [initialFestivals],
   );
 
@@ -44,10 +50,10 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
           f.country.toLowerCase().includes(q);
         const matchesType =
           activeFilter === "tous" || f.festivalType === activeFilter;
-        return matchesQuery && matchesType && matchesFollowFilter(f, followedOnly);
+        return matchesQuery && matchesType && matchesFollowFilter(f, followedOnly) && matchesMonthFilter(f, activeMonth);
       })
       .sort(compareByTemporalRelevance);
-  }, [initialFestivals, query, activeFilter, followedOnly]);
+  }, [initialFestivals, query, activeFilter, followedOnly, activeMonth]);
 
   return (
     <div className="flex flex-col gap-0 py-4">
@@ -187,13 +193,85 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
         )}
       </div>
 
+      {/* Month filter chips — shown only when multiple months available */}
+      {availableMonths.length > 1 && (
+        <div
+          data-testid="catalogue-month-filter"
+          style={{
+            display: "flex",
+            gap: "var(--space-xs)",
+            overflowX: "auto",
+            paddingBottom: 8,
+            marginBottom: "var(--space-md)",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+          className="hide-scrollbar"
+          role="group"
+          aria-label="Filtrer par mois"
+        >
+          <button
+            type="button"
+            onClick={() => setActiveMonth(null)}
+            aria-pressed={activeMonth === null}
+            data-testid="catalogue-month-filter-all"
+            style={{
+              flexShrink: 0,
+              padding: "4px 12px",
+              borderRadius: "var(--radius-full)",
+              border: activeMonth === null
+                ? "1px solid var(--warning-orange)"
+                : "1px solid var(--border-color)",
+              backgroundColor: activeMonth === null ? "rgba(255,153,0,0.12)" : "transparent",
+              color: activeMonth === null ? "var(--warning-orange)" : "var(--text-dim)",
+              fontFamily: "var(--font-body)",
+              fontSize: 11,
+              fontWeight: 700,
+              cursor: "pointer",
+              transition: "var(--transition-fast)",
+            }}
+          >
+            Tous mois
+          </button>
+          {availableMonths.map((month) => {
+            const isActive = activeMonth === month;
+            return (
+              <button
+                key={month}
+                type="button"
+                onClick={() => setActiveMonth(isActive ? null : month)}
+                aria-pressed={isActive}
+                data-testid={`catalogue-month-filter-${month}`}
+                style={{
+                  flexShrink: 0,
+                  padding: "4px 12px",
+                  borderRadius: "var(--radius-full)",
+                  border: isActive
+                    ? "1px solid var(--warning-orange)"
+                    : "1px solid var(--border-color)",
+                  backgroundColor: isActive ? "rgba(255,153,0,0.12)" : "transparent",
+                  color: isActive ? "var(--warning-orange)" : "var(--text-dim)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: 11,
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  transition: "var(--transition-fast)",
+                }}
+              >
+                {MONTH_NAMES_FR[month] ?? month}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Results count */}
       <p
         className="t-meta mb-3"
         style={{ color: "var(--text-dim)" }}
       >
         {filtered.length} festival{filtered.length !== 1 ? "s" : ""}
-        {(query || activeFilter !== "tous" || followedOnly) ? " trouvé" + (filtered.length !== 1 ? "s" : "") : ""}
+        {(query || activeFilter !== "tous" || followedOnly || activeMonth !== null) ? " trouvé" + (filtered.length !== 1 ? "s" : "") : ""}
       </p>
 
       {/* Festival list */}
