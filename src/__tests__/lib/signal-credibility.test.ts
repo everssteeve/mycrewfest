@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals, computeAvgSignalAgeHours } from "@/lib/signal-credibility";
 
 describe("computeSignalCredibility", () => {
   it("returns 0.5 neutre when no votes", () => {
@@ -277,5 +277,55 @@ describe("countExpiredSignals", () => {
   it("does not count a signal expiring exactly at now", () => {
     const signals = [{ expiresAt: now.toISOString() }];
     expect(countExpiredSignals(signals, now)).toBe(0);
+  });
+});
+
+describe("computeAvgSignalAgeHours", () => {
+  const now = new Date("2026-07-15T18:00:00Z");
+
+  it("returns null for empty list", () => {
+    expect(computeAvgSignalAgeHours([], now)).toBeNull();
+  });
+
+  it("returns null when all createdAt are unparseable", () => {
+    const signals = [{ createdAt: "not-a-date" }, { createdAt: "" }];
+    expect(computeAvgSignalAgeHours(signals, now)).toBeNull();
+  });
+
+  it("returns 0 for a signal created at now", () => {
+    const signals = [{ createdAt: now.toISOString() }];
+    expect(computeAvgSignalAgeHours(signals, now)).toBe(0);
+  });
+
+  it("returns correct age in hours for a single signal", () => {
+    const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60_000);
+    const signals = [{ createdAt: twoHoursAgo.toISOString() }];
+    expect(computeAvgSignalAgeHours(signals, now)).toBe(2);
+  });
+
+  it("averages ages across multiple signals", () => {
+    const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60_000);
+    const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60_000);
+    const signals = [
+      { createdAt: twoHoursAgo.toISOString() },
+      { createdAt: fourHoursAgo.toISOString() },
+    ];
+    expect(computeAvgSignalAgeHours(signals, now)).toBe(3);
+  });
+
+  it("ignores future-dated signals", () => {
+    const inOneHour = new Date(now.getTime() + 60 * 60_000);
+    const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60_000);
+    const signals = [
+      { createdAt: inOneHour.toISOString() },
+      { createdAt: twoHoursAgo.toISOString() },
+    ];
+    expect(computeAvgSignalAgeHours(signals, now)).toBe(2);
+  });
+
+  it("floors partial hours", () => {
+    const ninetyMinsAgo = new Date(now.getTime() - 90 * 60_000);
+    const signals = [{ createdAt: ninetyMinsAgo.toISOString() }];
+    expect(computeAvgSignalAgeHours(signals, now)).toBe(1);
   });
 });

@@ -137,3 +137,30 @@ export function countExpiredSignals<T extends ExpirableSignal>(
     return !Number.isNaN(t) && t < now.getTime();
   }).length;
 }
+
+export interface AgedSignal {
+  createdAt: string;
+}
+
+/**
+ * Returns the average age in whole hours of the given signals relative to `now`.
+ * Signals with unparseable createdAt are ignored.
+ * Returns null when the list is empty or all dates are unparseable.
+ */
+export function computeAvgSignalAgeHours(
+  signals: AgedSignal[],
+  now: Date = new Date(),
+): number | null {
+  let total = 0;
+  let count = 0;
+  for (const s of signals) {
+    const t = new Date(s.createdAt).getTime();
+    if (Number.isNaN(t)) continue;
+    const ageMs = now.getTime() - t;
+    if (ageMs < 0) continue; // future-dated signals ignored
+    total += ageMs;
+    count++;
+  }
+  if (count === 0) return null;
+  return Math.floor(total / count / (60 * 60_000));
+}

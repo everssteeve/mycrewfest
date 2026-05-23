@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
 import { filterSignalsByScope, countCrewSignals, countCommunautéSignals, type SignalScope } from "@/lib/signal-filter";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals, computeAvgSignalAgeHours } from "@/lib/signal-credibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -624,6 +624,11 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
     [displayedSignals],
   );
 
+  const avgAgeHours = useMemo(
+    () => computeAvgSignalAgeHours(displayedSignals),
+    [displayedSignals],
+  );
+
   return (
     <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
       {/* Header */}
@@ -734,6 +739,19 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
               title={`${crewSignalCount} crew · ${communautéSignalCount} communauté`}
             >
               · {crewSignalCount} crew
+            </span>
+          )}
+          {avgAgeHours !== null && displayedSignals.length > 1 && (
+            <span
+              data-testid="signal-avg-age"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: avgAgeHours < 6 ? "var(--primary-neon)" : avgAgeHours >= 24 ? "var(--text-dim)" : "var(--text-muted)",
+              }}
+              title={`Âge moyen des signaux : ${avgAgeHours}h`}
+            >
+              · moy. {avgAgeHours}h
             </span>
           )}
         </div>
