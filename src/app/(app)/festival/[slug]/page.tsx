@@ -360,6 +360,20 @@ export default async function FestivalPage({
               </div>
             ))}
           </div>
+          <div style={{ marginTop: 10, textAlign: "right" }}>
+            <Link
+              href={`/festival/${slug}/actualites`}
+              data-testid="festival-news-see-all"
+              style={{
+                fontSize: "0.75rem",
+                color: "var(--accent-pink, #FF007A)",
+                textDecoration: "none",
+                fontWeight: 600,
+              }}
+            >
+              Voir toutes les actus →
+            </Link>
+          </div>
         </section>
       )}
 
