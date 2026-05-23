@@ -2758,6 +2758,341 @@ async function main() {
 
   console.log(`  ✓ Festival: ${musilac.name} (${musilacEvents.length} events, ${musilacNews.length} news)`);
 
+  // ── 9. Rock en Seine 2026 — Saint-Cloud ──────────────────────────────────
+  const rockEnSeine = await prisma.festival.upsert({
+    where: { slug: "rock-en-seine-2026" },
+    update: {},
+    create: {
+      slug: "rock-en-seine-2026",
+      name: "Rock en Seine 2026",
+      description:
+        "5 jours de concerts au Domaine National de Saint-Cloud, aux portes de Paris. The Cure, Nick Cave, Tyler the Creator, Deftones et Lorde en têtes d'affiche de l'édition 2026.",
+      startDate: dt("2026-08-26T14:00:00Z"),
+      endDate: dt("2026-08-30T23:59:00Z"),
+      city: "Saint-Cloud",
+      country: "France",
+      latitude: 48.8384,
+      longitude: 2.2155,
+      address: "Domaine National de Saint-Cloud, 92210 Saint-Cloud",
+      festivalType: "musique",
+      programType: "structuré",
+      capacity: 40000,
+      siteUrl: "https://www.rockenseine.com",
+      instagramHandle: "rockenseine",
+      ingestionStatus: "enrichi",
+      confidenceLevel: "vérifié_humain",
+      programStatus: "complet",
+    },
+  });
+
+  // New artists — Rock en Seine 2026
+  const artistTylerTheCreator = await prisma.artist.upsert({
+    where: { id: "artist-tyler-the-creator" },
+    update: {},
+    create: {
+      id: "artist-tyler-the-creator",
+      name: "Tyler, the Creator",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+    },
+  });
+
+  const artistLorde = await prisma.artist.upsert({
+    where: { id: "artist-lorde" },
+    update: {},
+    create: {
+      id: "artist-lorde",
+      name: "Lorde",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "NZ",
+    },
+  });
+
+  const artistTheCure = await prisma.artist.upsert({
+    where: { id: "artist-the-cure" },
+    update: {},
+    create: {
+      id: "artist-the-cure",
+      name: "The Cure",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "GB",
+    },
+  });
+
+  const artistDeftones = await prisma.artist.upsert({
+    where: { id: "artist-deftones" },
+    update: {},
+    create: {
+      id: "artist-deftones",
+      name: "Deftones",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "US",
+    },
+  });
+
+  const artistFranzFerdinand = await prisma.artist.upsert({
+    where: { id: "artist-franz-ferdinand" },
+    update: {},
+    create: {
+      id: "artist-franz-ferdinand",
+      name: "Franz Ferdinand",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "GB",
+    },
+  });
+
+  const artistWetLeg = await prisma.artist.upsert({
+    where: { id: "artist-wet-leg" },
+    update: {},
+    create: {
+      id: "artist-wet-leg",
+      name: "Wet Leg",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "GB",
+    },
+  });
+
+  const artistBiffyClyro = await prisma.artist.upsert({
+    where: { id: "artist-biffy-clyro" },
+    update: {},
+    create: {
+      id: "artist-biffy-clyro",
+      name: "Biffy Clyro",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "GB",
+    },
+  });
+
+  // Venues — Rock en Seine 2026
+  const resGrandeScene = await prisma.venue.upsert({
+    where: { id: "venue-res-grande-scene" },
+    update: {},
+    create: {
+      id: "venue-res-grande-scene",
+      festivalId: rockEnSeine.id,
+      name: "Grande Scène",
+      type: "scène",
+      capacity: 30000,
+      latitude: 48.8384,
+      longitude: 2.2155,
+    },
+  });
+
+  const resCascade = await prisma.venue.upsert({
+    where: { id: "venue-res-cascade" },
+    update: {},
+    create: {
+      id: "venue-res-cascade",
+      festivalId: rockEnSeine.id,
+      name: "Scène de la Cascade",
+      type: "scène",
+      capacity: 10000,
+      latitude: 48.8376,
+      longitude: 2.2143,
+    },
+  });
+
+  const resPelouse = await prisma.venue.upsert({
+    where: { id: "venue-res-pelouse" },
+    update: {},
+    create: {
+      id: "venue-res-pelouse",
+      festivalId: rockEnSeine.id,
+      name: "Scène de la Pelouse",
+      type: "plein_air",
+      capacity: 5000,
+      latitude: 48.8392,
+      longitude: 2.2168,
+    },
+  });
+
+  // Events — Rock en Seine 2026 (CEST = UTC+2)
+  const resEvents = [
+    // Mercredi 26 août
+    {
+      id: "evt-res-tyler-the-creator",
+      festivalId: rockEnSeine.id,
+      venueId: resGrandeScene.id,
+      artistId: artistTylerTheCreator.id,
+      title: "Tyler, the Creator",
+      eventType: "concert",
+      startTime: dt("2026-08-26T19:30:00Z"), // 21h30 CEST
+      endTime: dt("2026-08-26T21:15:00Z"),   // 23h15 CEST
+      durationMins: 105,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rap", "hip-hop", "têtes_d_affiche"]),
+    },
+    // Jeudi 27 août
+    {
+      id: "evt-res-lorde",
+      festivalId: rockEnSeine.id,
+      venueId: resGrandeScene.id,
+      artistId: artistLorde.id,
+      title: "Lorde",
+      eventType: "concert",
+      startTime: dt("2026-08-27T19:30:00Z"), // 21h30 CEST
+      endTime: dt("2026-08-27T21:00:00Z"),   // 23h00 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["pop", "indépendant", "têtes_d_affiche"]),
+    },
+    // Vendredi 28 août
+    {
+      id: "evt-res-wet-leg",
+      festivalId: rockEnSeine.id,
+      venueId: resCascade.id,
+      artistId: artistWetLeg.id,
+      title: "Wet Leg",
+      eventType: "concert",
+      startTime: dt("2026-08-28T16:00:00Z"), // 18h00 CEST
+      endTime: dt("2026-08-28T17:15:00Z"),   // 19h15 CEST
+      durationMins: 75,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["indie-rock", "post-punk"]),
+    },
+    {
+      id: "evt-res-franz-ferdinand",
+      festivalId: rockEnSeine.id,
+      venueId: resGrandeScene.id,
+      artistId: artistFranzFerdinand.id,
+      title: "Franz Ferdinand",
+      eventType: "concert",
+      startTime: dt("2026-08-28T17:30:00Z"), // 19h30 CEST
+      endTime: dt("2026-08-28T19:00:00Z"),   // 21h00 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["indie-rock", "post-punk"]),
+    },
+    {
+      id: "evt-res-nick-cave",
+      festivalId: rockEnSeine.id,
+      venueId: resGrandeScene.id,
+      artistId: vcArtistNickCave.id,
+      title: "Nick Cave & The Bad Seeds",
+      eventType: "concert",
+      startTime: dt("2026-08-28T19:30:00Z"), // 21h30 CEST
+      endTime: dt("2026-08-28T21:30:00Z"),   // 23h30 CEST
+      durationMins: 120,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rock", "post-punk", "têtes_d_affiche"]),
+    },
+    // Samedi 29 août
+    {
+      id: "evt-res-biffy-clyro",
+      festivalId: rockEnSeine.id,
+      venueId: resCascade.id,
+      artistId: artistBiffyClyro.id,
+      title: "Biffy Clyro",
+      eventType: "concert",
+      startTime: dt("2026-08-29T16:30:00Z"), // 18h30 CEST
+      endTime: dt("2026-08-29T17:45:00Z"),   // 19h45 CEST
+      durationMins: 75,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rock", "alternatif"]),
+    },
+    {
+      id: "evt-res-deftones",
+      festivalId: rockEnSeine.id,
+      venueId: resGrandeScene.id,
+      artistId: artistDeftones.id,
+      title: "Deftones",
+      eventType: "concert",
+      startTime: dt("2026-08-29T19:30:00Z"), // 21h30 CEST
+      endTime: dt("2026-08-29T21:15:00Z"),   // 23h15 CEST
+      durationMins: 105,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["metal-alternatif", "rock", "têtes_d_affiche"]),
+    },
+    // Dimanche 30 août
+    {
+      id: "evt-res-interpol",
+      festivalId: rockEnSeine.id,
+      venueId: resGrandeScene.id,
+      artistId: vcArtistInterpol.id,
+      title: "Interpol",
+      eventType: "concert",
+      startTime: dt("2026-08-30T16:30:00Z"), // 18h30 CEST
+      endTime: dt("2026-08-30T17:45:00Z"),   // 19h45 CEST
+      durationMins: 75,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["post-punk", "rock"]),
+    },
+    {
+      id: "evt-res-the-cure",
+      festivalId: rockEnSeine.id,
+      venueId: resGrandeScene.id,
+      artistId: artistTheCure.id,
+      title: "The Cure",
+      eventType: "concert",
+      startTime: dt("2026-08-30T19:30:00Z"), // 21h30 CEST
+      endTime: dt("2026-08-30T22:00:00Z"),   // 00h00 CEST
+      durationMins: 150,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["post-punk", "new-wave", "rock", "têtes_d_affiche"]),
+    },
+  ];
+
+  for (const ev of resEvents) {
+    await prisma.event.upsert({
+      where: { id: ev.id },
+      update: {},
+      create: ev,
+    });
+  }
+
+  // News — Rock en Seine 2026
+  const resNews = [
+    {
+      id: "news-res-2026-lineup",
+      festivalId: rockEnSeine.id,
+      summary: "Rock en Seine 2026 dévoile sa programmation : The Cure, Nick Cave & The Bad Seeds, Tyler the Creator, Deftones et Lorde en têtes d'affiche sur 5 jours au Domaine de Saint-Cloud.",
+      urgencyLevel: "normal" as const,
+      isPinned: true,
+      publishedAt: dt("2026-01-28T10:00:00Z"),
+      category: "programmation",
+      source: "site_officiel",
+    },
+    {
+      id: "news-res-2026-pass",
+      festivalId: rockEnSeine.id,
+      summary: "Pass 5 jours disponibles. Billets à la journée de 59 € à 79 €. Accès direct depuis Paris en métro (ligne 10, station Boulogne-Pont de Saint-Cloud) ou Transilien (gare de Saint-Cloud).",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-01-29T09:00:00Z"),
+      category: "logistique",
+      source: "site_officiel",
+    },
+    {
+      id: "news-res-2026-vague2",
+      festivalId: rockEnSeine.id,
+      summary: "Nouveaux artistes confirmés : Sparks, Kompromat, Mogwai, Wolf Alice, Peaches et Lykke Li rejoignent l'affiche. Programmation quasi complète avec plus de 40 artistes annoncés.",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-03-15T12:00:00Z"),
+      category: "programmation",
+      source: "instagram",
+    },
+  ];
+
+  for (const news of resNews) {
+    await prisma.newsItem.upsert({
+      where: { id: news.id },
+      update: {},
+      create: news,
+    });
+  }
+
+  console.log(`  ✓ Festival: ${rockEnSeine.name} (${resEvents.length} events, ${resNews.length} news)`);
+
   console.log("\n✅ Seed terminé avec succès !");
   console.log("   Utilisateur test : test@mycrewfest.dev / password123");
 }
