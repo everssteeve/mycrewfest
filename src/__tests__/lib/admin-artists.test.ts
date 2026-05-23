@@ -5,6 +5,8 @@ import {
   sortAdminArtistsByEventCount,
   countArtistsMissingCountry,
   countArtistsMissingDisciplines,
+  filterOrphanArtists,
+  countOrphanArtists,
   type AdminArtistRow,
 } from "@/lib/admin-artists";
 
@@ -112,5 +114,34 @@ describe("countArtistsMissingDisciplines", () => {
   it("returns 0 when all have disciplines", () => {
     const all = artists.filter((a) => a.disciplines.length > 0);
     expect(countArtistsMissingDisciplines(all)).toBe(0);
+  });
+});
+
+describe("filterOrphanArtists", () => {
+  it("returns artists with eventCount === 0", () => {
+    const orphans = filterOrphanArtists(artists);
+    expect(orphans).toHaveLength(1);
+    expect(orphans[0].id).toBe("a4");
+  });
+
+  it("returns empty array when all artists have events", () => {
+    const active = artists.filter((a) => a.eventCount > 0);
+    expect(filterOrphanArtists(active)).toHaveLength(0);
+  });
+
+  it("returns all when all are orphans", () => {
+    const allOrphans = artists.map((a) => ({ ...a, eventCount: 0 }));
+    expect(filterOrphanArtists(allOrphans)).toHaveLength(artists.length);
+  });
+});
+
+describe("countOrphanArtists", () => {
+  it("counts artists with eventCount === 0", () => {
+    expect(countOrphanArtists(artists)).toBe(1);
+  });
+
+  it("returns 0 when all have events", () => {
+    const active = artists.filter((a) => a.eventCount > 0);
+    expect(countOrphanArtists(active)).toBe(0);
   });
 });
