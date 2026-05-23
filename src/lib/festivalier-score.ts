@@ -23,6 +23,22 @@ const RANK_THRESHOLDS: { rank: FestivalierRank; label: string; min: number }[] =
   { rank: "rookie", label: "Rookie", min: 0 },
 ];
 
+export interface ScoreBreakdown {
+  festivals: { count: number; pts: number; multiplier: number };
+  vus: { count: number; pts: number; multiplier: number };
+  souvenirs: { count: number; pts: number; multiplier: number };
+  suivis: { count: number; pts: number; multiplier: number };
+}
+
+export function computeScoreBreakdown(stats: FestivalierStats): ScoreBreakdown {
+  return {
+    festivals: { count: stats.festEventsCount, pts: stats.festEventsCount * 10, multiplier: 10 },
+    vus: { count: stats.vuCount, pts: stats.vuCount * 1, multiplier: 1 },
+    souvenirs: { count: stats.souvenirsCount, pts: stats.souvenirsCount * 2, multiplier: 2 },
+    suivis: { count: stats.followedFestivalsCount, pts: stats.followedFestivalsCount * 3, multiplier: 3 },
+  };
+}
+
 export function computeFestivalierScore(stats: FestivalierStats): FestivalierScore {
   const score =
     stats.festEventsCount * 10 +

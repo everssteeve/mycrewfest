@@ -6,7 +6,7 @@ import { signOut } from "next-auth/react";
 import { useAppStore } from "@/store/use-app-store";
 import Link from "next/link";
 import { PushToggle } from "@/components/notifications/push-toggle";
-import { computeFestivalierScore } from "@/lib/festivalier-score";
+import { computeFestivalierScore, computeScoreBreakdown } from "@/lib/festivalier-score";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -292,6 +292,11 @@ export function ProfilView({ data }: { data: ProfilData }) {
     [data.stats],
   );
 
+  const scoreBreakdown = useMemo(
+    () => computeScoreBreakdown(data.stats),
+    [data.stats],
+  );
+
   const RANK_COLORS: Record<string, { bg: string; color: string; border: string }> = {
     rookie: { bg: "rgba(255,255,255,0.04)", color: "var(--text-dim)", border: "var(--border-color)" },
     passionné: { bg: "rgba(0,229,255,0.08)", color: "var(--secondary-cyan)", border: "rgba(0,229,255,0.3)" },
@@ -519,6 +524,53 @@ export function ProfilView({ data }: { data: ProfilData }) {
           </span>
         </div>
       </div>
+
+      {/* === XP Breakdown === */}
+      {festivalierScore.score > 0 && (
+        <div
+          data-testid="profil-score-breakdown"
+          style={{
+            background: "var(--bg-surface)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-sm) var(--space-md)",
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+          }}
+        >
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>
+            Détail XP
+          </p>
+          {(
+            [
+              { key: "festivals", label: "Festivals", emoji: "🎪" },
+              { key: "vus", label: "Événements vus", emoji: "✓" },
+              { key: "souvenirs", label: "Souvenirs", emoji: "📷" },
+              { key: "suivis", label: "Festivals suivis", emoji: "♥" },
+            ] as const
+          ).map(({ key, label, emoji }) => {
+            const entry = scoreBreakdown[key];
+            if (entry.pts === 0) return null;
+            return (
+              <div
+                key={key}
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+              >
+                <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)" }}>
+                  {emoji} {entry.count} {label} ×{entry.multiplier}
+                </span>
+                <span
+                  data-testid={`profil-xp-${key}`}
+                  style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: rankStyle.color, fontWeight: "var(--fw-bold)" }}
+                >
+                  +{entry.pts}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* === Stats === */}
       <section

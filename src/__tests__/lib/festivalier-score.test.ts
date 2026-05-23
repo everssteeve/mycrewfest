@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeFestivalierScore, type FestivalierStats } from "@/lib/festivalier-score";
+import { computeFestivalierScore, computeScoreBreakdown, type FestivalierStats } from "@/lib/festivalier-score";
 
 const s = (
   festEventsCount = 0,
@@ -85,6 +85,51 @@ describe("computeFestivalierScore", () => {
     expect(computeFestivalierScore(s(3)).label.length).toBeGreaterThan(0);
     expect(computeFestivalierScore(s(10)).label.length).toBeGreaterThan(0);
     expect(computeFestivalierScore(s(30)).label.length).toBeGreaterThan(0);
+  });
+});
+
+describe("computeScoreBreakdown", () => {
+  it("returns zero pts for all-zero stats", () => {
+    const b = computeScoreBreakdown(s());
+    expect(b.festivals.pts).toBe(0);
+    expect(b.vus.pts).toBe(0);
+    expect(b.souvenirs.pts).toBe(0);
+    expect(b.suivis.pts).toBe(0);
+  });
+
+  it("festivals contribute 10 pts each", () => {
+    const b = computeScoreBreakdown(s(3, 0, 0, 0));
+    expect(b.festivals.count).toBe(3);
+    expect(b.festivals.pts).toBe(30);
+    expect(b.festivals.multiplier).toBe(10);
+  });
+
+  it("vus contribute 1 pt each", () => {
+    const b = computeScoreBreakdown(s(0, 7, 0, 0));
+    expect(b.vus.count).toBe(7);
+    expect(b.vus.pts).toBe(7);
+    expect(b.vus.multiplier).toBe(1);
+  });
+
+  it("souvenirs contribute 2 pts each", () => {
+    const b = computeScoreBreakdown(s(0, 0, 5, 0));
+    expect(b.souvenirs.count).toBe(5);
+    expect(b.souvenirs.pts).toBe(10);
+    expect(b.souvenirs.multiplier).toBe(2);
+  });
+
+  it("suivis contribute 3 pts each", () => {
+    const b = computeScoreBreakdown(s(0, 0, 0, 4));
+    expect(b.suivis.count).toBe(4);
+    expect(b.suivis.pts).toBe(12);
+    expect(b.suivis.multiplier).toBe(3);
+  });
+
+  it("total pts matches computeFestivalierScore", () => {
+    const stats = s(2, 10, 3, 5);
+    const b = computeScoreBreakdown(stats);
+    const total = b.festivals.pts + b.vus.pts + b.souvenirs.pts + b.suivis.pts;
+    expect(total).toBe(computeFestivalierScore(stats).score);
   });
 });
 
