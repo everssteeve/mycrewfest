@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useMemo, useState, useTransition } from "react";
-import { BookOpen, Share2, Download, Trash2, Clock, Search, X } from "lucide-react";
+import { BookOpen, Share2, Download, Trash2, Clock, Search, X, Copy, Check } from "lucide-react";
 import { filterAndGroupByDay } from "@/lib/journal-filter";
+import { formatJournalEntryText } from "@/lib/journal-entry-text";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -296,6 +297,7 @@ function TimestampEditor({
 interface SouvenirCardProps {
   souvenir: SouvenirEntry;
   festEventId: string;
+  festivalName: string;
   onDelete: (id: string) => void;
   readOnly?: boolean;
 }
@@ -303,11 +305,24 @@ interface SouvenirCardProps {
 function SouvenirCard({
   souvenir,
   festEventId,
+  festivalName,
   onDelete,
   readOnly = false,
 }: SouvenirCardProps) {
   const [ts, setTs] = useState(souvenir.timestamp);
   const [isPending, startTransition] = useTransition();
+  const [copied, setCopied] = useState(false);
+
+  const copyEntry = useCallback(async () => {
+    const text = formatJournalEntryText({ ...souvenir, timestamp: ts }, festivalName);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Silently fail
+    }
+  }, [souvenir, ts, festivalName]);
 
   const handleDelete = useCallback(() => {
     if (!confirm("Supprimer ce souvenir ?")) return;
@@ -366,25 +381,47 @@ function SouvenirCard({
           />
         )}
 
-        {!readOnly && (
+        <div style={{ display: "flex", alignItems: "center", gap: 2 }}>
           <button
             type="button"
-            onClick={handleDelete}
-            aria-label="Supprimer ce souvenir"
+            onClick={copyEntry}
+            aria-label={copied ? "Souvenir copié" : "Copier ce souvenir"}
+            data-testid={`copy-entry-btn-${souvenir.id}`}
             style={{
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: "var(--text-dim)",
+              color: copied ? "var(--primary-neon)" : "var(--text-dim)",
               padding: 4,
               borderRadius: "var(--radius-sm)",
               display: "flex",
               alignItems: "center",
+              transition: "var(--transition-fast)",
             }}
           >
-            <Trash2 size={14} />
+            {copied ? <Check size={14} /> : <Copy size={14} />}
           </button>
-        )}
+
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={handleDelete}
+              aria-label="Supprimer ce souvenir"
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "var(--text-dim)",
+                padding: 4,
+                borderRadius: "var(--radius-sm)",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Linked event */}
@@ -783,6 +820,7 @@ export function JournalView({
                   key={souvenir.id}
                   souvenir={souvenir}
                   festEventId={festEventId}
+                  festivalName={festivalName}
                   onDelete={handleDelete}
                   readOnly={readOnly}
                 />
