@@ -6,7 +6,7 @@ import { filterAndGroupByDay, countCrewSharedEntries, countEventLinkedEntries, t
 import { Users } from "lucide-react";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
 import { isEscapeKey } from "@/lib/keyboard-search";
-import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos, getDaysSinceLastEntry } from "@/lib/journal-stats";
+import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos, getDaysSinceLastEntry, computeAvgEntriesPerDay } from "@/lib/journal-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -640,6 +640,10 @@ export function JournalView({
   const daysWithPhotos = useMemo(() => countDaysWithPhotos(souvenirs), [souvenirs]);
   const totalPhotos = useMemo(() => countTotalJournalPhotos(souvenirs), [souvenirs]);
   const daysSinceLastEntry = useMemo(() => getDaysSinceLastEntry(souvenirs), [souvenirs]);
+  const avgEntriesPerDay = useMemo(
+    () => computeAvgEntriesPerDay(stats.totalEntries, stats.totalDays),
+    [stats.totalEntries, stats.totalDays],
+  );
 
   const eventLinkedCount = useMemo(() => countEventLinkedEntries(souvenirs), [souvenirs]);
 
@@ -737,6 +741,19 @@ export function JournalView({
         >
           {stats.totalDays} jour{stats.totalDays !== 1 ? "s" : ""}
         </span>
+        {avgEntriesPerDay !== null && stats.totalDays > 1 && avgEntriesPerDay !== 1 && (
+          <span
+            data-testid="journal-stats-avg-entries-per-day"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-muted)",
+            }}
+            title={`Moyenne de ${avgEntriesPerDay} entrée${avgEntriesPerDay !== 1 ? "s" : ""} par jour`}
+          >
+            moy. {avgEntriesPerDay}/j
+          </span>
+        )}
         {stats.entriesWithPhotos > 0 && (
           <span
             data-testid="journal-stats-photos"

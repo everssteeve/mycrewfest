@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos, getDaysSinceLastEntry, type JournalStatsEntry } from "@/lib/journal-stats";
+import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos, getDaysSinceLastEntry, computeAvgEntriesPerDay, type JournalStatsEntry } from "@/lib/journal-stats";
 
 const entry = (overrides: Partial<JournalStatsEntry> = {}): JournalStatsEntry => ({
   timestamp: "2025-07-15T14:30:00Z",
@@ -387,5 +387,31 @@ describe("getDaysSinceLastEntry", () => {
 
   it("returns null when all timestamps are invalid", () => {
     expect(getDaysSinceLastEntry([{ timestamp: "bad" }], NOW)).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// computeAvgEntriesPerDay
+// ---------------------------------------------------------------------------
+
+describe("computeAvgEntriesPerDay", () => {
+  it("returns null when totalDays is 0", () => {
+    expect(computeAvgEntriesPerDay(5, 0)).toBeNull();
+  });
+
+  it("returns 1 for one entry on one day", () => {
+    expect(computeAvgEntriesPerDay(1, 1)).toBe(1);
+  });
+
+  it("returns 2 for 6 entries over 3 days", () => {
+    expect(computeAvgEntriesPerDay(6, 3)).toBe(2);
+  });
+
+  it("rounds to one decimal", () => {
+    expect(computeAvgEntriesPerDay(5, 3)).toBe(1.7);
+  });
+
+  it("returns 0 for 0 entries over 1 day", () => {
+    expect(computeAvgEntriesPerDay(0, 1)).toBe(0);
   });
 });

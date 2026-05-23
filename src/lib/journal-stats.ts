@@ -71,6 +71,18 @@ export function getMostActiveJournalDay(
   return top;
 }
 
+/**
+ * Returns the average number of entries per active day, rounded to one decimal.
+ * Returns null when there are no days (empty journal).
+ */
+export function computeAvgEntriesPerDay(
+  totalEntries: number,
+  totalDays: number,
+): number | null {
+  if (totalDays === 0) return null;
+  return Math.round((totalEntries / totalDays) * 10) / 10;
+}
+
 export interface TimestampedEntry {
   timestamp: string;
 }
