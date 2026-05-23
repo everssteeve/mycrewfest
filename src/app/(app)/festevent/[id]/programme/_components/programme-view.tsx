@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -244,6 +244,11 @@ export function ProgrammeView({
 
   const venueCount = useMemo(
     () => countUniqueVenues(filteredEvents),
+    [filteredEvents],
+  );
+
+  const artistCount = useMemo(
+    () => countUniqueArtists(filteredEvents),
     [filteredEvents],
   );
 
@@ -776,6 +781,21 @@ export function ProgrammeView({
               }}
             >
               {venueCount} lieux
+            </span>
+          </>
+        )}
+        {artistCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-artist-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--secondary-cyan)",
+              }}
+            >
+              {artistCount} artiste{artistCount !== 1 ? "s" : ""}
             </span>
           </>
         )}

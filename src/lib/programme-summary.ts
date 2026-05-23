@@ -89,3 +89,19 @@ export function countUniqueVenues<T extends VenueCountable>(events: T[]): number
   }
   return ids.size;
 }
+
+export interface ArtistCountable {
+  artist?: { id: string } | null;
+}
+
+/**
+ * Returns the number of distinct artist IDs across the given events.
+ * Events without an artist are ignored.
+ */
+export function countUniqueArtists<T extends ArtistCountable>(events: T[]): number {
+  const ids = new Set<string>();
+  for (const e of events) {
+    if (e.artist?.id) ids.add(e.artist.id);
+  }
+  return ids.size;
+}

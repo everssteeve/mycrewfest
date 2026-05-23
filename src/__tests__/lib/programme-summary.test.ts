@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -182,5 +182,40 @@ describe("countUniqueVenues", () => {
       { venue: { id: "v2" } },
     ];
     expect(countUniqueVenues(events)).toBe(2);
+  });
+});
+
+describe("countUniqueArtists", () => {
+  it("returns 0 for empty array", () => {
+    expect(countUniqueArtists([])).toBe(0);
+  });
+
+  it("returns 0 when no events have an artist", () => {
+    const events = [{ artist: null }, { artist: undefined }];
+    expect(countUniqueArtists(events)).toBe(0);
+  });
+
+  it("counts a single artist appearing multiple times", () => {
+    const events = [{ artist: { id: "a1" } }, { artist: { id: "a1" } }];
+    expect(countUniqueArtists(events)).toBe(1);
+  });
+
+  it("counts multiple distinct artists", () => {
+    const events = [
+      { artist: { id: "a1" } },
+      { artist: { id: "a2" } },
+      { artist: { id: "a1" } },
+      { artist: { id: "a3" } },
+    ];
+    expect(countUniqueArtists(events)).toBe(3);
+  });
+
+  it("ignores events without an artist", () => {
+    const events = [
+      { artist: { id: "a1" } },
+      { artist: null },
+      { artist: { id: "a2" } },
+    ];
+    expect(countUniqueArtists(events)).toBe(2);
   });
 });
