@@ -1,11 +1,15 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import Link from "next/link";
 import {
   getSubmissionStatusColor,
   getSubmissionStatusLabel,
   countSubmissionsByStatus,
   isSubmissionActionable,
   buildSubmissionSlug,
+  filterSubmissionsByStatus,
+  SUBMISSION_STATUS_LABELS,
+  type SubmissionStatus,
 } from "@/lib/admin-submissions";
 
 async function getSubmissions() {
@@ -17,11 +21,15 @@ async function getSubmissions() {
   });
 }
 
-export default async function AdminSubmissionsPage() {
+type PageProps = { searchParams: Promise<{ status?: string }> };
+
+export default async function AdminSubmissionsPage({ searchParams }: PageProps) {
+  const { status: activeStatus } = await searchParams;
   const submissions = await getSubmissions();
   const counts = countSubmissionsByStatus(
     submissions.map((s) => ({ id: s.id, nameProposed: s.nameProposed, status: s.status, submittedAt: s.submittedAt })),
   );
+  const filtered = filterSubmissionsByStatus(submissions, activeStatus ?? null);
 
   return (
     <div>
@@ -39,41 +47,68 @@ export default async function AdminSubmissionsPage() {
         Soumissions
       </h1>
 
-      {/* KPIs */}
+      {/* KPIs (clickable filters) */}
       <div
         data-testid="admin-submissions-kpis"
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
+          gridTemplateColumns: "repeat(5, 1fr)",
           gap: "var(--space-sm)",
           marginBottom: "var(--space-xl)",
         }}
       >
+        {/* "All" chip */}
+        <Link
+          href="/admin/submissions"
+          data-testid="admin-submissions-filter-all"
+          style={{
+            background: !activeStatus ? "rgba(255,255,255,0.04)" : "var(--bg-surface)",
+            border: !activeStatus ? "1px solid var(--text-dim)" : "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-md)",
+            textAlign: "center",
+            textDecoration: "none",
+            display: "block",
+          }}
+        >
+          <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-2xl)", color: "var(--text-main)", margin: 0, fontWeight: "var(--fw-bold)" }}>
+            {submissions.length}
+          </p>
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "4px 0 0" }}>
+            Toutes
+          </p>
+        </Link>
         {[
-          { label: "En attente", value: counts.en_attente, color: "var(--warning-orange)", testid: "admin-submissions-kpi-pending" },
-          { label: "En traitement", value: counts.en_traitement, color: "var(--secondary-cyan)", testid: "admin-submissions-kpi-processing" },
-          { label: "Ajoutés", value: counts.ajouté, color: "var(--primary-neon)", testid: "admin-submissions-kpi-accepted" },
-          { label: "Rejetés", value: counts.rejeté, color: "var(--danger-red)", testid: "admin-submissions-kpi-rejected" },
-        ].map((kpi) => (
-          <div
-            key={kpi.label}
-            data-testid={kpi.testid}
-            style={{
-              background: "var(--bg-surface)",
-              border: "1px solid var(--border-color)",
-              borderRadius: "var(--radius-md)",
-              padding: "var(--space-md)",
-              textAlign: "center",
-            }}
-          >
-            <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-2xl)", color: kpi.color, margin: 0, fontWeight: "var(--fw-bold)" }}>
-              {kpi.value}
-            </p>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "4px 0 0" }}>
-              {kpi.label}
-            </p>
-          </div>
-        ))}
+          { label: "En attente", status: "en_attente", value: counts.en_attente, color: "var(--warning-orange)", testid: "admin-submissions-kpi-pending" },
+          { label: "En traitement", status: "en_traitement", value: counts.en_traitement, color: "var(--secondary-cyan)", testid: "admin-submissions-kpi-processing" },
+          { label: "Ajoutés", status: "ajouté", value: counts.ajouté, color: "var(--primary-neon)", testid: "admin-submissions-kpi-accepted" },
+          { label: "Rejetés", status: "rejeté", value: counts.rejeté, color: "var(--danger-red)", testid: "admin-submissions-kpi-rejected" },
+        ].map((kpi) => {
+          const isActive = activeStatus === kpi.status;
+          return (
+            <Link
+              key={kpi.status}
+              href={isActive ? "/admin/submissions" : `/admin/submissions?status=${kpi.status}`}
+              data-testid={kpi.testid}
+              style={{
+                background: isActive ? "rgba(255,255,255,0.04)" : "var(--bg-surface)",
+                border: isActive ? `1px solid ${kpi.color}` : "1px solid var(--border-color)",
+                borderRadius: "var(--radius-md)",
+                padding: "var(--space-md)",
+                textAlign: "center",
+                textDecoration: "none",
+                display: "block",
+              }}
+            >
+              <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-2xl)", color: kpi.color, margin: 0, fontWeight: "var(--fw-bold)" }}>
+                {kpi.value}
+              </p>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "4px 0 0" }}>
+                {kpi.label}
+              </p>
+            </Link>
+          );
+        })}
       </div>
 
       <div
@@ -107,7 +142,7 @@ export default async function AdminSubmissionsPage() {
             </tr>
           </thead>
           <tbody>
-            {submissions.map((sub, i) => {
+            {filtered.map((sub, i) => {
               const author = sub.author;
               const authorName = author.pseudo ?? author.name ?? author.email;
               const statusColor = getSubmissionStatusColor(sub.status);
@@ -118,7 +153,7 @@ export default async function AdminSubmissionsPage() {
                   data-testid={`admin-submission-row-${sub.id}`}
                   style={{
                     borderBottom:
-                      i < submissions.length - 1 ? "1px solid var(--border-color)" : "none",
+                      i < filtered.length - 1 ? "1px solid var(--border-color)" : "none",
                   }}
                 >
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
@@ -178,7 +213,7 @@ export default async function AdminSubmissionsPage() {
           </tbody>
         </table>
 
-        {submissions.length === 0 && (
+        {filtered.length === 0 && (
           <div
             style={{
               padding: "var(--space-2xl)",

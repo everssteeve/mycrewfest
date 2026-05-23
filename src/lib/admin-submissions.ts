@@ -50,6 +50,17 @@ export function isSubmissionActionable(status: string): boolean {
   return status === "en_attente" || status === "en_traitement";
 }
 
+/**
+ * Filters submissions by status. Null status returns all.
+ */
+export function filterSubmissionsByStatus<T extends { status: string }>(
+  submissions: T[],
+  status: string | null,
+): T[] {
+  if (!status) return submissions;
+  return submissions.filter((s) => s.status === status);
+}
+
 export function buildSubmissionSlug(name: string): string {
   return name
     .toLowerCase()

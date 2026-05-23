@@ -5,6 +5,7 @@ import {
   countSubmissionsByStatus,
   isSubmissionActionable,
   buildSubmissionSlug,
+  filterSubmissionsByStatus,
   type AdminSubmissionRow,
 } from "@/lib/admin-submissions";
 
@@ -81,5 +82,32 @@ describe("buildSubmissionSlug", () => {
   });
   it("collapses multiple special chars to one hyphen", () => {
     expect(buildSubmissionSlug("A & B")).toBe("a-b");
+  });
+});
+
+describe("filterSubmissionsByStatus", () => {
+  const subs = [
+    { id: "1", status: "en_attente" },
+    { id: "2", status: "ajouté" },
+    { id: "3", status: "en_attente" },
+    { id: "4", status: "rejeté" },
+  ];
+
+  it("returns all when status is null", () => {
+    expect(filterSubmissionsByStatus(subs, null)).toHaveLength(4);
+  });
+
+  it("filters to matching status", () => {
+    const result = filterSubmissionsByStatus(subs, "en_attente");
+    expect(result).toHaveLength(2);
+    expect(result.every((s) => s.status === "en_attente")).toBe(true);
+  });
+
+  it("returns empty when no match", () => {
+    expect(filterSubmissionsByStatus(subs, "en_traitement")).toHaveLength(0);
+  });
+
+  it("returns empty for empty input", () => {
+    expect(filterSubmissionsByStatus([], "en_attente")).toHaveLength(0);
   });
 });
