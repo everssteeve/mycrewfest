@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Avatar, AvatarStack } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { QuickStatusBar } from "@/components/crew/quick-status-bar";
 import { RallyPoint } from "@/components/crew/rally-point";
 import { useCrewStore } from "@/store/use-crew-store";
 import type { CrewData, CrewMemberData, EventSummary, QuickStatus } from "@/types";
+import { countCrewAdmins, countCrewMembersWithGeoloc } from "@/lib/crew-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -486,6 +487,9 @@ function WithCrewView({
   const isAdmin = myMember?.role === "admin";
   const inviteLink = `https://mycrewfest.app/join/${localCrew.inviteCode}`;
 
+  const adminCount = useMemo(() => countCrewAdmins(localCrew.members), [localCrew.members]);
+  const geolocCount = useMemo(() => countCrewMembersWithGeoloc(localCrew.members), [localCrew.members]);
+
   // Copy invite link
   async function handleCopyCode() {
     try {
@@ -686,6 +690,41 @@ function WithCrewView({
         >
           Membres ({localCrew.members.length})
         </h3>
+
+        {/* Crew stats strip */}
+        {localCrew.members.length > 0 && (
+          <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap", marginBottom: "var(--space-xs)" }}>
+            {geolocCount > 0 && (
+              <span
+                data-testid="crew-geoloc-count"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--primary-neon)",
+                }}
+                title="Membres partageant leur position"
+              >
+                ◉ {geolocCount} en ligne
+              </span>
+            )}
+            {geolocCount > 0 && adminCount > 0 && (
+              <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            )}
+            {adminCount > 0 && (
+              <span
+                data-testid="crew-admin-count"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-dim)",
+                }}
+                title="Administrateurs du crew"
+              >
+                {adminCount} admin{adminCount > 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
+        )}
 
         {localCrew.members.map((member, i) => {
           const memberColors: Array<"neon" | "cyan" | "pink" | "orange"> = [
