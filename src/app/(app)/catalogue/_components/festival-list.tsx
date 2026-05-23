@@ -4,9 +4,9 @@ import { useState, useMemo } from "react";
 import { Search, Heart } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
-import { compareByTemporalRelevance } from "@/lib/festival-temporal";
 import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, countVerifiedFestivals, computeAvgFestivalDurationDays, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
+import { sortFestivals, SORT_MODES, SORT_MODE_LABELS, getSortModeAriaLabel, getDefaultSortMode, type CatalogueSortMode } from "@/lib/catalogue-sort";
 
 type FilterType = "tous" | FestivalType;
 
@@ -29,6 +29,7 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
   const [followedOnly, setFollowedOnly] = useState(false);
   const [hidePast, setHidePast] = useState(true);
   const [activeMonth, setActiveMonth] = useState<number | null>(null);
+  const [sortMode, setSortMode] = useState<CatalogueSortMode>(getDefaultSortMode());
 
   const hasFollowed = useMemo(
     () => initialFestivals.some((f) => f.isFollowed),
@@ -67,19 +68,18 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return initialFestivals
-      .filter((f) => {
-        const matchesQuery =
-          !q ||
-          f.name.toLowerCase().includes(q) ||
-          f.city.toLowerCase().includes(q) ||
-          f.country.toLowerCase().includes(q);
-        const matchesType =
-          activeFilter === "tous" || f.festivalType === activeFilter;
-        return matchesQuery && matchesType && matchesFollowFilter(f, followedOnly) && matchesMonthFilter(f, activeMonth) && matchesTemporalFilter(f, hidePast);
-      })
-      .sort(compareByTemporalRelevance);
-  }, [initialFestivals, query, activeFilter, followedOnly, activeMonth, hidePast]);
+    const base = initialFestivals.filter((f) => {
+      const matchesQuery =
+        !q ||
+        f.name.toLowerCase().includes(q) ||
+        f.city.toLowerCase().includes(q) ||
+        f.country.toLowerCase().includes(q);
+      const matchesType =
+        activeFilter === "tous" || f.festivalType === activeFilter;
+      return matchesQuery && matchesType && matchesFollowFilter(f, followedOnly) && matchesMonthFilter(f, activeMonth) && matchesTemporalFilter(f, hidePast);
+    });
+    return sortFestivals(base, sortMode);
+  }, [initialFestivals, query, activeFilter, followedOnly, activeMonth, hidePast, sortMode]);
 
   const avgDurationDays = useMemo(
     () => computeAvgFestivalDurationDays(filtered),
@@ -339,6 +339,50 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
           })}
         </div>
       )}
+
+      {/* Sort mode toggle */}
+      <div
+        data-testid="catalogue-sort-toggle"
+        role="group"
+        aria-label="Mode de tri"
+        style={{
+          display: "flex",
+          gap: 4,
+          marginBottom: "var(--space-md)",
+        }}
+      >
+        {SORT_MODES.map((mode) => {
+          const isActive = mode === sortMode;
+          return (
+            <button
+              key={mode}
+              type="button"
+              data-testid={`catalogue-sort-${mode}`}
+              aria-pressed={isActive}
+              aria-label={getSortModeAriaLabel(mode)}
+              onClick={() => setSortMode(mode)}
+              style={{
+                padding: "4px 12px",
+                borderRadius: "var(--radius-full)",
+                border: isActive
+                  ? "1px solid var(--warning-orange)"
+                  : "1px solid var(--border-color)",
+                backgroundColor: isActive ? "rgba(255,153,0,0.12)" : "transparent",
+                color: isActive ? "var(--warning-orange)" : "var(--text-dim)",
+                fontFamily: "var(--font-mono)",
+                fontSize: 11,
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                cursor: "pointer",
+                transition: "var(--transition-fast)",
+              }}
+            >
+              {SORT_MODE_LABELS[mode]}
+            </button>
+          );
+        })}
+      </div>
 
       {/* Stats strip */}
       <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap", marginBottom: "var(--space-md)", alignItems: "center" }}>
