@@ -9,6 +9,7 @@ import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 import { toggleVuStatus } from "@/lib/selection";
 import { generatePlanningText } from "@/lib/planning-text";
+import { formatBilanDuration } from "@/lib/bilan";
 import { getEventTimeStatus } from "@/lib/event-status";
 import type { EventSummary, ConflictInfo, ConflictLevel } from "@/types";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
@@ -385,7 +386,7 @@ export function PlanningView({
   }, [dayEvents, now]);
 
   // Summary counts
-  const totalHours = useMemo(() => {
+  const totalMins = useMemo(() => {
     let mins = 0;
     for (const e of dayEvents) {
       if (e.durationMins) {
@@ -394,7 +395,7 @@ export function PlanningView({
         mins += (new Date(e.endTime).getTime() - new Date(e.startTime).getTime()) / 60_000;
       }
     }
-    return Math.round(mins / 60);
+    return Math.round(mins);
   }, [dayEvents]);
 
   // Copy planning as text to clipboard
@@ -489,7 +490,7 @@ export function PlanningView({
             color: "var(--text-muted)",
           }}
         >
-          {totalHours}h
+          {formatBilanDuration(totalMins)}
         </span>
         <div style={{ flex: 1 }} />
         <a
