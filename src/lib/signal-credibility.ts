@@ -119,3 +119,21 @@ export interface AuthorableSignal {
 export function countUniqueSignalAuthors<T extends AuthorableSignal>(signals: T[]): number {
   return new Set(signals.map((s) => s.authorId)).size;
 }
+
+export interface ExpirableSignal {
+  expiresAt: string;
+}
+
+/**
+ * Returns the count of signals whose expiresAt is in the past relative to `now`.
+ * Signals with unparseable expiresAt are excluded.
+ */
+export function countExpiredSignals<T extends ExpirableSignal>(
+  signals: T[],
+  now: Date = new Date(),
+): number {
+  return signals.filter((s) => {
+    const t = new Date(s.expiresAt).getTime();
+    return !Number.isNaN(t) && t < now.getTime();
+  }).length;
+}

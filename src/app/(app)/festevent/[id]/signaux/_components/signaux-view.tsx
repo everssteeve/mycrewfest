@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
 import { filterSignalsByScope, type SignalScope } from "@/lib/signal-filter";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals } from "@/lib/signal-credibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -609,6 +609,11 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
     [displayedSignals],
   );
 
+  const expiredCount = useMemo(
+    () => countExpiredSignals(displayedSignals),
+    [displayedSignals],
+  );
+
   return (
     <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
       {/* Header */}
@@ -693,6 +698,19 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
               title={`${uniqueAuthors} contributeurs distincts`}
             >
               · {uniqueAuthors} participants
+            </span>
+          )}
+          {expiredCount > 0 && (
+            <span
+              data-testid="signal-expired-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+              }}
+              title={`${expiredCount} signal${expiredCount > 1 ? "s" : ""} expiré${expiredCount > 1 ? "s" : ""}`}
+            >
+              · {expiredCount} expiré{expiredCount > 1 ? "s" : ""}
             </span>
           )}
         </div>

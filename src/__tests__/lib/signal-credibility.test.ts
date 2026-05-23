@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals } from "@/lib/signal-credibility";
 
 describe("computeSignalCredibility", () => {
   it("returns 0.5 neutre when no votes", () => {
@@ -243,5 +243,39 @@ describe("countUniqueSignalAuthors", () => {
   it("treats each distinct authorId as unique", () => {
     const signals = [signal("alice"), signal("bob")];
     expect(countUniqueSignalAuthors(signals)).toBe(2);
+  });
+});
+
+describe("countExpiredSignals", () => {
+  const now = new Date("2026-07-15T12:00:00Z");
+  const inPast = (minsAgo: number) => new Date(now.getTime() - minsAgo * 60_000).toISOString();
+  const inFuture = (mins: number) => new Date(now.getTime() + mins * 60_000).toISOString();
+
+  it("returns 0 for empty list", () => {
+    expect(countExpiredSignals([], now)).toBe(0);
+  });
+
+  it("counts signals whose expiresAt is in the past", () => {
+    const signals = [
+      { expiresAt: inPast(30) },
+      { expiresAt: inPast(120) },
+      { expiresAt: inFuture(60) },
+    ];
+    expect(countExpiredSignals(signals, now)).toBe(2);
+  });
+
+  it("returns 0 when all signals are still active", () => {
+    const signals = [{ expiresAt: inFuture(10) }, { expiresAt: inFuture(100) }];
+    expect(countExpiredSignals(signals, now)).toBe(0);
+  });
+
+  it("ignores signals with unparseable expiresAt", () => {
+    const signals = [{ expiresAt: "bad-date" }, { expiresAt: inPast(5) }];
+    expect(countExpiredSignals(signals, now)).toBe(1);
+  });
+
+  it("does not count a signal expiring exactly at now", () => {
+    const signals = [{ expiresAt: now.toISOString() }];
+    expect(countExpiredSignals(signals, now)).toBe(0);
   });
 });
