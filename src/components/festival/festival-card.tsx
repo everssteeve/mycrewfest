@@ -1,11 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import { MapPin, CalendarDays, Heart, Users } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useState, useTransition } from "react";
 import type { FestivalSummary, FestivalType, ProgramStatus } from "@/lib/types";
 import { getFestivalTemporalStatus, getDaysUntilStart } from "@/lib/festival-temporal";
 import { formatFestivalStats } from "@/lib/format-count";
 import { formatFollowerCount, getFollowerTier, getFollowerTierColor, getFollowerTierBg } from "@/lib/festival-community";
+import { buildFollowApiUrl, getFollowToggleAriaLabel, getFollowToggleMethod } from "@/lib/catalogue-quick-follow";
 
 interface FestivalCardProps {
   festival: FestivalSummary;
@@ -45,6 +49,27 @@ const PROGRAM_STATUS_CONFIG: Record<
 };
 
 export function FestivalCard({ festival }: FestivalCardProps) {
+  const [followed, setFollowed] = useState(festival.isFollowed ?? false);
+  const [isPending, startTransition] = useTransition();
+
+  const toggleFollow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const next = !followed;
+    setFollowed(next);
+    startTransition(async () => {
+      try {
+        const res = await fetch(buildFollowApiUrl(festival.slug), {
+          method: getFollowToggleMethod(followed),
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!res.ok) setFollowed(followed);
+      } catch {
+        setFollowed(followed);
+      }
+    });
+  };
+
   const programStatusCfg =
     PROGRAM_STATUS_CONFIG[festival.programStatus] ??
     PROGRAM_STATUS_CONFIG["bientôt_disponible"];
@@ -139,19 +164,25 @@ export function FestivalCard({ festival }: FestivalCardProps) {
                 {daysUntil === 0 ? "Demain" : `Dans ${daysUntil} j`}
               </span>
             )}
-            {festival.isFollowed && (
-              <span
-                aria-label="Festival suivi"
-                className="inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5"
-                style={{
-                  backgroundColor: "rgba(255,0,122,0.1)",
-                  color: "var(--accent-pink)",
-                  border: "1px solid rgba(255,0,122,0.3)",
-                }}
-              >
-                <Heart size={10} aria-hidden="true" fill="currentColor" />
-              </span>
-            )}
+            <button
+              type="button"
+              data-testid={`festival-quick-follow-${festival.slug}`}
+              aria-label={getFollowToggleAriaLabel(followed, festival.name)}
+              aria-pressed={followed}
+              onClick={toggleFollow}
+              disabled={isPending}
+              className="inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5"
+              style={{
+                backgroundColor: followed ? "rgba(255,0,122,0.1)" : "transparent",
+                color: followed ? "var(--accent-pink)" : "var(--text-dim)",
+                border: followed ? "1px solid rgba(255,0,122,0.3)" : "1px solid transparent",
+                cursor: isPending ? "wait" : "pointer",
+                opacity: isPending ? 0.6 : 1,
+                transition: "var(--transition-fast)",
+              }}
+            >
+              <Heart size={10} aria-hidden="true" fill={followed ? "currentColor" : "none"} />
+            </button>
             {festival.confidenceLevel === "auto" && (
               <span
                 className="inline-flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider"
