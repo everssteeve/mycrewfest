@@ -1,21 +1,47 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { buildAdminKpis, hasPendingAlert, formatKpiValue } from "@/lib/admin-stats";
+import {
+  buildHealthMetrics,
+  computeHealthScore,
+  getHealthScoreLabel,
+  getHealthScoreColor,
+} from "@/lib/admin-health";
 
 async function getDashboardData() {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  const [totalUsers, totalFestivals, pendingSubmissions, todaySignals, totalFestEvents] =
-    await Promise.all([
-      prisma.user.count(),
-      prisma.festival.count(),
-      prisma.festivalSubmission.count({ where: { status: "en_attente" } }),
-      prisma.signal.count({ where: { createdAt: { gte: todayStart } } }),
-      prisma.festEvent.count(),
-    ]);
+  const [
+    totalUsers,
+    totalFestivals,
+    pendingSubmissions,
+    todaySignals,
+    totalFestEvents,
+    enrichedFestivals,
+    usersWithPseudo,
+    totalSignals,
+  ] = await Promise.all([
+    prisma.user.count(),
+    prisma.festival.count(),
+    prisma.festivalSubmission.count({ where: { status: "en_attente" } }),
+    prisma.signal.count({ where: { createdAt: { gte: todayStart } } }),
+    prisma.festEvent.count(),
+    prisma.festival.count({ where: { ingestionStatus: "enrichi" } }),
+    prisma.user.count({ where: { pseudo: { not: null } } }),
+    prisma.signal.count(),
+  ]);
 
-  return { totalUsers, totalFestivals, pendingSubmissions, todaySignals, totalFestEvents };
+  return {
+    totalUsers,
+    totalFestivals,
+    pendingSubmissions,
+    todaySignals,
+    totalFestEvents,
+    enrichedFestivals,
+    usersWithPseudo,
+    totalSignals,
+  };
 }
 
 async function getRecentActivity() {
@@ -38,6 +64,19 @@ export default async function AdminDashboardPage() {
   const [raw, activity] = await Promise.all([getDashboardData(), getRecentActivity()]);
   const kpis = buildAdminKpis(raw);
   const alertPending = hasPendingAlert(raw.pendingSubmissions);
+
+  const healthInput = {
+    totalFestivals: raw.totalFestivals,
+    enrichedFestivals: raw.enrichedFestivals,
+    totalUsers: raw.totalUsers,
+    usersWithPseudo: raw.usersWithPseudo,
+    totalSignals: raw.totalSignals,
+    totalFestEvents: raw.totalFestEvents,
+  };
+  const healthScore = computeHealthScore(healthInput);
+  const healthLabel = getHealthScoreLabel(healthScore);
+  const healthColor = getHealthScoreColor(healthScore);
+  const healthMetrics = buildHealthMetrics(healthInput);
 
   return (
     <div>
@@ -168,6 +207,123 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
       )}
+
+      {/* Platform health */}
+      <div
+        data-testid="admin-health-section"
+        style={{
+          background: "var(--bg-surface)",
+          border: `1px solid ${healthColor}`,
+          borderRadius: "var(--radius-md)",
+          padding: "var(--space-lg)",
+          marginBottom: "var(--space-xl)",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-md)", marginBottom: "var(--space-md)" }}>
+          <div>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "var(--fs-sm)",
+                color: "var(--text-muted)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                margin: "0 0 2px",
+              }}
+            >
+              Santé de la plateforme
+            </h2>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "var(--space-xs)" }}>
+              <span
+                data-testid="admin-health-score"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-2xl)",
+                  color: healthColor,
+                  fontWeight: "var(--fw-bold)",
+                }}
+              >
+                {healthScore}
+              </span>
+              <span
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-dim)",
+                }}
+              >
+                / 100
+              </span>
+              <span
+                data-testid="admin-health-label"
+                style={{
+                  padding: "2px 8px",
+                  border: `1px solid ${healthColor}`,
+                  borderRadius: "var(--radius-sm)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  color: healthColor,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  marginLeft: "var(--space-xs)",
+                }}
+              >
+                {healthLabel}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          data-testid="admin-health-metrics"
+          style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "var(--space-md)" }}
+        >
+          {healthMetrics.map((m) => (
+            <div
+              key={m.label}
+              style={{
+                background: "var(--bg-darker)",
+                borderRadius: "var(--radius-md)",
+                padding: "var(--space-md)",
+              }}
+            >
+              <p
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-lg)",
+                  color: "var(--text-main)",
+                  margin: "0 0 2px",
+                  fontWeight: "var(--fw-bold)",
+                }}
+              >
+                {m.value}{m.unit}
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  margin: "0 0 4px",
+                }}
+              >
+                {m.label}
+              </p>
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-dim)",
+                  margin: 0,
+                }}
+              >
+                {m.description}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Quick links */}
       <div
