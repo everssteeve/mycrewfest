@@ -62,6 +62,8 @@ async function fetchProgramme(
     startTime: e.startTime?.toISOString() ?? null,
     endTime: e.endTime?.toISOString() ?? null,
     durationMins: e.durationMins,
+    ageMin: e.ageMin ?? undefined,
+    ageMax: e.ageMax ?? undefined,
     access: e.access,
     status: e.status,
     confidence: (e.confidence ?? "auto") as "auto" | "vérifié_humain",

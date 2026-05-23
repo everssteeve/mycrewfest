@@ -4,7 +4,7 @@ import { MapPin, Clock, Ticket, ChevronDown, ChevronUp, Globe, ExternalLink } fr
 import { useState } from "react";
 import type { EventWithSelection } from "@/lib/api";
 import type { SelectionStatus } from "@/types";
-import { formatEventDuration, getAccessLabel } from "@/lib/event-format";
+import { formatEventDuration, getAccessLabel, formatAgeRestriction } from "@/lib/event-format";
 import { nextSelectionStatus } from "@/lib/selection";
 
 // Extended type that includes confidence field returned by the programme API
@@ -156,6 +156,7 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
       ? formatEventDuration(event.durationMins)
       : null;
   const accessLabel = getAccessLabel(event.access as "inclus" | "réservation_séparée");
+  const ageLabel = formatAgeRestriction(event.ageMin, event.ageMax);
 
   const isVu = selectionStatus === "vu";
 
@@ -315,6 +316,29 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
           >
             <Ticket size={9} aria-hidden="true" />
             {accessLabel}
+          </span>
+        )}
+
+        {/* Age restriction badge */}
+        {ageLabel && (
+          <span
+            data-testid="event-age-restriction"
+            aria-label={`Restriction d'âge : ${ageLabel}`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              padding: "2px 7px",
+              borderRadius: "var(--radius-full)",
+              fontSize: "var(--fs-xs)",
+              fontFamily: "var(--font-mono)",
+              fontWeight: "var(--fw-bold)",
+              backgroundColor: "rgba(255,51,85,0.12)",
+              color: "var(--accent-red)",
+              border: "1px solid rgba(255,51,85,0.35)",
+              flexShrink: 0,
+            }}
+          >
+            {ageLabel}
           </span>
         )}
 
