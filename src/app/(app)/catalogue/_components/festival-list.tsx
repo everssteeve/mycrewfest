@@ -5,7 +5,7 @@ import { Search, Heart } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
 import { compareByTemporalRelevance } from "@/lib/festival-temporal";
-import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
+import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 type FilterType = "tous" | FestivalType;
@@ -37,6 +37,11 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
 
   const followedCount = useMemo(
     () => countFollowedFestivals(initialFestivals),
+    [initialFestivals],
+  );
+
+  const activeCount = useMemo(
+    () => countActiveFestivals(initialFestivals),
     [initialFestivals],
   );
 
@@ -315,14 +320,33 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
         </div>
       )}
 
-      {/* Results count */}
-      <p
-        className="t-meta mb-3"
-        style={{ color: "var(--text-dim)" }}
-      >
-        {filtered.length} festival{filtered.length !== 1 ? "s" : ""}
-        {(query || activeFilter !== "tous" || followedOnly || activeMonth !== null) ? " trouvé" + (filtered.length !== 1 ? "s" : "") : ""}
-      </p>
+      {/* Stats strip */}
+      <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap", marginBottom: "var(--space-md)", alignItems: "center" }}>
+        <p
+          className="t-meta"
+          style={{ color: "var(--text-dim)", margin: 0 }}
+        >
+          {filtered.length} festival{filtered.length !== 1 ? "s" : ""}
+          {(query || activeFilter !== "tous" || followedOnly || activeMonth !== null) ? " trouvé" + (filtered.length !== 1 ? "s" : "") : ""}
+        </p>
+        {activeCount > 0 && (
+          <span
+            data-testid="catalogue-active-count"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              fontWeight: 700,
+              color: "var(--primary-neon)",
+              background: "rgba(0,255,102,0.08)",
+              border: "1px solid rgba(0,255,102,0.25)",
+              borderRadius: "var(--radius-full)",
+              padding: "2px 8px",
+            }}
+          >
+            ◉ {activeCount} en cours
+          </span>
+        )}
+      </div>
 
       {/* Festival list */}
       {filtered.length > 0 ? (

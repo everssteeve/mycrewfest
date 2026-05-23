@@ -143,3 +143,48 @@ describe("countFollowedFestivals", () => {
     expect(countFollowedFestivals([f(true), f(true), f(true)])).toBe(3);
   });
 });
+
+// ---------------------------------------------------------------------------
+// countActiveFestivals
+// ---------------------------------------------------------------------------
+
+import { countActiveFestivals, type ActiveFestFilterable } from "@/lib/catalogue-filter";
+
+const af = (startDate: string, endDate: string): ActiveFestFilterable => ({ startDate, endDate });
+const TODAY_YMD = "2026-05-23";
+const NOW = new Date("2026-05-23T12:00:00");
+
+describe("countActiveFestivals", () => {
+  it("returns 0 for empty list", () => {
+    expect(countActiveFestivals([], NOW)).toBe(0);
+  });
+
+  it("counts a festival that started before and ends after today", () => {
+    expect(countActiveFestivals([af("2026-05-20", "2026-05-25")], NOW)).toBe(1);
+  });
+
+  it("counts a festival that starts and ends today", () => {
+    expect(countActiveFestivals([af(TODAY_YMD, TODAY_YMD)], NOW)).toBe(1);
+  });
+
+  it("does not count a festival that ended yesterday", () => {
+    expect(countActiveFestivals([af("2026-05-20", "2026-05-22")], NOW)).toBe(0);
+  });
+
+  it("does not count a festival that starts tomorrow", () => {
+    expect(countActiveFestivals([af("2026-05-24", "2026-05-30")], NOW)).toBe(0);
+  });
+
+  it("counts multiple active festivals", () => {
+    const festivals = [
+      af("2026-05-21", "2026-05-24"),
+      af("2026-05-23", "2026-05-23"),
+      af("2026-05-10", "2026-05-22"),
+    ];
+    expect(countActiveFestivals(festivals, NOW)).toBe(2);
+  });
+
+  it("handles ISO datetime strings with slicing correctly", () => {
+    expect(countActiveFestivals([af("2026-05-23T00:00:00.000Z", "2026-05-30T00:00:00.000Z")], NOW)).toBe(1);
+  });
+});

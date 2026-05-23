@@ -79,6 +79,27 @@ export function matchesTemporalFilter<T extends TemporalFilterable>(
   return end >= today;
 }
 
+export interface ActiveFestFilterable {
+  startDate: string;
+  endDate: string;
+}
+
+/**
+ * Returns the number of festivals currently in progress: today falls between
+ * startDate and endDate (inclusive, date-only comparison).
+ */
+export function countActiveFestivals<T extends ActiveFestFilterable>(
+  festivals: T[],
+  now = new Date(),
+): number {
+  const today = now.toLocaleDateString("sv-SE");
+  return festivals.filter((f) => {
+    const start = f.startDate.slice(0, 10);
+    const end = f.endDate.slice(0, 10);
+    return start <= today && today <= end;
+  }).length;
+}
+
 export const MONTH_NAMES_FR: Record<number, string> = {
   1: "Janv.",
   2: "Févr.",
