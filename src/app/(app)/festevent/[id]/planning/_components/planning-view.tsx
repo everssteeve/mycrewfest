@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ChevronDown, CalendarArrowDown, Copy, Check } from "lucide-react";
-import { detectConflicts, filterEventsByDay, sortEventsByTime, computeDayFreeTime, computeDayCoverage } from "@/lib/planning";
+import { ChevronDown, CalendarArrowDown, Copy, Check, Sparkles, X } from "lucide-react";
+import { detectConflicts, filterEventsByDay, sortEventsByTime, computeDayFreeTime, computeDayCoverage, optimizePlanning, type OptimizeResult } from "@/lib/planning";
 import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 import { toggleVuStatus } from "@/lib/selection";
@@ -327,6 +327,7 @@ export function PlanningView({
 
   const timelineRef = useRef<HTMLDivElement>(null);
   const [showFab, setShowFab] = useState(false);
+  const [optimizeResult, setOptimizeResult] = useState<OptimizeResult | null>(null);
 
   // Merge store selections into events
   const events = useMemo(() => {
@@ -436,6 +437,19 @@ export function PlanningView({
   }, [displayedEvents, events]);
 
   // Copy planning as text to clipboard
+  const runOptimization = useCallback(() => {
+    const mustSeeIds = dayEvents
+      .filter((e) => e.selectionStatus === "must-see")
+      .map((e) => e.id);
+    const result = optimizePlanning(dayEvents, mustSeeIds, {
+      comfortMarginMins,
+      startHour: 0,
+      endHour: 24,
+      preferEvenings: false,
+    });
+    setOptimizeResult(result);
+  }, [dayEvents, comfortMarginMins]);
+
   const copyPlanning = useCallback(async () => {
     const planningEvents = events
       .filter(
@@ -590,6 +604,33 @@ export function PlanningView({
           ★ Must-see
         </button>
         <div style={{ flex: 1 }} />
+        {conflicts.length > 0 && (
+          <button
+            type="button"
+            onClick={runOptimization}
+            data-testid="planning-optimize-btn"
+            aria-label="Suggérer des événements à arbitrer pour résoudre les conflits"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "4px 10px",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--primary-neon)",
+              backgroundColor: "var(--neon-soft)",
+              color: "var(--primary-neon)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              cursor: "pointer",
+            }}
+          >
+            <Sparkles size={12} aria-hidden="true" />
+            Optimiser
+          </button>
+        )}
         <a
           href={`/api/festevents/${festEventId}/planning/export`}
           download="mycrewfest-planning.ics"
@@ -831,6 +872,56 @@ export function PlanningView({
               </button>
             );
           })}
+        </div>
+      )}
+
+      {/* Optimization result */}
+      {optimizeResult !== null && (
+        <div
+          data-testid="planning-optimize-result"
+          style={{
+            background: "var(--neon-soft)",
+            border: "1px solid rgba(0,255,102,0.3)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-sm) var(--space-md)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-xs)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", fontWeight: "var(--fw-bold)", color: "var(--primary-neon)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              Suggestions d'optimisation
+            </span>
+            <button
+              type="button"
+              onClick={() => setOptimizeResult(null)}
+              aria-label="Fermer les suggestions"
+              style={{ background: "none", border: "none", color: "var(--text-dim)", cursor: "pointer", padding: 2 }}
+            >
+              <X size={14} />
+            </button>
+          </div>
+          {optimizeResult.toArbitrate.length === 0 ? (
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", margin: 0 }}>
+              ✓ Pas de conflit — ton planning est déjà optimisé.
+            </p>
+          ) : (
+            <>
+              <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", margin: 0 }}>
+                Ces événements créent des conflits et pourraient être retirés :
+              </p>
+              {optimizeResult.toArbitrate.map((e: EventSummary) => (
+                <div
+                  key={e.id}
+                  data-testid={`planning-arbitrate-${e.id}`}
+                  style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", paddingLeft: 8, borderLeft: "2px solid rgba(0,255,102,0.3)" }}
+                >
+                  {e.title}
+                </div>
+              ))}
+            </>
+          )}
         </div>
       )}
 

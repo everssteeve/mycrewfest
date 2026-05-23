@@ -10,6 +10,7 @@ import {
   filterEventsByDay,
   sortEventsByTime,
   computeDayFreeTime,
+  optimizePlanning,
   type FreeTimeEvent,
 } from "@/lib/planning";
 import type { EventSummary } from "@/types";
@@ -358,5 +359,67 @@ describe("computeDayCoverage", () => {
     // 14h–15h, 16h–17h → span 3h, covered 2h
     expect(r.coveredMins).toBe(120);
     expect(r.spanMins).toBe(180);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// optimizePlanning
+// ---------------------------------------------------------------------------
+
+describe("optimizePlanning", () => {
+  const cfg = { comfortMarginMins: 15, startHour: 0, endHour: 24 };
+
+  it("keeps all events when there are no conflicts", () => {
+    const events = [
+      makeEvent("a", "2025-07-19T14:00:00Z", 60),
+      makeEvent("b", "2025-07-19T16:00:00Z", 60),
+    ];
+    const r = optimizePlanning(events, [], cfg);
+    expect(r.kept.map((e) => e.id)).toContain("a");
+    expect(r.kept.map((e) => e.id)).toContain("b");
+    expect(r.toArbitrate).toHaveLength(0);
+  });
+
+  it("moves conflicting non-must-see event to toArbitrate", () => {
+    // a ends at 15h, b starts at 14h30 → overlap
+    const a = makeEvent("a", "2025-07-19T14:00:00Z", 60);
+    const b = makeEvent("b", "2025-07-19T14:30:00Z", 60);
+    const r = optimizePlanning([a, b], [], cfg);
+    expect(r.kept).toHaveLength(1);
+    expect(r.toArbitrate).toHaveLength(1);
+  });
+
+  it("always keeps must-see events", () => {
+    const must = makeEvent("must", "2025-07-19T14:00:00Z", 60);
+    const other = makeEvent("other", "2025-07-19T14:30:00Z", 60);
+    const r = optimizePlanning([must, other], ["must"], cfg);
+    expect(r.kept.map((e) => e.id)).toContain("must");
+    expect(r.toArbitrate.map((e) => e.id)).toContain("other");
+  });
+
+  it("moves cancelled events to cancelled list", () => {
+    const events = [
+      makeEvent("a", "2025-07-19T14:00:00Z", 60, { status: "annulé" }),
+      makeEvent("b", "2025-07-19T16:00:00Z", 60),
+    ];
+    const r = optimizePlanning(events, [], cfg);
+    expect(r.cancelled.map((e) => e.id)).toContain("a");
+    expect(r.kept.map((e) => e.id)).toContain("b");
+  });
+
+  it("drops events outside the time window", () => {
+    // Use startHour=0, endHour=0 to drop everything, avoiding timezone sensitivity
+    const a = makeEvent("a", "2025-07-19T14:00:00Z", 60);
+    const r = optimizePlanning([a], [], { ...cfg, startHour: 0, endHour: 0 });
+    expect(r.dropped).toHaveLength(1);
+    expect(r.kept).toHaveLength(0);
+  });
+
+  it("returns empty arrays for empty input", () => {
+    const r = optimizePlanning([], [], cfg);
+    expect(r.kept).toHaveLength(0);
+    expect(r.toArbitrate).toHaveLength(0);
+    expect(r.dropped).toHaveLength(0);
+    expect(r.cancelled).toHaveLength(0);
   });
 });

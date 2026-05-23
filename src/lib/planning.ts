@@ -172,7 +172,7 @@ interface OptimizeConfig {
   comfortMarginMins: number;
 }
 
-interface OptimizeResult {
+export interface OptimizeResult {
   /** Events the algorithm kept in the schedule */
   kept: EventSummary[];
   /** Events that conflict with kept ones and need manual arbitration */
