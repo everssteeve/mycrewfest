@@ -13,6 +13,7 @@ import { formatBilanDuration } from "@/lib/bilan";
 import { applyPlanningMustSeeFilter } from "@/lib/planning-filter";
 import { computeTravelTimeMins } from "@/lib/travel-time";
 import { getEventTimeStatus } from "@/lib/event-status";
+import { formatMinsUntil } from "@/lib/now-playing";
 import type { EventSummary, ConflictInfo, ConflictLevel } from "@/types";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import type { SelectionStatus } from "@/types";
@@ -387,6 +388,14 @@ export function PlanningView({
       return new Date(e.startTime) > now;
     });
   }, [dayEvents, now]);
+
+  // Minutes until next event starts
+  const minsUntilNext = useMemo(() => {
+    if (!nextEvent?.startTime) return null;
+    const diff = new Date(nextEvent.startTime).getTime() - now.getTime();
+    if (diff <= 0) return null;
+    return Math.round(diff / 60_000);
+  }, [nextEvent, now]);
 
   // Summary counts
   const totalMins = useMemo(() => {
@@ -858,6 +867,29 @@ export function PlanningView({
                   </span>
                 </div>
               )}
+              {isNext && minsUntilNext !== null && (
+                <div
+                  data-testid={`next-event-countdown-${e.id}`}
+                  style={{
+                    paddingLeft: 52,
+                    paddingBottom: "var(--space-xs)",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "10px",
+                      color: "var(--primary-neon)",
+                      background: "var(--neon-soft)",
+                      border: "1px solid var(--primary-neon)",
+                      borderRadius: "var(--radius-full)",
+                      padding: "1px 8px",
+                    }}
+                  >
+                    Dans {formatMinsUntil(minsUntilNext)}
+                  </span>
+                </div>
+              )}
               <div style={{ display: "flex", gap: "var(--space-sm)" }}>
                 {/* Time column */}
                 <div
@@ -950,6 +982,19 @@ export function PlanningView({
         >
           <ChevronDown size={14} aria-hidden="true" />
           Prochain
+          {minsUntilNext !== null && (
+            <span
+              data-testid="fab-next-countdown"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--primary-neon)",
+                opacity: 0.8,
+              }}
+            >
+              · {formatMinsUntil(minsUntilNext)}
+            </span>
+          )}
         </button>
       )}
     </div>
