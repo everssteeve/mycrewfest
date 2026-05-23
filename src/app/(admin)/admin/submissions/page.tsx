@@ -6,6 +6,7 @@ import {
   getSubmissionStatusLabel,
   countSubmissionsByStatus,
   isSubmissionActionable,
+  isSubmissionPendingOnly,
   buildSubmissionSlug,
   filterSubmissionsByStatus,
   SUBMISSION_STATUS_LABELS,
@@ -199,7 +200,10 @@ export default async function AdminSubmissionsPage({ searchParams }: PageProps) 
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
                     {isSubmissionActionable(sub.status) ? (
-                      <div style={{ display: "flex", gap: "var(--space-xs)" }}>
+                      <div style={{ display: "flex", gap: "var(--space-xs)", flexWrap: "wrap" }}>
+                        {isSubmissionPendingOnly(sub.status) && (
+                          <TakeChargeButton id={sub.id} />
+                        )}
                         <AcceptButton id={sub.id} name={sub.nameProposed} url={sub.officialUrl} />
                         <RejectButton id={sub.id} />
                       </div>
@@ -228,6 +232,40 @@ export default async function AdminSubmissionsPage({ searchParams }: PageProps) 
         )}
       </div>
     </div>
+  );
+}
+
+function TakeChargeButton({ id }: { id: string }) {
+  async function takeCharge() {
+    "use server";
+    await prisma.festivalSubmission.update({
+      where: { id },
+      data: { status: "en_traitement" },
+    });
+    revalidatePath("/admin/submissions");
+  }
+
+  return (
+    <form action={takeCharge}>
+      <button
+        type="submit"
+        data-testid={`admin-submission-take-charge-${id}`}
+        style={{
+          padding: "4px 10px",
+          border: "1px solid var(--secondary-cyan)",
+          borderRadius: "var(--radius-sm)",
+          background: "transparent",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--fs-xs)",
+          color: "var(--secondary-cyan)",
+          cursor: "pointer",
+          textTransform: "uppercase",
+          letterSpacing: "0.04em",
+        }}
+      >
+        Traiter
+      </button>
+    </form>
   );
 }
 

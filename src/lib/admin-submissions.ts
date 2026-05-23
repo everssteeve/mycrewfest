@@ -50,6 +50,10 @@ export function isSubmissionActionable(status: string): boolean {
   return status === "en_attente" || status === "en_traitement";
 }
 
+export function isSubmissionPendingOnly(status: string): boolean {
+  return status === "en_attente";
+}
+
 /**
  * Filters submissions by status. Null status returns all.
  */

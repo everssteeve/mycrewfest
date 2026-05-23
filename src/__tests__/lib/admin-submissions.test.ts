@@ -4,6 +4,7 @@ import {
   getSubmissionStatusLabel,
   countSubmissionsByStatus,
   isSubmissionActionable,
+  isSubmissionPendingOnly,
   buildSubmissionSlug,
   filterSubmissionsByStatus,
   type AdminSubmissionRow,
@@ -67,6 +68,21 @@ describe("isSubmissionActionable", () => {
   it("returns true for en_traitement", () => expect(isSubmissionActionable("en_traitement")).toBe(true));
   it("returns false for ajouté", () => expect(isSubmissionActionable("ajouté")).toBe(false));
   it("returns false for rejeté", () => expect(isSubmissionActionable("rejeté")).toBe(false));
+});
+
+describe("isSubmissionPendingOnly", () => {
+  it("returns true only for en_attente", () => {
+    expect(isSubmissionPendingOnly("en_attente")).toBe(true);
+  });
+  it("returns false for en_traitement", () => {
+    expect(isSubmissionPendingOnly("en_traitement")).toBe(false);
+  });
+  it("returns false for ajouté", () => {
+    expect(isSubmissionPendingOnly("ajouté")).toBe(false);
+  });
+  it("returns false for rejeté", () => {
+    expect(isSubmissionPendingOnly("rejeté")).toBe(false);
+  });
 });
 
 describe("buildSubmissionSlug", () => {
