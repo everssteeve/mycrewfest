@@ -6,6 +6,7 @@ import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
 import { compareByTemporalRelevance } from "@/lib/festival-temporal";
 import { matchesFollowFilter } from "@/lib/catalogue-filter";
+import { isEscapeKey } from "@/lib/keyboard-search";
 
 type FilterType = "tous" | FestivalType;
 
@@ -97,6 +98,9 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
           onBlur={(e) => {
             e.currentTarget.style.borderColor = "var(--border-color)";
             e.currentTarget.style.boxShadow = "none";
+          }}
+          onKeyDown={(e) => {
+            if (isEscapeKey(e)) setQuery("");
           }}
         />
       </div>
