@@ -1,7 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Newspaper, Pin, RefreshCw, Filter } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Newspaper, Pin, RefreshCw, Filter, Search, X } from "lucide-react";
+import { matchesNewsQuery } from "@/lib/news-search";
+import { isEscapeKey } from "@/lib/keyboard-search";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -226,6 +228,7 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
   const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
   const [showFilterMenu, setShowFilterMenu] = useState(false);
   const [newUrgentCount, setNewUrgentCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
   const lastReadAtRef = useRef<Date | null>(null);
 
   const storageKey = `${LOCAL_STORAGE_KEY_PREFIX}${festEventId}`;
@@ -314,14 +317,85 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
     [festEventId],
   );
 
+  const filteredNews = useMemo(
+    () => news.filter((item) => matchesNewsQuery(item, searchQuery)),
+    [news, searchQuery],
+  );
+
   // Separate pinned from the rest
-  const pinnedItems = news.filter((item) => item.isPinned);
-  const nonPinnedItems = news.filter((item) => !item.isPinned);
+  const pinnedItems = filteredNews.filter((item) => item.isPinned);
+  const nonPinnedItems = filteredNews.filter((item) => !item.isPinned);
   const grouped = groupByDate(nonPinnedItems);
   const sortedDates = Array.from(grouped.keys()).sort((a, b) => b.localeCompare(a)); // most recent first
 
   return (
     <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+      {/* Search bar */}
+      {news.length > 3 && (
+        <div style={{ position: "relative" }}>
+          <Search
+            size={14}
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "var(--text-dim)",
+              pointerEvents: "none",
+            }}
+          />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Rechercher dans les actualités…"
+            aria-label="Rechercher dans les actualités"
+            data-testid="news-search-input"
+            onKeyDown={(e) => {
+              if (isEscapeKey(e)) setSearchQuery("");
+            }}
+            style={{
+              width: "100%",
+              paddingLeft: 32,
+              paddingRight: searchQuery ? 32 : 12,
+              paddingTop: 8,
+              paddingBottom: 8,
+              backgroundColor: "var(--bg-surface)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "var(--radius-md)",
+              color: "var(--text-main)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              aria-label="Effacer la recherche"
+              style={{
+                position: "absolute",
+                right: 8,
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                color: "var(--text-dim)",
+                cursor: "pointer",
+                padding: 2,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <X size={14} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Urgent banner */}
       {newUrgentCount > 0 && (
         <div
