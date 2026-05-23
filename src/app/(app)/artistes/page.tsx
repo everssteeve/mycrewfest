@@ -1,4 +1,6 @@
+import Link from "next/link";
 import type { Metadata } from "next";
+import { Music2 } from "lucide-react";
 import { TopHeader } from "@/components/ui";
 import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/api";
@@ -35,7 +37,34 @@ export default async function ArtistesPage() {
 
   return (
     <>
-      <TopHeader title="ARTISTES" />
+      <TopHeader
+        title="ARTISTES"
+        right={
+          <Link
+            href="/mes-artistes"
+            aria-label="Mes artistes"
+            data-testid="artistes-mes-artistes-link"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "6px 12px",
+              border: "1px solid var(--border-strong)",
+              borderRadius: "var(--radius-md)",
+              color: "var(--secondary-cyan)",
+              textDecoration: "none",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs, 11px)",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+            }}
+          >
+            <Music2 size={13} aria-hidden="true" />
+            Mes artistes
+          </Link>
+        }
+      />
       <div style={{ padding: "var(--space-md) var(--space-md) 80px" }}>
         <ArtistList initialArtists={artists} />
       </div>
