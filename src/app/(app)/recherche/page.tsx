@@ -12,6 +12,10 @@ import {
   clearSearchHistory,
 } from "@/lib/search-history";
 import {
+  loadRecentlyViewed,
+  type RecentlyViewedEntry,
+} from "@/lib/recently-viewed";
+import {
   applySearchTypeFilter,
   countSearchResults,
   buildTabLabel,
@@ -43,6 +47,7 @@ export default function RecherchePage() {
   const [results, setResults] = useState<GlobalSearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
+  const [recentlyViewed, setRecentlyViewed] = useState<RecentlyViewedEntry[]>([]);
   const [typeFilter, setTypeFilter] = useState<SearchTypeFilter>("all");
   const inputRef = useRef<HTMLInputElement>(null);
   const debouncedQuery = useDebounce(query, 300);
@@ -50,6 +55,7 @@ export default function RecherchePage() {
   useEffect(() => {
     inputRef.current?.focus();
     setHistory(loadSearchHistory());
+    setRecentlyViewed(loadRecentlyViewed());
   }, []);
 
   const commitSearch = useCallback((q: string) => {
@@ -467,6 +473,72 @@ export default function RecherchePage() {
                   <X size={13} />
                 </button>
               </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Recently viewed festivals */}
+      {!results && !loading && recentlyViewed.length > 0 && (
+        <section data-testid="recently-viewed-section">
+          <h2
+            className="t-caption"
+            style={{
+              color: "var(--text-dim)",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+              fontSize: "var(--fs-xs, 11px)",
+              fontWeight: 700,
+              marginBottom: "var(--space-xs)",
+              display: "flex",
+              alignItems: "center",
+              gap: 5,
+            }}
+          >
+            <CalendarDays size={11} aria-hidden="true" />
+            Consultés récemment
+          </h2>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            {recentlyViewed.map((entry) => (
+              <Link
+                key={entry.slug}
+                href={`/festival/${entry.slug}`}
+                data-testid={`recently-viewed-item-${entry.slug}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "10px 14px",
+                  textDecoration: "none",
+                  transition: "var(--transition-fast)",
+                }}
+              >
+                <CalendarDays size={16} color="var(--accent-pink)" aria-hidden="true" />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p
+                    className="t-body"
+                    style={{
+                      color: "var(--text-main)",
+                      fontWeight: 600,
+                      fontSize: "var(--fs-sm)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {entry.name}
+                  </p>
+                  <p
+                    className="t-caption"
+                    style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 11px)" }}
+                  >
+                    {entry.city}
+                  </p>
+                </div>
+              </Link>
             ))}
           </div>
         </section>

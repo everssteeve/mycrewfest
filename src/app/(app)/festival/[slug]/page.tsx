@@ -16,6 +16,7 @@ import { ShareButton } from "@/components/ui/share-button";
 import { buildFestivalSharePayload } from "@/lib/share";
 import { SimilarFestivals } from "./_components/similar-festivals";
 import { FestivalLineup } from "./_components/festival-lineup";
+import { RecentlyViewedTracker } from "./_components/recently-viewed-tracker";
 
 async function fetchFestival(slug: string): Promise<FestivalDetail | null> {
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
@@ -132,6 +133,7 @@ export default async function FestivalPage({
 
   return (
     <div className="flex flex-col gap-0">
+      <RecentlyViewedTracker slug={festival.slug} name={festival.name} city={festival.city} />
       {/* Back nav */}
       <div style={{ paddingBottom: "var(--space-md)" }}>
         <Link
