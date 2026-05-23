@@ -18,6 +18,7 @@ import { buildArtistOgDescription } from "@/lib/og-metadata";
 import { ShareButton } from "@/components/ui/share-button";
 import { buildArtistSharePayload } from "@/lib/share";
 import { rankCoAfficheArtists, type CoAfficheArtist } from "@/lib/artist-coaffiche";
+import { formatAppearanceCountdownLabel, getAppearanceCountdownColor } from "@/lib/appearance-countdown";
 
 type PageContext = { params: Promise<{ id: string }> };
 
@@ -408,14 +409,42 @@ export default async function ArtistePage({ params }: PageContext) {
                         margin: "3px 0 0",
                         fontSize: "0.75rem",
                         color: "var(--text-dim, #666)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 6,
+                        flexWrap: "wrap",
                       }}
                     >
-                      {app.city} ·{" "}
-                      {new Date(app.startDate).toLocaleDateString("fr-FR", {
-                        day: "numeric",
-                        month: "short",
-                        year: "numeric",
-                      })}
+                      <span>
+                        {app.city} ·{" "}
+                        {new Date(app.startDate).toLocaleDateString("fr-FR", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric",
+                        })}
+                      </span>
+                      {(() => {
+                        const label = formatAppearanceCountdownLabel(app.startDate);
+                        const color = getAppearanceCountdownColor(
+                          label === "Aujourd'hui" ? "today"
+                            : label === "Demain" ? "imminent"
+                            : label ? "upcoming"
+                            : null,
+                        );
+                        return label ? (
+                          <span
+                            data-testid={`artiste-appearance-countdown-${app.festivalSlug}`}
+                            style={{
+                              fontSize: "0.68rem",
+                              fontWeight: 700,
+                              color,
+                              fontFamily: "var(--font-mono, monospace)",
+                            }}
+                          >
+                            {label}
+                          </span>
+                        ) : null;
+                      })()}
                     </p>
                   </div>
                 </Link>
