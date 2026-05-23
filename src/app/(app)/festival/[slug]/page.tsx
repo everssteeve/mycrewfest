@@ -14,6 +14,7 @@ import { ParticipateButton } from "./_components/participate-button";
 import { ShareButton } from "@/components/ui/share-button";
 import { buildFestivalSharePayload } from "@/lib/share";
 import { SimilarFestivals } from "./_components/similar-festivals";
+import { FestivalLineup } from "./_components/festival-lineup";
 
 async function fetchFestival(slug: string): Promise<FestivalDetail | null> {
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
@@ -376,58 +377,10 @@ export default async function FestivalPage({
             <Users size={16} aria-hidden="true" />
             {isDeambulatoire ? "Compagnies" : "Artistes"}
           </h2>
-          <div className="flex flex-col gap-2">
-            {festival.artists?.map((artist) => (
-              <Link
-                key={artist.id}
-                href={`/artiste/${artist.id}`}
-                data-testid={`festival-artist-${artist.id}`}
-                style={{ textDecoration: "none" }}
-              >
-                <div
-                  style={{
-                    backgroundColor: "var(--bg-surface)",
-                    borderRadius: "var(--radius-md)",
-                    border: "1px solid var(--border-color)",
-                    padding: "12px var(--space-md)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 8,
-                  }}
-                >
-                  <div className="flex flex-col gap-0.5">
-                    <span
-                      className="t-body"
-                      style={{
-                        color: "var(--text-main)",
-                        fontWeight: "var(--fw-medium)",
-                        fontSize: "var(--fs-sm)",
-                      }}
-                    >
-                      {artist.name}
-                    </span>
-                    {artist.disciplines && artist.disciplines.length > 0 && (
-                      <span className="t-caption" style={{ color: "var(--text-muted)" }}>
-                        {artist.disciplines.join(", ")}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {artist.countryCode && (
-                      <span
-                        className="t-meta"
-                        style={{ color: "var(--text-dim)", flexShrink: 0 }}
-                      >
-                        {artist.countryCode}
-                      </span>
-                    )}
-                    <span style={{ color: "var(--accent-pink)", fontSize: "0.75rem" }}>→</span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <FestivalLineup
+            artists={festival.artists ?? []}
+            isDeambulatoire={isDeambulatoire}
+          />
         </section>
       )}
 
