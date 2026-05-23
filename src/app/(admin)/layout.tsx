@@ -92,6 +92,7 @@ export default async function AdminLayout({
             { href: "/admin/crews", label: "Crews" },
             { href: "/admin/agents", label: "Agents IA" },
             { href: "/admin/signals", label: "Signaux" },
+            { href: "/admin/health", label: "Santé" },
           ].map(({ href, label }) => (
             <Link
               key={href}
