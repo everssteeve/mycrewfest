@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { MapPin, Eye, Clock, Star, Copy, Check } from "lucide-react";
+import { MapPin, Eye, Clock, Star, Copy, Check, Tag } from "lucide-react";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
@@ -504,6 +504,49 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
               +{stats.uniqueVenues - 1} autre{stats.uniqueVenues > 2 ? "s" : ""}
             </span>
           )}
+        </div>
+      )}
+
+      {/* Top tag */}
+      {stats.topTag && (
+        <div
+          data-testid="bilan-top-tag"
+          style={{
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-md)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-sm)",
+          }}
+        >
+          <Tag size={16} style={{ color: "var(--secondary-cyan)", flexShrink: 0 }} aria-hidden="true" />
+          <div>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                margin: 0,
+              }}
+            >
+              Genre dominant
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-base)",
+                fontWeight: "var(--fw-medium)",
+                color: "var(--text-main)",
+                margin: 0,
+              }}
+            >
+              {stats.topTag}
+            </p>
+          </div>
         </div>
       )}
 

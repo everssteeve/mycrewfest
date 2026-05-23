@@ -3,13 +3,14 @@ import { computeBilan, formatBilanDuration, type BilantableEvent } from "@/lib/b
 
 function ev(
   status: string | null,
-  opts: { durationMins?: number; venueName?: string; title?: string } = {},
+  opts: { durationMins?: number; venueName?: string; title?: string; tags?: string[] } = {},
 ): BilantableEvent {
   return {
     title: opts.title ?? "Event",
     durationMins: opts.durationMins ?? null,
     selection: status ? { status } : null,
     venue: opts.venueName ? { name: opts.venueName } : null,
+    tags: opts.tags ?? null,
   };
 }
 
@@ -86,6 +87,38 @@ describe("computeBilan", () => {
     const stats = computeBilan(events);
     expect(stats.topVenue).toBe("Scène C");
     expect(stats.uniqueVenues).toBe(1);
+  });
+
+  it("returns null topTag when no seen events have tags", () => {
+    const events = [ev("vu"), ev("vu")];
+    expect(computeBilan(events).topTag).toBeNull();
+  });
+
+  it("returns the most common tag among vu events as topTag", () => {
+    const events = [
+      ev("vu", { tags: ["Électro", "Techno"] }),
+      ev("vu", { tags: ["Électro"] }),
+      ev("vu", { tags: ["Jazz"] }),
+      ev("must-see", { tags: ["Jazz", "Électro"] }),
+    ];
+    expect(computeBilan(events).topTag).toBe("Électro");
+  });
+
+  it("does not count tags from non-vu events", () => {
+    const events = [
+      ev("must-see", { tags: ["Jazz", "Jazz", "Jazz"] }),
+      ev("vu", { tags: ["Électro"] }),
+    ];
+    expect(computeBilan(events).topTag).toBe("Électro");
+  });
+
+  it("handles events with null or empty tags gracefully", () => {
+    const events = [
+      ev("vu", { tags: [] }),
+      ev("vu", { tags: null as unknown as string[] }),
+      ev("vu", { tags: ["Rock"] }),
+    ];
+    expect(computeBilan(events).topTag).toBe("Rock");
   });
 });
 

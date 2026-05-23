@@ -3,6 +3,7 @@ export interface BilantableEvent {
   durationMins?: number | null;
   selection?: { status: string } | null;
   venue?: { name: string } | null;
+  tags?: string[] | null;
 }
 
 export interface BilanStats {
@@ -12,6 +13,7 @@ export interface BilanStats {
   intéresséPending: number;
   topVenue: string | null;
   uniqueVenues: number;
+  topTag: string | null;
 }
 
 export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats {
@@ -37,6 +39,21 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     }
   }
 
+  const tagCounts = new Map<string, number>();
+  for (const e of seen) {
+    for (const tag of e.tags ?? []) {
+      if (tag) tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+    }
+  }
+  let topTag: string | null = null;
+  let maxTagCount = 0;
+  for (const [tag, count] of tagCounts) {
+    if (count > maxTagCount) {
+      maxTagCount = count;
+      topTag = tag;
+    }
+  }
+
   return {
     totalSeen: seen.length,
     totalDurationMins,
@@ -44,6 +61,7 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     intéresséPending,
     topVenue,
     uniqueVenues: venueCounts.size,
+    topTag,
   };
 }
 
