@@ -71,3 +71,20 @@ export function getRecentItemCount(items: FeedItem[], withinDays: number, now = 
   const cutoff = new Date(now.getTime() - withinDays * 24 * 60 * 60 * 1000);
   return items.filter((i) => new Date(i.publishedAt) >= cutoff).length;
 }
+
+export function filterFeedByFestival(items: FeedItem[], festivalId: string | null): FeedItem[] {
+  if (!festivalId) return items;
+  return items.filter((i) => i.festivalId === festivalId);
+}
+
+export function getFollowedFestivalsFromFeed(items: FeedItem[]): { id: string; name: string }[] {
+  const seen = new Map<string, string>();
+  for (const item of items) {
+    if (!seen.has(item.festivalId)) {
+      seen.set(item.festivalId, item.festivalName);
+    }
+  }
+  return [...seen.entries()]
+    .map(([id, name]) => ({ id, name }))
+    .sort((a, b) => a.name.localeCompare(b.name, "fr"));
+}
