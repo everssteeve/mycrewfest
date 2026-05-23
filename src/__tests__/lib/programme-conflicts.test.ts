@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { findConflictingEventIds } from "@/lib/programme-conflicts";
+import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 
 type E = {
   id: string;
@@ -134,5 +134,53 @@ describe("findConflictingEventIds — durationMins fallback", () => {
     const result = findConflictingEventIds(events);
     // e1 ends at 16h, e2 starts at 15h → overlap
     expect(result.size).toBe(2);
+  });
+});
+
+describe("countConflictPairs", () => {
+  it("returns 0 for empty events", () => {
+    expect(countConflictPairs([])).toBe(0);
+  });
+
+  it("returns 0 when no overlap", () => {
+    const events = [
+      { id: "e1", startTime: "2026-07-15T14:00:00", endTime: "2026-07-15T15:00:00", selection: { status: "must-see" } },
+      { id: "e2", startTime: "2026-07-15T16:00:00", endTime: "2026-07-15T17:00:00", selection: { status: "must-see" } },
+    ];
+    expect(countConflictPairs(events)).toBe(0);
+  });
+
+  it("counts one pair when two events overlap", () => {
+    const events = [
+      { id: "e1", startTime: "2026-07-15T14:00:00", endTime: "2026-07-15T16:00:00", selection: { status: "must-see" } },
+      { id: "e2", startTime: "2026-07-15T15:00:00", endTime: "2026-07-15T17:00:00", selection: { status: "must-see" } },
+    ];
+    expect(countConflictPairs(events)).toBe(1);
+  });
+
+  it("counts two pairs when three events all overlap", () => {
+    // A overlaps B, A overlaps C, B overlaps C → 3 pairs
+    const events = [
+      { id: "a", startTime: "2026-07-15T14:00:00", endTime: "2026-07-15T17:00:00", selection: { status: "must-see" } },
+      { id: "b", startTime: "2026-07-15T14:30:00", endTime: "2026-07-15T16:00:00", selection: { status: "must-see" } },
+      { id: "c", startTime: "2026-07-15T15:00:00", endTime: "2026-07-15T17:30:00", selection: { status: "must-see" } },
+    ];
+    expect(countConflictPairs(events)).toBe(3);
+  });
+
+  it("ignores vu events", () => {
+    const events = [
+      { id: "e1", startTime: "2026-07-15T14:00:00", endTime: "2026-07-15T16:00:00", selection: { status: "vu" } },
+      { id: "e2", startTime: "2026-07-15T15:00:00", endTime: "2026-07-15T17:00:00", selection: { status: "must-see" } },
+    ];
+    expect(countConflictPairs(events)).toBe(0);
+  });
+
+  it("counts pairs across intéressé and must-see", () => {
+    const events = [
+      { id: "e1", startTime: "2026-07-15T14:00:00", endTime: "2026-07-15T16:00:00", selection: { status: "intéressé" } },
+      { id: "e2", startTime: "2026-07-15T15:00:00", endTime: "2026-07-15T17:00:00", selection: { status: "must-see" } },
+    ];
+    expect(countConflictPairs(events)).toBe(1);
   });
 });

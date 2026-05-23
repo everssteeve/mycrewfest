@@ -53,3 +53,31 @@ export function findConflictingEventIds<T extends ConflictCheckable>(
 
   return conflicting;
 }
+
+/**
+ * Returns the number of overlapping pairs among selected events (must-see or intéressé).
+ */
+export function countConflictPairs<T extends ConflictCheckable>(
+  events: T[],
+): number {
+  const selected = events.filter(
+    (e) =>
+      e.startTime &&
+      (e.selection?.status === "must-see" || e.selection?.status === "intéressé"),
+  );
+
+  let pairs = 0;
+  for (let i = 0; i < selected.length; i++) {
+    for (let j = i + 1; j < selected.length; j++) {
+      const a = selected[i];
+      const b = selected[j];
+      const aStart = new Date(a.startTime as string);
+      const aEnd = resolveEnd(a);
+      const bStart = new Date(b.startTime as string);
+      const bEnd = resolveEnd(b);
+      if (!aEnd || !bEnd) continue;
+      if (aStart < bEnd && bStart < aEnd) pairs++;
+    }
+  }
+  return pairs;
+}

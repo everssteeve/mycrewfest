@@ -11,7 +11,7 @@ import { isEscapeKey } from "@/lib/keyboard-search";
 import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
 import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
-import { findConflictingEventIds } from "@/lib/programme-conflicts";
+import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
 import { countEventsByDay, countVuEventsByDay } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
@@ -201,6 +201,7 @@ export function ProgrammeView({
 
   // Conflict detection across ALL selected events (not just filtered)
   const conflictingIds = useMemo(() => findConflictingEventIds(events), [events]);
+  const conflictPairCount = useMemo(() => countConflictPairs(events), [events]);
 
   // Live "ongoing" event detection — refreshes every minute
   const ongoingIds = useMemo(() => findOngoingEventIds(events, now), [events, now]);
@@ -716,6 +717,22 @@ export function ProgrammeView({
               }}
             >
               ♥ {selectedCount} sélectionné{selectedCount !== 1 ? "s" : ""}
+            </span>
+          </>
+        )}
+        {conflictPairCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="conflict-count-badge"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--warning-orange)",
+                fontWeight: "var(--fw-bold)",
+              }}
+            >
+              ⚡ {conflictPairCount} conflit{conflictPairCount !== 1 ? "s" : ""}
             </span>
           </>
         )}
