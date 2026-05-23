@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/auth";
+import { AdminGlobalSearch } from "./admin/_components/admin-global-search";
 
 export default async function AdminLayout({
   children,
@@ -138,15 +139,23 @@ export default async function AdminLayout({
       </aside>
 
       {/* Main */}
-      <main
-        style={{
-          flex: 1,
-          overflow: "auto",
-          padding: "var(--space-xl)",
-        }}
-      >
-        {children}
-      </main>
+      <div style={{ flex: 1, overflow: "auto", display: "flex", flexDirection: "column" }}>
+        {/* Top bar with global search */}
+        <div
+          style={{
+            padding: "var(--space-md) var(--space-xl)",
+            borderBottom: "1px solid var(--border-color)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-md)",
+          }}
+        >
+          <AdminGlobalSearch />
+        </div>
+        <main style={{ flex: 1, padding: "var(--space-xl)" }}>
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
