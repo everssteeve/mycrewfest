@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -285,6 +285,11 @@ export function ProgrammeView({
   const topVenue = useMemo(
     () => (venueCount > 1 ? getTopProgrammeVenue(filteredEvents) : null),
     [filteredEvents, venueCount],
+  );
+
+  const mustSeePendingCount = useMemo(
+    () => countMustSeePendingEvents(filteredEvents),
+    [filteredEvents],
   );
 
   const hasActiveFilter =
@@ -907,6 +912,23 @@ export function ProgrammeView({
               }}
             >
               ♥ {selectedCount} sélectionné{selectedCount !== 1 ? "s" : ""}
+            </span>
+          </>
+        )}
+        {mustSeePendingCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-must-see-pending"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--accent-pink)",
+                fontWeight: "var(--fw-bold)",
+              }}
+              title="Événements must-see que tu n'as pas encore vus"
+            >
+              ★ {mustSeePendingCount} must-see
             </span>
           </>
         )}

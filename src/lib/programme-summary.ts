@@ -59,6 +59,19 @@ export interface VuCountFilterable {
   selection?: { status: string } | null;
 }
 
+export interface SelectionFilterable {
+  selection?: { status: string } | null;
+}
+
+/**
+ * Returns the count of events with selection.status === "must-see".
+ */
+export function countMustSeePendingEvents<T extends SelectionFilterable>(
+  events: T[],
+): number {
+  return events.filter((e) => e.selection?.status === "must-see").length;
+}
+
 /**
  * Returns a map of YYYY-MM-DD → vu event count for events with selection.status === "vu".
  */

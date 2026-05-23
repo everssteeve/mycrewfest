@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -415,5 +415,35 @@ describe("getTopProgrammeVenue", () => {
   it("counts across all venues correctly", () => {
     const events = [ev("A"), ev("B"), ev("B"), ev("C"), ev("B")];
     expect(getTopProgrammeVenue(events)).toEqual({ name: "B", count: 3 });
+  });
+});
+
+describe("countMustSeePendingEvents", () => {
+  const sel = (status: string | null) => ({
+    selection: status ? { status } : null,
+  });
+
+  it("returns 0 for empty array", () => {
+    expect(countMustSeePendingEvents([])).toBe(0);
+  });
+
+  it("returns 0 when no events are must-see", () => {
+    const events = [sel("vu"), sel("intéressé"), sel(null)];
+    expect(countMustSeePendingEvents(events)).toBe(0);
+  });
+
+  it("counts must-see events", () => {
+    const events = [sel("must-see"), sel("vu"), sel("must-see"), sel("intéressé")];
+    expect(countMustSeePendingEvents(events)).toBe(2);
+  });
+
+  it("returns total when all events are must-see", () => {
+    const events = [sel("must-see"), sel("must-see")];
+    expect(countMustSeePendingEvents(events)).toBe(2);
+  });
+
+  it("ignores events with no selection", () => {
+    const events = [sel(null), sel("must-see")];
+    expect(countMustSeePendingEvents(events)).toBe(1);
   });
 });
