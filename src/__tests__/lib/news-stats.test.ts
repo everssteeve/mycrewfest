@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories } from "@/lib/news-stats";
 
 const item = (urgencyLevel: "normal" | "critique", isPinned = false) => ({
   urgencyLevel,
@@ -88,5 +88,30 @@ describe("getTopNewsSource", () => {
   it("handles all items from the same source", () => {
     const items = [src("Le Monde"), src("Le Monde"), src("Le Monde")];
     expect(getTopNewsSource(items)).toBe("Le Monde");
+  });
+});
+
+describe("countUniqueNewsCategories", () => {
+  const cat = (category: string) => ({ category });
+
+  it("returns 0 for empty array", () => {
+    expect(countUniqueNewsCategories([])).toBe(0);
+  });
+
+  it("returns 1 when all items share the same category", () => {
+    expect(countUniqueNewsCategories([cat("logistique"), cat("logistique")])).toBe(1);
+  });
+
+  it("counts distinct categories", () => {
+    const items = [cat("logistique"), cat("artistes"), cat("logistique"), cat("urgences")];
+    expect(countUniqueNewsCategories(items)).toBe(3);
+  });
+
+  it("is case-sensitive", () => {
+    expect(countUniqueNewsCategories([cat("Logistique"), cat("logistique")])).toBe(2);
+  });
+
+  it("returns total count when all items have distinct categories", () => {
+    expect(countUniqueNewsCategories([cat("a"), cat("b"), cat("c")])).toBe(3);
   });
 });

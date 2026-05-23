@@ -33,6 +33,17 @@ export function countPinnedNewsItems<T extends PinnableNewsItem>(items: T[]): nu
   return items.filter((i) => i.isPinned).length;
 }
 
+export interface CategorizableNewsItem {
+  category: string;
+}
+
+/**
+ * Returns the number of distinct category values across the given news items.
+ */
+export function countUniqueNewsCategories<T extends CategorizableNewsItem>(items: T[]): number {
+  return new Set(items.map((i) => i.category)).size;
+}
+
 export interface SourceCountable {
   source: string;
 }
