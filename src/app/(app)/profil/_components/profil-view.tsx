@@ -1265,6 +1265,39 @@ export function ProfilView({ data }: { data: ProfilData }) {
           </div>
         </div>
       </section>
+
+      {/* Quick link to agenda */}
+      <Link
+        href="/agenda"
+        data-testid="profil-agenda-link"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border-color)",
+          borderRadius: "var(--radius-md)",
+          padding: "var(--space-sm) var(--space-md)",
+          textDecoration: "none",
+          marginTop: "var(--space-sm)",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--primary-neon)",
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+            fontWeight: 900,
+          }}
+        >
+          Mon agenda
+        </span>
+        <span style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs)" }}>
+          Tous mes événements →
+        </span>
+      </Link>
     </div>
   );
 }
