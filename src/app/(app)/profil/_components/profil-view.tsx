@@ -8,7 +8,7 @@ import Link from "next/link";
 import { PushToggle } from "@/components/notifications/push-toggle";
 import { computeFestivalierScore, computeScoreBreakdown } from "@/lib/festivalier-score";
 import { getFestivalTemporalStatus, getDaysUntilStart, formatTemporalBadge } from "@/lib/festival-temporal";
-import { countUpcomingFestEvents, countActiveFestEvents } from "@/lib/profil-stats";
+import { countUpcomingFestEvents, countActiveFestEvents, countPastFestEvents } from "@/lib/profil-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -306,6 +306,11 @@ export function ProfilView({ data }: { data: ProfilData }) {
 
   const activeFestEventCount = useMemo(
     () => countActiveFestEvents(data.festEvents),
+    [data.festEvents],
+  );
+
+  const pastFestEventCount = useMemo(
+    () => countPastFestEvents(data.festEvents),
     [data.festEvents],
   );
 
@@ -637,7 +642,7 @@ export function ProfilView({ data }: { data: ProfilData }) {
       </section>
 
       {/* Temporal badges for fest events */}
-      {(upcomingFestEventCount > 0 || activeFestEventCount > 0) && (
+      {(upcomingFestEventCount > 0 || activeFestEventCount > 0 || pastFestEventCount > 0) && (
         <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap" }}>
           {activeFestEventCount > 0 && (
             <span
@@ -673,6 +678,24 @@ export function ProfilView({ data }: { data: ProfilData }) {
               title="Prochains festivals"
             >
               ▷ {upcomingFestEventCount} à venir
+            </span>
+          )}
+          {pastFestEventCount > 0 && (
+            <span
+              data-testid="profil-past-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                fontWeight: 700,
+                color: "var(--text-dim)",
+                background: "rgba(255,255,255,0.04)",
+                border: "1px solid var(--border-color)",
+                borderRadius: "var(--radius-full)",
+                padding: "2px 8px",
+              }}
+              title="Festivals déjà vécus"
+            >
+              ✓ {pastFestEventCount} vécus
             </span>
           )}
         </div>
