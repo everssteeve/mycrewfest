@@ -59,3 +59,19 @@ export function countActiveSignals(signals: AdminSignalRow[], now: Date = new Da
 export function sortSignalsByRecency(signals: AdminSignalRow[]): AdminSignalRow[] {
   return [...signals].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 }
+
+export type SignalScopeFilter = "tous" | "communauté" | "crew";
+
+export const SIGNAL_SCOPE_OPTIONS: { value: SignalScopeFilter; label: string }[] = [
+  { value: "tous", label: "Tous" },
+  { value: "communauté", label: "Communauté" },
+  { value: "crew", label: "Crew" },
+];
+
+export function filterSignalsByScope(
+  signals: AdminSignalRow[],
+  scope: SignalScopeFilter,
+): AdminSignalRow[] {
+  if (scope === "tous") return signals;
+  return signals.filter((s) => s.scope === scope);
+}

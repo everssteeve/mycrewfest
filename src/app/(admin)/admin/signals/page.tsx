@@ -5,7 +5,7 @@ import {
   sortSignalsByRecency,
   type AdminSignalRow,
 } from "@/lib/admin-signals";
-import { SignalsTable } from "./_components/signals-table";
+import { SignalsScopeFilter } from "./_components/signals-scope-filter";
 
 async function getSignals(): Promise<AdminSignalRow[]> {
   const rows = await prisma.signal.findMany({
@@ -126,16 +126,7 @@ export default async function AdminSignalsPage() {
         ))}
       </div>
 
-      <div
-        style={{
-          background: "var(--bg-surface)",
-          border: "1px solid var(--border-color)",
-          borderRadius: "var(--radius-md)",
-          overflow: "hidden",
-        }}
-      >
-        <SignalsTable signals={sorted} />
-      </div>
+      <SignalsScopeFilter signals={sorted} />
     </div>
   );
 }

@@ -9,6 +9,7 @@ import {
   countSignalsByScope,
   countActiveSignals,
   sortSignalsByRecency,
+  filterSignalsByScope,
   type AdminSignalRow,
 } from "@/lib/admin-signals";
 
@@ -135,6 +136,34 @@ describe("countActiveSignals", () => {
   it("returns 0 when all expired", () => {
     const signals = [makeSignal({ expiresAt: new Date(now.getTime() - 1) })];
     expect(countActiveSignals(signals, now)).toBe(0);
+  });
+});
+
+describe("filterSignalsByScope", () => {
+  const signals = [
+    makeSignal({ id: "s1", scope: "communauté" }),
+    makeSignal({ id: "s2", scope: "crew" }),
+    makeSignal({ id: "s3", scope: "communauté" }),
+  ];
+
+  it("returns all signals for 'tous'", () => {
+    expect(filterSignalsByScope(signals, "tous")).toHaveLength(3);
+  });
+
+  it("returns only communauté signals", () => {
+    const result = filterSignalsByScope(signals, "communauté");
+    expect(result).toHaveLength(2);
+    expect(result.every((s) => s.scope === "communauté")).toBe(true);
+  });
+
+  it("returns only crew signals", () => {
+    const result = filterSignalsByScope(signals, "crew");
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("s2");
+  });
+
+  it("returns empty array when no match", () => {
+    expect(filterSignalsByScope([], "communauté")).toHaveLength(0);
   });
 });
 
