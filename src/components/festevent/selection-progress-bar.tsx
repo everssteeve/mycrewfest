@@ -81,7 +81,7 @@ export function SelectionProgressBar({ festEventId }: SelectionProgressBarProps)
           </>
         )}
         <span>
-          {counts.total} séléctionné{counts.total !== 1 ? "s" : ""}
+          {counts.total} sélectionné{counts.total !== 1 ? "s" : ""}
         </span>
         <span style={{ marginLeft: "auto", color: "var(--text-dim)" }}>
           {counts.progressPct}%

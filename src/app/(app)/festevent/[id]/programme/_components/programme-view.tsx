@@ -13,8 +13,9 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
+import { formatBilanDuration } from "@/lib/bilan";
 import { ChevronUp } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -212,6 +213,11 @@ export function ProgrammeView({
 
   const selectedCount = useMemo(
     () => filteredEvents.filter((e) => e.selection?.status != null).length,
+    [filteredEvents],
+  );
+
+  const totalFilteredDurationMins = useMemo(
+    () => computeProgrammeDurationMins(filteredEvents),
     [filteredEvents],
   );
 
@@ -706,6 +712,21 @@ export function ProgrammeView({
             : ""}{" "}
           événement{filteredEvents.length !== 1 ? "s" : ""}
         </span>
+        {totalFilteredDurationMins > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-total-duration"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--secondary-cyan)",
+              }}
+            >
+              {formatBilanDuration(totalFilteredDurationMins)}
+            </span>
+          </>
+        )}
         {selectedCount > 0 && (
           <>
             <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>

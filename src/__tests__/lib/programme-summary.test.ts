@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -112,5 +112,40 @@ describe("countVuEventsByDay", () => {
   it("ignores events without startTime even if vu", () => {
     const events = [ev(null, "vu")];
     expect(countVuEventsByDay(events)).toEqual(new Map());
+  });
+});
+
+describe("computeProgrammeDurationMins", () => {
+  it("returns 0 for empty list", () => {
+    expect(computeProgrammeDurationMins([])).toBe(0);
+  });
+
+  it("sums durationMins when available", () => {
+    const events = [{ durationMins: 60 }, { durationMins: 45 }];
+    expect(computeProgrammeDurationMins(events)).toBe(105);
+  });
+
+  it("derives duration from startTime/endTime when durationMins is absent", () => {
+    const events = [
+      { startTime: "2026-07-15T14:00:00Z", endTime: "2026-07-15T15:30:00Z" },
+    ];
+    expect(computeProgrammeDurationMins(events)).toBe(90);
+  });
+
+  it("prefers durationMins over startTime/endTime", () => {
+    const events = [
+      { durationMins: 60, startTime: "2026-07-15T14:00:00Z", endTime: "2026-07-15T16:00:00Z" },
+    ];
+    expect(computeProgrammeDurationMins(events)).toBe(60);
+  });
+
+  it("skips events with no duration info", () => {
+    const events = [{ durationMins: 30 }, {}];
+    expect(computeProgrammeDurationMins(events)).toBe(30);
+  });
+
+  it("rounds the result to nearest minute", () => {
+    const result = computeProgrammeDurationMins([{ durationMins: 45 }, { durationMins: 30 }]);
+    expect(Number.isInteger(result)).toBe(true);
   });
 });

@@ -30,6 +30,30 @@ export function countItinerantEvents<T extends SummaryFilterable>(
   return events.filter((e) => !e.startTime).length;
 }
 
+export interface DurationSummable {
+  durationMins?: number | null;
+  startTime?: string | null;
+  endTime?: string | null;
+}
+
+/**
+ * Sums total programme duration in minutes across all events.
+ * Uses durationMins when available, otherwise derives from startTime/endTime.
+ */
+export function computeProgrammeDurationMins<T extends DurationSummable>(
+  events: T[],
+): number {
+  let total = 0;
+  for (const e of events) {
+    if (e.durationMins) {
+      total += e.durationMins;
+    } else if (e.startTime && e.endTime) {
+      total += (new Date(e.endTime).getTime() - new Date(e.startTime).getTime()) / 60_000;
+    }
+  }
+  return Math.round(total);
+}
+
 export interface VuCountFilterable {
   startTime?: string | null;
   selection?: { status: string } | null;
