@@ -5,6 +5,7 @@ import {
   sortAdminArtistsByName,
   countArtistsMissingCountry,
   countArtistsMissingDisciplines,
+  countOrphanArtists,
   type AdminArtistRow,
 } from "@/lib/admin-artists";
 import { ArtistSearchTable } from "./_components/artist-search-table";
@@ -41,6 +42,7 @@ export default async function AdminArtistsPage() {
   const artists = sortAdminArtistsByName(rawArtists);
   const missingCountry = countArtistsMissingCountry(artists);
   const missingDisciplines = countArtistsMissingDisciplines(artists);
+  const orphanCount = countOrphanArtists(artists);
 
   async function updateArtistCountry(artistId: string, countryCode: string) {
     "use server";
@@ -88,7 +90,7 @@ export default async function AdminArtistsPage() {
       </div>
 
       {/* Data quality alerts */}
-      {(missingCountry > 0 || missingDisciplines > 0) && (
+      {(missingCountry > 0 || missingDisciplines > 0 || orphanCount > 0) && (
         <div
           data-testid="admin-artists-quality-alert"
           style={{
@@ -126,6 +128,22 @@ export default async function AdminArtistsPage() {
               }}
             >
               ⚠ {missingDisciplines} artiste{missingDisciplines > 1 ? "s" : ""} sans discipline
+            </div>
+          )}
+          {orphanCount > 0 && (
+            <div
+              data-testid="admin-artists-orphan-alert"
+              style={{
+                padding: "var(--space-sm) var(--space-md)",
+                background: "rgba(255,51,85,0.08)",
+                border: "1px solid var(--danger-red)",
+                borderRadius: "var(--radius-md)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--danger-red)",
+              }}
+            >
+              ⚠ {orphanCount} artiste{orphanCount > 1 ? "s" : ""} sans événement
             </div>
           )}
         </div>

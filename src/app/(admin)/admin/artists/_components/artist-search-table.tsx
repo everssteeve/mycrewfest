@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useTransition } from "react";
 import { Search } from "lucide-react";
-import { filterAdminArtists, sortAdminArtistsByEventCount, type AdminArtistRow } from "@/lib/admin-artists";
+import { filterAdminArtists, filterOrphanArtists, sortAdminArtistsByEventCount, type AdminArtistRow } from "@/lib/admin-artists";
 
 interface Props {
   artists: AdminArtistRow[];
@@ -14,6 +14,7 @@ export function ArtistSearchTable({ artists, updateArtistCountry }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [sortMode, setSortMode] = useState<"name" | "events">("name");
+  const [orphanOnly, setOrphanOnly] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const sorted = useMemo(
@@ -21,7 +22,10 @@ export function ArtistSearchTable({ artists, updateArtistCountry }: Props) {
     [artists, sortMode],
   );
 
-  const filtered = useMemo(() => filterAdminArtists(sorted, query), [sorted, query]);
+  const filtered = useMemo(() => {
+    const base = orphanOnly ? filterOrphanArtists(sorted) : sorted;
+    return filterAdminArtists(base, query);
+  }, [sorted, query, orphanOnly]);
 
   function startEdit(artist: AdminArtistRow) {
     setEditingId(artist.id);
@@ -106,6 +110,27 @@ export function ArtistSearchTable({ artists, updateArtistCountry }: Props) {
             </button>
           ))}
         </div>
+        <button
+          type="button"
+          data-testid="admin-artists-orphan-filter"
+          onClick={() => setOrphanOnly((v) => !v)}
+          aria-pressed={orphanOnly}
+          style={{
+            padding: "4px 12px",
+            borderRadius: 20,
+            border: orphanOnly ? "1px solid var(--danger-red)" : "1px solid var(--border-color)",
+            background: orphanOnly ? "rgba(255,51,85,0.1)" : "transparent",
+            color: orphanOnly ? "var(--danger-red)" : "var(--text-dim)",
+            fontSize: "0.68rem",
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            cursor: "pointer",
+            whiteSpace: "nowrap",
+          }}
+        >
+          Sans événement
+        </button>
         <span
           data-testid="admin-artists-filtered-count"
           style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", whiteSpace: "nowrap" }}
