@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { matchesJournalQuery, filterAndGroupByDay, filterByCrew } from "@/lib/journal-filter";
+import { matchesJournalQuery, filterAndGroupByDay, filterByCrew, filterByEntryType } from "@/lib/journal-filter";
 import type { SouvenirEntry } from "@/app/(app)/festevent/[id]/journal/_components/journal-view";
 
 function entry(
@@ -166,5 +166,38 @@ describe("filterByCrew", () => {
     const result = filterByCrew(entries, true);
     expect(result).toHaveLength(2);
     expect(result.map((e) => e.id)).toEqual(["1", "3"]);
+  });
+});
+
+describe("filterByEntryType", () => {
+  const eventEntry = { eventId: "e1", id: "1" };
+  const freeEntry = { eventId: null, id: "2" };
+
+  it("returns all entries for 'tous'", () => {
+    expect(filterByEntryType([eventEntry, freeEntry], "tous")).toHaveLength(2);
+  });
+
+  it("returns only event-linked entries for 'event'", () => {
+    const result = filterByEntryType([eventEntry, freeEntry], "event");
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("1");
+  });
+
+  it("returns only free entries for 'libre'", () => {
+    const result = filterByEntryType([eventEntry, freeEntry], "libre");
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("2");
+  });
+
+  it("returns empty array when no entries match 'event'", () => {
+    expect(filterByEntryType([freeEntry], "event")).toHaveLength(0);
+  });
+
+  it("returns empty array when no entries match 'libre'", () => {
+    expect(filterByEntryType([eventEntry], "libre")).toHaveLength(0);
+  });
+
+  it("returns empty array for empty list", () => {
+    expect(filterByEntryType([], "event")).toHaveLength(0);
   });
 });

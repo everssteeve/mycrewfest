@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { BookOpen, Share2, Download, Trash2, Clock, Search, X, Copy, Check } from "lucide-react";
-import { filterAndGroupByDay } from "@/lib/journal-filter";
+import { filterAndGroupByDay, type JournalEntryTypeFilter } from "@/lib/journal-filter";
 import { Users } from "lucide-react";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
 import { isEscapeKey } from "@/lib/keyboard-search";
@@ -587,6 +587,7 @@ export function JournalView({
   const [currentToken, setCurrentToken] = useState(shareToken);
   const [searchQuery, setSearchQuery] = useState("");
   const [crewOnly, setCrewOnly] = useState(false);
+  const [entryTypeFilter, setEntryTypeFilter] = useState<JournalEntryTypeFilter>("tous");
 
   const handleDelete = useCallback((id: string) => {
     setSouvenirs((prev) => prev.filter((s) => s.id !== id));
@@ -633,10 +634,11 @@ export function JournalView({
   const stats = useMemo(() => computeJournalStats(souvenirs), [souvenirs]);
 
   const hasCrewEntries = useMemo(() => souvenirs.some((s) => s.shareWithCrew), [souvenirs]);
+  const hasEventEntries = useMemo(() => souvenirs.some((s) => s.eventId !== null), [souvenirs]);
 
   const grouped = useMemo(
-    () => filterAndGroupByDay(souvenirs, searchQuery, crewOnly),
-    [souvenirs, searchQuery, crewOnly],
+    () => filterAndGroupByDay(souvenirs, searchQuery, crewOnly, entryTypeFilter),
+    [souvenirs, searchQuery, crewOnly, entryTypeFilter],
   );
   const days = Array.from(grouped.keys()).sort();
 
@@ -839,6 +841,45 @@ export function JournalView({
             <Users size={11} aria-hidden="true" />
             Crew seulement
           </button>
+        </div>
+      )}
+
+      {/* Entry type filter chips */}
+      {hasEventEntries && (
+        <div
+          className="journal-no-print"
+          data-testid="journal-type-filter"
+          style={{ display: "flex", gap: "var(--space-xs)", flexWrap: "wrap" }}
+        >
+          {(["tous", "event", "libre"] as JournalEntryTypeFilter[]).map((t) => {
+            const label = t === "tous" ? "Tous" : t === "event" ? "Events" : "Mémos";
+            const isActive = entryTypeFilter === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setEntryTypeFilter(t)}
+                aria-pressed={isActive}
+                data-testid={`journal-type-filter-${t}`}
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  padding: "3px 10px",
+                  borderRadius: "var(--radius-full)",
+                  border: isActive ? "1.5px solid var(--accent-pink)" : "1.5px solid var(--border-color)",
+                  background: isActive ? "var(--pink-soft)" : "transparent",
+                  color: isActive ? "var(--accent-pink)" : "var(--text-muted)",
+                  cursor: "pointer",
+                  transition: "var(--transition-fast)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
+                  fontWeight: "var(--fw-bold)",
+                }}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       )}
 
