@@ -28,6 +28,13 @@ export interface CrewFilterable {
 }
 
 /**
+ * Returns the count of entries that are shared with the crew.
+ */
+export function countCrewSharedEntries<T extends CrewFilterable>(entries: T[]): number {
+  return entries.filter((e) => e.shareWithCrew).length;
+}
+
+/**
  * Returns entries shared with crew when crewOnly is true; otherwise returns all.
  */
 export function filterByCrew<T extends CrewFilterable>(

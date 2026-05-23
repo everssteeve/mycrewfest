@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { BookOpen, Share2, Download, Trash2, Clock, Search, X, Copy, Check } from "lucide-react";
-import { filterAndGroupByDay, type JournalEntryTypeFilter } from "@/lib/journal-filter";
+import { filterAndGroupByDay, countCrewSharedEntries, type JournalEntryTypeFilter } from "@/lib/journal-filter";
 import { Users } from "lucide-react";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
 import { isEscapeKey } from "@/lib/keyboard-search";
@@ -633,6 +633,8 @@ export function JournalView({
 
   const stats = useMemo(() => computeJournalStats(souvenirs), [souvenirs]);
 
+  const crewSharedCount = useMemo(() => countCrewSharedEntries(souvenirs), [souvenirs]);
+
   const hasCrewEntries = useMemo(() => souvenirs.some((s) => s.shareWithCrew), [souvenirs]);
   const hasEventEntries = useMemo(() => souvenirs.some((s) => s.eventId !== null), [souvenirs]);
 
@@ -792,6 +794,23 @@ export function JournalView({
             title="Moyenne de mots par entrée"
           >
             ~{stats.avgWordsPerEntry} mots/entrée
+          </span>
+        )}
+        {crewSharedCount > 0 && crewSharedCount < souvenirs.length && (
+          <span
+            data-testid="journal-stats-crew-shared"
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--secondary-cyan)",
+              background: "var(--cyan-soft)",
+              border: "1px solid rgba(0,229,255,0.3)",
+              borderRadius: "var(--radius-full)",
+              padding: "1px 8px",
+            }}
+            title="Entrées partagées avec la crew"
+          >
+            {crewSharedCount} crew
           </span>
         )}
       </div>

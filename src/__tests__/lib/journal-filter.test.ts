@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { matchesJournalQuery, filterAndGroupByDay, filterByCrew, filterByEntryType } from "@/lib/journal-filter";
+import { matchesJournalQuery, filterAndGroupByDay, filterByCrew, filterByEntryType, countCrewSharedEntries } from "@/lib/journal-filter";
 import type { SouvenirEntry } from "@/app/(app)/festevent/[id]/journal/_components/journal-view";
 
 function entry(
@@ -199,5 +199,29 @@ describe("filterByEntryType", () => {
 
   it("returns empty array for empty list", () => {
     expect(filterByEntryType([], "event")).toHaveLength(0);
+  });
+});
+
+describe("countCrewSharedEntries", () => {
+  const shared = (shareWithCrew: boolean) => ({ shareWithCrew });
+
+  it("returns 0 for empty array", () => {
+    expect(countCrewSharedEntries([])).toBe(0);
+  });
+
+  it("returns 0 when no entries are shared", () => {
+    expect(countCrewSharedEntries([shared(false), shared(false)])).toBe(0);
+  });
+
+  it("counts a single shared entry", () => {
+    expect(countCrewSharedEntries([shared(true), shared(false)])).toBe(1);
+  });
+
+  it("counts multiple shared entries", () => {
+    expect(countCrewSharedEntries([shared(true), shared(true), shared(false)])).toBe(2);
+  });
+
+  it("returns total when all entries are shared", () => {
+    expect(countCrewSharedEntries([shared(true), shared(true), shared(true)])).toBe(3);
   });
 });
