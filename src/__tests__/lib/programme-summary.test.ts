@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -598,5 +598,40 @@ describe("getMaxEventDurationMins", () => {
       { startTime: "2026-07-01T10:00:00Z", endTime: "2026-07-01T10:59:30Z" },
     ];
     expect(getMaxEventDurationMins(events)).toBe(60);
+  });
+});
+
+describe("countUniqueProgrammeTags", () => {
+  it("returns 0 for empty list", () => {
+    expect(countUniqueProgrammeTags([])).toBe(0);
+  });
+
+  it("returns 0 when no events have tags", () => {
+    const events = [{ tags: null }, { tags: undefined }, { tags: [] }];
+    expect(countUniqueProgrammeTags(events)).toBe(0);
+  });
+
+  it("counts distinct tags across events", () => {
+    const events = [
+      { tags: ["jazz", "live"] },
+      { tags: ["jazz", "électro"] },
+      { tags: ["cirque"] },
+    ];
+    expect(countUniqueProgrammeTags(events)).toBe(4);
+  });
+
+  it("ignores duplicate tags within the same event", () => {
+    const events = [{ tags: ["jazz", "jazz", "live"] }];
+    expect(countUniqueProgrammeTags(events)).toBe(2);
+  });
+
+  it("ignores empty string tags", () => {
+    const events = [{ tags: ["", "jazz", ""] }];
+    expect(countUniqueProgrammeTags(events)).toBe(1);
+  });
+
+  it("is case-sensitive (jazz ≠ Jazz)", () => {
+    const events = [{ tags: ["jazz"] }, { tags: ["Jazz"] }];
+    expect(countUniqueProgrammeTags(events)).toBe(2);
   });
 });

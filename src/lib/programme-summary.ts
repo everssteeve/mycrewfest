@@ -328,3 +328,17 @@ export function getTopProgrammeTag<T extends TaggableEvent>(
   }
   return top;
 }
+
+/**
+ * Returns the number of distinct tags across all events.
+ * Tags array may be null or undefined per event; empty strings are ignored.
+ */
+export function countUniqueProgrammeTags<T extends TaggableEvent>(events: T[]): number {
+  const tags = new Set<string>();
+  for (const e of events) {
+    for (const tag of e.tags ?? []) {
+      if (tag) tags.add(tag);
+    }
+  }
+  return tags.size;
+}
