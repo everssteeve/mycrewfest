@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { filterByAssignee, getUniqueAssignees, computeAssigneeStats, countUnassignedPendingItems } from "@/lib/checklist-filter";
+import { filterByAssignee, getUniqueAssignees, computeAssigneeStats, countUnassignedPendingItems, getMostLoadedAssignee } from "@/lib/checklist-filter";
 
 describe("filterByAssignee", () => {
   const items = [
@@ -154,5 +154,45 @@ describe("countUnassignedPendingItems", () => {
       { assigneeName: "Bob", done: false },
     ];
     expect(countUnassignedPendingItems(items)).toBe(0);
+  });
+});
+
+describe("getMostLoadedAssignee", () => {
+  it("returns null for empty array", () => {
+    expect(getMostLoadedAssignee([])).toBeNull();
+  });
+
+  it("returns null when all assigned items are done", () => {
+    const items = [
+      { assigneeName: "Alice", done: true },
+      { assigneeName: "Bob", done: true },
+    ];
+    expect(getMostLoadedAssignee(items)).toBeNull();
+  });
+
+  it("returns the assignee with the most pending items", () => {
+    const items = [
+      { assigneeName: "Alice", done: false },
+      { assigneeName: "Alice", done: false },
+      { assigneeName: "Bob", done: false },
+    ];
+    expect(getMostLoadedAssignee(items)).toEqual({ assigneeName: "Alice", pendingCount: 2 });
+  });
+
+  it("breaks ties alphabetically", () => {
+    const items = [
+      { assigneeName: "Bob", done: false },
+      { assigneeName: "Alice", done: false },
+    ];
+    expect(getMostLoadedAssignee(items)).toEqual({ assigneeName: "Alice", pendingCount: 1 });
+  });
+
+  it("ignores unassigned items and done items", () => {
+    const items = [
+      { assigneeName: null, done: false },
+      { assigneeName: "Alice", done: true },
+      { assigneeName: "Bob", done: false },
+    ];
+    expect(getMostLoadedAssignee(items)).toEqual({ assigneeName: "Bob", pendingCount: 1 });
   });
 });

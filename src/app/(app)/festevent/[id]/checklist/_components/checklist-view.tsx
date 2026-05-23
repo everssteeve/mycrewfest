@@ -5,7 +5,7 @@ import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown, Copy, Check
 import { generateChecklistText } from "@/lib/checklist-text";
 import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
 import { computeChecklistBudget } from "@/lib/checklist-budget";
-import { filterByAssignee, getUniqueAssignees, computeAssigneeStats, countUnassignedPendingItems } from "@/lib/checklist-filter";
+import { filterByAssignee, getUniqueAssignees, computeAssigneeStats, countUnassignedPendingItems, getMostLoadedAssignee } from "@/lib/checklist-filter";
 import { filterChecklistByQuery } from "@/lib/checklist-search";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
@@ -208,6 +208,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   const allAssignees = useMemo(() => getUniqueAssignees(items), [items]);
   const assigneeStats = useMemo(() => computeAssigneeStats(items), [items]);
   const unassignedPendingCount = useMemo(() => countUnassignedPendingItems(items), [items]);
+  const mostLoaded = useMemo(() => getMostLoadedAssignee(items), [items]);
   const displayedItems = useMemo(
     () => filterChecklistByQuery(filterByAssignee(items, activeAssignee), searchQuery),
     [items, activeAssignee, searchQuery],
@@ -402,6 +403,19 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
                 }}
               >
                 {unassignedPendingCount} sans assigné
+              </span>
+            )}
+            {mostLoaded && mostLoaded.pendingCount > 1 && (
+              <span
+                data-testid="checklist-most-loaded"
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--accent-pink)",
+                }}
+                title="Membre de la crew avec le plus de tâches restantes"
+              >
+                {mostLoaded.assigneeName}: {mostLoaded.pendingCount}
               </span>
             )}
           </div>

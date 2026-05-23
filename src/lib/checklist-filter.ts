@@ -64,3 +64,30 @@ export function computeAssigneeStats<T extends AssigneeStatsItem>(
       percent: total === 0 ? 0 : Math.round((done / total) * 100),
     }));
 }
+
+export interface MostLoadedResult {
+  assigneeName: string;
+  pendingCount: number;
+}
+
+/**
+ * Returns the assignee with the most pending (not done) items, or null when
+ * no assigned pending items exist. Ties are broken alphabetically.
+ */
+export function getMostLoadedAssignee<T extends AssigneeStatsItem>(
+  items: T[],
+): MostLoadedResult | null {
+  const pending = new Map<string, number>();
+  for (const item of items) {
+    if (!item.assigneeName || item.done) continue;
+    pending.set(item.assigneeName, (pending.get(item.assigneeName) ?? 0) + 1);
+  }
+  if (pending.size === 0) return null;
+  let top: MostLoadedResult | null = null;
+  for (const [assigneeName, pendingCount] of pending) {
+    if (!top || pendingCount > top.pendingCount || (pendingCount === top.pendingCount && assigneeName < top.assigneeName)) {
+      top = { assigneeName, pendingCount };
+    }
+  }
+  return top;
+}
