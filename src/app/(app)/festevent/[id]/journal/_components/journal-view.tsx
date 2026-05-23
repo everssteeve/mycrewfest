@@ -5,6 +5,7 @@ import { BookOpen, Share2, Download, Trash2, Clock, Search, X, Copy, Check } fro
 import { filterAndGroupByDay } from "@/lib/journal-filter";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
 import { isEscapeKey } from "@/lib/keyboard-search";
+import { computeJournalStats } from "@/lib/journal-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -602,6 +603,8 @@ export function JournalView({
     window.print();
   }, []);
 
+  const stats = useMemo(() => computeJournalStats(souvenirs), [souvenirs]);
+
   const grouped = useMemo(
     () => filterAndGroupByDay(souvenirs, searchQuery),
     [souvenirs, searchQuery],
@@ -652,6 +655,67 @@ export function JournalView({
         paddingBottom: "var(--space-2xl)",
       }}
     >
+      {/* Stats strip */}
+      <div
+        data-testid="journal-stats"
+        style={{
+          display: "flex",
+          gap: "var(--space-sm)",
+          flexWrap: "wrap",
+        }}
+      >
+        <span
+          data-testid="journal-stats-entries"
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-xs)",
+            color: "var(--accent-pink)",
+            background: "var(--pink-soft)",
+            border: "1px solid var(--accent-pink)",
+            borderRadius: "var(--radius-sm)",
+            padding: "2px 8px",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+          }}
+        >
+          {stats.totalEntries} souvenir{stats.totalEntries !== 1 ? "s" : ""}
+        </span>
+        <span
+          data-testid="journal-stats-days"
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-xs)",
+            color: "var(--secondary-cyan)",
+            background: "var(--cyan-soft)",
+            border: "1px solid var(--secondary-cyan)",
+            borderRadius: "var(--radius-sm)",
+            padding: "2px 8px",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+          }}
+        >
+          {stats.totalDays} jour{stats.totalDays !== 1 ? "s" : ""}
+        </span>
+        {stats.entriesWithPhotos > 0 && (
+          <span
+            data-testid="journal-stats-photos"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--primary-neon)",
+              background: "var(--neon-soft)",
+              border: "1px solid var(--primary-neon)",
+              borderRadius: "var(--radius-sm)",
+              padding: "2px 8px",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
+            {stats.entriesWithPhotos} photo{stats.entriesWithPhotos !== 1 ? "s" : ""}
+          </span>
+        )}
+      </div>
+
       {/* Search bar */}
       {souvenirs.length > 1 && (
         <div className="journal-no-print" style={{ position: "relative" }}>
