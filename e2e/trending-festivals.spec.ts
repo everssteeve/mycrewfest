@@ -28,6 +28,8 @@ test.describe("Trending Festivals", () => {
       expect(first).toHaveProperty("name");
       expect(first).toHaveProperty("slug");
       expect(first).toHaveProperty("followerCount");
+      // New: should not expose internal trendingScore
+      expect(first).not.toHaveProperty("trendingScore");
     }
   });
 
