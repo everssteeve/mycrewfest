@@ -9,7 +9,7 @@ const entry = (overrides: Partial<JournalStatsEntry> = {}): JournalStatsEntry =>
 
 describe("computeJournalStats", () => {
   it("returns zeros for empty array", () => {
-    expect(computeJournalStats([])).toEqual({ totalEntries: 0, totalDays: 0, entriesWithPhotos: 0 });
+    expect(computeJournalStats([])).toEqual({ totalEntries: 0, totalDays: 0, entriesWithPhotos: 0, totalWords: 0 });
   });
 
   it("counts total entries", () => {
@@ -78,5 +78,45 @@ describe("computeJournalStats", () => {
       entry({ photos: ["b.jpg"] }),
     ];
     expect(computeJournalStats(entries).entriesWithPhotos).toBe(2);
+  });
+});
+
+describe("computeJournalStats — totalWords", () => {
+  it("returns 0 words for entries without text", () => {
+    const entries = [entry(), entry()];
+    expect(computeJournalStats(entries).totalWords).toBe(0);
+  });
+
+  it("counts words from freeText", () => {
+    const entries = [entry({ freeText: "super ambiance ici" })];
+    expect(computeJournalStats(entries).totalWords).toBe(3);
+  });
+
+  it("counts words from note", () => {
+    const entries = [entry({ note: "concert incroyable" })];
+    expect(computeJournalStats(entries).totalWords).toBe(2);
+  });
+
+  it("sums words from freeText and note combined", () => {
+    const entries = [entry({ freeText: "bonne ambiance", note: "foule dense" })];
+    expect(computeJournalStats(entries).totalWords).toBe(4);
+  });
+
+  it("sums words across multiple entries", () => {
+    const entries = [
+      entry({ freeText: "un deux trois" }),
+      entry({ freeText: "quatre cinq" }),
+    ];
+    expect(computeJournalStats(entries).totalWords).toBe(5);
+  });
+
+  it("handles null/undefined text fields gracefully", () => {
+    const entries = [entry({ freeText: null, note: undefined })];
+    expect(computeJournalStats(entries).totalWords).toBe(0);
+  });
+
+  it("ignores extra whitespace when counting words", () => {
+    const entries = [entry({ freeText: "  hello   world  " })];
+    expect(computeJournalStats(entries).totalWords).toBe(2);
   });
 });

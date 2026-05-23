@@ -1,12 +1,15 @@
 export interface JournalStatsEntry {
   timestamp: string;
   photos?: string[];
+  freeText?: string | null;
+  note?: string | null;
 }
 
 export interface JournalStats {
   totalEntries: number;
   totalDays: number;
   entriesWithPhotos: number;
+  totalWords: number;
 }
 
 export function computeJournalStats(entries: JournalStatsEntry[]): JournalStats {
@@ -23,9 +26,18 @@ export function computeJournalStats(entries: JournalStatsEntry[]): JournalStats 
     }
   }
 
+  let totalWords = 0;
+  for (const e of entries) {
+    const text = [e.freeText, e.note].filter(Boolean).join(" ");
+    if (text.trim()) {
+      totalWords += text.trim().split(/\s+/).length;
+    }
+  }
+
   return {
     totalEntries: entries.length,
     totalDays: days.size,
     entriesWithPhotos,
+    totalWords,
   };
 }

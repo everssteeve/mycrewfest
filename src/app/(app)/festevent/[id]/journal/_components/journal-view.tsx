@@ -745,6 +745,24 @@ export function JournalView({
             {stats.entriesWithPhotos} photo{stats.entriesWithPhotos !== 1 ? "s" : ""}
           </span>
         )}
+        {stats.totalWords > 0 && (
+          <span
+            data-testid="journal-stats-words"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--warning-orange)",
+              background: "rgba(255,153,0,0.1)",
+              border: "1px solid rgba(255,153,0,0.4)",
+              borderRadius: "var(--radius-sm)",
+              padding: "2px 8px",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
+            {stats.totalWords} mot{stats.totalWords !== 1 ? "s" : ""}
+          </span>
+        )}
       </div>
 
       {/* Search bar */}
