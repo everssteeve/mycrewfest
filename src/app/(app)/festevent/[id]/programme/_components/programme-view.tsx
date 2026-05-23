@@ -6,7 +6,7 @@ import { EventCard, type EventWithSelectionAndConfidence } from "@/components/fe
 import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
 import type { EventType } from "@/lib/api";
-import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, matchesVenueFilter, matchesDurationFilter, type SelectionFilter, type DurationFilter, DURATION_FILTER_LABELS } from "@/lib/programme-search";
+import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, matchesVenueFilter, matchesDurationFilter, matchesAgeRestrictionFilter, type SelectionFilter, type DurationFilter, DURATION_FILTER_LABELS } from "@/lib/programme-search";
 import { isEscapeKey } from "@/lib/keyboard-search";
 import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
 import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
@@ -95,6 +95,7 @@ export function ProgrammeView({
   const [sortMode, setSortMode] = useState<SortMode>("time");
   const [shuffleSeed, setShuffleSeed] = useState(0);
   const [activeDurationFilter, setActiveDurationFilter] = useState<DurationFilter>("tous");
+  const [showOnlyAgeRestricted, setShowOnlyAgeRestricted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [upcomingOnly, setUpcomingOnly] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -201,9 +202,12 @@ export function ProgrammeView({
       // Duration filter
       if (!matchesDurationFilter(e, activeDurationFilter)) return false;
 
+      // Age restriction filter
+      if (!matchesAgeRestrictionFilter(e, showOnlyAgeRestricted)) return false;
+
       return true;
     });
-  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, activeVenueId, searchQuery, upcomingOnly, activeDurationFilter]);
+  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, activeVenueId, searchQuery, upcomingOnly, activeDurationFilter, showOnlyAgeRestricted]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const sortedFilteredEvents = useMemo(
@@ -1220,17 +1224,27 @@ export function ProgrammeView({
         {ageRestrictedCount > 0 && ageRestrictedCount < filteredEvents.length && (
           <>
             <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
-            <span
-              data-testid="programme-age-restricted-count"
+            <button
+              type="button"
+              onClick={() => setShowOnlyAgeRestricted((v) => !v)}
+              aria-pressed={showOnlyAgeRestricted}
+              data-testid="programme-age-restricted-filter"
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: "var(--fs-xs)",
-                color: "var(--warning-orange)",
+                color: showOnlyAgeRestricted ? "var(--warning-orange)" : "var(--text-dim)",
+                background: showOnlyAgeRestricted ? "rgba(255,153,0,0.12)" : "transparent",
+                border: showOnlyAgeRestricted ? "1px solid rgba(255,153,0,0.4)" : "none",
+                borderRadius: "var(--radius-sm)",
+                padding: showOnlyAgeRestricted ? "0 4px" : 0,
+                cursor: "pointer",
               }}
-              title={`${ageRestrictedCount} événement${ageRestrictedCount !== 1 ? "s" : ""} avec restriction d'âge`}
+              title={showOnlyAgeRestricted ? "Afficher tous les événements" : "Filtrer : limites d'âge uniquement"}
             >
-              {ageRestrictedCount} limite âge
-            </span>
+              <span data-testid="programme-age-restricted-count">
+                {ageRestrictedCount} limite âge
+              </span>
+            </button>
           </>
         )}
         {/* Duration filter chips */}

@@ -91,3 +91,23 @@ export function matchesDurationFilter<T extends DurationFilterable>(
   if (filter === "normal") return d >= 30 && d <= 90;
   return d > 90;
 }
+
+export interface AgeRestrictionFilterable {
+  ageMin?: number | null;
+  ageMax?: number | null;
+}
+
+/**
+ * When `showOnlyRestricted` is true, returns true only for events that have a
+ * positive ageMin or ageMax. When false, always returns true.
+ */
+export function matchesAgeRestrictionFilter<T extends AgeRestrictionFilterable>(
+  event: T,
+  showOnlyRestricted: boolean,
+): boolean {
+  if (!showOnlyRestricted) return true;
+  return (
+    (event.ageMin != null && event.ageMin > 0) ||
+    (event.ageMax != null && event.ageMax > 0)
+  );
+}

@@ -5,11 +5,13 @@ import {
   matchesTagFilter,
   matchesVenueFilter,
   matchesDurationFilter,
+  matchesAgeRestrictionFilter,
   type SearchableEvent,
   type SelectionFilterable,
   type TagFilterable,
   type VenueFilterable,
   type DurationFilterable,
+  type AgeRestrictionFilterable,
 } from "@/lib/programme-search";
 
 const BASE: SearchableEvent = {
@@ -244,5 +246,41 @@ describe("matchesDurationFilter", () => {
     expect(matchesDurationFilter(dur(null), "court")).toBe(false);
     expect(matchesDurationFilter(dur(undefined), "normal")).toBe(false);
     expect(matchesDurationFilter(dur(null), "long")).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// matchesAgeRestrictionFilter
+// ---------------------------------------------------------------------------
+
+const age = (ageMin?: number | null, ageMax?: number | null): AgeRestrictionFilterable => ({ ageMin, ageMax });
+
+describe("matchesAgeRestrictionFilter", () => {
+  it("always returns true when showOnlyRestricted is false", () => {
+    expect(matchesAgeRestrictionFilter(age(18), false)).toBe(true);
+    expect(matchesAgeRestrictionFilter(age(null, null), false)).toBe(true);
+    expect(matchesAgeRestrictionFilter(age(undefined), false)).toBe(true);
+  });
+
+  it("returns true for events with ageMin > 0 when restricted filter is on", () => {
+    expect(matchesAgeRestrictionFilter(age(18), true)).toBe(true);
+  });
+
+  it("returns true for events with ageMax > 0 when restricted filter is on", () => {
+    expect(matchesAgeRestrictionFilter(age(null, 12), true)).toBe(true);
+  });
+
+  it("returns true for events with both ageMin and ageMax when restricted filter is on", () => {
+    expect(matchesAgeRestrictionFilter(age(16, 60), true)).toBe(true);
+  });
+
+  it("returns false for events with no age restriction when filter is on", () => {
+    expect(matchesAgeRestrictionFilter(age(null, null), true)).toBe(false);
+    expect(matchesAgeRestrictionFilter(age(undefined, undefined), true)).toBe(false);
+    expect(matchesAgeRestrictionFilter(age(0, 0), true)).toBe(false);
+  });
+
+  it("returns false for events with ageMin === 0 (not a real restriction)", () => {
+    expect(matchesAgeRestrictionFilter(age(0), true)).toBe(false);
   });
 });
