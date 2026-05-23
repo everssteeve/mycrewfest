@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   DATABASE_URL: "file:/tmp/test.db"
   NEXTAUTH_SECRET: "ci-test-secret-not-for-production"
