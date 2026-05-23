@@ -524,6 +524,7 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
       {hasArtistDetails && (
         <button
           type="button"
+          data-testid={`event-expand-${event.id}`}
           onClick={(e) => {
             e.stopPropagation();
             setExpanded((v) => !v);
@@ -622,6 +623,30 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
               {event.artist.description}
             </p>
           )}
+
+          {/* Profile link */}
+          <a
+            href={`/artiste/${event.artist.id}`}
+            data-testid={`event-artist-profile-link-${event.id}`}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              fontSize: "var(--fs-xs)",
+              fontFamily: "var(--font-body)",
+              fontWeight: "var(--fw-bold)",
+              color: "var(--accent-pink)",
+              textDecoration: "none",
+              border: "1px solid rgba(255,0,122,0.3)",
+              borderRadius: "var(--radius-sm)",
+              padding: "3px 8px",
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+            }}
+          >
+            Fiche artiste →
+          </a>
 
           {/* Social links */}
           {(event.artist.siteUrl || event.artist.instagram) && (
