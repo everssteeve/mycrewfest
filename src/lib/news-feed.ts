@@ -77,6 +77,19 @@ export function filterFeedByFestival(items: FeedItem[], festivalId: string | nul
   return items.filter((i) => i.festivalId === festivalId);
 }
 
+export function filterFeedByCategory(items: FeedItem[], category: string | null): FeedItem[] {
+  if (!category) return items;
+  return items.filter((i) => i.category === category);
+}
+
+export function getAvailableCategoriesFromFeed(items: FeedItem[]): string[] {
+  const seen = new Set<string>();
+  for (const item of items) seen.add(item.category);
+  return [...seen].sort((a, b) =>
+    (FEED_CATEGORY_LABELS[a] ?? a).localeCompare(FEED_CATEGORY_LABELS[b] ?? b, "fr"),
+  );
+}
+
 export function getFollowedFestivalsFromFeed(items: FeedItem[]): { id: string; name: string }[] {
   const seen = new Map<string, string>();
   for (const item of items) {

@@ -7,7 +7,9 @@ import {
   groupFeedByDay,
   getFeedCategoryLabel,
   filterFeedByFestival,
+  filterFeedByCategory,
   getFollowedFestivalsFromFeed,
+  getAvailableCategoriesFromFeed,
   type FeedItem,
 } from "@/lib/news-feed";
 
@@ -17,8 +19,11 @@ interface FeedViewProps {
 
 export function FeedView({ items }: FeedViewProps) {
   const [activeFestival, setActiveFestival] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const festivals = getFollowedFestivalsFromFeed(items);
-  const filtered = filterFeedByFestival(items, activeFestival);
+  const byFestival = filterFeedByFestival(items, activeFestival);
+  const categories = getAvailableCategoriesFromFeed(byFestival);
+  const filtered = filterFeedByCategory(byFestival, activeCategory);
   const days = groupFeedByDay(sortFeedItems(filtered));
 
   return (
@@ -84,6 +89,62 @@ export function FeedView({ items }: FeedViewProps) {
         </div>
       )}
 
+      {/* Category filter chips */}
+      {categories.length > 1 && (
+        <div
+          data-testid="feed-category-filter"
+          style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}
+        >
+          <button
+            type="button"
+            data-testid="feed-category-all"
+            onClick={() => setActiveCategory(null)}
+            aria-pressed={activeCategory === null}
+            style={{
+              padding: "3px 10px",
+              borderRadius: 20,
+              border: activeCategory === null
+                ? "1px solid var(--secondary-cyan, #00E5FF)"
+                : "1px solid var(--border-subtle, #1E1F26)",
+              background: activeCategory === null ? "rgba(0,229,255,0.08)" : "transparent",
+              color: activeCategory === null ? "var(--secondary-cyan, #00E5FF)" : "var(--text-dim, #666)",
+              fontSize: "0.68rem",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              cursor: "pointer",
+            }}
+          >
+            Tout
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              data-testid={`feed-category-${cat}`}
+              onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
+              aria-pressed={activeCategory === cat}
+              style={{
+                padding: "3px 10px",
+                borderRadius: 20,
+                border: activeCategory === cat
+                  ? "1px solid var(--secondary-cyan, #00E5FF)"
+                  : "1px solid var(--border-subtle, #1E1F26)",
+                background: activeCategory === cat ? "rgba(0,229,255,0.08)" : "transparent",
+                color: activeCategory === cat ? "var(--secondary-cyan, #00E5FF)" : "var(--text-dim, #666)",
+                fontSize: "0.68rem",
+                fontWeight: 700,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                cursor: "pointer",
+              }}
+            >
+              {getFeedCategoryLabel(cat)}
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Item count */}
       {filtered.length > 0 && (
         <p
@@ -92,6 +153,7 @@ export function FeedView({ items }: FeedViewProps) {
         >
           {filtered.length} actualité{filtered.length > 1 ? "s" : ""}
           {activeFestival ? ` · ${festivals.find((f) => f.id === activeFestival)?.name}` : ""}
+          {activeCategory ? ` · ${getFeedCategoryLabel(activeCategory)}` : ""}
         </p>
       )}
 
