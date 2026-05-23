@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Newspaper, Pin, RefreshCw, Filter, Search, X } from "lucide-react";
 import { matchesNewsQuery } from "@/lib/news-search";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins, computeAvgNewsAgeHours } from "@/lib/news-stats";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 // ---------------------------------------------------------------------------
@@ -330,6 +330,7 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
   const recentCount = useMemo(() => countRecentNewsItems(filteredNews, 24), [filteredNews]);
   const topCategory = useMemo(() => getTopNewsCategory(filteredNews), [filteredNews]);
   const freshnessMins = useMemo(() => getMostRecentArticleAgoMins(filteredNews), [filteredNews]);
+  const avgAgeHours = useMemo(() => computeAvgNewsAgeHours(filteredNews), [filteredNews]);
 
   // Separate pinned from the rest
   const pinnedItems = filteredNews.filter((item) => item.isPinned);
@@ -546,6 +547,19 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
               title="Temps écoulé depuis la publication de la dernière actualité"
             >
               · il y a {freshnessMins < 60 ? `${freshnessMins}min` : `${Math.floor(freshnessMins / 60)}h`}
+            </span>
+          )}
+          {avgAgeHours !== null && filteredNews.length > 1 && (
+            <span
+              data-testid="news-stats-avg-age"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: avgAgeHours < 24 ? "var(--text-muted)" : "var(--text-dim)",
+              }}
+              title={`Âge moyen des articles : ${avgAgeHours < 24 ? `${avgAgeHours}h` : `${Math.floor(avgAgeHours / 24)}j`}`}
+            >
+              · moy. {avgAgeHours < 24 ? `${avgAgeHours}h` : `${Math.floor(avgAgeHours / 24)}j`}
             </span>
           )}
           {selectedCategory && (

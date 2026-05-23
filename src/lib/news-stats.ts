@@ -115,6 +115,29 @@ export function getTopNewsSource<T extends SourceCountable>(items: T[]): string 
  * relative to `now`. Returns null when the list is empty or all dates are unparseable.
  * Negative values (future-dated items) are clamped to 0.
  */
+/**
+ * Returns the average age in whole hours of the given news items relative to `now`.
+ * Items with unparseable publishedAt are ignored.
+ * Returns null when the list is empty or all dates are unparseable.
+ */
+export function computeAvgNewsAgeHours<T extends TimestampedNewsItem>(
+  items: T[],
+  now: Date = new Date(),
+): number | null {
+  let total = 0;
+  let count = 0;
+  for (const item of items) {
+    const t = new Date(item.publishedAt).getTime();
+    if (Number.isNaN(t)) continue;
+    const ageMs = now.getTime() - t;
+    if (ageMs < 0) continue; // future-dated items ignored
+    total += ageMs;
+    count++;
+  }
+  if (count === 0) return null;
+  return Math.floor(total / count / (60 * 60_000));
+}
+
 export function getMostRecentArticleAgoMins<T extends TimestampedNewsItem>(
   items: T[],
   now: Date = new Date(),

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins, computeAvgNewsAgeHours } from "@/lib/news-stats";
 
 const item = (urgencyLevel: "normal" | "critique", isPinned = false) => ({
   urgencyLevel,
@@ -214,5 +214,61 @@ describe("getMostRecentArticleAgoMins", () => {
   it("returns 0 for an item published exactly now", () => {
     const items = [{ publishedAt: now.toISOString() }];
     expect(getMostRecentArticleAgoMins(items, now)).toBe(0);
+  });
+});
+
+describe("computeAvgNewsAgeHours", () => {
+  const now = new Date("2026-07-15T18:00:00Z");
+
+  it("returns null for empty list", () => {
+    expect(computeAvgNewsAgeHours([], now)).toBeNull();
+  });
+
+  it("returns null when all publishedAt are unparseable", () => {
+    const items = [{ publishedAt: "not-a-date" }, { publishedAt: "" }];
+    expect(computeAvgNewsAgeHours(items, now)).toBeNull();
+  });
+
+  it("returns 0 for an item published at now", () => {
+    const items = [{ publishedAt: now.toISOString() }];
+    expect(computeAvgNewsAgeHours(items, now)).toBe(0);
+  });
+
+  it("returns correct age for a single article", () => {
+    const threeHoursAgo = new Date(now.getTime() - 3 * 60 * 60_000);
+    const items = [{ publishedAt: threeHoursAgo.toISOString() }];
+    expect(computeAvgNewsAgeHours(items, now)).toBe(3);
+  });
+
+  it("averages ages across multiple articles", () => {
+    const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60_000);
+    const sixHoursAgo = new Date(now.getTime() - 6 * 60 * 60_000);
+    const items = [
+      { publishedAt: twoHoursAgo.toISOString() },
+      { publishedAt: sixHoursAgo.toISOString() },
+    ];
+    expect(computeAvgNewsAgeHours(items, now)).toBe(4);
+  });
+
+  it("ignores future-dated articles", () => {
+    const inTwoHours = new Date(now.getTime() + 2 * 60 * 60_000);
+    const fourHoursAgo = new Date(now.getTime() - 4 * 60 * 60_000);
+    const items = [
+      { publishedAt: inTwoHours.toISOString() },
+      { publishedAt: fourHoursAgo.toISOString() },
+    ];
+    expect(computeAvgNewsAgeHours(items, now)).toBe(4);
+  });
+
+  it("floors partial hours", () => {
+    const ninetyMinsAgo = new Date(now.getTime() - 90 * 60_000);
+    const items = [{ publishedAt: ninetyMinsAgo.toISOString() }];
+    expect(computeAvgNewsAgeHours(items, now)).toBe(1);
+  });
+
+  it("returns correct days worth of hours", () => {
+    const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60_000);
+    const items = [{ publishedAt: twoDaysAgo.toISOString() }];
+    expect(computeAvgNewsAgeHours(items, now)).toBe(48);
   });
 });
