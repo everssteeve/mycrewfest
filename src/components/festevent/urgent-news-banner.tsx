@@ -1,9 +1,9 @@
 "use client";
 
+import { AlertTriangle, X } from "lucide-react";
 import { useState } from "react";
-import { X, AlertTriangle } from "lucide-react";
 import type { UrgentNewsItem } from "@/lib/news-urgency";
-import { getUrgentCategoryLabel, getUrgentBannerLabel } from "@/lib/news-urgency";
+import { getUrgentBannerLabel, getUrgentCategoryLabel } from "@/lib/news-urgency";
 
 interface UrgentNewsBannerProps {
   urgentNews: UrgentNewsItem[];
@@ -70,6 +70,7 @@ export function UrgentNewsBanner({ urgentNews, newsPageHref }: UrgentNewsBannerP
         Voir
       </a>
       <button
+        type="button"
         onClick={() => setDismissed(true)}
         data-testid="urgent-news-banner-dismiss"
         aria-label="Fermer l'alerte"

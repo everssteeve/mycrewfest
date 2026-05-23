@@ -1,21 +1,21 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Music2, CalendarDays } from "lucide-react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { ArrowLeft, CalendarDays, Music2 } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { TopHeader } from "@/components/ui";
 import { parseJsonArray } from "@/lib/api";
 import {
   deduplicateArtistsByFestival,
-  sortByFestivalDate,
-  filterUpcoming,
   filterPast,
+  filterUpcoming,
   groupByFestival,
   type MesArtistesItem,
+  sortByFestivalDate,
 } from "@/lib/mes-artistes";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = { title: "Mes artistes" };
 
@@ -191,7 +191,7 @@ export default async function MesArtistesPage() {
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     {group.artists.map((item, idx) => (
                       <Link
-                        key={`${item.artistId}-${idx}`}
+                        key={item.artistId}
                         href={`/artiste/${item.artistId}`}
                         data-testid={`mes-artistes-item-${item.artistId}`}
                         style={{
@@ -200,7 +200,10 @@ export default async function MesArtistesPage() {
                           gap: 10,
                           padding: "8px 14px",
                           textDecoration: "none",
-                          borderBottom: idx < group.artists.length - 1 ? "1px solid var(--border-color)" : "none",
+                          borderBottom:
+                            idx < group.artists.length - 1
+                              ? "1px solid var(--border-color)"
+                              : "none",
                         }}
                       >
                         <Music2 size={13} color="var(--secondary-cyan)" aria-hidden="true" />
@@ -215,7 +218,9 @@ export default async function MesArtistesPage() {
                           {item.artistName}
                         </span>
                         {item.disciplines.length > 0 && (
-                          <span style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 10px)" }}>
+                          <span
+                            style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 10px)" }}
+                          >
                             {item.disciplines[0]}
                           </span>
                         )}
@@ -233,7 +238,11 @@ export default async function MesArtistesPage() {
           <p
             data-testid="mes-artistes-past-count"
             className="t-caption"
-            style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 11px)", textAlign: "center" }}
+            style={{
+              color: "var(--text-dim)",
+              fontSize: "var(--fs-xs, 11px)",
+              textAlign: "center",
+            }}
           >
             + {past.length} artiste{past.length > 1 ? "s" : ""} de festivals passés
           </p>

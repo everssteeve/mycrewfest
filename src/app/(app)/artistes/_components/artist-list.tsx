@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import Link from "next/link";
 import { Search } from "lucide-react";
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import {
-  filterArtists,
-  getAvailableDisciplines,
-  getAvailableCountries,
-  sortArtists,
   type ArtistListItem,
   type ArtistSortMode,
+  filterArtists,
+  getAvailableCountries,
+  getAvailableDisciplines,
+  sortArtists,
 } from "@/lib/artist-filter";
 
 interface Props {
@@ -79,6 +79,7 @@ export function ArtistList({ initialArtists }: Props) {
           style={{ display: "flex", flexWrap: "wrap", gap: 6 }}
         >
           <button
+            type="button"
             onClick={() => setDiscipline("")}
             style={{
               padding: "4px 12px",
@@ -98,6 +99,7 @@ export function ArtistList({ initialArtists }: Props) {
           </button>
           {disciplines.map((d) => (
             <button
+              type="button"
               key={d}
               onClick={() => setDiscipline(d === discipline ? "" : d)}
               style={{
@@ -142,13 +144,17 @@ export function ArtistList({ initialArtists }: Props) {
         >
           <option value="">Tous les pays</option>
           {countries.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>
+              {c}
+            </option>
           ))}
         </select>
       )}
 
       {/* Sort toggle + count */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+      <div
+        style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}
+      >
         <p
           data-testid="artistes-count"
           style={{
@@ -160,10 +166,7 @@ export function ArtistList({ initialArtists }: Props) {
         >
           {filtered.length} artiste{filtered.length !== 1 ? "s" : ""}
         </p>
-        <div
-          data-testid="artistes-sort"
-          style={{ display: "flex", gap: 4 }}
-        >
+        <div data-testid="artistes-sort" style={{ display: "flex", gap: 4 }}>
           {(["name", "festivals"] as ArtistSortMode[]).map((mode) => (
             <button
               key={mode}
@@ -174,9 +177,10 @@ export function ArtistList({ initialArtists }: Props) {
               style={{
                 padding: "3px 10px",
                 borderRadius: 20,
-                border: sortMode === mode
-                  ? "1px solid var(--secondary-cyan, #00E5FF)"
-                  : "1px solid var(--border-color)",
+                border:
+                  sortMode === mode
+                    ? "1px solid var(--secondary-cyan, #00E5FF)"
+                    : "1px solid var(--border-color)",
                 background: sortMode === mode ? "rgba(0,229,255,0.1)" : "transparent",
                 color: sortMode === mode ? "var(--secondary-cyan, #00E5FF)" : "var(--text-dim)",
                 fontSize: "0.68rem",

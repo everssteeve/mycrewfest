@@ -1,10 +1,10 @@
-import { prisma } from "@/lib/prisma";
 import {
-  countSignalsByScope,
-  countActiveSignals,
-  sortSignalsByRecency,
   type AdminSignalRow,
+  countActiveSignals,
+  countSignalsByScope,
+  sortSignalsByRecency,
 } from "@/lib/admin-signals";
+import { prisma } from "@/lib/prisma";
 import { SignalsScopeFilter } from "./_components/signals-scope-filter";
 
 async function getSignals(): Promise<AdminSignalRow[]> {
@@ -77,13 +77,13 @@ export default async function AdminSignalsPage() {
           },
           {
             label: "Communauté",
-            value: scopeCounts["communauté"] ?? 0,
+            value: scopeCounts.communauté ?? 0,
             color: "var(--primary-neon)",
             testid: "admin-signals-kpi-community",
           },
           {
             label: "Crew",
-            value: scopeCounts["crew"] ?? 0,
+            value: scopeCounts.crew ?? 0,
             color: "var(--secondary-cyan)",
             testid: "admin-signals-kpi-crew",
           },

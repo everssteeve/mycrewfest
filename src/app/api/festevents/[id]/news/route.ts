@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -11,10 +11,7 @@ type RouteContext = { params: Promise<{ id: string }> };
  *   category?: string — filter by category
  *   limit?: number    — default 50
  */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function GET(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non connecté." }, { status: 401 });

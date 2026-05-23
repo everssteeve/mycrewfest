@@ -1,16 +1,16 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import {
   buildLeaderboard,
-  getUserPosition,
   filterTopN,
+  getUserPosition,
+  POSITION_MEDALS,
   RANK_COLORS,
   RANK_LABELS,
-  POSITION_MEDALS,
 } from "@/lib/leaderboard";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Classement Festivaliers",
@@ -71,7 +71,7 @@ export default async function ClassementPage() {
   if (!session?.user?.id) redirect("/login");
 
   const { rawUsers, vuCountByUser } = await fetchLeaderboardData();
-  const userId = session.user!.id!;
+  const userId = session.user.id;
   const allEntries = buildLeaderboard(rawUsers, vuCountByUser);
   const topEntries = filterTopN(allEntries, TOP_N);
   const currentUserPosition = getUserPosition(allEntries, userId);
@@ -125,9 +125,7 @@ export default async function ClassementPage() {
             gap: 12,
           }}
         >
-          <span style={{ fontSize: "0.8rem", color: "var(--text-dim, #666)" }}>
-            Votre position
-          </span>
+          <span style={{ fontSize: "0.8rem", color: "var(--text-dim, #666)" }}>Votre position</span>
           <span
             style={{
               fontFamily: "var(--font-mono, monospace)",
@@ -168,7 +166,14 @@ export default async function ClassementPage() {
       ) : (
         <ol
           data-testid="classement-list"
-          style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 8 }}
+          style={{
+            listStyle: "none",
+            padding: 0,
+            margin: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
         >
           {topEntries.map((entry, index) => {
             const position = index + 1;
@@ -179,9 +184,7 @@ export default async function ClassementPage() {
                 key={entry.userId}
                 data-testid={`classement-entry-${position}`}
                 style={{
-                  background: isMe
-                    ? "rgba(0,255,102,0.06)"
-                    : "var(--bg-card, #141519)",
+                  background: isMe ? "rgba(0,255,102,0.06)" : "var(--bg-card, #141519)",
                   border: isMe
                     ? "1px solid rgba(0,255,102,0.3)"
                     : "1px solid var(--border-subtle, #1E1F26)",
@@ -222,9 +225,7 @@ export default async function ClassementPage() {
                   >
                     {entry.displayName}
                     {isMe && (
-                      <span style={{ fontSize: "0.7rem", marginLeft: 6, opacity: 0.7 }}>
-                        (moi)
-                      </span>
+                      <span style={{ fontSize: "0.7rem", marginLeft: 6, opacity: 0.7 }}>(moi)</span>
                     )}
                   </p>
                   <p

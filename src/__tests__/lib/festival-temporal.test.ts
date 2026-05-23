@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  getFestivalTemporalStatus,
-  getDaysUntilStart,
   compareByTemporalRelevance,
   formatTemporalBadge,
+  getDaysUntilStart,
+  getFestivalTemporalStatus,
 } from "@/lib/festival-temporal";
 
 const d = (offsetDays: number, base = new Date("2026-06-15T12:00:00Z")): string => {
@@ -120,7 +120,7 @@ describe("compareByTemporalRelevance", () => {
     const upcoming = make(15, 18);
     const past = make(-10, -5);
     const list = [past, upcoming, imminent, ongoing].sort((a, b) =>
-      compareByTemporalRelevance(a, b, NOW)
+      compareByTemporalRelevance(a, b, NOW),
     );
     expect(list).toEqual([ongoing, imminent, upcoming, past]);
   });

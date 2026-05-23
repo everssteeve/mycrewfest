@@ -70,9 +70,7 @@ export interface TopSignalTypeResult {
  * Returns the most common predefined phrase across signals, or null if none have one.
  * Ties are broken alphabetically.
  */
-export function getTopSignalType(
-  signals: TopSignalTypeInput[],
-): TopSignalTypeResult | null {
+export function getTopSignalType(signals: TopSignalTypeInput[]): TopSignalTypeResult | null {
   const counts = new Map<string, number>();
   for (const s of signals) {
     if (s.predefinedPhrase) {

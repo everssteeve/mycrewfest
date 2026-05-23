@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { formatEventDuration, formatAgeRestriction, getAccessLabel } from "@/lib/event-format";
+import { describe, expect, it } from "vitest";
+import { formatAgeRestriction, formatEventDuration, getAccessLabel } from "@/lib/event-format";
 
 describe("formatEventDuration", () => {
   it("formats minutes only", () => {

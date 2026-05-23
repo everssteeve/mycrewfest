@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  getAppearanceCountdownStatus,
   formatAppearanceCountdownLabel,
   getAppearanceCountdownColor,
+  getAppearanceCountdownStatus,
 } from "@/lib/appearance-countdown";
 
 const NOW = new Date("2026-05-23T12:00:00Z");
@@ -36,7 +36,7 @@ describe("formatAppearanceCountdownLabel", () => {
     expect(formatAppearanceCountdownLabel("2026-05-20T00:00:00Z", NOW)).toBeNull();
   });
 
-  it("returns \"Aujourd'hui\" for same day", () => {
+  it('returns "Aujourd\'hui" for same day', () => {
     expect(formatAppearanceCountdownLabel("2026-05-23T00:00:00Z", NOW)).toBe("Aujourd'hui");
   });
 

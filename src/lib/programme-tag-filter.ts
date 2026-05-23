@@ -25,9 +25,7 @@ export function parseEventTags(tags?: string | null): string[] {
  * Accepts events with `tags` as string[] or JSON string or null.
  * Returns a sorted array of unique tag strings.
  */
-export function extractEventTags(
-  events: Array<{ tags?: string[] | string | null }>,
-): string[] {
+export function extractEventTags(events: Array<{ tags?: string[] | string | null }>): string[] {
   const set = new Set<string>();
   for (const e of events) {
     const raw = e.tags;

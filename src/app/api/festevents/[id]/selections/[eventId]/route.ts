@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -8,16 +8,10 @@ type RouteContext = { params: Promise<{ id: string; eventId: string }> };
  * DELETE /api/festevents/[id]/selections/[eventId]
  * Remove a selection (auth required).
  */
-export async function DELETE(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { id, eventId } = await params;
@@ -29,10 +23,7 @@ export async function DELETE(
   });
 
   if (!festEvent) {
-    return NextResponse.json(
-      { error: "FestEvent introuvable." },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "FestEvent introuvable." }, { status: 404 });
   }
 
   try {
@@ -44,10 +35,7 @@ export async function DELETE(
     });
 
     if (deleted.count === 0) {
-      return NextResponse.json(
-        { error: "Sélection introuvable." },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Sélection introuvable." }, { status: 404 });
     }
 
     return NextResponse.json({ deleted: true }, { status: 200 });

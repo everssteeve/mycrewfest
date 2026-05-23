@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { nextSelectionStatus, toggleVuStatus, SELECTION_CYCLE } from "@/lib/selection";
+import { describe, expect, it } from "vitest";
+import { nextSelectionStatus, SELECTION_CYCLE, toggleVuStatus } from "@/lib/selection";
 
 describe("SELECTION_CYCLE", () => {
   it("contains null, intéressé, must-see and vu in order", () => {

@@ -36,7 +36,9 @@ export function formatSignalExpiry(expiresAt: Date, now: Date = new Date()): str
   return `${diffHours}h`;
 }
 
-export function resolveSignalLabel(signal: Pick<AdminSignalRow, "predefinedPhrase" | "description">): string {
+export function resolveSignalLabel(
+  signal: Pick<AdminSignalRow, "predefinedPhrase" | "description">,
+): string {
   return signal.predefinedPhrase ?? signal.description ?? "Signal sans description";
 }
 

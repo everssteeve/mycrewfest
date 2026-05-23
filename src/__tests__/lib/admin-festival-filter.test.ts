@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  matchesFestivalStatusFilter,
-  matchesFestivalNameQuery,
   filterAdminFestivals,
+  matchesFestivalNameQuery,
+  matchesFestivalStatusFilter,
 } from "@/lib/admin-festival-filter";
 
 function fest(name: string, status: string) {

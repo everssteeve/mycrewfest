@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { type NextRequest, NextResponse } from "next/server";
 import { parseJsonArray } from "@/lib/api";
-import { filterAndRankFestivals, filterAndRankArtists } from "@/lib/global-search";
+import { filterAndRankArtists, filterAndRankFestivals } from "@/lib/global-search";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

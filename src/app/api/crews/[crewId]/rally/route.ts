@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -15,16 +15,10 @@ const rallySchema = z.object({
  * PUT /api/crews/[crewId]/rally
  * Set or update the crew rally point (admin only).
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function PUT(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { crewId } = await params;
@@ -33,10 +27,7 @@ export async function PUT(
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requête invalide." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
   }
 
   const parsed = rallySchema.safeParse(body);
@@ -53,10 +44,7 @@ export async function PUT(
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Vous n'êtes pas membre de ce crew." },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Vous n'êtes pas membre de ce crew." }, { status: 403 });
     }
 
     if (member.role !== "admin") {

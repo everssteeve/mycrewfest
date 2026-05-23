@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
 import { Search } from "lucide-react";
-import { filterAdminUsers, formatUserRole, getUserRoleColor, type AdminUserRow } from "@/lib/admin-users";
+import { useMemo, useState, useTransition } from "react";
+import {
+  type AdminUserRow,
+  filterAdminUsers,
+  formatUserRole,
+  getUserRoleColor,
+} from "@/lib/admin-users";
 
 interface Props {
   users: AdminUserRow[];

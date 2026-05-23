@@ -1,11 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-  loadRecentlyViewed,
-  addToRecentlyViewed,
-  saveRecentlyViewed,
-} from "@/lib/recently-viewed";
+import { addToRecentlyViewed, loadRecentlyViewed, saveRecentlyViewed } from "@/lib/recently-viewed";
 
 interface Props {
   slug: string;

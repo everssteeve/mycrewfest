@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  matchesArtistFilter,
-  getUniqueArtistNames,
+  type ArtistFilterable,
+  buildArtistFilterAriaLabel,
   countArtistAppearances,
   getArtistsWithMultipleSlots,
-  buildArtistFilterAriaLabel,
-  type ArtistFilterable,
+  getUniqueArtistNames,
+  matchesArtistFilter,
 } from "@/lib/programme-artist";
 
 const makeEvent = (name: string | null): ArtistFilterable => ({
@@ -65,20 +65,13 @@ describe("countArtistAppearances", () => {
 
 describe("getArtistsWithMultipleSlots", () => {
   it("returns only artists with count > 1", () => {
-    const events = [
-      makeEvent("Metallica"),
-      makeEvent("Metallica"),
-      makeEvent("Iron Maiden"),
-    ];
+    const events = [makeEvent("Metallica"), makeEvent("Metallica"), makeEvent("Iron Maiden")];
     const multi = getArtistsWithMultipleSlots(events);
     expect(multi).toContain("Metallica");
     expect(multi).not.toContain("Iron Maiden");
   });
   it("returns sorted list", () => {
-    const events = [
-      makeEvent("Zebra"), makeEvent("Zebra"),
-      makeEvent("Alpha"), makeEvent("Alpha"),
-    ];
+    const events = [makeEvent("Zebra"), makeEvent("Zebra"), makeEvent("Alpha"), makeEvent("Alpha")];
     const multi = getArtistsWithMultipleSlots(events);
     expect(multi[0]).toBe("Alpha");
   });

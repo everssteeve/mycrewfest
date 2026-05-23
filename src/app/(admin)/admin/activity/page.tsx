@@ -1,5 +1,5 @@
+import { type ActivityEntry, countActivityByType } from "@/lib/admin-activity";
 import { prisma } from "@/lib/prisma";
-import { countActivityByType, type ActivityEntry } from "@/lib/admin-activity";
 import { ActivityFilter } from "./_components/activity-filter";
 
 const LIMIT = 50;
@@ -112,10 +112,30 @@ export default async function AdminActivityPage() {
         }}
       >
         {[
-          { label: "Inscriptions", value: counts.user_signup, color: "var(--secondary-cyan)", testid: "admin-activity-kpi-signups" },
-          { label: "Signaux", value: counts.signal_posted, color: "var(--primary-neon)", testid: "admin-activity-kpi-signals" },
-          { label: "Soumissions", value: counts.submission_received, color: "var(--warning-orange)", testid: "admin-activity-kpi-submissions" },
-          { label: "Festivals", value: counts.festival_detected, color: "var(--accent-pink)", testid: "admin-activity-kpi-festivals" },
+          {
+            label: "Inscriptions",
+            value: counts.user_signup,
+            color: "var(--secondary-cyan)",
+            testid: "admin-activity-kpi-signups",
+          },
+          {
+            label: "Signaux",
+            value: counts.signal_posted,
+            color: "var(--primary-neon)",
+            testid: "admin-activity-kpi-signals",
+          },
+          {
+            label: "Soumissions",
+            value: counts.submission_received,
+            color: "var(--warning-orange)",
+            testid: "admin-activity-kpi-submissions",
+          },
+          {
+            label: "Festivals",
+            value: counts.festival_detected,
+            color: "var(--accent-pink)",
+            testid: "admin-activity-kpi-festivals",
+          },
         ].map((kpi) => (
           <div
             key={kpi.label}

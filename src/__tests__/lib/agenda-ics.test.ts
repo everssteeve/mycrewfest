@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  deriveAgendaEndIso,
+  type AgendaIcsEvent,
   buildAgendaIcsEvent,
   buildAgendaIcsEvents,
-  type AgendaIcsEvent,
+  deriveAgendaEndIso,
 } from "@/lib/agenda-ics";
 
 const BASE_EVENT: AgendaIcsEvent = {

@@ -48,11 +48,7 @@ export function buildContextualHref(
  * @param tabHref  - the href built by buildContextualHref (or a static href)
  * @param section  - optional fest event sub-route for contextual matching
  */
-export function isTabActive(
-  pathname: string,
-  tabHref: string,
-  section?: string,
-): boolean {
+export function isTabActive(pathname: string, tabHref: string, section?: string): boolean {
   if (pathname.startsWith(tabHref)) return true;
   if (section) {
     return pathname.startsWith(`/festevent/`) && pathname.includes(`/${section}`);

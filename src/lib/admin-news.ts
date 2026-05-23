@@ -42,9 +42,7 @@ export function filterAdminNews(
   const q = query.toLowerCase().trim();
   return news.filter((item) => {
     const matchesQuery =
-      !q ||
-      item.festivalName.toLowerCase().includes(q) ||
-      item.summary.toLowerCase().includes(q);
+      !q || item.festivalName.toLowerCase().includes(q) || item.summary.toLowerCase().includes(q);
     const matchesUrgency = !urgencyLevel || item.urgencyLevel === urgencyLevel;
     const matchesCategory = !category || item.category === category;
     return matchesQuery && matchesUrgency && matchesCategory;

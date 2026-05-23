@@ -1,9 +1,9 @@
 "use client";
 
+import { CalendarDays, CircleUser, House, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { House, CalendarDays, MapPin, Users, CircleUser } from "lucide-react";
-import { extractFestEventId, buildContextualHref, isTabActive } from "@/lib/bottom-nav";
+import { buildContextualHref, extractFestEventId, isTabActive } from "@/lib/bottom-nav";
 
 interface NavTab {
   href: (festEventId: string | null) => string;

@@ -1,15 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
-  filterActivityEntries,
-  sortActivityEntriesDesc,
-  formatActivityTimestamp,
-  ACTIVITY_TYPE_OPTIONS,
   ACTIVITY_TYPE_COLORS,
   ACTIVITY_TYPE_ICONS,
+  ACTIVITY_TYPE_OPTIONS,
   type ActivityEntry,
   type ActivityType,
+  filterActivityEntries,
+  formatActivityTimestamp,
+  sortActivityEntriesDesc,
 } from "@/lib/admin-activity";
 
 type SerializableEntry = Omit<ActivityEntry, "occurredAt"> & { occurredAt: Date | string };

@@ -1,11 +1,7 @@
-import { describe, it, expect } from "vitest";
-import { sortProgrammeEvents, type SortableEvent } from "@/lib/programme-sort";
+import { describe, expect, it } from "vitest";
+import { type SortableEvent, sortProgrammeEvents } from "@/lib/programme-sort";
 
-const ev = (
-  title: string,
-  startTime: string | null = null,
-  venueName?: string,
-): SortableEvent => ({
+const ev = (title: string, startTime: string | null = null, venueName?: string): SortableEvent => ({
   title,
   startTime,
   venue: venueName ? { name: venueName } : null,
@@ -58,10 +54,7 @@ describe("sortProgrammeEvents — alpha mode", () => {
   });
 
   it("does not sort by time in alpha mode", () => {
-    const events = [
-      ev("Z act", "2026-07-15T08:00:00"),
-      ev("A act", "2026-07-15T22:00:00"),
-    ];
+    const events = [ev("Z act", "2026-07-15T08:00:00"), ev("A act", "2026-07-15T22:00:00")];
     const sorted = sortProgrammeEvents(events, "alpha");
     expect(sorted[0].title).toBe("A act");
   });

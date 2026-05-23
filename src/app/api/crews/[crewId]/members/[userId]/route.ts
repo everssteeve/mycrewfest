@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -14,16 +14,10 @@ const updateMemberSchema = z.object({
  * PATCH /api/crews/[crewId]/members/[userId]
  * Update a crew member's geoloc status or privacy flag.
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { crewId, userId } = await params;
@@ -40,10 +34,7 @@ export async function PATCH(
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requête invalide." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
   }
 
   const parsed = updateMemberSchema.safeParse(body);
@@ -60,10 +51,7 @@ export async function PATCH(
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Membre introuvable dans ce crew." },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Membre introuvable dans ce crew." }, { status: 404 });
     }
 
     const updated = await prisma.crewMember.update({
@@ -97,16 +85,10 @@ export async function PATCH(
  * DELETE /api/crews/[crewId]/members/[userId]
  * Leave a crew (or remove a member as admin).
  */
-export async function DELETE(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { crewId, userId } = await params;
@@ -117,18 +99,12 @@ export async function DELETE(
     });
 
     if (!sessionMember) {
-      return NextResponse.json(
-        { error: "Vous n'êtes pas membre de ce crew." },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Vous n'êtes pas membre de ce crew." }, { status: 403 });
     }
 
     // Can only remove self, or admin can remove anyone
     if (userId !== session.user.id && sessionMember.role !== "admin") {
-      return NextResponse.json(
-        { error: "Permission insuffisante." },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Permission insuffisante." }, { status: 403 });
     }
 
     const targetMember = await prisma.crewMember.findFirst({
@@ -136,10 +112,7 @@ export async function DELETE(
     });
 
     if (!targetMember) {
-      return NextResponse.json(
-        { error: "Membre introuvable." },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Membre introuvable." }, { status: 404 });
     }
 
     await prisma.crewMember.delete({ where: { id: targetMember.id } });

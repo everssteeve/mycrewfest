@@ -1,13 +1,13 @@
-import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-import { parseJsonArray } from "@/lib/api";
 import {
-  sortAdminArtistsByName,
+  type AdminArtistRow,
   countArtistsMissingCountry,
   countArtistsMissingDisciplines,
   countOrphanArtists,
-  type AdminArtistRow,
+  sortAdminArtistsByName,
 } from "@/lib/admin-artists";
+import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import { ArtistSearchTable } from "./_components/artist-search-table";
 
 export const metadata = { title: "Admin — Artistes" };
@@ -82,7 +82,11 @@ export default async function AdminArtistsPage() {
         <div style={{ display: "flex", gap: "var(--space-md)", alignItems: "center" }}>
           <span
             data-testid="admin-artists-total"
-            style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-sm)", color: "var(--text-dim)" }}
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-sm)",
+              color: "var(--text-dim)",
+            }}
           >
             {artists.length} artiste{artists.length !== 1 ? "s" : ""}
           </span>

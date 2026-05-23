@@ -9,10 +9,7 @@ export interface SearchableNewsItem {
  * Searches in: summary, source, category.
  * Empty or whitespace-only query always returns true.
  */
-export function matchesNewsQuery<T extends SearchableNewsItem>(
-  item: T,
-  query: string,
-): boolean {
+export function matchesNewsQuery<T extends SearchableNewsItem>(item: T, query: string): boolean {
   if (!query.trim()) return true;
   const q = query.trim().toLowerCase();
   return (

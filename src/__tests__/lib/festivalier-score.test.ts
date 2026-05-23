@@ -1,5 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { computeFestivalierScore, computeScoreBreakdown, type FestivalierStats } from "@/lib/festivalier-score";
+import { describe, expect, it } from "vitest";
+import {
+  computeFestivalierScore,
+  computeScoreBreakdown,
+  type FestivalierStats,
+} from "@/lib/festivalier-score";
 
 const s = (
   festEventsCount = 0,
@@ -46,7 +50,7 @@ describe("computeFestivalierScore", () => {
     const result = computeFestivalierScore(s(10, 0, 0, 0)); // 100 pts
     expect(result.rank).toBe("expert");
 
-    const result2 = computeFestivalierScore(s(20, 50, 25, 5)); // 200+50+50+15 = 315 → légende
+    const _result2 = computeFestivalierScore(s(20, 50, 25, 5)); // 200+50+50+15 = 315 → légende
     // let me use a 299 case
     const result3 = computeFestivalierScore(s(0, 299, 0, 0)); // 299 pts
     expect(result3.rank).toBe("expert");

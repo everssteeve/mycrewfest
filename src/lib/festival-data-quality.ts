@@ -25,13 +25,38 @@ const CHECKS: Array<{
   weight: number;
   test: (f: FestivalQualityInput) => boolean;
 }> = [
-  { key: "events",       label: "Programme renseigné",      weight: 30, test: (f) => f.eventCount > 0 },
-  { key: "programStatus",label: "Programme complet",         weight: 20, test: (f) => f.programStatus === "complet" },
-  { key: "description",  label: "Description présente",     weight: 15, test: (f) => (f.description?.trim().length ?? 0) > 20 },
-  { key: "coordinates",  label: "Coordonnées GPS",           weight: 10, test: (f) => f.latitude != null && f.longitude != null },
-  { key: "capacity",     label: "Capacité renseignée",       weight: 10, test: (f) => f.capacity != null },
-  { key: "website",      label: "Site officiel",             weight: 8,  test: (f) => (f.siteUrl?.trim().length ?? 0) > 0 },
-  { key: "instagram",    label: "Instagram",                  weight: 7,  test: (f) => (f.instagramHandle?.trim().length ?? 0) > 0 },
+  { key: "events", label: "Programme renseigné", weight: 30, test: (f) => f.eventCount > 0 },
+  {
+    key: "programStatus",
+    label: "Programme complet",
+    weight: 20,
+    test: (f) => f.programStatus === "complet",
+  },
+  {
+    key: "description",
+    label: "Description présente",
+    weight: 15,
+    test: (f) => (f.description?.trim().length ?? 0) > 20,
+  },
+  {
+    key: "coordinates",
+    label: "Coordonnées GPS",
+    weight: 10,
+    test: (f) => f.latitude != null && f.longitude != null,
+  },
+  { key: "capacity", label: "Capacité renseignée", weight: 10, test: (f) => f.capacity != null },
+  {
+    key: "website",
+    label: "Site officiel",
+    weight: 8,
+    test: (f) => (f.siteUrl?.trim().length ?? 0) > 0,
+  },
+  {
+    key: "instagram",
+    label: "Instagram",
+    weight: 7,
+    test: (f) => (f.instagramHandle?.trim().length ?? 0) > 0,
+  },
 ];
 
 const TOTAL_WEIGHT = CHECKS.reduce((s, c) => s + c.weight, 0);
@@ -63,16 +88,18 @@ export function getQualityGrade(score: number): QualityGrade {
 
 export function getQualityGradeColor(grade: QualityGrade): string {
   switch (grade) {
-    case "A": return "var(--primary-neon)";
-    case "B": return "var(--secondary-cyan)";
-    case "C": return "var(--warning-orange)";
-    case "D": return "var(--danger-red)";
+    case "A":
+      return "var(--primary-neon)";
+    case "B":
+      return "var(--secondary-cyan)";
+    case "C":
+      return "var(--warning-orange)";
+    case "D":
+      return "var(--danger-red)";
   }
 }
 
-export function countByGrade(
-  festivals: Array<{ score: number }>,
-): Record<QualityGrade, number> {
+export function countByGrade(festivals: Array<{ score: number }>): Record<QualityGrade, number> {
   const result: Record<QualityGrade, number> = { A: 0, B: 0, C: 0, D: 0 };
   for (const f of festivals) {
     result[getQualityGrade(f.score)]++;

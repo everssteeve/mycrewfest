@@ -31,16 +31,13 @@ export function formatEventShareLine(event: ShareableEvent): string {
  * Generates a shareable text listing of selected events in the programme.
  * Events without startTime are placed at the end.
  */
-export function generateProgrammeShareText(
-  events: ShareableEvent[],
-  festivalName: string,
-): string {
+export function generateProgrammeShareText(events: ShareableEvent[], festivalName: string): string {
   const selected = events.filter((e) => e.selection?.status != null);
   if (selected.length === 0) return "";
 
-  const withTime = selected.filter((e) => e.startTime).sort((a, b) =>
-    (a.startTime ?? "").localeCompare(b.startTime ?? ""),
-  );
+  const withTime = selected
+    .filter((e) => e.startTime)
+    .sort((a, b) => (a.startTime ?? "").localeCompare(b.startTime ?? ""));
   const withoutTime = selected.filter((e) => !e.startTime);
 
   const lines = [...withTime, ...withoutTime].map(formatEventShareLine);

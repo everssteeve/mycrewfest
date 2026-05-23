@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { matchesNewsQuery, type SearchableNewsItem } from "@/lib/news-search";
 
 const BASE: SearchableNewsItem = {

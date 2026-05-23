@@ -19,9 +19,7 @@ export function generateChecklistText(
   const totalCost = items.reduce((sum, i) => sum + (i.cost ?? 0), 0);
 
   // Stats
-  lines.push(
-    `✅ ${done.length} / ${items.length} complétés`,
-  );
+  lines.push(`✅ ${done.length} / ${items.length} complétés`);
   if (totalCost > 0) {
     lines.push(`💰 Budget estimé : ${formatCost(totalCost)}`);
   }
@@ -53,9 +51,7 @@ export function generateChecklistText(
   return lines.join("\n").trimEnd();
 }
 
-function buildSuffix(
-  item: Pick<ChecklistItemData, "cost" | "assigneeName">,
-): string {
+function buildSuffix(item: Pick<ChecklistItemData, "cost" | "assigneeName">): string {
   const parts: string[] = [];
   if (item.assigneeName) parts.push(`→ ${item.assigneeName}`);
   if (item.cost !== null && item.cost > 0) parts.push(formatCost(item.cost));

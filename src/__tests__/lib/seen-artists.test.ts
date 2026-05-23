@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { extractSeenArtists, topSeenArtists } from "@/lib/seen-artists";
 
 function makeRef(id: string, name: string, disciplines = "[]", countryCode: string | null = null) {

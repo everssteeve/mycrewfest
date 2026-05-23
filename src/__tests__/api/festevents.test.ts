@@ -2,8 +2,8 @@
  * Tests for /api/festevents and /api/festevents/[id] route handlers.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -80,9 +80,7 @@ const festEventRow = {
 // Import route handlers
 // ---------------------------------------------------------------------------
 
-const { GET: getList, POST: postCreate } = await import(
-  "@/app/api/festevents/route"
-);
+const { GET: getList, POST: postCreate } = await import("@/app/api/festevents/route");
 const {
   GET: getById,
   DELETE: deleteById,

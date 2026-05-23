@@ -173,11 +173,7 @@ export function RallyPoint({
           >
             {saving ? "Enregistrement…" : "Enregistrer"}
           </button>
-          <button
-            type="button"
-            onClick={() => setEditing(false)}
-            className="btn btn-ghost btn-sm"
-          >
+          <button type="button" onClick={() => setEditing(false)} className="btn btn-ghost btn-sm">
             Annuler
           </button>
         </div>

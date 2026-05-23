@@ -2,13 +2,13 @@
 
 import { useTransition } from "react";
 import {
+  type AdminSignalRow,
+  formatSignalExpiry,
   formatSignalScope,
   getSignalScopeColor,
   isSignalExpired,
-  formatSignalExpiry,
-  resolveSignalLabel,
   resolveSignalAuthorName,
-  type AdminSignalRow,
+  resolveSignalLabel,
 } from "@/lib/admin-signals";
 
 interface Props {
@@ -35,39 +35,33 @@ export function SignalsTable({ signals }: Props) {
   }
 
   return (
-    <table
-      data-testid="admin-signals-table"
-      style={{ width: "100%", borderCollapse: "collapse" }}
-    >
+    <table data-testid="admin-signals-table" style={{ width: "100%", borderCollapse: "collapse" }}>
       <thead>
         <tr style={{ borderBottom: "1px solid var(--border-color)" }}>
-          {["Portée", "Signal", "Auteur", "Festival", "Crédibilité", "Expiration", "Actions"].map((h) => (
-            <th
-              key={h}
-              style={{
-                padding: "var(--space-sm) var(--space-md)",
-                textAlign: "left",
-                fontFamily: "var(--font-body)",
-                fontSize: "var(--fs-xs)",
-                color: "var(--text-muted)",
-                textTransform: "uppercase",
-                letterSpacing: "0.06em",
-                fontWeight: "var(--fw-bold)",
-              }}
-            >
-              {h}
-            </th>
-          ))}
+          {["Portée", "Signal", "Auteur", "Festival", "Crédibilité", "Expiration", "Actions"].map(
+            (h) => (
+              <th
+                key={h}
+                style={{
+                  padding: "var(--space-sm) var(--space-md)",
+                  textAlign: "left",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  fontWeight: "var(--fw-bold)",
+                }}
+              >
+                {h}
+              </th>
+            ),
+          )}
         </tr>
       </thead>
       <tbody>
         {signals.map((signal, i) => (
-          <SignalRow
-            key={signal.id}
-            signal={signal}
-            now={now}
-            isLast={i === signals.length - 1}
-          />
+          <SignalRow key={signal.id} signal={signal} now={now} isLast={i === signals.length - 1} />
         ))}
       </tbody>
     </table>
@@ -138,17 +132,35 @@ function SignalRow({
         </span>
       </td>
       <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-        <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-muted)" }}>
+        <span
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--text-muted)",
+          }}
+        >
           {authorName}
         </span>
       </td>
       <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)" }}>
+        <span
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-xs)",
+            color: "var(--text-dim)",
+          }}
+        >
           {signal.festival?.name ?? "—"}
         </span>
       </td>
       <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-        <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-muted)" }}>
+        <span
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-xs)",
+            color: "var(--text-muted)",
+          }}
+        >
           <span style={{ color: "var(--primary-neon)" }}>+{signal.confirmations}</span>
           {" / "}
           <span style={{ color: "var(--danger-red)" }}>-{signal.infirmations}</span>
@@ -167,6 +179,7 @@ function SignalRow({
       </td>
       <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
         <button
+          type="button"
           data-testid={`admin-signal-delete-${signal.id}`}
           onClick={handleDelete}
           disabled={isPending}

@@ -10,21 +10,31 @@ export function getCapacityTier(capacity: number): CapacityTier {
 
 export function getCapacityTierColor(tier: CapacityTier): string {
   switch (tier) {
-    case "Méga": return "var(--accent-pink)";
-    case "Grand": return "var(--warning-orange)";
-    case "Moyen": return "var(--primary-neon)";
-    case "Petit": return "var(--secondary-cyan)";
-    case "Intime": return "var(--text-dim)";
+    case "Méga":
+      return "var(--accent-pink)";
+    case "Grand":
+      return "var(--warning-orange)";
+    case "Moyen":
+      return "var(--primary-neon)";
+    case "Petit":
+      return "var(--secondary-cyan)";
+    case "Intime":
+      return "var(--text-dim)";
   }
 }
 
 export function getCapacityTierBg(tier: CapacityTier): string {
   switch (tier) {
-    case "Méga": return "rgba(255,0,122,0.08)";
-    case "Grand": return "var(--orange-soft)";
-    case "Moyen": return "var(--neon-soft)";
-    case "Petit": return "var(--cyan-soft)";
-    case "Intime": return "rgba(255,255,255,0.04)";
+    case "Méga":
+      return "rgba(255,0,122,0.08)";
+    case "Grand":
+      return "var(--orange-soft)";
+    case "Moyen":
+      return "var(--neon-soft)";
+    case "Petit":
+      return "var(--cyan-soft)";
+    case "Intime":
+      return "rgba(255,255,255,0.04)";
   }
 }
 

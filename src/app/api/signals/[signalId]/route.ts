@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -9,10 +9,7 @@ type RouteContext = { params: Promise<{ signalId: string }> };
  * Confirm or infirm a signal.
  * Body: { action: "confirm" | "infirm" }
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non connecté." }, { status: 401 });
@@ -41,10 +38,7 @@ export async function PATCH(
   }
 
   if (body.action !== "confirm" && body.action !== "infirm") {
-    return NextResponse.json(
-      { error: "action doit être 'confirm' ou 'infirm'." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "action doit être 'confirm' ou 'infirm'." }, { status: 400 });
   }
 
   const updated = await prisma.signal.update({

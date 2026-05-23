@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { parseJsonArray } from "@/lib/api";
 import type { Prisma } from "@prisma/client";
+import { type NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
+import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -18,16 +18,10 @@ type RouteContext = { params: Promise<{ id: string }> };
  *   dateTo     – ISO date
  *   status     – intéressé|must-see|vu|non-sélectionné
  */
-export async function GET(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function GET(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { id } = await params;
@@ -39,10 +33,7 @@ export async function GET(
   });
 
   if (!festEvent) {
-    return NextResponse.json(
-      { error: "FestEvent introuvable." },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "FestEvent introuvable." }, { status: 404 });
   }
 
   const { searchParams } = new URL(request.url);

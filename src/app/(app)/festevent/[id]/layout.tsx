@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { parseJsonArray } from "@/lib/api";
-import type { FestivalType } from "@/lib/api";
-import { FestEventShell } from "./_components/fest-event-shell";
 import { UrgentNewsBanner } from "@/components/festevent/urgent-news-banner";
+import type { FestivalType } from "@/lib/api";
+import { parseJsonArray } from "@/lib/api";
 import { filterUrgentNews } from "@/lib/news-urgency";
+import { prisma } from "@/lib/prisma";
+import { FestEventShell } from "./_components/fest-event-shell";
 
 type LayoutContext = { params: Promise<{ id: string }> };
 
@@ -47,9 +47,7 @@ async function fetchUrgentNews(festivalId: string) {
     take: 5,
     select: { id: true, summary: true, category: true, publishedAt: true, urgencyLevel: true },
   });
-  return filterUrgentNews(
-    items.map((n) => ({ ...n, publishedAt: n.publishedAt.toISOString() }))
-  );
+  return filterUrgentNews(items.map((n) => ({ ...n, publishedAt: n.publishedAt.toISOString() })));
 }
 
 export default async function FestEventLayout({
@@ -84,15 +82,8 @@ export default async function FestEventLayout({
 
   return (
     <>
-      <UrgentNewsBanner
-        urgentNews={urgentNews}
-        newsPageHref={`/festevent/${id}/news`}
-      />
-      <FestEventShell
-        festEventId={id}
-        festival={festivalForShell}
-        presenceDates={presenceDates}
-      >
+      <UrgentNewsBanner urgentNews={urgentNews} newsPageHref={`/festevent/${id}/news`} />
+      <FestEventShell festEventId={id} festival={festivalForShell} presenceDates={presenceDates}>
         {children}
       </FestEventShell>
     </>

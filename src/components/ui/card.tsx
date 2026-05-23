@@ -1,5 +1,5 @@
-import { type HTMLAttributes, forwardRef } from "react";
 import { clsx } from "clsx";
+import { forwardRef, type HTMLAttributes } from "react";
 
 type AccentColor = "neon" | "cyan" | "pink" | "orange" | "red";
 
@@ -25,10 +25,7 @@ const paddingClasses = {
 };
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-  (
-    { clash = false, accent, padding = "md", className, children, ...props },
-    ref,
-  ) => {
+  ({ clash = false, accent, padding = "md", className, children, ...props }, ref) => {
     return (
       <div
         ref={ref}

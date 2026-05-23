@@ -1,9 +1,9 @@
-import Link from "next/link";
-import { CalendarDays, MapPin } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { prisma } from "@/lib/prisma";
+import { CalendarDays, MapPin } from "lucide-react";
+import Link from "next/link";
 import { rankSimilarFestivals, type SimilarityCandidate } from "@/lib/festival-similarity";
+import { prisma } from "@/lib/prisma";
 
 interface SimilarFestivalsProps {
   currentSlug: string;
@@ -85,10 +85,7 @@ export async function SimilarFestivals({ currentSlug }: SimilarFestivalsProps) {
   if (festivals.length === 0) return null;
 
   return (
-    <section
-      data-testid="similar-festivals"
-      style={{ marginTop: 32 }}
-    >
+    <section data-testid="similar-festivals" style={{ marginTop: 32 }}>
       <h2
         style={{
           fontFamily: "var(--font-display, sans-serif)",
@@ -107,8 +104,7 @@ export async function SimilarFestivals({ currentSlug }: SimilarFestivalsProps) {
           const start = new Date(fest.startDate);
           const end = new Date(fest.endDate);
           const sameMonth =
-            start.getMonth() === end.getMonth() &&
-            start.getFullYear() === end.getFullYear();
+            start.getMonth() === end.getMonth() && start.getFullYear() === end.getFullYear();
           const dateLabel = sameMonth
             ? `${format(start, "d", { locale: fr })}–${format(end, "d MMM yyyy", { locale: fr })}`
             : `${format(start, "d MMM", { locale: fr })} – ${format(end, "d MMM yyyy", { locale: fr })}`;
@@ -121,6 +117,7 @@ export async function SimilarFestivals({ currentSlug }: SimilarFestivalsProps) {
               style={{ textDecoration: "none" }}
             >
               <div
+                role="presentation"
                 style={{
                   background: "var(--bg-surface, #1A1B21)",
                   border: "1px solid var(--border-color, #1E1F26)",
@@ -133,8 +130,7 @@ export async function SimilarFestivals({ currentSlug }: SimilarFestivalsProps) {
                   transition: "border-color 0.15s",
                 }}
                 onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor =
-                    "rgba(0,229,255,0.4)";
+                  (e.currentTarget as HTMLElement).style.borderColor = "rgba(0,229,255,0.4)";
                 }}
                 onMouseLeave={(e) => {
                   (e.currentTarget as HTMLElement).style.borderColor =

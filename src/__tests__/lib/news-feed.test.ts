@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  sortFeedItems,
-  groupFeedByDay,
   countCriticalItems,
-  getRecentItemCount,
-  getFeedCategoryLabel,
   type FeedItem,
+  getFeedCategoryLabel,
+  getRecentItemCount,
+  groupFeedByDay,
+  sortFeedItems,
 } from "@/lib/news-feed";
 
 function makeItem(overrides: Partial<FeedItem> = {}): FeedItem {
@@ -26,10 +26,7 @@ function makeItem(overrides: Partial<FeedItem> = {}): FeedItem {
 
 describe("sortFeedItems", () => {
   it("puts pinned items first", () => {
-    const items = [
-      makeItem({ id: "a", isPinned: false }),
-      makeItem({ id: "b", isPinned: true }),
-    ];
+    const items = [makeItem({ id: "a", isPinned: false }), makeItem({ id: "b", isPinned: true })];
     const result = sortFeedItems(items);
     expect(result[0].id).toBe("b");
   });

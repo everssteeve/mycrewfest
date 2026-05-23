@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -32,9 +32,7 @@ export async function POST(request: NextRequest) {
   const { endpoint, festEventId } = parsed.data;
 
   try {
-    const where = festEventId
-      ? { endpoint, userId: session.user.id, festEventId }
-      : { endpoint };
+    const where = festEventId ? { endpoint, userId: session.user.id, festEventId } : { endpoint };
 
     await prisma.pushSubscription.deleteMany({ where });
 

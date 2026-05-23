@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   aggregateDisciplines,
   buildDisciplineRanking,
@@ -55,7 +55,10 @@ describe("buildDisciplineRanking", () => {
   });
 
   it("computes percentages correctly", () => {
-    const counts = new Map([["a", 1], ["b", 1]]);
+    const counts = new Map([
+      ["a", 1],
+      ["b", 1],
+    ]);
     const ranking = buildDisciplineRanking(counts);
     expect(ranking[0].percentage).toBe(50);
     expect(ranking[1].percentage).toBe(50);
@@ -71,7 +74,10 @@ describe("buildDisciplineRanking", () => {
   });
 
   it("includes count and percentage on each entry", () => {
-    const counts = new Map([["metal", 3], ["rock", 1]]);
+    const counts = new Map([
+      ["metal", 3],
+      ["rock", 1],
+    ]);
     const ranking = buildDisciplineRanking(counts);
     expect(ranking[0]).toMatchObject({ discipline: "metal", count: 3 });
     expect(ranking[0].percentage).toBeGreaterThan(0);

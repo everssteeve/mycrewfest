@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
 import { Download } from "lucide-react";
+import { useCallback, useState } from "react";
 
 interface ExportButtonProps {
   apiPath: string;
@@ -37,8 +37,17 @@ export function ExportButton({ apiPath, filename, testId }: ExportButtonProps) {
   }, [apiPath, filename]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4, flexShrink: 0 }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-end",
+        gap: 4,
+        flexShrink: 0,
+      }}
+    >
       <button
+        type="button"
         onClick={handleDownload}
         disabled={loading}
         data-testid={testId}
@@ -67,11 +76,7 @@ export function ExportButton({ apiPath, filename, testId }: ExportButtonProps) {
         {loading ? "Génération…" : "CSV"}
       </button>
       {error && (
-        <span
-          style={{ fontSize: "0.7rem", color: "var(--danger-red, #FF3355)" }}
-        >
-          {error}
-        </span>
+        <span style={{ fontSize: "0.7rem", color: "var(--danger-red, #FF3355)" }}>{error}</span>
       )}
     </div>
   );

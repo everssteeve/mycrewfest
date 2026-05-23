@@ -5,10 +5,7 @@ export interface SearchableEvent {
   tags?: string[];
 }
 
-export function matchesProgrammeQuery<T extends SearchableEvent>(
-  event: T,
-  query: string
-): boolean {
+export function matchesProgrammeQuery<T extends SearchableEvent>(event: T, query: string): boolean {
   if (!query.trim()) return true;
   const q = query.trim().toLowerCase();
   return (
@@ -27,7 +24,7 @@ export interface SelectionFilterable {
 
 export function matchesSelectionFilter<T extends SelectionFilterable>(
   event: T,
-  filter: SelectionFilter
+  filter: SelectionFilter,
 ): boolean {
   if (filter === "tous") return true;
   const s = event.selectionStatus;
@@ -106,8 +103,5 @@ export function matchesAgeRestrictionFilter<T extends AgeRestrictionFilterable>(
   showOnlyRestricted: boolean,
 ): boolean {
   if (!showOnlyRestricted) return true;
-  return (
-    (event.ageMin != null && event.ageMin > 0) ||
-    (event.ageMax != null && event.ageMax > 0)
-  );
+  return (event.ageMin != null && event.ageMin > 0) || (event.ageMax != null && event.ageMax > 0);
 }

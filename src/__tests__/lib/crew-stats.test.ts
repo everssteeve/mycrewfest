@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   countCrewAdmins,
-  countCrewMembersWithGeoloc,
   countCrewMembersActiveGeoloc,
+  countCrewMembersWithGeoloc,
 } from "@/lib/crew-stats";
 
 // ---------------------------------------------------------------------------
@@ -19,11 +19,7 @@ describe("countCrewAdmins", () => {
   });
 
   it("counts admin members correctly", () => {
-    const members = [
-      { role: "admin" },
-      { role: "membre" },
-      { role: "admin" },
-    ];
+    const members = [{ role: "admin" }, { role: "membre" }, { role: "admin" }];
     expect(countCrewAdmins(members)).toBe(2);
   });
 
@@ -89,6 +85,8 @@ describe("countCrewMembersActiveGeoloc", () => {
   });
 
   it("returns total when all are active", () => {
-    expect(countCrewMembersActiveGeoloc([{ geolocStatus: "active" }, { geolocStatus: "active" }])).toBe(2);
+    expect(
+      countCrewMembersActiveGeoloc([{ geolocStatus: "active" }, { geolocStatus: "active" }]),
+    ).toBe(2);
   });
 });

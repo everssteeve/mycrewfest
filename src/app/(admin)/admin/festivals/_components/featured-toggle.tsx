@@ -34,9 +34,7 @@ export function FeaturedToggle({ festivalId, isFeatured: initialValue }: Feature
       title={featured ? "Retirer du spotlight" : "Mettre en spotlight"}
       style={{
         padding: "4px 8px",
-        border: featured
-          ? "1px solid var(--primary-neon)"
-          : "1px solid var(--border-color)",
+        border: featured ? "1px solid var(--primary-neon)" : "1px solid var(--border-color)",
         borderRadius: "var(--radius-sm)",
         background: featured ? "rgba(0,255,102,0.08)" : "transparent",
         color: featured ? "var(--primary-neon)" : "var(--text-dim)",

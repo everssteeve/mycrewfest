@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
 import { Bell, BellOff } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import {
+  getPushPermissionState,
   isPushSubscribed,
   subscribeToPush,
   unsubscribeFromPush,
-  getPushPermissionState,
 } from "@/lib/push-notifications";
 
 interface PushToggleProps {

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -15,20 +15,14 @@ const joinSchema = z.object({
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requête invalide." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
   }
 
   const parsed = joinSchema.safeParse(body);
@@ -50,10 +44,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!crew) {
-      return NextResponse.json(
-        { error: "Code d'invitation invalide." },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Code d'invitation invalide." }, { status: 404 });
     }
 
     const alreadyMember = crew.members.some((m) => m.userId === session.user?.id);

@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   computeTrendingScore,
-  getTrendingTier,
   getTrendingColor,
+  getTrendingTier,
   rankByTrendingScore,
 } from "@/lib/festival-trending-score";
 
@@ -14,46 +14,74 @@ function inDays(n: number): string {
 
 describe("computeTrendingScore", () => {
   it("returns 0 for festivals in the past", () => {
-    expect(computeTrendingScore({ followerCount: 100, recentNewsCount: 5, startDate: inDays(-1) }, NOW)).toBe(0);
+    expect(
+      computeTrendingScore({ followerCount: 100, recentNewsCount: 5, startDate: inDays(-1) }, NOW),
+    ).toBe(0);
   });
 
   it("returns 0 for today (daysUntil = 0)", () => {
-    expect(computeTrendingScore({ followerCount: 100, recentNewsCount: 5, startDate: inDays(0) }, NOW)).toBe(0);
+    expect(
+      computeTrendingScore({ followerCount: 100, recentNewsCount: 5, startDate: inDays(0) }, NOW),
+    ).toBe(0);
   });
 
   it("applies 3× multiplier within 14 days", () => {
-    const score = computeTrendingScore({ followerCount: 10, recentNewsCount: 0, startDate: inDays(7) }, NOW);
+    const score = computeTrendingScore(
+      { followerCount: 10, recentNewsCount: 0, startDate: inDays(7) },
+      NOW,
+    );
     expect(score).toBe(Math.min(Math.round(10 * 8 * 3.0), 1000));
   });
 
   it("applies 2× multiplier at 30 days", () => {
-    const score = computeTrendingScore({ followerCount: 10, recentNewsCount: 0, startDate: inDays(25) }, NOW);
+    const score = computeTrendingScore(
+      { followerCount: 10, recentNewsCount: 0, startDate: inDays(25) },
+      NOW,
+    );
     expect(score).toBe(Math.min(Math.round(10 * 8 * 2.0), 1000));
   });
 
   it("applies 1.5× multiplier at 60 days", () => {
-    const score = computeTrendingScore({ followerCount: 10, recentNewsCount: 0, startDate: inDays(50) }, NOW);
+    const score = computeTrendingScore(
+      { followerCount: 10, recentNewsCount: 0, startDate: inDays(50) },
+      NOW,
+    );
     expect(score).toBe(Math.min(Math.round(10 * 8 * 1.5), 1000));
   });
 
   it("applies 1× multiplier beyond 60 days", () => {
-    const score = computeTrendingScore({ followerCount: 10, recentNewsCount: 0, startDate: inDays(90) }, NOW);
+    const score = computeTrendingScore(
+      { followerCount: 10, recentNewsCount: 0, startDate: inDays(90) },
+      NOW,
+    );
     expect(score).toBe(Math.min(Math.round(10 * 8 * 1.0), 1000));
   });
 
   it("news count adds bonus points", () => {
-    const withNews = computeTrendingScore({ followerCount: 0, recentNewsCount: 5, startDate: inDays(7) }, NOW);
-    const withoutNews = computeTrendingScore({ followerCount: 0, recentNewsCount: 0, startDate: inDays(7) }, NOW);
+    const withNews = computeTrendingScore(
+      { followerCount: 0, recentNewsCount: 5, startDate: inDays(7) },
+      NOW,
+    );
+    const withoutNews = computeTrendingScore(
+      { followerCount: 0, recentNewsCount: 0, startDate: inDays(7) },
+      NOW,
+    );
     expect(withNews).toBeGreaterThan(withoutNews);
   });
 
   it("score is capped at 1000", () => {
-    const score = computeTrendingScore({ followerCount: 10000, recentNewsCount: 100, startDate: inDays(7) }, NOW);
+    const score = computeTrendingScore(
+      { followerCount: 10000, recentNewsCount: 100, startDate: inDays(7) },
+      NOW,
+    );
     expect(score).toBe(1000);
   });
 
   it("returns a non-negative integer", () => {
-    const score = computeTrendingScore({ followerCount: 1, recentNewsCount: 1, startDate: inDays(30) }, NOW);
+    const score = computeTrendingScore(
+      { followerCount: 1, recentNewsCount: 1, startDate: inDays(30) },
+      NOW,
+    );
     expect(score).toBeGreaterThanOrEqual(0);
     expect(Number.isInteger(score)).toBe(true);
   });

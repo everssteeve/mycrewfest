@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   buildFollowApiUrl,
-  getFollowToggleAriaLabel,
-  getFollowButtonLabel,
-  getFollowToggleMethod,
   deriveOptimisticFollowState,
+  getFollowButtonLabel,
+  getFollowToggleAriaLabel,
+  getFollowToggleMethod,
 } from "@/lib/catalogue-quick-follow";
 
 describe("buildFollowApiUrl", () => {

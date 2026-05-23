@@ -1,13 +1,9 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { BottomNav, ScreenWrapper } from "@/components/ui";
 import { OfflineBanner } from "@/components/offline/offline-banner";
+import { BottomNav, ScreenWrapper } from "@/components/ui";
 
-export default async function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
 
   if (!session?.user) {

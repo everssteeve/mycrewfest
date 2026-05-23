@@ -1,4 +1,4 @@
-import { computeBilan, formatBilanDuration, type BilantableEvent } from "./bilan";
+import { type BilantableEvent, computeBilan, formatBilanDuration } from "./bilan";
 
 /**
  * Generates a shareable text summary of the post-festival bilan.
@@ -24,9 +24,7 @@ export function generateBilanText<T extends BilantableEvent>(
     lines.push(`📍 Scène favorite : ${stats.topVenue}`);
   }
   if (stats.mustSeePending > 0) {
-    lines.push(
-      `⚠ ${stats.mustSeePending} must-see manqué${stats.mustSeePending !== 1 ? "s" : ""}`,
-    );
+    lines.push(`⚠ ${stats.mustSeePending} must-see manqué${stats.mustSeePending !== 1 ? "s" : ""}`);
   }
 
   // Seen events list

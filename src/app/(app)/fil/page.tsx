@@ -1,9 +1,9 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { countCriticalItems, type FeedItem } from "@/lib/news-feed";
+import { prisma } from "@/lib/prisma";
 import { FeedView } from "./_components/feed-view";
 
 export const metadata: Metadata = {
@@ -102,7 +102,8 @@ export default async function FilPage() {
               fontWeight: 700,
             }}
           >
-            ⚠ {criticalCount} alerte{criticalCount > 1 ? "s" : ""} urgente{criticalCount > 1 ? "s" : ""}
+            ⚠ {criticalCount} alerte{criticalCount > 1 ? "s" : ""} urgente
+            {criticalCount > 1 ? "s" : ""}
           </p>
         )}
       </div>
@@ -136,7 +137,10 @@ export default async function FilPage() {
 
       {/* Back to profil */}
       <div style={{ marginTop: 32, textAlign: "center" }}>
-        <Link href="/profil" style={{ fontSize: "0.8rem", color: "var(--text-dim, #666)", textDecoration: "none" }}>
+        <Link
+          href="/profil"
+          style={{ fontSize: "0.8rem", color: "var(--text-dim, #666)", textDecoration: "none" }}
+        >
           ← Retour au profil
         </Link>
       </div>

@@ -4,17 +4,17 @@
  * Covers detectConflicts, filterEventsByDay, sortEventsByTime.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  detectConflicts,
-  filterEventsByDay,
-  sortEventsByTime,
   computeDayFreeTime,
-  optimizePlanning,
-  countMustSeeEvents,
   countIntéresséPlanningEvents,
+  countMustSeeEvents,
   countPlanningConflictPairs,
+  detectConflicts,
   type FreeTimeEvent,
+  filterEventsByDay,
+  optimizePlanning,
+  sortEventsByTime,
 } from "@/lib/planning";
 import type { EventSummary } from "@/types";
 
@@ -30,9 +30,7 @@ function makeEvent(
 ): EventSummary {
   const endTime =
     startTime && durationMins
-      ? new Date(
-          new Date(startTime).getTime() + durationMins * 60_000,
-        ).toISOString()
+      ? new Date(new Date(startTime).getTime() + durationMins * 60_000).toISOString()
       : undefined;
   return {
     id,
@@ -164,10 +162,7 @@ describe("filterEventsByDay", () => {
   });
 
   it("excludes events without a startTime", () => {
-    const events = [
-      makeEvent("a", "2026-07-01T10:00:00", 60),
-      makeEvent("no-time", undefined, 60),
-    ];
+    const events = [makeEvent("a", "2026-07-01T10:00:00", 60), makeEvent("no-time", undefined, 60)];
 
     const result = filterEventsByDay(events, "2026-07-01");
 
@@ -230,8 +225,11 @@ describe("sortEventsByTime", () => {
 });
 
 describe("computeDayFreeTime", () => {
-  const ev = (startTime: string | null, endTime?: string | null, durationMins?: number | null): FreeTimeEvent =>
-    ({ startTime, endTime: endTime ?? null, durationMins: durationMins ?? null });
+  const ev = (
+    startTime: string | null,
+    endTime?: string | null,
+    durationMins?: number | null,
+  ): FreeTimeEvent => ({ startTime, endTime: endTime ?? null, durationMins: durationMins ?? null });
 
   it("returns 0 for empty array", () => {
     expect(computeDayFreeTime([])).toBe(0);
@@ -252,7 +250,7 @@ describe("computeDayFreeTime", () => {
   it("computes gap using durationMins when endTime is absent", () => {
     const events = [
       ev("2025-07-19T14:00:00Z", null, 60), // ends at 15:00
-      ev("2025-07-19T16:00:00Z"),             // starts at 16:00
+      ev("2025-07-19T16:00:00Z"), // starts at 16:00
     ];
     expect(computeDayFreeTime(events)).toBe(60);
   });
@@ -299,8 +297,11 @@ describe("computeDayFreeTime", () => {
 
 import { computeDayCoverage } from "@/lib/planning";
 
-const cov = (startTime: string | null, endTime?: string | null, durationMins?: number | null) =>
-  ({ startTime, endTime: endTime ?? null, durationMins: durationMins ?? null });
+const cov = (startTime: string | null, endTime?: string | null, durationMins?: number | null) => ({
+  startTime,
+  endTime: endTime ?? null,
+  durationMins: durationMins ?? null,
+});
 
 describe("computeDayCoverage", () => {
   it("returns zeros for an empty array", () => {

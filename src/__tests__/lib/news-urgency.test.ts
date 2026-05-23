@@ -1,17 +1,35 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   filterUrgentNews,
-  hasUrgentNews,
   getUrgentBannerLabel,
   getUrgentCategoryLabel,
+  hasUrgentNews,
 } from "@/lib/news-urgency";
 
 const now = new Date("2026-07-01T12:00:00Z").toISOString();
 
 const items = [
-  { id: "a", urgencyLevel: "critique", summary: "Sold out !", category: "billetterie", publishedAt: now },
-  { id: "b", urgencyLevel: "normal", summary: "Camping ouvert", category: "logistique", publishedAt: now },
-  { id: "c", urgencyLevel: "critique", summary: "Annulation artiste", category: "programmation", publishedAt: now },
+  {
+    id: "a",
+    urgencyLevel: "critique",
+    summary: "Sold out !",
+    category: "billetterie",
+    publishedAt: now,
+  },
+  {
+    id: "b",
+    urgencyLevel: "normal",
+    summary: "Camping ouvert",
+    category: "logistique",
+    publishedAt: now,
+  },
+  {
+    id: "c",
+    urgencyLevel: "critique",
+    summary: "Annulation artiste",
+    category: "programmation",
+    publishedAt: now,
+  },
 ];
 
 describe("filterUrgentNews", () => {
@@ -32,7 +50,9 @@ describe("filterUrgentNews", () => {
 
   it("converts Date objects to ISO string", () => {
     const d = new Date("2026-07-01T12:00:00Z");
-    const result = filterUrgentNews([{ id: "x", urgencyLevel: "critique", summary: "s", category: "autre", publishedAt: d }]);
+    const result = filterUrgentNews([
+      { id: "x", urgencyLevel: "critique", summary: "s", category: "autre", publishedAt: d },
+    ]);
     expect(result[0]?.publishedAt).toBe("2026-07-01T12:00:00.000Z");
   });
 

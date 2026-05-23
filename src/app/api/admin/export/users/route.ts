@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { usersToCsv } from "@/lib/admin-export";
+import { prisma } from "@/lib/prisma";
 
 async function requireAdmin() {
   const session = await auth();

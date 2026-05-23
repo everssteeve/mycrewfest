@@ -1,49 +1,43 @@
-import { prisma } from "@/lib/prisma";
 import {
-  sortFestivalsByEngagement,
-  getEngagementTier,
-  getEngagementTierColor,
   computeFestivalEngagementScore,
   computeTotalEngagement,
+  getEngagementTier,
+  getEngagementTierColor,
+  sortFestivalsByEngagement,
   type TopFestivalEntry,
 } from "@/lib/admin-platform-stats";
+import { prisma } from "@/lib/prisma";
 
 async function getPlatformStats() {
-  const [
-    totalSignals,
-    totalSouvenirs,
-    totalSelections,
-    totalCrews,
-    topFestivalsRaw,
-    signalsByDay,
-  ] = await Promise.all([
-    prisma.signal.count(),
-    prisma.souvenir.count(),
-    prisma.selection.count(),
-    prisma.crew.count(),
-    prisma.festival.findMany({
-      take: 20,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        _count: {
-          select: {
-            followers: true,
-            festEvents: true,
+  const [totalSignals, totalSouvenirs, totalSelections, totalCrews, topFestivalsRaw, signalsByDay] =
+    await Promise.all([
+      prisma.signal.count(),
+      prisma.souvenir.count(),
+      prisma.selection.count(),
+      prisma.crew.count(),
+      prisma.festival.findMany({
+        take: 20,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          name: true,
+          _count: {
+            select: {
+              followers: true,
+              festEvents: true,
+            },
           },
         },
-      },
-    }),
-    // Last 7 days signal counts
-    prisma.$queryRaw<{ day: string; count: bigint }[]>`
+      }),
+      // Last 7 days signal counts
+      prisma.$queryRaw<{ day: string; count: bigint }[]>`
       SELECT DATE(createdAt) as day, COUNT(*) as count
       FROM Signal
       WHERE createdAt >= datetime('now', '-7 days')
       GROUP BY DATE(createdAt)
       ORDER BY day ASC
     `,
-  ]);
+    ]);
 
   const topFestivals: TopFestivalEntry[] = topFestivalsRaw.map((f) => ({
     id: f.id,
@@ -93,10 +87,30 @@ export default async function AdminStatsPage() {
         }}
       >
         {[
-          { label: "Signaux total", value: stats.activity.totalSignals, color: "var(--accent-pink)", testid: "admin-stat-signals" },
-          { label: "Souvenirs", value: stats.activity.totalSouvenirs, color: "var(--secondary-cyan)", testid: "admin-stat-souvenirs" },
-          { label: "Sélections", value: stats.activity.totalSelections, color: "var(--primary-neon)", testid: "admin-stat-selections" },
-          { label: "Crews actifs", value: stats.activity.totalCrews, color: "var(--warning-orange)", testid: "admin-stat-crews" },
+          {
+            label: "Signaux total",
+            value: stats.activity.totalSignals,
+            color: "var(--accent-pink)",
+            testid: "admin-stat-signals",
+          },
+          {
+            label: "Souvenirs",
+            value: stats.activity.totalSouvenirs,
+            color: "var(--secondary-cyan)",
+            testid: "admin-stat-souvenirs",
+          },
+          {
+            label: "Sélections",
+            value: stats.activity.totalSelections,
+            color: "var(--primary-neon)",
+            testid: "admin-stat-selections",
+          },
+          {
+            label: "Crews actifs",
+            value: stats.activity.totalCrews,
+            color: "var(--warning-orange)",
+            testid: "admin-stat-crews",
+          },
         ].map((s) => (
           <div
             key={s.testid}
@@ -109,10 +123,27 @@ export default async function AdminStatsPage() {
               textAlign: "center",
             }}
           >
-            <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-2xl)", color: s.color, margin: 0, fontWeight: "var(--fw-bold)" }}>
+            <p
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-2xl)",
+                color: s.color,
+                margin: 0,
+                fontWeight: "var(--fw-bold)",
+              }}
+            >
               {s.value}
             </p>
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "4px 0 0" }}>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-muted)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                margin: "4px 0 0",
+              }}
+            >
               {s.label}
             </p>
           </div>
@@ -146,7 +177,14 @@ export default async function AdminStatsPage() {
           style={{ display: "flex", gap: "var(--space-sm)", alignItems: "flex-end", height: 80 }}
         >
           {stats.signalsByDay.length === 0 ? (
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-dim)", margin: 0 }}>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-sm)",
+                color: "var(--text-dim)",
+                margin: 0,
+              }}
+            >
               Aucun signal cette semaine.
             </p>
           ) : (
@@ -157,9 +195,21 @@ export default async function AdminStatsPage() {
                 <div
                   key={row.day}
                   title={`${row.day}: ${row.count} signal${row.count > 1 ? "s" : ""}`}
-                  style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, gap: 4 }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    flex: 1,
+                    gap: 4,
+                  }}
                 >
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--text-dim)" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 10,
+                      color: "var(--text-dim)",
+                    }}
+                  >
                     {row.count}
                   </span>
                   <div
@@ -171,8 +221,16 @@ export default async function AdminStatsPage() {
                       opacity: 0.8,
                     }}
                   />
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--text-dim)" }}>
-                    {new Date(row.day + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short" })}
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: 9,
+                      color: "var(--text-dim)",
+                    }}
+                  >
+                    {new Date(`${row.day}T12:00:00`).toLocaleDateString("fr-FR", {
+                      weekday: "short",
+                    })}
                   </span>
                 </div>
               );
@@ -190,7 +248,15 @@ export default async function AdminStatsPage() {
           overflow: "hidden",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--space-lg)", borderBottom: "1px solid var(--border-color)" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "var(--space-lg)",
+            borderBottom: "1px solid var(--border-color)",
+          }}
+        >
           <h2
             style={{
               fontFamily: "var(--font-display)",
@@ -248,25 +314,54 @@ export default async function AdminStatsPage() {
                 <tr
                   key={f.id}
                   data-testid={`admin-festival-stat-row-${f.id}`}
-                  style={{ borderBottom: i < stats.topFestivals.length - 1 ? "1px solid var(--border-color)" : "none" }}
+                  style={{
+                    borderBottom:
+                      i < stats.topFestivals.length - 1 ? "1px solid var(--border-color)" : "none",
+                  }}
                 >
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                    <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-main)", fontWeight: "var(--fw-bold)" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontSize: "var(--fs-sm)",
+                        color: "var(--text-main)",
+                        fontWeight: "var(--fw-bold)",
+                      }}
+                    >
                       {f.name}
                     </span>
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-sm)", color: "var(--text-dim)" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--fs-sm)",
+                        color: "var(--text-dim)",
+                      }}
+                    >
                       {f.followersCount}
                     </span>
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-sm)", color: "var(--text-dim)" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--fs-sm)",
+                        color: "var(--text-dim)",
+                      }}
+                    >
                       {f.festEventsCount}
                     </span>
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-sm)", color: tierColor, fontWeight: "var(--fw-bold)" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--fs-sm)",
+                        color: tierColor,
+                        fontWeight: "var(--fw-bold)",
+                      }}
+                    >
                       {score}
                     </span>
                   </td>
@@ -293,7 +388,13 @@ export default async function AdminStatsPage() {
               <tr>
                 <td
                   colSpan={5}
-                  style={{ padding: "var(--space-2xl)", textAlign: "center", color: "var(--text-dim)", fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)" }}
+                  style={{
+                    padding: "var(--space-2xl)",
+                    textAlign: "center",
+                    color: "var(--text-dim)",
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--fs-sm)",
+                  }}
                 >
                   Aucune donnée d'engagement.
                 </td>

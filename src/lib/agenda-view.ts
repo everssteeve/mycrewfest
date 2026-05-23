@@ -9,8 +9,8 @@ export interface AgendaEvent {
 }
 
 export interface AgendaDay {
-  dateKey: string;   // "2026-07-16"
-  label: string;     // "Jeudi 16 juillet"
+  dateKey: string; // "2026-07-16"
+  label: string; // "Jeudi 16 juillet"
   events: AgendaEvent[];
 }
 
@@ -27,8 +27,18 @@ export interface AgendaFestival {
 
 const DAY_NAMES = ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"];
 const MONTH_NAMES = [
-  "janvier", "février", "mars", "avril", "mai", "juin",
-  "juillet", "août", "septembre", "octobre", "novembre", "décembre",
+  "janvier",
+  "février",
+  "mars",
+  "avril",
+  "mai",
+  "juin",
+  "juillet",
+  "août",
+  "septembre",
+  "octobre",
+  "novembre",
+  "décembre",
 ];
 
 export function formatAgendaDayLabel(dateKey: string): string {
@@ -49,7 +59,7 @@ export function groupEventsByDay(events: AgendaEvent[]): AgendaDay[] {
   for (const ev of events) {
     const key = ev.startTime ? getDateKey(ev.startTime) : "sans-date";
     if (!map.has(key)) map.set(key, []);
-    map.get(key)!.push(ev);
+    map.get(key)?.push(ev);
   }
 
   const days: AgendaDay[] = Array.from(map.entries()).map(([dateKey, dayEvents]) => ({
@@ -70,10 +80,7 @@ export function groupEventsByDay(events: AgendaEvent[]): AgendaDay[] {
   });
 }
 
-export function countByStatus(
-  events: AgendaEvent[],
-  status: AgendaEvent["status"]
-): number {
+export function countByStatus(events: AgendaEvent[], status: AgendaEvent["status"]): number {
   return events.filter((e) => e.status === status).length;
 }
 
@@ -83,7 +90,7 @@ export function buildAgendaFestival(
   festivalSlug: string,
   startDate: string,
   endDate: string,
-  events: AgendaEvent[]
+  events: AgendaEvent[],
 ): AgendaFestival {
   const allEvents = events.filter((e) => e.status !== "vu");
   const days = groupEventsByDay(allEvents);
@@ -104,8 +111,5 @@ export function sortFestivalsByStartDate(festivals: AgendaFestival[]): AgendaFes
 }
 
 export function getTotalEventCount(festivals: AgendaFestival[]): number {
-  return festivals.reduce(
-    (sum, f) => sum + f.mustSeeCount + f.intéresséCount,
-    0
-  );
+  return festivals.reduce((sum, f) => sum + f.mustSeeCount + f.intéresséCount, 0);
 }

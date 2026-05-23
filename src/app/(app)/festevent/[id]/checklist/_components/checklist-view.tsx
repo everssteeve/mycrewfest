@@ -1,12 +1,33 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown, Copy, Check } from "lucide-react";
-import { generateChecklistText } from "@/lib/checklist-text";
-import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
-import { computeChecklistBudget, computeCompletionRate, getOldestPendingItemAgeDays, computeAvgDaysToComplete } from "@/lib/checklist-budget";
-import { filterByAssignee, getUniqueAssignees, computeAssigneeStats, countUnassignedPendingItems, getMostLoadedAssignee } from "@/lib/checklist-filter";
+import {
+  Check,
+  CheckSquare,
+  ChevronDown,
+  Copy,
+  Package,
+  Plus,
+  Square,
+  Trash2,
+  X,
+} from "lucide-react";
+import { useCallback, useMemo, useState, useTransition } from "react";
+import {
+  computeAvgDaysToComplete,
+  computeChecklistBudget,
+  computeCompletionRate,
+  getOldestPendingItemAgeDays,
+} from "@/lib/checklist-budget";
+import { filterPendingItems, getDoneItemIds } from "@/lib/checklist-clear";
+import {
+  computeAssigneeStats,
+  countUnassignedPendingItems,
+  filterByAssignee,
+  getMostLoadedAssignee,
+  getUniqueAssignees,
+} from "@/lib/checklist-filter";
 import { filterChecklistByQuery } from "@/lib/checklist-search";
+import { generateChecklistText } from "@/lib/checklist-text";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 // ---------------------------------------------------------------------------
@@ -63,6 +84,7 @@ function TemplateModal({
 
   return (
     <div
+      role="presentation"
       style={{
         position: "fixed",
         inset: 0,
@@ -73,6 +95,9 @@ function TemplateModal({
         justifyContent: "center",
       }}
       onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
     >
       <div
         style={{
@@ -88,16 +113,30 @@ function TemplateModal({
           gap: "var(--space-md)",
           overflowY: "auto",
         }}
+        role="presentation"
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <h2
             className="t-h3"
-            style={{ color: "var(--primary-neon)", textTransform: "uppercase", letterSpacing: "0.08em" }}
+            style={{
+              color: "var(--primary-neon)",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
           >
             Templates
           </h2>
-          <button onClick={onClose} style={{ color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer" }}>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              color: "var(--text-muted)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
             <X size={20} />
           </button>
         </div>
@@ -126,11 +165,21 @@ function TemplateModal({
                 gap: "var(--space-xs)",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div
+                style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}
+              >
                 <span style={{ fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
                   {t.name}
                 </span>
-                <div style={{ display: "flex", alignItems: "center", gap: 4, color: "var(--text-dim)", fontSize: "var(--fs-xs)" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 4,
+                    color: "var(--text-dim)",
+                    fontSize: "var(--fs-xs)",
+                  }}
+                >
                   <span>{t.items.length} items</span>
                   <ChevronDown
                     size={14}
@@ -142,9 +191,18 @@ function TemplateModal({
                 </div>
               </div>
               {selected === t.id && (
-                <ul style={{ margin: "var(--space-xs) 0 0 0", padding: "0 0 0 var(--space-md)", color: "var(--text-dim)", fontSize: "var(--fs-xs)" }}>
-                  {t.items.map((item, i) => (
-                    <li key={i} style={{ marginBottom: 2 }}>{item}</li>
+                <ul
+                  style={{
+                    margin: "var(--space-xs) 0 0 0",
+                    padding: "0 0 0 var(--space-md)",
+                    color: "var(--text-dim)",
+                    fontSize: "var(--fs-xs)",
+                  }}
+                >
+                  {t.items.map((item) => (
+                    <li key={item} style={{ marginBottom: 2 }}>
+                      {item}
+                    </li>
                   ))}
                 </ul>
               )}
@@ -216,11 +274,20 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
     () => filterChecklistByQuery(filterByAssignee(items, activeAssignee), searchQuery),
     [items, activeAssignee, searchQuery],
   );
-  const { total: totalCost, spent: spentCost, remaining: remainingCost } = computeChecklistBudget(items);
+  const {
+    total: totalCost,
+    spent: spentCost,
+    remaining: remainingCost,
+  } = computeChecklistBudget(items);
 
   const copyChecklist = useCallback(async () => {
     const text = generateChecklistText(
-      items.map((i) => ({ label: i.label, done: i.done, cost: i.cost, assigneeName: i.assigneeName })),
+      items.map((i) => ({
+        label: i.label,
+        done: i.done,
+        cost: i.cost,
+        assigneeName: i.assigneeName,
+      })),
       festivalName,
     );
     await navigator.clipboard.writeText(text);
@@ -245,9 +312,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   const handleToggle = useCallback(
     (item: ChecklistItemData) => {
       const optimistic = !item.done;
-      setItems((prev) =>
-        prev.map((i) => (i.id === item.id ? { ...i, done: optimistic } : i)),
-      );
+      setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, done: optimistic } : i)));
 
       startTransition(async () => {
         try {
@@ -258,19 +323,13 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
           });
           if (!res.ok) {
             // Revert
-            setItems((prev) =>
-              prev.map((i) => (i.id === item.id ? { ...i, done: item.done } : i)),
-            );
+            setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, done: item.done } : i)));
           } else {
-            const updated = await res.json() as ChecklistItemData;
-            setItems((prev) =>
-              prev.map((i) => (i.id === updated.id ? updated : i)),
-            );
+            const updated = (await res.json()) as ChecklistItemData;
+            setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
           }
         } catch {
-          setItems((prev) =>
-            prev.map((i) => (i.id === item.id ? { ...i, done: item.done } : i)),
-          );
+          setItems((prev) => prev.map((i) => (i.id === item.id ? { ...i, done: item.done } : i)));
         }
       });
     },
@@ -310,9 +369,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
     // Parallel deletes
     startTransition(async () => {
       try {
-        await Promise.all(
-          doneIds.map((id) => fetch(`${baseUrl}/${id}`, { method: "DELETE" })),
-        );
+        await Promise.all(doneIds.map((id) => fetch(`${baseUrl}/${id}`, { method: "DELETE" })));
       } catch {
         // silently ignore; items already removed from UI
       }
@@ -333,11 +390,11 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
         body: JSON.stringify({ label, cost, assigneeName }),
       });
       if (!res.ok) {
-        const errData = await res.json() as { error: string };
+        const errData = (await res.json()) as { error: string };
         setError(errData.error ?? "Erreur lors de l'ajout.");
         return;
       }
-      const created = await res.json() as ChecklistItemData;
+      const created = (await res.json()) as ChecklistItemData;
       setItems((prev) => [...prev, created]);
       setNewLabel("");
       setNewCost("");
@@ -374,7 +431,14 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   const progressPct = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
-    <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+    <div
+      style={{
+        paddingTop: "var(--space-lg)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-md)",
+      }}
+    >
       {/* Header stats */}
       <div
         style={{
@@ -389,7 +453,13 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
-            <span style={{ color: "var(--text-main)", fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
+            <span
+              style={{
+                color: "var(--text-main)",
+                fontWeight: "var(--fw-bold)",
+                fontSize: "var(--fs-sm)",
+              }}
+            >
               {completedCount} / {totalCount} complétés
             </span>
             {unassignedPendingCount > 0 && (
@@ -427,11 +497,12 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
                 style={{
                   fontFamily: "var(--font-mono)",
                   fontSize: "var(--fs-xs)",
-                  color: completionRate === 100
-                    ? "var(--primary-neon)"
-                    : completionRate >= 50
-                      ? "var(--secondary-cyan)"
-                      : "var(--text-muted)",
+                  color:
+                    completionRate === 100
+                      ? "var(--primary-neon)"
+                      : completionRate >= 50
+                        ? "var(--secondary-cyan)"
+                        : "var(--text-muted)",
                 }}
                 title="Taux de complétion global"
               >
@@ -635,7 +706,6 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
           }}
         >
           <input
-            autoFocus
             type="text"
             placeholder="Nom de l'item *"
             value={newLabel}
@@ -690,13 +760,14 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
               }}
             />
           </div>
-          {error && (
-            <p style={{ color: "var(--accent-red)", fontSize: "var(--fs-xs)" }}>{error}</p>
-          )}
+          {error && <p style={{ color: "var(--accent-red)", fontSize: "var(--fs-xs)" }}>{error}</p>}
           <div style={{ display: "flex", gap: "var(--space-sm)" }}>
             <button
               type="button"
-              onClick={() => { setShowAddForm(false); setError(null); }}
+              onClick={() => {
+                setShowAddForm(false);
+                setError(null);
+              }}
               style={{
                 flex: 1,
                 background: "rgba(255,255,255,0.04)",
@@ -743,7 +814,9 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onKeyDown={(e) => { if (isEscapeKey(e)) setSearchQuery(""); }}
+            onKeyDown={(e) => {
+              if (isEscapeKey(e)) setSearchQuery("");
+            }}
             placeholder="Chercher un item…"
             aria-label="Rechercher dans la checklist"
             data-testid="checklist-search"
@@ -788,6 +861,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
       {/* Assignee filter chips */}
       {allAssignees.length >= 2 && (
         <div
+          role="group"
           style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-xs)" }}
           aria-label="Filtrer par assigné"
           data-testid="assignee-filter"
@@ -799,7 +873,10 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
             style={{
               padding: "4px 12px",
               borderRadius: "var(--radius-full)",
-              border: activeAssignee === null ? "1px solid var(--primary-neon)" : "1px solid var(--border-color)",
+              border:
+                activeAssignee === null
+                  ? "1px solid var(--primary-neon)"
+                  : "1px solid var(--border-color)",
               backgroundColor: activeAssignee === null ? "var(--neon-soft)" : "transparent",
               color: activeAssignee === null ? "var(--primary-neon)" : "var(--text-dim)",
               fontFamily: "var(--font-body)",
@@ -820,7 +897,10 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
               style={{
                 padding: "4px 12px",
                 borderRadius: "var(--radius-full)",
-                border: activeAssignee === a ? "1px solid var(--secondary-cyan)" : "1px solid var(--border-color)",
+                border:
+                  activeAssignee === a
+                    ? "1px solid var(--secondary-cyan)"
+                    : "1px solid var(--border-color)",
                 backgroundColor: activeAssignee === a ? "var(--cyan-soft)" : "transparent",
                 color: activeAssignee === a ? "var(--secondary-cyan)" : "var(--text-dim)",
                 fontFamily: "var(--font-body)",
@@ -884,15 +964,17 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
           {/* Pending items */}
-          {displayedItems.filter((i) => !i.done).map((item) => (
-            <ChecklistItemRow
-              key={item.id}
-              item={item}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-              disabled={isPending}
-            />
-          ))}
+          {displayedItems
+            .filter((i) => !i.done)
+            .map((item) => (
+              <ChecklistItemRow
+                key={item.id}
+                item={item}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                disabled={isPending}
+              />
+            ))}
 
           {/* Separator + clear done button */}
           {displayedItems.some((i) => i.done) && (
@@ -942,15 +1024,17 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
           )}
 
           {/* Done items */}
-          {displayedItems.filter((i) => i.done).map((item) => (
-            <ChecklistItemRow
-              key={item.id}
-              item={item}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-              disabled={isPending}
-            />
-          ))}
+          {displayedItems
+            .filter((i) => i.done)
+            .map((item) => (
+              <ChecklistItemRow
+                key={item.id}
+                item={item}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+                disabled={isPending}
+              />
+            ))}
         </div>
       )}
 
@@ -1035,7 +1119,13 @@ function ChecklistItemRow({
               </span>
             )}
             {item.cost !== null && item.cost > 0 && (
-              <span style={{ fontSize: "var(--fs-xs)", color: "var(--text-dim)", fontFamily: "var(--font-mono)" }}>
+              <span
+                style={{
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-dim)",
+                  fontFamily: "var(--font-mono)",
+                }}
+              >
                 {formatCost(item.cost)}
               </span>
             )}

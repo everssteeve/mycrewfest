@@ -31,8 +31,6 @@ export function countEventsOnMap<T extends VenueEventCountable>(venues: T[]): nu
 /**
  * Returns the number of distinct crew members sharing their position.
  */
-export function countVisibleCrewMembers<T extends CrewPositionable>(
-  positions: T[],
-): number {
+export function countVisibleCrewMembers<T extends CrewPositionable>(positions: T[]): number {
   return positions.length;
 }

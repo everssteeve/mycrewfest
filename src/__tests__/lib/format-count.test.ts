@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { formatCount, formatFestivalStats } from "@/lib/format-count";
 
 describe("formatCount", () => {
@@ -38,12 +38,8 @@ describe("formatFestivalStats", () => {
   });
 
   it("uses singular for exactly 1 event or follower", () => {
-    expect(formatFestivalStats({ events: 1, followers: 0 })).toBe(
-      "1 événement"
-    );
-    expect(formatFestivalStats({ events: 0, followers: 1 })).toBe(
-      "1 abonné"
-    );
+    expect(formatFestivalStats({ events: 1, followers: 0 })).toBe("1 événement");
+    expect(formatFestivalStats({ events: 0, followers: 1 })).toBe("1 abonné");
   });
 
   it("omits events section when events count is 0", () => {

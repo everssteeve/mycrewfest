@@ -1,7 +1,7 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import type { Metadata } from "next";
 import { ExportButton } from "./_components/export-button";
 
 export const metadata: Metadata = {
@@ -16,13 +16,12 @@ async function requireAdmin() {
 }
 
 async function getExportStats() {
-  const [festivalCount, userCount, signalCount, submissionCount] =
-    await Promise.all([
-      prisma.festival.count(),
-      prisma.user.count(),
-      prisma.signal.count(),
-      prisma.festivalSubmission.count(),
-    ]);
+  const [festivalCount, userCount, signalCount, submissionCount] = await Promise.all([
+    prisma.festival.count(),
+    prisma.user.count(),
+    prisma.signal.count(),
+    prisma.festivalSubmission.count(),
+  ]);
   return { festivalCount, userCount, signalCount, submissionCount };
 }
 
@@ -106,7 +105,11 @@ export default async function AdminExportPage() {
           { label: "Festivals", value: stats.festivalCount, color: "var(--accent-pink, #FF007A)" },
           { label: "Utilisateurs", value: stats.userCount, color: "var(--primary-neon, #00FF66)" },
           { label: "Signaux", value: stats.signalCount, color: "var(--secondary-cyan, #00E5FF)" },
-          { label: "Soumissions", value: stats.submissionCount, color: "var(--warning-orange, #FF9900)" },
+          {
+            label: "Soumissions",
+            value: stats.submissionCount,
+            color: "var(--warning-orange, #FF9900)",
+          },
         ].map((kpi) => (
           <div
             key={kpi.label}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { verifyFestival, deleteFestival } from "../actions";
+import { deleteFestival, verifyFestival } from "../actions";
 import { FeaturedToggle } from "./featured-toggle";
 
 interface Festival {
@@ -65,20 +65,48 @@ export function FestivalsTable({ festivals }: { festivals: Festival[] }) {
               }}
             >
               <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-main)", margin: 0, fontWeight: "var(--fw-bold)" }}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--fs-sm)",
+                    color: "var(--text-main)",
+                    margin: 0,
+                    fontWeight: "var(--fw-bold)",
+                  }}
+                >
                   {f.name}
                 </p>
-                <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", margin: "2px 0 0" }}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--text-dim)",
+                    margin: "2px 0 0",
+                  }}
+                >
                   {f.slug}
                 </p>
               </td>
               <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", textTransform: "uppercase" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--text-muted)",
+                    textTransform: "uppercase",
+                  }}
+                >
                   {f.festivalType}
                 </span>
               </td>
               <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--text-dim)",
+                  }}
+                >
                   {new Date(f.startDate).toLocaleDateString("fr-FR")} →{" "}
                   {new Date(f.endDate).toLocaleDateString("fr-FR")}
                 </span>
@@ -104,7 +132,10 @@ export function FestivalsTable({ festivals }: { festivals: Festival[] }) {
                   style={{
                     fontFamily: "var(--font-body)",
                     fontSize: "var(--fs-xs)",
-                    color: f.confidenceLevel === "vérifié_humain" ? "var(--primary-neon)" : "var(--text-dim)",
+                    color:
+                      f.confidenceLevel === "vérifié_humain"
+                        ? "var(--primary-neon)"
+                        : "var(--text-dim)",
                   }}
                 >
                   {f.confidenceLevel}

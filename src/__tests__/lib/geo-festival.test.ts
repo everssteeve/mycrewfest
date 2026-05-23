@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   distanceToFestivalKm,
+  filterWithinRadius,
   formatDistanceKm,
   sortByDistance,
-  filterWithinRadius,
 } from "@/lib/geo-festival";
 
 // Paris (48.8566, 2.3522) → Lyon (45.7640, 4.8357) ≈ 392 km
@@ -82,7 +82,10 @@ describe("sortByDistance", () => {
   });
 
   it("does not mutate input array", () => {
-    const input = [{ ...PARIS, id: "paris" }, { ...LYON, id: "lyon" }];
+    const input = [
+      { ...PARIS, id: "paris" },
+      { ...LYON, id: "lyon" },
+    ];
     const copy = [...input];
     sortByDistance(input, LYON.latitude!, LYON.longitude!);
     expect(input).toEqual(copy);

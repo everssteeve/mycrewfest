@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  scoreSearchResult,
-  rankSearchResults,
-  formatFestivalSearchResult,
-  formatUserSearchResult,
-  formatSubmissionSearchResult,
   type AdminSearchResult,
+  formatFestivalSearchResult,
+  formatSubmissionSearchResult,
+  formatUserSearchResult,
+  rankSearchResults,
+  scoreSearchResult,
 } from "@/lib/admin-search";
 
 const makeResult = (label: string, sublabel = ""): AdminSearchResult => ({
@@ -96,9 +96,21 @@ describe("formatUserSearchResult", () => {
     expect(result.label).toBe("NomadeSonic");
   });
   it("falls back to name then email", () => {
-    const resultName = formatUserSearchResult({ id: "u2", pseudo: null, name: "Jane", email: "jane@test.com", role: "user" });
+    const resultName = formatUserSearchResult({
+      id: "u2",
+      pseudo: null,
+      name: "Jane",
+      email: "jane@test.com",
+      role: "user",
+    });
     expect(resultName.label).toBe("Jane");
-    const resultEmail = formatUserSearchResult({ id: "u3", pseudo: null, name: null, email: "anon@test.com", role: "user" });
+    const resultEmail = formatUserSearchResult({
+      id: "u3",
+      pseudo: null,
+      name: null,
+      email: "anon@test.com",
+      role: "user",
+    });
     expect(resultEmail.label).toBe("anon@test.com");
   });
 });

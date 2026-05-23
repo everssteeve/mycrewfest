@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  formatFestivalDateRange,
-  buildFestivalOgDescription,
   buildArtistOgDescription,
+  buildFestivalOgDescription,
+  formatFestivalDateRange,
   truncateOgTitle,
 } from "@/lib/og-metadata";
 
@@ -20,12 +20,19 @@ describe("formatFestivalDateRange", () => {
   });
 
   it("returns a non-empty string", () => {
-    expect(formatFestivalDateRange("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z").length).toBeGreaterThan(0);
+    expect(
+      formatFestivalDateRange("2026-07-01T00:00:00Z", "2026-07-05T00:00:00Z").length,
+    ).toBeGreaterThan(0);
   });
 });
 
 describe("buildFestivalOgDescription", () => {
-  const base = { city: "Clisson", country: "France", startDate: "2026-06-18T00:00:00Z", endDate: "2026-06-21T00:00:00Z" };
+  const base = {
+    city: "Clisson",
+    country: "France",
+    startDate: "2026-06-18T00:00:00Z",
+    endDate: "2026-06-21T00:00:00Z",
+  };
 
   it("includes city and country", () => {
     const result = buildFestivalOgDescription(base);
@@ -39,7 +46,10 @@ describe("buildFestivalOgDescription", () => {
   });
 
   it("appends truncated description when provided", () => {
-    const result = buildFestivalOgDescription({ ...base, description: "Festival de métal extrême." });
+    const result = buildFestivalOgDescription({
+      ...base,
+      description: "Festival de métal extrême.",
+    });
     expect(result).toContain("Festival de métal");
   });
 
@@ -73,7 +83,10 @@ describe("buildArtistOgDescription", () => {
   });
 
   it("appends description excerpt", () => {
-    const result = buildArtistOgDescription({ disciplines: ["Metal"], description: "Groupe légendaire de NWOBHM." });
+    const result = buildArtistOgDescription({
+      disciplines: ["Metal"],
+      description: "Groupe légendaire de NWOBHM.",
+    });
     expect(result).toContain("Groupe légendaire");
   });
 

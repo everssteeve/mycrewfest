@@ -1,5 +1,16 @@
-import { describe, it, expect } from "vitest";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals, computeAvgSignalAgeHours, getMostRecentSignalAgoMins } from "@/lib/signal-credibility";
+import { describe, expect, it } from "vitest";
+import {
+  computeAvgSignalAgeHours,
+  computeSignalCredibility,
+  computeSignalCredibilityRate,
+  countContestedSignals,
+  countExpiredSignals,
+  countForteSignals,
+  countRecentSignals,
+  countUniqueSignalAuthors,
+  getMostRecentSignalAgoMins,
+  getTopSignalType,
+} from "@/lib/signal-credibility";
 
 describe("computeSignalCredibility", () => {
   it("returns 0.5 neutre when no votes", () => {
@@ -85,8 +96,7 @@ describe("countForteSignals", () => {
 
 describe("countRecentSignals", () => {
   const now = new Date("2026-05-23T12:00:00Z");
-  const daysAgo = (n: number) =>
-    new Date(now.getTime() - n * 24 * 60 * 60 * 1_000).toISOString();
+  const daysAgo = (n: number) => new Date(now.getTime() - n * 24 * 60 * 60 * 1_000).toISOString();
 
   it("returns 0 for empty array", () => {
     expect(countRecentSignals([], 7, now)).toBe(0);

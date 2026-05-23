@@ -1,19 +1,19 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  type AgendaEvent,
+  buildAgendaFestival,
+  countByStatus,
   formatAgendaDayLabel,
   getDateKey,
-  groupEventsByDay,
-  countByStatus,
-  buildAgendaFestival,
-  sortFestivalsByStartDate,
   getTotalEventCount,
-  type AgendaEvent,
+  groupEventsByDay,
+  sortFestivalsByStartDate,
 } from "@/lib/agenda-view";
 
 const makeEvent = (
   id: string,
   startTime: string | null,
-  status: AgendaEvent["status"] = "must-see"
+  status: AgendaEvent["status"] = "must-see",
 ): AgendaEvent => ({
   id,
   title: `Event ${id}`,
@@ -55,19 +55,16 @@ describe("groupEventsByDay", () => {
     ];
     const days = groupEventsByDay(events);
     expect(days).toHaveLength(2);
-    expect(days[0]!.dateKey).toBe("2026-07-16");
-    expect(days[0]!.events).toHaveLength(2);
-    expect(days[1]!.dateKey).toBe("2026-07-17");
+    expect(days[0]?.dateKey).toBe("2026-07-16");
+    expect(days[0]?.events).toHaveLength(2);
+    expect(days[1]?.dateKey).toBe("2026-07-17");
   });
 
   it("sorts days chronologically", () => {
-    const events = [
-      makeEvent("a", "2026-07-18T19:00:00Z"),
-      makeEvent("b", "2026-07-16T21:00:00Z"),
-    ];
+    const events = [makeEvent("a", "2026-07-18T19:00:00Z"), makeEvent("b", "2026-07-16T21:00:00Z")];
     const days = groupEventsByDay(events);
-    expect(days[0]!.dateKey).toBe("2026-07-16");
-    expect(days[1]!.dateKey).toBe("2026-07-18");
+    expect(days[0]?.dateKey).toBe("2026-07-16");
+    expect(days[1]?.dateKey).toBe("2026-07-18");
   });
 
   it("sorts events within a day by startTime", () => {
@@ -76,19 +73,16 @@ describe("groupEventsByDay", () => {
       makeEvent("earlier", "2026-07-16T19:00:00Z"),
     ];
     const days = groupEventsByDay(events);
-    expect(days[0]!.events[0]!.id).toBe("earlier");
-    expect(days[0]!.events[1]!.id).toBe("later");
+    expect(days[0]?.events[0]?.id).toBe("earlier");
+    expect(days[0]?.events[1]?.id).toBe("later");
   });
 
   it("puts events without startTime in sans-date group, at end", () => {
-    const events = [
-      makeEvent("dated", "2026-07-16T19:00:00Z"),
-      makeEvent("undated", null),
-    ];
+    const events = [makeEvent("dated", "2026-07-16T19:00:00Z"), makeEvent("undated", null)];
     const days = groupEventsByDay(events);
-    expect(days[0]!.dateKey).toBe("2026-07-16");
-    expect(days[1]!.dateKey).toBe("sans-date");
-    expect(days[1]!.label).toBe("Date non définie");
+    expect(days[0]?.dateKey).toBe("2026-07-16");
+    expect(days[1]?.dateKey).toBe("sans-date");
+    expect(days[1]?.label).toBe("Date non définie");
   });
 
   it("returns empty array for empty input", () => {
@@ -120,7 +114,7 @@ describe("buildAgendaFestival", () => {
     ];
     const fest = buildAgendaFestival("fe1", "WLG", "wlg", "2026-07-16", "2026-07-19", events);
     expect(fest.mustSeeCount).toBe(1);
-    expect(fest.days[0]!.events).toHaveLength(1);
+    expect(fest.days[0]?.events).toHaveLength(1);
   });
 
   it("sets counts correctly", () => {
@@ -138,20 +132,56 @@ describe("buildAgendaFestival", () => {
 describe("sortFestivalsByStartDate", () => {
   it("sorts by startDate ascending", () => {
     const festivals = [
-      { festEventId: "f2", festivalName: "Later", festivalSlug: "later", startDate: "2026-08-01", endDate: "2026-08-04", days: [], mustSeeCount: 0, intéresséCount: 0 },
-      { festEventId: "f1", festivalName: "Earlier", festivalSlug: "earlier", startDate: "2026-07-01", endDate: "2026-07-04", days: [], mustSeeCount: 0, intéresséCount: 0 },
+      {
+        festEventId: "f2",
+        festivalName: "Later",
+        festivalSlug: "later",
+        startDate: "2026-08-01",
+        endDate: "2026-08-04",
+        days: [],
+        mustSeeCount: 0,
+        intéresséCount: 0,
+      },
+      {
+        festEventId: "f1",
+        festivalName: "Earlier",
+        festivalSlug: "earlier",
+        startDate: "2026-07-01",
+        endDate: "2026-07-04",
+        days: [],
+        mustSeeCount: 0,
+        intéresséCount: 0,
+      },
     ];
     const sorted = sortFestivalsByStartDate(festivals);
-    expect(sorted[0]!.festEventId).toBe("f1");
-    expect(sorted[1]!.festEventId).toBe("f2");
+    expect(sorted[0]?.festEventId).toBe("f1");
+    expect(sorted[1]?.festEventId).toBe("f2");
   });
 });
 
 describe("getTotalEventCount", () => {
   it("sums mustSee + intéressé across all festivals", () => {
     const festivals = [
-      { festEventId: "f1", festivalName: "A", festivalSlug: "a", startDate: "", endDate: "", days: [], mustSeeCount: 3, intéresséCount: 2 },
-      { festEventId: "f2", festivalName: "B", festivalSlug: "b", startDate: "", endDate: "", days: [], mustSeeCount: 1, intéresséCount: 4 },
+      {
+        festEventId: "f1",
+        festivalName: "A",
+        festivalSlug: "a",
+        startDate: "",
+        endDate: "",
+        days: [],
+        mustSeeCount: 3,
+        intéresséCount: 2,
+      },
+      {
+        festEventId: "f2",
+        festivalName: "B",
+        festivalSlug: "b",
+        startDate: "",
+        endDate: "",
+        days: [],
+        mustSeeCount: 1,
+        intéresséCount: 4,
+      },
     ];
     expect(getTotalEventCount(festivals)).toBe(10);
   });

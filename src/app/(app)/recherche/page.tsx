@@ -1,29 +1,26 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+import { CalendarDays, Clock, Music2, Search, X } from "lucide-react";
 import Link from "next/link";
-import { Search, X, Music2, CalendarDays, Clock } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { GlobalSearchResponse } from "@/lib/global-search";
-import {
-  loadSearchHistory,
-  addToSearchHistory,
-  removeFromSearchHistory,
-  saveSearchHistory,
-  clearSearchHistory,
-} from "@/lib/search-history";
-import {
-  loadRecentlyViewed,
-  type RecentlyViewedEntry,
-} from "@/lib/recently-viewed";
+import { loadRecentlyViewed, type RecentlyViewedEntry } from "@/lib/recently-viewed";
 import {
   applySearchTypeFilter,
-  countSearchResults,
   buildTabLabel,
+  countSearchResults,
   isTabDisabled,
   type SearchTypeFilter,
 } from "@/lib/search-filter";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import {
+  addToSearchHistory,
+  clearSearchHistory,
+  loadSearchHistory,
+  removeFromSearchHistory,
+  saveSearchHistory,
+} from "@/lib/search-history";
 
 function useDebounce<T>(value: T, delay: number): T {
   const [debounced, setDebounced] = useState(value);
@@ -98,8 +95,7 @@ export default function RecherchePage() {
       .catch(() => setLoading(false));
   }, [debouncedQuery, commitSearch]);
 
-  const isEmpty =
-    results && results.total === 0 && debouncedQuery.length >= 2 && !loading;
+  const isEmpty = results && results.total === 0 && debouncedQuery.length >= 2 && !loading;
 
   return (
     <div
@@ -143,6 +139,7 @@ export default function RecherchePage() {
         />
         {query && (
           <button
+            type="button"
             onClick={() => setQuery("")}
             aria-label="Effacer la recherche"
             style={{
@@ -182,206 +179,210 @@ export default function RecherchePage() {
       )}
 
       {/* Type filter tabs */}
-      {results && results.total > 0 && (() => {
-        const counts = countSearchResults(results);
-        const tabs: SearchTypeFilter[] = ["all", "festivals", "artists"];
-        return (
-          <div
-            data-testid="search-type-filter"
-            style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 2 }}
-            role="tablist"
-            aria-label="Filtrer les résultats"
-          >
-            {tabs.map((tab) => {
-              const active = typeFilter === tab;
-              const disabled = isTabDisabled(tab, counts);
-              return (
-                <button
-                  key={tab}
-                  role="tab"
-                  aria-selected={active}
-                  data-testid={`search-type-tab-${tab}`}
-                  onClick={() => !disabled && setTypeFilter(tab)}
-                  disabled={disabled}
-                  style={{
-                    flexShrink: 0,
-                    padding: "5px 12px",
-                    borderRadius: 20,
-                    border: active
-                      ? "1px solid var(--primary-neon)"
-                      : "1px solid var(--border-strong)",
-                    background: active ? "rgba(0,255,102,0.1)" : "transparent",
-                    color: active
-                      ? "var(--primary-neon)"
-                      : disabled
-                      ? "var(--text-dim)"
-                      : "var(--text-muted)",
-                    fontSize: "var(--fs-xs, 11px)",
-                    fontWeight: active ? 700 : 500,
-                    fontFamily: "var(--font-body)",
-                    cursor: disabled ? "not-allowed" : "pointer",
-                    opacity: disabled ? 0.5 : 1,
-                    transition: "var(--transition-fast)",
-                  }}
-                >
-                  {buildTabLabel(tab, counts)}
-                </button>
-              );
-            })}
-          </div>
-        );
-      })()}
+      {results &&
+        results.total > 0 &&
+        (() => {
+          const counts = countSearchResults(results);
+          const tabs: SearchTypeFilter[] = ["all", "festivals", "artists"];
+          return (
+            <div
+              data-testid="search-type-filter"
+              style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 2 }}
+              role="tablist"
+              aria-label="Filtrer les résultats"
+            >
+              {tabs.map((tab) => {
+                const active = typeFilter === tab;
+                const disabled = isTabDisabled(tab, counts);
+                return (
+                  <button
+                    type="button"
+                    key={tab}
+                    role="tab"
+                    aria-selected={active}
+                    data-testid={`search-type-tab-${tab}`}
+                    onClick={() => !disabled && setTypeFilter(tab)}
+                    disabled={disabled}
+                    style={{
+                      flexShrink: 0,
+                      padding: "5px 12px",
+                      borderRadius: 20,
+                      border: active
+                        ? "1px solid var(--primary-neon)"
+                        : "1px solid var(--border-strong)",
+                      background: active ? "rgba(0,255,102,0.1)" : "transparent",
+                      color: active
+                        ? "var(--primary-neon)"
+                        : disabled
+                          ? "var(--text-dim)"
+                          : "var(--text-muted)",
+                      fontSize: "var(--fs-xs, 11px)",
+                      fontWeight: active ? 700 : 500,
+                      fontFamily: "var(--font-body)",
+                      cursor: disabled ? "not-allowed" : "pointer",
+                      opacity: disabled ? 0.5 : 1,
+                      transition: "var(--transition-fast)",
+                    }}
+                  >
+                    {buildTabLabel(tab, counts)}
+                  </button>
+                );
+              })}
+            </div>
+          );
+        })()}
 
       {/* Results */}
-      {results && results.total > 0 && (() => {
-        const filtered = applySearchTypeFilter(results, typeFilter);
-        return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
-
-          {/* Festivals section */}
-          {filtered.festivals.length > 0 && (
-            <section data-testid="search-festivals-section">
-              <h2
-                className="t-caption"
-                style={{
-                  color: "var(--text-dim)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  fontSize: "var(--fs-xs, 11px)",
-                  fontWeight: 700,
-                  marginBottom: "var(--space-xs)",
-                }}
-              >
-                Festivals
-              </h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {filtered.festivals.map((f) => (
-                  <Link
-                    key={f.id}
-                    href={`/festival/${f.slug}`}
-                    data-testid={`search-result-festival-${f.slug}`}
+      {results &&
+        results.total > 0 &&
+        (() => {
+          const filtered = applySearchTypeFilter(results, typeFilter);
+          return (
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+              {/* Festivals section */}
+              {filtered.festivals.length > 0 && (
+                <section data-testid="search-festivals-section">
+                  <h2
+                    className="t-caption"
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 12,
-                      backgroundColor: "var(--bg-surface)",
-                      border: "1px solid var(--border-color)",
-                      borderRadius: "var(--radius-md)",
-                      padding: "10px 14px",
-                      textDecoration: "none",
-                      transition: "var(--transition-fast)",
+                      color: "var(--text-dim)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                      fontSize: "var(--fs-xs, 11px)",
+                      fontWeight: 700,
+                      marginBottom: "var(--space-xs)",
                     }}
                   >
-                    <CalendarDays size={16} color="var(--accent-pink)" aria-hidden="true" />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p
-                        className="t-body"
+                    Festivals
+                  </h2>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {filtered.festivals.map((f) => (
+                      <Link
+                        key={f.id}
+                        href={`/festival/${f.slug}`}
+                        data-testid={`search-result-festival-${f.slug}`}
                         style={{
-                          color: "var(--text-main)",
-                          fontWeight: 600,
-                          fontSize: "var(--fs-sm)",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          backgroundColor: "var(--bg-surface)",
+                          border: "1px solid var(--border-color)",
+                          borderRadius: "var(--radius-md)",
+                          padding: "10px 14px",
+                          textDecoration: "none",
+                          transition: "var(--transition-fast)",
                         }}
                       >
-                        {f.name}
-                      </p>
-                      <p
-                        className="t-caption"
-                        style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 11px)" }}
-                      >
-                        {f.city} · {format(new Date(f.startDate), "d MMM yyyy", { locale: fr })}
-                      </p>
-                    </div>
-                    {FESTIVAL_TYPE_LABELS[f.festivalType] && (
-                      <span
-                        className="t-meta"
-                        style={{
-                          color: "var(--secondary-cyan)",
-                          fontSize: "var(--fs-xs, 10px)",
-                          fontWeight: 700,
-                          textTransform: "uppercase",
-                          letterSpacing: "0.06em",
-                          flexShrink: 0,
-                        }}
-                      >
-                        {FESTIVAL_TYPE_LABELS[f.festivalType]}
-                      </span>
-                    )}
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
+                        <CalendarDays size={16} color="var(--accent-pink)" aria-hidden="true" />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p
+                            className="t-body"
+                            style={{
+                              color: "var(--text-main)",
+                              fontWeight: 600,
+                              fontSize: "var(--fs-sm)",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {f.name}
+                          </p>
+                          <p
+                            className="t-caption"
+                            style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 11px)" }}
+                          >
+                            {f.city} · {format(new Date(f.startDate), "d MMM yyyy", { locale: fr })}
+                          </p>
+                        </div>
+                        {FESTIVAL_TYPE_LABELS[f.festivalType] && (
+                          <span
+                            className="t-meta"
+                            style={{
+                              color: "var(--secondary-cyan)",
+                              fontSize: "var(--fs-xs, 10px)",
+                              fontWeight: 700,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.06em",
+                              flexShrink: 0,
+                            }}
+                          >
+                            {FESTIVAL_TYPE_LABELS[f.festivalType]}
+                          </span>
+                        )}
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              )}
 
-          {/* Artists section */}
-          {filtered.artists.length > 0 && (
-            <section data-testid="search-artists-section">
-              <h2
-                className="t-caption"
-                style={{
-                  color: "var(--text-dim)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.08em",
-                  fontSize: "var(--fs-xs, 11px)",
-                  fontWeight: 700,
-                  marginBottom: "var(--space-xs)",
-                }}
-              >
-                Artistes
-              </h2>
-              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {filtered.artists.map((a) => (
-                  <Link
-                    key={a.id}
-                    href={`/artiste/${a.id}`}
-                    data-testid={`search-result-artist-${a.id}`}
+              {/* Artists section */}
+              {filtered.artists.length > 0 && (
+                <section data-testid="search-artists-section">
+                  <h2
+                    className="t-caption"
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 12,
-                      backgroundColor: "var(--bg-surface)",
-                      border: "1px solid var(--border-color)",
-                      borderRadius: "var(--radius-md)",
-                      padding: "10px 14px",
-                      textDecoration: "none",
-                      transition: "var(--transition-fast)",
+                      color: "var(--text-dim)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                      fontSize: "var(--fs-xs, 11px)",
+                      fontWeight: 700,
+                      marginBottom: "var(--space-xs)",
                     }}
                   >
-                    <Music2 size={16} color="var(--secondary-cyan)" aria-hidden="true" />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p
-                        className="t-body"
+                    Artistes
+                  </h2>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {filtered.artists.map((a) => (
+                      <Link
+                        key={a.id}
+                        href={`/artiste/${a.id}`}
+                        data-testid={`search-result-artist-${a.id}`}
                         style={{
-                          color: "var(--text-main)",
-                          fontWeight: 600,
-                          fontSize: "var(--fs-sm)",
-                          overflow: "hidden",
-                          textOverflow: "ellipsis",
-                          whiteSpace: "nowrap",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 12,
+                          backgroundColor: "var(--bg-surface)",
+                          border: "1px solid var(--border-color)",
+                          borderRadius: "var(--radius-md)",
+                          padding: "10px 14px",
+                          textDecoration: "none",
+                          transition: "var(--transition-fast)",
                         }}
                       >
-                        {a.name}
-                      </p>
-                      {a.disciplines.length > 0 && (
-                        <p
-                          className="t-caption"
-                          style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 11px)" }}
-                        >
-                          {a.disciplines.slice(0, 2).join(", ")}
-                          {a.festivalCount > 0 && ` · ${a.festivalCount} fest.`}
-                        </p>
-                      )}
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
-        </div>
-        );
-      })()}
+                        <Music2 size={16} color="var(--secondary-cyan)" aria-hidden="true" />
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p
+                            className="t-body"
+                            style={{
+                              color: "var(--text-main)",
+                              fontWeight: 600,
+                              fontSize: "var(--fs-sm)",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {a.name}
+                          </p>
+                          {a.disciplines.length > 0 && (
+                            <p
+                              className="t-caption"
+                              style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 11px)" }}
+                            >
+                              {a.disciplines.slice(0, 2).join(", ")}
+                              {a.festivalCount > 0 && ` · ${a.festivalCount} fest.`}
+                            </p>
+                          )}
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              )}
+            </div>
+          );
+        })()}
 
       {/* Search history */}
       {!results && !loading && history.length > 0 && (
@@ -411,6 +412,7 @@ export default function RecherchePage() {
               Récentes
             </h2>
             <button
+              type="button"
               onClick={handleClearHistory}
               data-testid="search-history-clear"
               style={{
@@ -442,6 +444,7 @@ export default function RecherchePage() {
                 }}
               >
                 <button
+                  type="button"
                   data-testid={`search-history-item`}
                   onClick={() => setQuery(q)}
                   style={{
@@ -459,6 +462,7 @@ export default function RecherchePage() {
                   {q}
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleRemoveHistory(q)}
                   aria-label={`Supprimer "${q}" de l'historique`}
                   style={{

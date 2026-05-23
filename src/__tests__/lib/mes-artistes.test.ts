@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   deduplicateArtistsByFestival,
-  sortByFestivalDate,
-  filterUpcoming,
   filterPast,
+  filterUpcoming,
   groupByFestival,
   type MesArtistesItem,
+  sortByFestivalDate,
 } from "@/lib/mes-artistes";
 
 const NOW = new Date("2026-06-10T12:00:00.000Z");
@@ -27,9 +27,32 @@ function makeItem(overrides: Partial<MesArtistesItem> = {}): MesArtistesItem {
   };
 }
 
-const ITEM_FUTURE1 = makeItem({ artistId: "a1", festivalId: "f1", festivalStartDate: "2026-06-18T00:00:00.000Z", festivalEndDate: "2026-06-21T00:00:00.000Z" });
-const ITEM_FUTURE2 = makeItem({ artistId: "a2", artistName: "Amelie Lens", disciplines: ["techno"], festivalId: "f2", festivalName: "Solidays", festivalSlug: "solidays-2026", festivalStartDate: "2026-06-26T00:00:00.000Z", festivalEndDate: "2026-06-28T00:00:00.000Z", city: "Paris" });
-const ITEM_PAST = makeItem({ artistId: "a3", artistName: "Past Artist", festivalId: "f3", festivalName: "Ancien Festival", festivalSlug: "ancien-2025", festivalStartDate: "2025-08-01T00:00:00.000Z", festivalEndDate: "2025-08-03T00:00:00.000Z" });
+const ITEM_FUTURE1 = makeItem({
+  artistId: "a1",
+  festivalId: "f1",
+  festivalStartDate: "2026-06-18T00:00:00.000Z",
+  festivalEndDate: "2026-06-21T00:00:00.000Z",
+});
+const ITEM_FUTURE2 = makeItem({
+  artistId: "a2",
+  artistName: "Amelie Lens",
+  disciplines: ["techno"],
+  festivalId: "f2",
+  festivalName: "Solidays",
+  festivalSlug: "solidays-2026",
+  festivalStartDate: "2026-06-26T00:00:00.000Z",
+  festivalEndDate: "2026-06-28T00:00:00.000Z",
+  city: "Paris",
+});
+const ITEM_PAST = makeItem({
+  artistId: "a3",
+  artistName: "Past Artist",
+  festivalId: "f3",
+  festivalName: "Ancien Festival",
+  festivalSlug: "ancien-2025",
+  festivalStartDate: "2025-08-01T00:00:00.000Z",
+  festivalEndDate: "2025-08-03T00:00:00.000Z",
+});
 
 describe("deduplicateArtistsByFestival", () => {
   it("keeps unique artist+festival combos", () => {
@@ -72,21 +95,21 @@ describe("sortByFestivalDate", () => {
   it("sorts by festivalStartDate ascending", () => {
     const items = [ITEM_FUTURE2, ITEM_FUTURE1];
     const sorted = sortByFestivalDate(items);
-    expect(sorted[0]!.festivalId).toBe("f1"); // June 18 before June 26
-    expect(sorted[1]!.festivalId).toBe("f2");
+    expect(sorted[0]?.festivalId).toBe("f1"); // June 18 before June 26
+    expect(sorted[1]?.festivalId).toBe("f2");
   });
 
   it("secondary sort by artistName for same festival date", () => {
     const a = makeItem({ artistId: "a2", artistName: "Zak", festivalId: "f1" });
     const b = makeItem({ artistId: "a3", artistName: "Alice", festivalId: "f1" });
     const sorted = sortByFestivalDate([a, b]);
-    expect(sorted[0]!.artistName).toBe("Alice");
+    expect(sorted[0]?.artistName).toBe("Alice");
   });
 
   it("does not mutate input", () => {
     const items = [ITEM_FUTURE2, ITEM_FUTURE1];
     sortByFestivalDate(items);
-    expect(items[0]!.festivalId).toBe("f2");
+    expect(items[0]?.festivalId).toBe("f2");
   });
 
   it("handles empty array", () => {
@@ -116,7 +139,7 @@ describe("filterPast", () => {
   it("returns only past festivals", () => {
     const result = filterPast([ITEM_FUTURE1, ITEM_PAST], NOW);
     expect(result).toHaveLength(1);
-    expect(result[0]!.festivalId).toBe("f3");
+    expect(result[0]?.festivalId).toBe("f3");
   });
 
   it("excludes ongoing festivals", () => {
@@ -134,7 +157,7 @@ describe("groupByFestival", () => {
     const a2 = makeItem({ artistId: "a2", artistName: "Amelie", festivalId: "f1" });
     const map = groupByFestival([ITEM_FUTURE1, a2]);
     expect(map.size).toBe(1);
-    expect(map.get("f1")!.artists).toHaveLength(2);
+    expect(map.get("f1")?.artists).toHaveLength(2);
   });
 
   it("separate festivals create separate groups", () => {

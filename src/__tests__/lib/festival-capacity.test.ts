@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  getCapacityTier,
-  getCapacityTierColor,
-  getCapacityTierBg,
-  formatCapacityLabel,
   buildCapacityAriaLabel,
+  formatCapacityLabel,
+  getCapacityTier,
+  getCapacityTierBg,
+  getCapacityTierColor,
 } from "@/lib/festival-capacity";
 
 describe("getCapacityTier", () => {

@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  resolveUserDisplayName,
-  formatUserRole,
-  getUserRoleColor,
-  sortAdminUsers,
+  type AdminUserRow,
   countAdminUsers,
   countRegularUsers,
   filterAdminUsers,
-  type AdminUserRow,
+  formatUserRole,
+  getUserRoleColor,
+  resolveUserDisplayName,
+  sortAdminUsers,
 } from "@/lib/admin-users";
 
 function makeUser(overrides: Partial<AdminUserRow> = {}): AdminUserRow {
@@ -40,7 +40,9 @@ describe("resolveUserDisplayName", () => {
   });
 
   it("returns email when pseudo and name are undefined", () => {
-    expect(resolveUserDisplayName(undefined, undefined, "alice@example.com")).toBe("alice@example.com");
+    expect(resolveUserDisplayName(undefined, undefined, "alice@example.com")).toBe(
+      "alice@example.com",
+    );
   });
 });
 
@@ -104,10 +106,7 @@ describe("sortAdminUsers", () => {
   });
 
   it("does not mutate original array", () => {
-    const users = [
-      makeUser({ id: "u1", role: "user" }),
-      makeUser({ id: "u2", role: "admin" }),
-    ];
+    const users = [makeUser({ id: "u1", role: "user" }), makeUser({ id: "u2", role: "admin" })];
     const copy = [...users];
     sortAdminUsers(users);
     expect(users).toEqual(copy);
@@ -172,7 +171,9 @@ describe("filterAdminUsers", () => {
   it("filters by role label (admin)", () => {
     const result = filterAdminUsers(users, "admin");
     expect(result.length).toBeGreaterThanOrEqual(1);
-    expect(result.every((u) => u.role === "admin" || u.displayName.toLowerCase().includes("admin"))).toBe(true);
+    expect(
+      result.every((u) => u.role === "admin" || u.displayName.toLowerCase().includes("admin")),
+    ).toBe(true);
   });
 
   it("returns empty for no match", () => {

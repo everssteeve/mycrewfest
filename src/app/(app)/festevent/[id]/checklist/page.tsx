@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { ChecklistView, type ChecklistItemData } from "./_components/checklist-view";
+import { type ChecklistItemData, ChecklistView } from "./_components/checklist-view";
 
 type PageContext = { params: Promise<{ id: string }> };
 
@@ -61,10 +61,6 @@ export default async function ChecklistPage({ params }: PageContext) {
   }
 
   return (
-    <ChecklistView
-      festEventId={id}
-      initialItems={data.items}
-      festivalName={data.festivalName}
-    />
+    <ChecklistView festEventId={id} initialItems={data.items} festivalName={data.festivalName} />
   );
 }

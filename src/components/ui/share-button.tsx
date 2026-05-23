@@ -1,8 +1,8 @@
 "use client";
 
+import { Check, Copy, Share2 } from "lucide-react";
 import { useState, useTransition } from "react";
-import { Share2, Check, Copy } from "lucide-react";
-import { shareOrCopy, type SharePayload } from "@/lib/share";
+import { type SharePayload, shareOrCopy } from "@/lib/share";
 
 interface ShareButtonProps {
   payload: SharePayload;
@@ -10,7 +10,11 @@ interface ShareButtonProps {
   "data-testid"?: string;
 }
 
-export function ShareButton({ payload, label = "Partager", "data-testid": testId }: ShareButtonProps) {
+export function ShareButton({
+  payload,
+  label = "Partager",
+  "data-testid": testId,
+}: ShareButtonProps) {
   const [result, setResult] = useState<"idle" | "copied" | "shared">("idle");
   const [isPending, startTransition] = useTransition();
 
@@ -43,9 +47,7 @@ export function ShareButton({ payload, label = "Partager", "data-testid": testId
         paddingTop: 8,
         paddingBottom: 8,
         borderRadius: "var(--radius-md)",
-        border: isSuccess
-          ? "1.5px solid var(--primary-neon)"
-          : "1.5px solid var(--border-strong)",
+        border: isSuccess ? "1.5px solid var(--primary-neon)" : "1.5px solid var(--border-strong)",
         backgroundColor: isSuccess ? "var(--neon-soft)" : "transparent",
         color: isSuccess ? "var(--primary-neon)" : "var(--text-muted)",
         fontFamily: "var(--font-body)",

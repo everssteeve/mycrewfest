@@ -12,9 +12,12 @@ export const SORT_MODE_LABELS: Record<CatalogueSortMode, string> = {
 
 export function getSortModeAriaLabel(mode: CatalogueSortMode): string {
   switch (mode) {
-    case "temporal": return "Trier par pertinence temporelle";
-    case "alpha": return "Trier par ordre alphabétique";
-    case "popularity": return "Trier par popularité (followers)";
+    case "temporal":
+      return "Trier par pertinence temporelle";
+    case "alpha":
+      return "Trier par ordre alphabétique";
+    case "popularity":
+      return "Trier par popularité (followers)";
   }
 }
 
@@ -46,7 +49,6 @@ export function sortFestivals<T extends SortableFestival>(
       return copy.sort(compareAlpha);
     case "popularity":
       return copy.sort(comparePopularity);
-    case "temporal":
     default:
       return copy.sort(compareByTemporalRelevance);
   }

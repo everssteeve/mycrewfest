@@ -17,8 +17,7 @@ export interface GapCheckableEvent {
 const SELECTED_STATUSES = new Set(["must-see", "intéressé"]);
 
 function isSelected(event: GapCheckableEvent): boolean {
-  return event.selection?.status !== undefined &&
-    SELECTED_STATUSES.has(event.selection.status);
+  return event.selection?.status !== undefined && SELECTED_STATUSES.has(event.selection.status);
 }
 
 /**

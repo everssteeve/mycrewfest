@@ -1,7 +1,7 @@
-import { Metadata } from "next";
-import { SoumettreForm } from "./_components/soumettre-form";
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { SoumettreForm } from "./_components/soumettre-form";
 
 export const metadata: Metadata = {
   title: "Soumettre un festival",

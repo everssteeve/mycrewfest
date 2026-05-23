@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
 import { Search } from "lucide-react";
+import { useMemo, useState } from "react";
 import {
-  filterAdminFestivals,
+  type AdminFestivalFilterable,
   FESTIVAL_STATUS_OPTIONS,
   type FestivalIngestionStatus,
-  type AdminFestivalFilterable,
+  filterAdminFestivals,
 } from "@/lib/admin-festival-filter";
 
 interface FestivalsFilterBarProps<T extends AdminFestivalFilterable & { id: string }> {

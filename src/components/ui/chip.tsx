@@ -1,5 +1,5 @@
-import { type ButtonHTMLAttributes, forwardRef } from "react";
 import { clsx } from "clsx";
+import { type ButtonHTMLAttributes, forwardRef } from "react";
 
 type ChipColor = "neon" | "cyan" | "pink" | "orange";
 type ChipState = "inactive" | "soft" | "active";
@@ -41,10 +41,7 @@ const colorTokens: Record<
 };
 
 export const Chip = forwardRef<HTMLButtonElement, ChipProps>(
-  (
-    { color = "neon", state = "inactive", className, children, ...props },
-    ref,
-  ) => {
+  ({ color = "neon", state = "inactive", className, children, ...props }, ref) => {
     const tokens = colorTokens[color];
     const stateClass =
       state === "active"

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { NewsView, type NewsItemData } from "./_components/news-view";
+import { type NewsItemData, NewsView } from "./_components/news-view";
 
 type PageContext = { params: Promise<{ id: string }> };
 
@@ -56,10 +56,6 @@ export default async function NewsPage({ params }: PageContext) {
   }
 
   return (
-    <NewsView
-      festEventId={id}
-      initialNews={data.news}
-      initialUrgentCount={data.urgentCount}
-    />
+    <NewsView festEventId={id} initialNews={data.news} initialUrgentCount={data.urgentCount} />
   );
 }

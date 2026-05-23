@@ -1,6 +1,34 @@
-import { describe, it, expect } from "vitest";
-import { countUniqueEventTypes, countNightEvents, getEarliestEventStartTime, getLatestEventEndTime, computeSelectedEventsDensityByDay, getPeakSelectionDay } from "@/lib/programme-summary";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents } from "@/lib/programme-summary";
+import { describe, expect, it } from "vitest";
+import {
+  computeAvgEventDurationMins,
+  computeProgrammeDurationMins,
+  computeSelectedEventsDensityByDay,
+  computeSelectionCoveragePercent,
+  countAgeRestrictedEvents,
+  countCancelledEvents,
+  countEventsByDay,
+  countIntéresséEvents,
+  countItinerantEvents,
+  countModifiedEvents,
+  countMustSeePendingEvents,
+  countNightEvents,
+  countReservationRequiredEvents,
+  countSelectionDays,
+  countUniqueArtists,
+  countUniqueEventTypes,
+  countUniqueProgrammeTags,
+  countUniqueVenues,
+  countVerifiedEvents,
+  countVuEventsByDay,
+  getEarliestEventStartTime,
+  getLatestEventEndTime,
+  getMaxEventDurationMins,
+  getPeakEventHour,
+  getPeakProgrammeDay,
+  getPeakSelectionDay,
+  getTopProgrammeTag,
+  getTopProgrammeVenue,
+} from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -90,10 +118,7 @@ describe("countVuEventsByDay", () => {
   });
 
   it("ignores non-vu selections", () => {
-    const events = [
-      ev("2026-07-15T14:00:00", "must-see"),
-      ev("2026-07-15T16:00:00", "intéressé"),
-    ];
+    const events = [ev("2026-07-15T14:00:00", "must-see"), ev("2026-07-15T16:00:00", "intéressé")];
     expect(countVuEventsByDay(events)).toEqual(new Map());
   });
 
@@ -127,9 +152,7 @@ describe("computeProgrammeDurationMins", () => {
   });
 
   it("derives duration from startTime/endTime when durationMins is absent", () => {
-    const events = [
-      { startTime: "2026-07-15T14:00:00Z", endTime: "2026-07-15T15:30:00Z" },
-    ];
+    const events = [{ startTime: "2026-07-15T14:00:00Z", endTime: "2026-07-15T15:30:00Z" }];
     expect(computeProgrammeDurationMins(events)).toBe(90);
   });
 
@@ -177,11 +200,7 @@ describe("countUniqueVenues", () => {
   });
 
   it("ignores events without a venue", () => {
-    const events = [
-      { venue: { id: "v1" } },
-      { venue: null },
-      { venue: { id: "v2" } },
-    ];
+    const events = [{ venue: { id: "v1" } }, { venue: null }, { venue: { id: "v2" } }];
     expect(countUniqueVenues(events)).toBe(2);
   });
 });
@@ -212,11 +231,7 @@ describe("countUniqueArtists", () => {
   });
 
   it("ignores events without an artist", () => {
-    const events = [
-      { artist: { id: "a1" } },
-      { artist: null },
-      { artist: { id: "a2" } },
-    ];
+    const events = [{ artist: { id: "a1" } }, { artist: null }, { artist: { id: "a2" } }];
     expect(countUniqueArtists(events)).toBe(2);
   });
 });
@@ -275,10 +290,7 @@ describe("getPeakEventHour", () => {
   });
 
   it("breaks ties by returning the lowest hour", () => {
-    const events = [
-      { startTime: "2026-07-15T20:00:00" },
-      { startTime: "2026-07-15T22:00:00" },
-    ];
+    const events = [{ startTime: "2026-07-15T20:00:00" }, { startTime: "2026-07-15T22:00:00" }];
     expect(getPeakEventHour(events)).toBe(20);
   });
 });
@@ -294,7 +306,11 @@ describe("countReservationRequiredEvents", () => {
   });
 
   it("counts réservation_séparée events", () => {
-    const events = [{ access: "réservation_séparée" }, { access: "inclus" }, { access: "réservation_séparée" }];
+    const events = [
+      { access: "réservation_séparée" },
+      { access: "inclus" },
+      { access: "réservation_séparée" },
+    ];
     expect(countReservationRequiredEvents(events)).toBe(2);
   });
 
@@ -351,19 +367,12 @@ describe("getTopProgrammeTag", () => {
   });
 
   it("returns the most frequent tag", () => {
-    const events = [
-      { tags: ["Techno", "Electronic"] },
-      { tags: ["Techno"] },
-      { tags: ["Jazz"] },
-    ];
+    const events = [{ tags: ["Techno", "Electronic"] }, { tags: ["Techno"] }, { tags: ["Jazz"] }];
     expect(getTopProgrammeTag(events)).toEqual({ tag: "Techno", count: 2 });
   });
 
   it("breaks ties alphabetically", () => {
-    const events = [
-      { tags: ["Techno"] },
-      { tags: ["Jazz"] },
-    ];
+    const events = [{ tags: ["Techno"] }, { tags: ["Jazz"] }];
     expect(getTopProgrammeTag(events)).toEqual({ tag: "Jazz", count: 1 });
   });
 
@@ -373,11 +382,7 @@ describe("getTopProgrammeTag", () => {
   });
 
   it("counts tags across all events correctly", () => {
-    const events = [
-      { tags: ["A", "B"] },
-      { tags: ["B", "C"] },
-      { tags: ["B"] },
-    ];
+    const events = [{ tags: ["A", "B"] }, { tags: ["B", "C"] }, { tags: ["B"] }];
     expect(getTopProgrammeTag(events)).toEqual({ tag: "B", count: 3 });
   });
 });
@@ -475,18 +480,12 @@ describe("countSelectionDays", () => {
   });
 
   it("counts two distinct days when selection spans two days", () => {
-    const events = [
-      ev("2026-07-15T10:00:00", "must-see"),
-      ev("2026-07-16T14:00:00", "intéressé"),
-    ];
+    const events = [ev("2026-07-15T10:00:00", "must-see"), ev("2026-07-16T14:00:00", "intéressé")];
     expect(countSelectionDays(events)).toBe(2);
   });
 
   it("ignores vu events (already seen)", () => {
-    const events = [
-      ev("2026-07-15T10:00:00", "vu"),
-      ev("2026-07-16T10:00:00", "must-see"),
-    ];
+    const events = [ev("2026-07-15T10:00:00", "vu"), ev("2026-07-16T10:00:00", "must-see")];
     expect(countSelectionDays(events)).toBe(1);
   });
 
@@ -595,9 +594,7 @@ describe("getMaxEventDurationMins", () => {
   });
 
   it("rounds to nearest minute", () => {
-    const events = [
-      { startTime: "2026-07-01T10:00:00Z", endTime: "2026-07-01T10:59:30Z" },
-    ];
+    const events = [{ startTime: "2026-07-01T10:00:00Z", endTime: "2026-07-01T10:59:30Z" }];
     expect(getMaxEventDurationMins(events)).toBe(60);
   });
 });
@@ -648,10 +645,7 @@ describe("computeSelectionCoveragePercent", () => {
   });
 
   it("returns 100 when all events have a selection", () => {
-    const events = [
-      { selection: { status: "must-see" } },
-      { selection: { status: "vu" } },
-    ];
+    const events = [{ selection: { status: "must-see" } }, { selection: { status: "vu" } }];
     expect(computeSelectionCoveragePercent(events)).toBe(100);
   });
 
@@ -667,11 +661,7 @@ describe("computeSelectionCoveragePercent", () => {
   });
 
   it("rounds to nearest integer", () => {
-    const events = [
-      { selection: { status: "vu" } },
-      { selection: null },
-      { selection: null },
-    ];
+    const events = [{ selection: { status: "vu" } }, { selection: null }, { selection: null }];
     // 1/3 = 33.3% → 33
     expect(computeSelectionCoveragePercent(events)).toBe(33);
   });
@@ -742,7 +732,9 @@ describe("countAgeRestrictedEvents", () => {
   });
 
   it("returns 0 when no events have age restrictions", () => {
-    expect(countAgeRestrictedEvents([{ ageMin: null, ageMax: null }, { ageMin: undefined }])).toBe(0);
+    expect(countAgeRestrictedEvents([{ ageMin: null, ageMax: null }, { ageMin: undefined }])).toBe(
+      0,
+    );
   });
 
   it("counts events with ageMin set", () => {
@@ -810,7 +802,9 @@ describe("countUniqueEventTypes", () => {
   });
 
   it("returns 1 when only one type among many nulls", () => {
-    expect(countUniqueEventTypes([{ eventType: null }, { eventType: "scène" }, { eventType: null }])).toBe(1);
+    expect(
+      countUniqueEventTypes([{ eventType: null }, { eventType: "scène" }, { eventType: null }]),
+    ).toBe(1);
   });
 });
 

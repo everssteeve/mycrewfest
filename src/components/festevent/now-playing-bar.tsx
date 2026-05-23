@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { EventSummary } from "@/types";
 import { formatMinsUntil } from "@/lib/now-playing";
+import type { EventSummary } from "@/types";
 
 interface NowPlayingData {
   current: EventSummary | null;
@@ -75,7 +75,7 @@ export function NowPlayingBar({ festEventId, onScrollToEvent }: NowPlayingBarPro
       {hasCurrent && data.current && (
         <button
           type="button"
-          onClick={() => onScrollToEvent?.(data.current!.id)}
+          onClick={() => data.current?.id && onScrollToEvent?.(data.current.id)}
           style={{
             display: "flex",
             alignItems: "center",
@@ -140,7 +140,7 @@ export function NowPlayingBar({ festEventId, onScrollToEvent }: NowPlayingBarPro
       {hasNext && data.next && (
         <button
           type="button"
-          onClick={() => onScrollToEvent?.(data.next!.id)}
+          onClick={() => data.next?.id && onScrollToEvent?.(data.next.id)}
           style={{
             display: "flex",
             alignItems: "center",
@@ -186,8 +186,7 @@ export function NowPlayingBar({ festEventId, onScrollToEvent }: NowPlayingBarPro
                     flexShrink: 0,
                   }}
                 >
-                  ▷
-                  {data.minsUntilNext != null && ` ${formatMinsUntil(data.minsUntilNext)}`}
+                  ▷{data.minsUntilNext != null && ` ${formatMinsUntil(data.minsUntilNext)}`}
                 </span>
                 <span
                   style={{

@@ -1,14 +1,7 @@
-import { describe, it, expect } from "vitest";
-import {
-  generatePlanningText,
-  type PlanningTextEvent,
-} from "@/lib/planning-text";
+import { describe, expect, it } from "vitest";
+import { generatePlanningText, type PlanningTextEvent } from "@/lib/planning-text";
 
-const ev = (
-  title: string,
-  startTime?: string | null,
-  venueName?: string,
-): PlanningTextEvent => ({
+const ev = (title: string, startTime?: string | null, venueName?: string): PlanningTextEvent => ({
   title,
   startTime: startTime ?? null,
   venue: venueName ? { name: venueName } : null,
@@ -24,10 +17,7 @@ describe("generatePlanningText — empty state", () => {
 
 describe("generatePlanningText — header", () => {
   it("includes festival name and emoji in header", () => {
-    const result = generatePlanningText(
-      [ev("Artist A", "2026-07-15T14:00:00")],
-      "Hellfest",
-    );
+    const result = generatePlanningText([ev("Artist A", "2026-07-15T14:00:00")], "Hellfest");
     expect(result).toContain("🎪");
     expect(result).toContain("Hellfest");
   });
@@ -35,10 +25,7 @@ describe("generatePlanningText — header", () => {
 
 describe("generatePlanningText — timed events", () => {
   it("formats event time as HHhMM", () => {
-    const result = generatePlanningText(
-      [ev("Artist A", "2026-07-15T14:30:00")],
-      "Fest",
-    );
+    const result = generatePlanningText([ev("Artist A", "2026-07-15T14:30:00")], "Fest");
     expect(result).toContain("14h30");
   });
 
@@ -51,18 +38,12 @@ describe("generatePlanningText — timed events", () => {
   });
 
   it("omits venue parentheses when no venue", () => {
-    const result = generatePlanningText(
-      [ev("Artist C", "2026-07-15T20:00:00")],
-      "Fest",
-    );
+    const result = generatePlanningText([ev("Artist C", "2026-07-15T20:00:00")], "Fest");
     expect(result).not.toContain("()");
   });
 
   it("includes day header with 📅 emoji", () => {
-    const result = generatePlanningText(
-      [ev("Artist D", "2026-07-15T14:00:00")],
-      "Fest",
-    );
+    const result = generatePlanningText([ev("Artist D", "2026-07-15T14:00:00")], "Fest");
     expect(result).toContain("📅");
   });
 
@@ -92,10 +73,7 @@ describe("generatePlanningText — timed events", () => {
   });
 
   it("sorts days chronologically", () => {
-    const events = [
-      ev("Day 2", "2026-07-16T14:00:00"),
-      ev("Day 1", "2026-07-15T14:00:00"),
-    ];
+    const events = [ev("Day 2", "2026-07-16T14:00:00"), ev("Day 1", "2026-07-15T14:00:00")];
     const result = generatePlanningText(events, "Fest");
     const day1Idx = result.indexOf("Day 1");
     const day2Idx = result.indexOf("Day 2");
@@ -105,19 +83,13 @@ describe("generatePlanningText — timed events", () => {
 
 describe("generatePlanningText — itinerant events (no startTime)", () => {
   it("places events without startTime in Itinérant section", () => {
-    const result = generatePlanningText(
-      [ev("Floating Artist")],
-      "Fest",
-    );
+    const result = generatePlanningText([ev("Floating Artist")], "Fest");
     expect(result).toContain("📍 Itinérant");
     expect(result).toContain("Floating Artist");
   });
 
   it("Itinérant section comes after all timed days", () => {
-    const events = [
-      ev("Floating", null),
-      ev("Timed", "2026-07-15T14:00:00"),
-    ];
+    const events = [ev("Floating", null), ev("Timed", "2026-07-15T14:00:00")];
     const result = generatePlanningText(events, "Fest");
     const timedIdx = result.indexOf("Timed");
     const itinerantIdx = result.indexOf("📍 Itinérant");
@@ -125,28 +97,19 @@ describe("generatePlanningText — itinerant events (no startTime)", () => {
   });
 
   it("shows venue in itinerant section when present", () => {
-    const result = generatePlanningText(
-      [ev("Street Act", null, "Place centrale")],
-      "Fest",
-    );
+    const result = generatePlanningText([ev("Street Act", null, "Place centrale")], "Fest");
     expect(result).toContain("(Place centrale)");
   });
 });
 
 describe("generatePlanningText — output format", () => {
   it("uses bullet • for each event", () => {
-    const result = generatePlanningText(
-      [ev("Some Act", "2026-07-15T14:00:00")],
-      "Fest",
-    );
+    const result = generatePlanningText([ev("Some Act", "2026-07-15T14:00:00")], "Fest");
     expect(result).toContain("•");
   });
 
   it("does not have trailing whitespace or newlines", () => {
-    const result = generatePlanningText(
-      [ev("Some Act", "2026-07-15T14:00:00")],
-      "Fest",
-    );
+    const result = generatePlanningText([ev("Some Act", "2026-07-15T14:00:00")], "Fest");
     expect(result).toBe(result.trimEnd());
   });
 });

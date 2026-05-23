@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { SignauxView, type SignalData } from "./_components/signaux-view";
+import { type SignalData, SignauxView } from "./_components/signaux-view";
 
 type PageContext = { params: Promise<{ id: string }> };
 
@@ -63,10 +63,6 @@ export default async function SignauxPage({ params }: PageContext) {
   }
 
   return (
-    <SignauxView
-      festEventId={id}
-      festivalId={data.festivalId}
-      initialSignals={data.signals}
-    />
+    <SignauxView festEventId={id} festivalId={data.festivalId} initialSignals={data.signals} />
   );
 }

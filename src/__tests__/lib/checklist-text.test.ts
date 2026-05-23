@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { generateChecklistText } from "@/lib/checklist-text";
 
 type Item = { label: string; done: boolean; cost: number | null; assigneeName: string | null };
@@ -96,10 +96,7 @@ describe("generateChecklistText — output format", () => {
   });
 
   it("pending items appear before done items", () => {
-    const result = generateChecklistText(
-      [item("Done", true), item("Todo", false)],
-      "Fest",
-    );
+    const result = generateChecklistText([item("Done", true), item("Todo", false)], "Fest");
     const pendingIdx = result.indexOf("⬜ À faire");
     const doneIdx = result.indexOf("✅ Fait");
     expect(pendingIdx).toBeLessThan(doneIdx);

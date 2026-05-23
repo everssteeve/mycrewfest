@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { CarteView, type VenueWithEvents, type CrewMemberPosition } from "./_components/carte-view";
+import { CarteView, type CrewMemberPosition, type VenueWithEvents } from "./_components/carte-view";
 
 type PageContext = { params: Promise<{ id: string }> };
 

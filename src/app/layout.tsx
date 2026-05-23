@@ -30,9 +30,7 @@ export const metadata: Metadata = {
   },
   description:
     "L'app du festivalier — prépare, vis et souviens-toi de chaque festival avec ton crew.",
-  metadataBase: new URL(
-    process.env.NEXTAUTH_URL ?? "http://localhost:3000",
-  ),
+  metadataBase: new URL(process.env.NEXTAUTH_URL ?? "http://localhost:3000"),
   openGraph: {
     title: "MyCrewFest",
     description:

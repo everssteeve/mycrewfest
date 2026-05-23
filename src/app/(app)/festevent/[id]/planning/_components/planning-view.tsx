@@ -1,23 +1,32 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ChevronDown, CalendarArrowDown, Copy, Check, Sparkles, X } from "lucide-react";
-import { detectConflicts, filterEventsByDay, sortEventsByTime, computeDayFreeTime, computeDayCoverage, optimizePlanning, countMustSeeEvents, countIntéresséPlanningEvents, type OptimizeResult } from "@/lib/planning";
+import { CalendarArrowDown, Check, ChevronDown, Copy, Sparkles, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import { useSelections } from "@/hooks/use-selections";
-import { useFestEventStore } from "@/store/use-fest-event-store";
-import { toggleVuStatus } from "@/lib/selection";
-import { generatePlanningText } from "@/lib/planning-text";
 import { formatBilanDuration } from "@/lib/bilan";
-import { countUniqueVenues, computeProgrammeDurationMins } from "@/lib/programme-summary";
-import { applyPlanningMustSeeFilter } from "@/lib/planning-filter";
-import { computeTravelTimeMins } from "@/lib/travel-time";
 import { getEventTimeStatus } from "@/lib/event-status";
 import { formatMinsUntil } from "@/lib/now-playing";
-import type { EventSummary, ConflictInfo, ConflictLevel } from "@/types";
-import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
-import type { SelectionStatus } from "@/types";
+import {
+  computeDayCoverage,
+  computeDayFreeTime,
+  countIntéresséPlanningEvents,
+  countMustSeeEvents,
+  detectConflicts,
+  filterEventsByDay,
+  type OptimizeResult,
+  optimizePlanning,
+  sortEventsByTime,
+} from "@/lib/planning";
+import { applyPlanningMustSeeFilter } from "@/lib/planning-filter";
+import { generatePlanningText } from "@/lib/planning-text";
+import { computeProgrammeDurationMins, countUniqueVenues } from "@/lib/programme-summary";
+import { toggleVuStatus } from "@/lib/selection";
+import { computeTravelTimeMins } from "@/lib/travel-time";
+import { useFestEventStore } from "@/store/use-fest-event-store";
+import type { ConflictInfo, ConflictLevel, EventSummary, SelectionStatus } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -48,7 +57,9 @@ function toEventSummary(e: EventWithSelectionAndConfidence): EventSummary {
     ageMax: undefined,
     access: e.access as "inclus" | "réservation_séparée",
     status: e.status as "confirmé" | "annulé" | "modifié",
-    confidence: ((e as EventWithSelectionAndConfidence & { confidence?: "auto" | "vérifié_humain" }).confidence ?? "auto"),
+    confidence:
+      (e as EventWithSelectionAndConfidence & { confidence?: "auto" | "vérifié_humain" })
+        .confidence ?? "auto",
     venue: e.venue
       ? {
           id: e.venue.id,
@@ -158,7 +169,13 @@ function TimelineEventCard({
       style={baseStyle}
       role="article"
       aria-label={event.title}
-      data-testid={timeStatus === "past" ? "past-event-card" : timeStatus === "ongoing" ? "ongoing-event-card" : undefined}
+      data-testid={
+        timeStatus === "past"
+          ? "past-event-card"
+          : timeStatus === "ongoing"
+            ? "ongoing-event-card"
+            : undefined
+      }
     >
       {/* Conflict badge */}
       {conflict && (
@@ -246,9 +263,7 @@ function TimelineEventCard({
             width: 28,
             height: 28,
             borderRadius: "var(--radius-full)",
-            border: isSeen
-              ? "1.5px solid var(--primary-neon)"
-              : "1.5px solid var(--border-color)",
+            border: isSeen ? "1.5px solid var(--primary-neon)" : "1.5px solid var(--border-color)",
             backgroundColor: isSeen ? "var(--neon-soft)" : "transparent",
             color: isSeen ? "var(--primary-neon)" : "var(--text-dim)",
             fontSize: 14,
@@ -313,9 +328,7 @@ export function PlanningView({
   const arrivalConstraint = useFestEventStore((s) => s.arrivalConstraint);
   const setArrivalConstraint = useFestEventStore((s) => s.setArrivalConstraint);
   const departureConstraint = useFestEventStore((s) => s.departureConstraint);
-  const setDepartureConstraint = useFestEventStore(
-    (s) => s.setDepartureConstraint,
-  );
+  const setDepartureConstraint = useFestEventStore((s) => s.setDepartureConstraint);
 
   const [activeDay, setActiveDay] = useState<string>(presenceDates[0] ?? "");
   const [mustSeeOnly, setMustSeeOnly] = useState(false);
@@ -336,9 +349,7 @@ export function PlanningView({
       const storeStatus = selections[e.id] as SelectionStatus | undefined;
       return {
         ...e,
-        selection: storeStatus
-          ? { id: e.selection?.id ?? e.id, status: storeStatus }
-          : e.selection,
+        selection: storeStatus ? { id: e.selection?.id ?? e.id, status: storeStatus } : e.selection,
       };
     });
   }, [initialEvents, selections]);
@@ -372,10 +383,7 @@ export function PlanningView({
     for (const c of conflicts) {
       for (const id of [c.eventA.id, c.eventB.id]) {
         const existing = map.get(id);
-        if (
-          !existing ||
-          priority[c.level] > priority[existing.level]
-        ) {
+        if (!existing || priority[c.level] > priority[existing.level]) {
           map.set(id, c);
         }
       }
@@ -438,7 +446,13 @@ export function PlanningView({
       const pv = prev?.venue;
       const cv = curr?.venue;
       if (!pv || !cv || pv.id === cv.id) return null;
-      if (pv.latitude == null || pv.longitude == null || cv.latitude == null || cv.longitude == null) return null;
+      if (
+        pv.latitude == null ||
+        pv.longitude == null ||
+        cv.latitude == null ||
+        cv.longitude == null
+      )
+        return null;
       const mins = computeTravelTimeMins(pv.latitude, pv.longitude, cv.latitude, cv.longitude);
       return mins > 0 ? mins : null;
     });
@@ -446,9 +460,7 @@ export function PlanningView({
 
   // Copy planning as text to clipboard
   const runOptimization = useCallback(() => {
-    const mustSeeIds = dayEvents
-      .filter((e) => e.selectionStatus === "must-see")
-      .map((e) => e.id);
+    const mustSeeIds = dayEvents.filter((e) => e.selectionStatus === "must-see").map((e) => e.id);
     const result = optimizePlanning(dayEvents, mustSeeIds, {
       comfortMarginMins,
       startHour: 0,
@@ -567,12 +579,13 @@ export function PlanningView({
           style={{
             fontFamily: "var(--font-body)",
             fontSize: "var(--fs-sm)",
-            color:
-              conflicts.length > 0
-                ? "var(--warning-orange)"
-                : "var(--text-muted)",
+            color: conflicts.length > 0 ? "var(--warning-orange)" : "var(--text-muted)",
           }}
-          title={conflicts.length > 0 ? `${conflicts.length} conflit${conflicts.length !== 1 ? "s" : ""} détecté${conflicts.length !== 1 ? "s" : ""} dans ton planning` : "Aucun conflit"}
+          title={
+            conflicts.length > 0
+              ? `${conflicts.length} conflit${conflicts.length !== 1 ? "s" : ""} détecté${conflicts.length !== 1 ? "s" : ""} dans ton planning`
+              : "Aucun conflit"
+          }
         >
           {conflicts.length} conflit{conflicts.length !== 1 ? "s" : ""}
         </span>
@@ -748,9 +761,7 @@ export function PlanningView({
             gap: 4,
             padding: "4px 10px",
             borderRadius: "var(--radius-md)",
-            border: copied
-              ? "1px solid var(--primary-neon)"
-              : "1px solid var(--border-color)",
+            border: copied ? "1px solid var(--primary-neon)" : "1px solid var(--border-color)",
             backgroundColor: copied ? "var(--neon-soft)" : "transparent",
             color: copied ? "var(--primary-neon)" : "var(--text-muted)",
             fontFamily: "var(--font-body)",
@@ -762,11 +773,7 @@ export function PlanningView({
             transition: "var(--transition-fast)",
           }}
         >
-          {copied ? (
-            <Check size={12} aria-hidden="true" />
-          ) : (
-            <Copy size={12} aria-hidden="true" />
-          )}
+          {copied ? <Check size={12} aria-hidden="true" /> : <Copy size={12} aria-hidden="true" />}
           {copied ? "Copié !" : "Copier"}
         </button>
       </div>
@@ -780,10 +787,7 @@ export function PlanningView({
           flexWrap: "wrap",
         }}
       >
-        <span
-          className="t-meta"
-          style={{ color: "var(--text-dim)", flexShrink: 0 }}
-        >
+        <span className="t-meta" style={{ color: "var(--text-dim)", flexShrink: 0 }}>
           Marge
         </span>
         {COMFORT_MARGINS.map((m) => (
@@ -798,12 +802,8 @@ export function PlanningView({
                 comfortMarginMins === m
                   ? "1.5px solid var(--warning-orange)"
                   : "1.5px solid var(--border-color)",
-              backgroundColor:
-                comfortMarginMins === m ? "var(--orange-soft)" : "transparent",
-              color:
-                comfortMarginMins === m
-                  ? "var(--warning-orange)"
-                  : "var(--text-dim)",
+              backgroundColor: comfortMarginMins === m ? "var(--orange-soft)" : "transparent",
+              color: comfortMarginMins === m ? "var(--warning-orange)" : "var(--text-dim)",
               fontFamily: "var(--font-mono)",
               fontSize: "var(--fs-xs)",
               fontWeight: "var(--fw-bold)",
@@ -837,11 +837,7 @@ export function PlanningView({
             id="arrival-input"
             type="datetime-local"
             value={arrivalConstraint ? arrivalConstraint.slice(0, 16) : ""}
-            onChange={(e) =>
-              setArrivalConstraint(
-                e.target.value ? `${e.target.value}:00Z` : null,
-              )
-            }
+            onChange={(e) => setArrivalConstraint(e.target.value ? `${e.target.value}:00Z` : null)}
             style={{
               background: "var(--bg-surface)",
               border: arrivalConstraint
@@ -876,9 +872,7 @@ export function PlanningView({
             type="datetime-local"
             value={departureConstraint ? departureConstraint.slice(0, 16) : ""}
             onChange={(e) =>
-              setDepartureConstraint(
-                e.target.value ? `${e.target.value}:00Z` : null,
-              )
+              setDepartureConstraint(e.target.value ? `${e.target.value}:00Z` : null)
             }
             style={{
               background: "var(--bg-surface)",
@@ -962,32 +956,67 @@ export function PlanningView({
           }}
         >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", fontWeight: "var(--fw-bold)", color: "var(--primary-neon)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+            <span
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                fontWeight: "var(--fw-bold)",
+                color: "var(--primary-neon)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+              }}
+            >
               Suggestions d'optimisation
             </span>
             <button
               type="button"
               onClick={() => setOptimizeResult(null)}
               aria-label="Fermer les suggestions"
-              style={{ background: "none", border: "none", color: "var(--text-dim)", cursor: "pointer", padding: 2 }}
+              style={{
+                background: "none",
+                border: "none",
+                color: "var(--text-dim)",
+                cursor: "pointer",
+                padding: 2,
+              }}
             >
               <X size={14} />
             </button>
           </div>
           {optimizeResult.toArbitrate.length === 0 ? (
-            <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", margin: 0 }}>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-muted)",
+                margin: 0,
+              }}
+            >
               ✓ Pas de conflit — ton planning est déjà optimisé.
             </p>
           ) : (
             <>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", margin: 0 }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-muted)",
+                  margin: 0,
+                }}
+              >
                 Ces événements créent des conflits et pourraient être retirés :
               </p>
               {optimizeResult.toArbitrate.map((e: EventSummary) => (
                 <div
                   key={e.id}
                   data-testid={`planning-arbitrate-${e.id}`}
-                  style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", paddingLeft: 8, borderLeft: "2px solid rgba(0,255,102,0.3)" }}
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--text-dim)",
+                    paddingLeft: 8,
+                    borderLeft: "2px solid rgba(0,255,102,0.3)",
+                  }}
                 >
                   {e.title}
                 </div>
@@ -1040,110 +1069,107 @@ export function PlanningView({
 
             return (
               <div key={e.id} style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-              {travelMins != null && (
-                <div
-                  data-testid={`travel-time-${e.id}`}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "var(--space-xs)",
-                    paddingLeft: 52,
-                    paddingBottom: "var(--space-xs)",
-                  }}
-                >
-                  <span
+                {travelMins != null && (
+                  <div
+                    data-testid={`travel-time-${e.id}`}
                     style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "10px",
-                      color: "var(--warning-orange)",
-                      background: "rgba(255,153,0,0.08)",
-                      border: "1px solid rgba(255,153,0,0.3)",
-                      borderRadius: "var(--radius-full)",
-                      padding: "1px 8px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--space-xs)",
+                      paddingLeft: 52,
+                      paddingBottom: "var(--space-xs)",
                     }}
                   >
-                    → ~{travelMins} min à pied
-                  </span>
-                </div>
-              )}
-              {isNext && minsUntilNext !== null && (
-                <div
-                  data-testid={`next-event-countdown-${e.id}`}
-                  style={{
-                    paddingLeft: 52,
-                    paddingBottom: "var(--space-xs)",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "10px",
-                      color: "var(--primary-neon)",
-                      background: "var(--neon-soft)",
-                      border: "1px solid var(--primary-neon)",
-                      borderRadius: "var(--radius-full)",
-                      padding: "1px 8px",
-                    }}
-                  >
-                    Dans {formatMinsUntil(minsUntilNext)}
-                  </span>
-                </div>
-              )}
-              <div style={{ display: "flex", gap: "var(--space-sm)" }}>
-                {/* Time column */}
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-end",
-                    flexShrink: 0,
-                    width: 44,
-                    paddingTop: 14,
-                  }}
-                >
-                  <span
-                    style={{
-                      fontFamily: "var(--font-mono)",
-                      fontSize: "var(--fs-xs)",
-                      color: isNext ? "var(--primary-neon)" : "var(--text-dim)",
-                    }}
-                  >
-                    {e.startTime ? formatTime(e.startTime) : ""}
-                  </span>
-                  {idx < displayedEvents.length - 1 && (
-                    <div
+                    <span
                       style={{
-                        flex: 1,
-                        width: 1,
-                        backgroundColor: "var(--border-color)",
-                        marginTop: 4,
-                        marginRight: 1,
-                        minHeight: 24,
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "10px",
+                        color: "var(--warning-orange)",
+                        background: "rgba(255,153,0,0.08)",
+                        border: "1px solid rgba(255,153,0,0.3)",
+                        borderRadius: "var(--radius-full)",
+                        padding: "1px 8px",
                       }}
-                    />
-                  )}
-                </div>
+                    >
+                      → ~{travelMins} min à pied
+                    </span>
+                  </div>
+                )}
+                {isNext && minsUntilNext !== null && (
+                  <div
+                    data-testid={`next-event-countdown-${e.id}`}
+                    style={{
+                      paddingLeft: 52,
+                      paddingBottom: "var(--space-xs)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "10px",
+                        color: "var(--primary-neon)",
+                        background: "var(--neon-soft)",
+                        border: "1px solid var(--primary-neon)",
+                        borderRadius: "var(--radius-full)",
+                        padding: "1px 8px",
+                      }}
+                    >
+                      Dans {formatMinsUntil(minsUntilNext)}
+                    </span>
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: "var(--space-sm)" }}>
+                  {/* Time column */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-end",
+                      flexShrink: 0,
+                      width: 44,
+                      paddingTop: 14,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--fs-xs)",
+                        color: isNext ? "var(--primary-neon)" : "var(--text-dim)",
+                      }}
+                    >
+                      {e.startTime ? formatTime(e.startTime) : ""}
+                    </span>
+                    {idx < displayedEvents.length - 1 && (
+                      <div
+                        style={{
+                          flex: 1,
+                          width: 1,
+                          backgroundColor: "var(--border-color)",
+                          marginTop: 4,
+                          marginRight: 1,
+                          minHeight: 24,
+                        }}
+                      />
+                    )}
+                  </div>
 
-                {/* Event card */}
-                <div
-                  id={`event-${e.id}`}
-                  style={{ flex: 1 }}
-                >
-                  <TimelineEventCard
-                    event={enriched}
-                    conflict={conflict}
-                    now={now}
-                    arrivalConstraint={arrivalConstraint}
-                    departureConstraint={departureConstraint}
-                    onMarkVu={() =>
-                      updateSelection(
-                        enriched.id,
-                        toggleVuStatus(enriched.selection?.status ?? null),
-                      )
-                    }
-                  />
+                  {/* Event card */}
+                  <div id={`event-${e.id}`} style={{ flex: 1 }}>
+                    <TimelineEventCard
+                      event={enriched}
+                      conflict={conflict}
+                      now={now}
+                      arrivalConstraint={arrivalConstraint}
+                      departureConstraint={departureConstraint}
+                      onMarkVu={() =>
+                        updateSelection(
+                          enriched.id,
+                          toggleVuStatus(enriched.selection?.status ?? null),
+                        )
+                      }
+                    />
+                  </div>
                 </div>
-              </div>
               </div>
             );
           })

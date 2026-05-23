@@ -6,7 +6,13 @@ export interface UrgentNewsItem {
 }
 
 export function filterUrgentNews(
-  items: Array<{ id: string; urgencyLevel: string; summary: string; category: string; publishedAt: string | Date }>
+  items: Array<{
+    id: string;
+    urgencyLevel: string;
+    summary: string;
+    category: string;
+    publishedAt: string | Date;
+  }>,
 ): UrgentNewsItem[] {
   return items
     .filter((item) => item.urgencyLevel === "critique")
@@ -15,9 +21,7 @@ export function filterUrgentNews(
       summary: item.summary,
       category: item.category,
       publishedAt:
-        item.publishedAt instanceof Date
-          ? item.publishedAt.toISOString()
-          : item.publishedAt,
+        item.publishedAt instanceof Date ? item.publishedAt.toISOString() : item.publishedAt,
     }));
 }
 

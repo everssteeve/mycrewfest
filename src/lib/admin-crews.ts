@@ -20,10 +20,14 @@ export function getCrewSizeTier(memberCount: number): string {
 
 export function getCrewSizeTierColor(tier: string): string {
   switch (tier) {
-    case "Grand": return "var(--primary-neon)";
-    case "Moyen": return "var(--secondary-cyan)";
-    case "Petit": return "var(--text-main)";
-    default: return "var(--text-dim)";
+    case "Grand":
+      return "var(--primary-neon)";
+    case "Moyen":
+      return "var(--secondary-cyan)";
+    case "Petit":
+      return "var(--text-main)";
+    default:
+      return "var(--text-dim)";
   }
 }
 

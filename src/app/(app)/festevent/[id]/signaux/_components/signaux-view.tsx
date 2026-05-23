@@ -1,9 +1,25 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
-import { filterSignalsByScope, countCrewSignals, countCommunautéSignals, type SignalScope } from "@/lib/signal-filter";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals, computeAvgSignalAgeHours, getMostRecentSignalAgoMins } from "@/lib/signal-credibility";
+import { AlertTriangle, Clock, MapPin, Plus, ThumbsDown, ThumbsUp, X } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
+import {
+  computeAvgSignalAgeHours,
+  computeSignalCredibility,
+  computeSignalCredibilityRate,
+  countContestedSignals,
+  countExpiredSignals,
+  countForteSignals,
+  countRecentSignals,
+  countUniqueSignalAuthors,
+  getMostRecentSignalAgoMins,
+  getTopSignalType,
+} from "@/lib/signal-credibility";
+import {
+  countCommunautéSignals,
+  countCrewSignals,
+  filterSignalsByScope,
+  type SignalScope,
+} from "@/lib/signal-filter";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -72,7 +88,8 @@ function formatTimeAgo(createdAt: string): string {
 function getPhraseColor(phrase: string): string {
   if (phrase.includes("File") || phrase.includes("Foule")) return "var(--accent-orange)";
   if (phrase.includes("Fermeture") || phrase.includes("Problème")) return "var(--accent-red)";
-  if (phrase.includes("Super") || phrase.includes("Eau") || phrase.includes("Ombre")) return "var(--primary-neon)";
+  if (phrase.includes("Super") || phrase.includes("Eau") || phrase.includes("Ombre"))
+    return "var(--primary-neon)";
   return "var(--secondary-cyan)";
 }
 
@@ -106,7 +123,14 @@ function SignalCard({
       }}
     >
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-sm)" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: "var(--space-sm)",
+        }}
+      >
         <span
           style={{
             color: accentColor,
@@ -120,7 +144,15 @@ function SignalCard({
       </div>
 
       {/* Meta */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-xs)", fontSize: "var(--fs-xs)", color: "var(--text-dim)" }}>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "var(--space-xs)",
+          fontSize: "var(--fs-xs)",
+          color: "var(--text-dim)",
+        }}
+      >
         <span style={{ display: "flex", alignItems: "center", gap: 3 }}>
           <Clock size={11} />
           {formatTimeAgo(signal.createdAt)}
@@ -184,12 +216,17 @@ function SignalCard({
 
       {/* Credibility bar */}
       {(() => {
-        const cred = computeSignalCredibility({ confirmations: signal.confirmations, infirmations: signal.infirmations });
+        const cred = computeSignalCredibility({
+          confirmations: signal.confirmations,
+          infirmations: signal.infirmations,
+        });
         if (cred.total === 0) return null;
         const barColor =
-          cred.label === "forte" ? "var(--primary-neon)" :
-          cred.label === "faible" ? "var(--accent-red)" :
-          "var(--warning-orange)";
+          cred.label === "forte"
+            ? "var(--primary-neon)"
+            : cred.label === "faible"
+              ? "var(--accent-red)"
+              : "var(--warning-orange)";
         return (
           <div
             data-testid={`signal-credibility-${signal.id}`}
@@ -251,7 +288,7 @@ function CreateSignalSheet({
   onCreated: (signal: SignalData) => void;
 }) {
   const [selectedPhrase, setSelectedPhrase] = useState<string | null>(null);
-  const [useGeoloc, setUseGeoloc] = useState(false);
+  const [_useGeoloc, setUseGeoloc] = useState(false);
   const [geoloc, setGeoloc] = useState<{ lat: number; lng: number } | null>(null);
   const [geolocError, setGeolocError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -296,12 +333,12 @@ function CreateSignalSheet({
       });
 
       if (!res.ok) {
-        const errData = await res.json() as { error: string };
+        const errData = (await res.json()) as { error: string };
         setError(errData.error ?? "Erreur lors de la création.");
         return;
       }
 
-      const rawSignal = await res.json() as {
+      const rawSignal = (await res.json()) as {
         id: string;
         authorId: string;
         scope: "crew" | "communauté";
@@ -343,6 +380,7 @@ function CreateSignalSheet({
 
   return (
     <div
+      role="presentation"
       style={{
         position: "fixed",
         inset: 0,
@@ -353,8 +391,12 @@ function CreateSignalSheet({
         justifyContent: "center",
       }}
       onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
     >
       <div
+        role="presentation"
         style={{
           background: "var(--bg-card)",
           border: "1px solid var(--border-color)",
@@ -373,13 +415,23 @@ function CreateSignalSheet({
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <h2
             className="t-h3"
-            style={{ color: "var(--accent-orange)", textTransform: "uppercase", letterSpacing: "0.08em" }}
+            style={{
+              color: "var(--accent-orange)",
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
           >
             Nouveau signal
           </h2>
           <button
+            type="button"
             onClick={onClose}
-            style={{ color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer" }}
+            style={{
+              color: "var(--text-muted)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+            }}
           >
             <X size={20} />
           </button>
@@ -387,7 +439,15 @@ function CreateSignalSheet({
 
         {/* Phrase selector */}
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-          <p style={{ fontSize: "var(--fs-xs)", color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: "var(--fw-bold)" }}>
+          <p
+            style={{
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-dim)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              fontWeight: "var(--fw-bold)",
+            }}
+          >
             Que se passe-t-il ?
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-xs)" }}>
@@ -449,16 +509,15 @@ function CreateSignalSheet({
           <p style={{ fontSize: "var(--fs-xs)", color: "var(--accent-red)" }}>{geolocError}</p>
         )}
 
-        {error && (
-          <p style={{ fontSize: "var(--fs-xs)", color: "var(--accent-red)" }}>{error}</p>
-        )}
+        {error && <p style={{ fontSize: "var(--fs-xs)", color: "var(--accent-red)" }}>{error}</p>}
 
         <button
           type="button"
           disabled={!selectedPhrase || submitting}
           onClick={() => void handleSubmit()}
           style={{
-            background: selectedPhrase && !submitting ? "var(--accent-orange)" : "rgba(255,255,255,0.08)",
+            background:
+              selectedPhrase && !submitting ? "var(--accent-orange)" : "rgba(255,255,255,0.08)",
             color: selectedPhrase && !submitting ? "#000" : "var(--text-dim)",
             border: "none",
             borderRadius: "var(--radius-md)",
@@ -485,7 +544,7 @@ function CreateSignalSheet({
 export function SignauxView({ festEventId, festivalId, initialSignals }: SignauxViewProps) {
   const [signals, setSignals] = useState<SignalData[]>(initialSignals);
   const [showCreate, setShowCreate] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [_isPending, startTransition] = useTransition();
   const [scopeFilter, setScopeFilter] = useState<SignalScope | null>(null);
 
   // Auto-refresh every 60s
@@ -505,59 +564,61 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
     return () => clearInterval(interval);
   }, [festivalId]);
 
-  const handleConfirm = useCallback(
-    (signalId: string) => {
-      startTransition(async () => {
-        try {
-          const res = await fetch(`/api/signals/${signalId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "confirm" }),
-          });
-          if (res.ok) {
-            const updated = await res.json() as { id: string; confirmations: number; infirmations: number };
-            setSignals((prev) =>
-              prev.map((s) =>
-                s.id === updated.id
-                  ? { ...s, confirmations: updated.confirmations, infirmations: updated.infirmations }
-                  : s,
-              ),
-            );
-          }
-        } catch {
-          // silently ignore
+  const handleConfirm = useCallback((signalId: string) => {
+    startTransition(async () => {
+      try {
+        const res = await fetch(`/api/signals/${signalId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "confirm" }),
+        });
+        if (res.ok) {
+          const updated = (await res.json()) as {
+            id: string;
+            confirmations: number;
+            infirmations: number;
+          };
+          setSignals((prev) =>
+            prev.map((s) =>
+              s.id === updated.id
+                ? { ...s, confirmations: updated.confirmations, infirmations: updated.infirmations }
+                : s,
+            ),
+          );
         }
-      });
-    },
-    [],
-  );
+      } catch {
+        // silently ignore
+      }
+    });
+  }, []);
 
-  const handleInfirm = useCallback(
-    (signalId: string) => {
-      startTransition(async () => {
-        try {
-          const res = await fetch(`/api/signals/${signalId}`, {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "infirm" }),
-          });
-          if (res.ok) {
-            const updated = await res.json() as { id: string; confirmations: number; infirmations: number };
-            setSignals((prev) =>
-              prev.map((s) =>
-                s.id === updated.id
-                  ? { ...s, confirmations: updated.confirmations, infirmations: updated.infirmations }
-                  : s,
-              ),
-            );
-          }
-        } catch {
-          // silently ignore
+  const handleInfirm = useCallback((signalId: string) => {
+    startTransition(async () => {
+      try {
+        const res = await fetch(`/api/signals/${signalId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "infirm" }),
+        });
+        if (res.ok) {
+          const updated = (await res.json()) as {
+            id: string;
+            confirmations: number;
+            infirmations: number;
+          };
+          setSignals((prev) =>
+            prev.map((s) =>
+              s.id === updated.id
+                ? { ...s, confirmations: updated.confirmations, infirmations: updated.infirmations }
+                : s,
+            ),
+          );
         }
-      });
-    },
-    [],
-  );
+      } catch {
+        // silently ignore
+      }
+    });
+  }, []);
 
   const handleCreated = useCallback((signal: SignalData) => {
     setSignals((prev) => [signal, ...prev]);
@@ -570,7 +631,9 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
   );
 
   const hasBothScopes = useMemo(
-    () => activeSignals.some((s) => s.scope === "crew") && activeSignals.some((s) => s.scope === "communauté"),
+    () =>
+      activeSignals.some((s) => s.scope === "crew") &&
+      activeSignals.some((s) => s.scope === "communauté"),
     [activeSignals],
   );
 
@@ -580,27 +643,39 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
   );
 
   const forteCount = useMemo(
-    () => countForteSignals(displayedSignals.map((s) => ({ confirmations: s.confirmations, infirmations: s.infirmations }))),
+    () =>
+      countForteSignals(
+        displayedSignals.map((s) => ({
+          confirmations: s.confirmations,
+          infirmations: s.infirmations,
+        })),
+      ),
     [displayedSignals],
   );
 
-  const recentCount = useMemo(
-    () => countRecentSignals(displayedSignals, 7),
-    [displayedSignals],
-  );
+  const recentCount = useMemo(() => countRecentSignals(displayedSignals, 7), [displayedSignals]);
 
   const contestedCount = useMemo(
-    () => countContestedSignals(displayedSignals.map((s) => ({ confirmations: s.confirmations, infirmations: s.infirmations }))),
+    () =>
+      countContestedSignals(
+        displayedSignals.map((s) => ({
+          confirmations: s.confirmations,
+          infirmations: s.infirmations,
+        })),
+      ),
     [displayedSignals],
   );
 
-  const topSignalType = useMemo(
-    () => getTopSignalType(displayedSignals),
-    [displayedSignals],
-  );
+  const topSignalType = useMemo(() => getTopSignalType(displayedSignals), [displayedSignals]);
 
   const credibilityRate = useMemo(
-    () => computeSignalCredibilityRate(displayedSignals.map((s) => ({ confirmations: s.confirmations, infirmations: s.infirmations }))),
+    () =>
+      computeSignalCredibilityRate(
+        displayedSignals.map((s) => ({
+          confirmations: s.confirmations,
+          infirmations: s.infirmations,
+        })),
+      ),
     [displayedSignals],
   );
 
@@ -609,25 +684,16 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
     [displayedSignals],
   );
 
-  const expiredCount = useMemo(
-    () => countExpiredSignals(displayedSignals),
-    [displayedSignals],
-  );
+  const expiredCount = useMemo(() => countExpiredSignals(displayedSignals), [displayedSignals]);
 
-  const crewSignalCount = useMemo(
-    () => countCrewSignals(displayedSignals),
-    [displayedSignals],
-  );
+  const crewSignalCount = useMemo(() => countCrewSignals(displayedSignals), [displayedSignals]);
 
   const communautéSignalCount = useMemo(
     () => countCommunautéSignals(displayedSignals),
     [displayedSignals],
   );
 
-  const avgAgeHours = useMemo(
-    () => computeAvgSignalAgeHours(displayedSignals),
-    [displayedSignals],
-  );
+  const avgAgeHours = useMemo(() => computeAvgSignalAgeHours(displayedSignals), [displayedSignals]);
 
   const freshestAgoMins = useMemo(
     () => getMostRecentSignalAgoMins(displayedSignals),
@@ -635,13 +701,31 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
   );
 
   return (
-    <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+    <div
+      style={{
+        paddingTop: "var(--space-lg)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-md)",
+      }}
+    >
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
           <AlertTriangle size={20} style={{ color: "var(--accent-orange)" }} />
-          <span style={{ color: "var(--text-main)", fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
-            {displayedSignals.length}{scopeFilter && activeSignals.length !== displayedSignals.length ? ` / ${activeSignals.length}` : ""} signal{displayedSignals.length !== 1 ? "s" : ""} actif{displayedSignals.length !== 1 ? "s" : ""}
+          <span
+            style={{
+              color: "var(--text-main)",
+              fontWeight: "var(--fw-bold)",
+              fontSize: "var(--fs-sm)",
+            }}
+          >
+            {displayedSignals.length}
+            {scopeFilter && activeSignals.length !== displayedSignals.length
+              ? ` / ${activeSignals.length}`
+              : ""}{" "}
+            signal{displayedSignals.length !== 1 ? "s" : ""} actif
+            {displayedSignals.length !== 1 ? "s" : ""}
           </span>
           {forteCount > 0 && (
             <span
@@ -752,7 +836,12 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: "var(--fs-xs)",
-                color: avgAgeHours < 6 ? "var(--primary-neon)" : avgAgeHours >= 24 ? "var(--text-dim)" : "var(--text-muted)",
+                color:
+                  avgAgeHours < 6
+                    ? "var(--primary-neon)"
+                    : avgAgeHours >= 24
+                      ? "var(--text-dim)"
+                      : "var(--text-muted)",
               }}
               title={`Âge moyen des signaux : ${avgAgeHours}h`}
             >
@@ -765,11 +854,20 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
               style={{
                 fontFamily: "var(--font-mono)",
                 fontSize: "var(--fs-xs)",
-                color: freshestAgoMins < 30 ? "var(--primary-neon)" : freshestAgoMins < 180 ? "var(--text-muted)" : "var(--text-dim)",
+                color:
+                  freshestAgoMins < 30
+                    ? "var(--primary-neon)"
+                    : freshestAgoMins < 180
+                      ? "var(--text-muted)"
+                      : "var(--text-dim)",
               }}
               title={`Signal le plus récent : il y a ${freshestAgoMins < 60 ? `${freshestAgoMins}min` : `${Math.floor(freshestAgoMins / 60)}h`}`}
             >
-              · {freshestAgoMins < 60 ? `${freshestAgoMins}min` : `${Math.floor(freshestAgoMins / 60)}h`} ago
+              ·{" "}
+              {freshestAgoMins < 60
+                ? `${freshestAgoMins}min`
+                : `${Math.floor(freshestAgoMins / 60)}h`}{" "}
+              ago
             </span>
           )}
         </div>
@@ -800,6 +898,7 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
       {/* Scope filter chips */}
       {hasBothScopes && (
         <div
+          role="group"
           style={{ display: "flex", gap: "var(--space-xs)" }}
           data-testid="signal-scope-filter"
           aria-label="Filtrer par portée"
@@ -816,7 +915,9 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
                 style={{
                   padding: "3px 12px",
                   borderRadius: "var(--radius-full)",
-                  border: isActive ? "1px solid var(--warning-orange)" : "1px solid var(--border-color)",
+                  border: isActive
+                    ? "1px solid var(--warning-orange)"
+                    : "1px solid var(--border-color)",
                   backgroundColor: isActive ? "rgba(255,153,0,0.1)" : "transparent",
                   color: isActive ? "var(--warning-orange)" : "var(--text-dim)",
                   fontFamily: "var(--font-body)",

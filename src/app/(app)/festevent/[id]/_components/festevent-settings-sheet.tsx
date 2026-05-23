@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useRef, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { X, Trash2 } from "lucide-react";
+import { Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useRef, useState, useTransition } from "react";
 import { getDatesInRange, toYMD } from "@/lib/date-range";
 
 interface FestEventSettingsSheetProps {
@@ -27,9 +27,7 @@ export function FestEventSettingsSheet({
   const router = useRouter();
   const overlayRef = useRef<HTMLDivElement>(null);
   const allDates = getDatesInRange(startDate, endDate);
-  const [selectedDates, setSelectedDates] = useState<Set<string>>(
-    new Set(currentPresenceDates),
-  );
+  const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set(currentPresenceDates));
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -97,6 +95,9 @@ export function FestEventSettingsSheet({
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
       style={{
         position: "fixed",
         inset: 0,
@@ -132,7 +133,13 @@ export function FestEventSettingsSheet({
             type="button"
             onClick={onClose}
             aria-label="Fermer"
-            style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", padding: 4 }}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--text-muted)",
+              cursor: "pointer",
+              padding: 4,
+            }}
           >
             <X size={20} />
           </button>
@@ -165,7 +172,9 @@ export function FestEventSettingsSheet({
                     alignItems: "center",
                     padding: "var(--space-sm)",
                     borderRadius: "var(--radius-md)",
-                    border: selected ? "2px solid var(--primary-neon)" : "2px solid var(--border-color)",
+                    border: selected
+                      ? "2px solid var(--primary-neon)"
+                      : "2px solid var(--border-color)",
                     backgroundColor: selected ? "var(--neon-soft)" : "transparent",
                     color: selected ? "var(--primary-neon)" : "var(--text-muted)",
                     cursor: "pointer",
@@ -174,13 +183,32 @@ export function FestEventSettingsSheet({
                     gap: 2,
                   }}
                 >
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", fontWeight: "var(--fw-bold)", textTransform: "uppercase" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "var(--fs-xs)",
+                      fontWeight: "var(--fw-bold)",
+                      textTransform: "uppercase",
+                    }}
+                  >
                     {format(d, "EEE", { locale: fr })}
                   </span>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-lg)", fontWeight: "var(--fw-bold)" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "var(--fs-lg)",
+                      fontWeight: "var(--fw-bold)",
+                    }}
+                  >
                     {format(d, "d")}
                   </span>
-                  <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", textTransform: "uppercase" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: "var(--fs-xs)",
+                      textTransform: "uppercase",
+                    }}
+                  >
                     {format(d, "MMM", { locale: fr })}
                   </span>
                 </button>
@@ -190,7 +218,13 @@ export function FestEventSettingsSheet({
         </div>
 
         {error && (
-          <p style={{ color: "var(--danger-red)", fontSize: "var(--fs-sm)", fontFamily: "var(--font-body)" }}>
+          <p
+            style={{
+              color: "var(--danger-red)",
+              fontSize: "var(--fs-sm)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
             {error}
           </p>
         )}
@@ -242,8 +276,16 @@ export function FestEventSettingsSheet({
             </button>
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--danger-red)", textAlign: "center" }}>
-                Supprimer ce FestEvent ? Toutes tes données (planning, journal, checklist) seront perdues.
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-sm)",
+                  color: "var(--danger-red)",
+                  textAlign: "center",
+                }}
+              >
+                Supprimer ce FestEvent ? Toutes tes données (planning, journal, checklist) seront
+                perdues.
               </p>
               <div style={{ display: "flex", gap: "var(--space-sm)" }}>
                 <button

@@ -64,7 +64,5 @@ export function topContributors(
     entry.count++;
     map.set(s.userId, entry);
   }
-  return [...map.values()]
-    .sort((a, b) => b.count - a.count)
-    .slice(0, limit);
+  return [...map.values()].sort((a, b) => b.count - a.count).slice(0, limit);
 }

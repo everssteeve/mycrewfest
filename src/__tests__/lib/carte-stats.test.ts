@@ -1,9 +1,5 @@
-import { describe, it, expect } from "vitest";
-import {
-  countMappedVenues,
-  countEventsOnMap,
-  countVisibleCrewMembers,
-} from "@/lib/carte-stats";
+import { describe, expect, it } from "vitest";
+import { countEventsOnMap, countMappedVenues, countVisibleCrewMembers } from "@/lib/carte-stats";
 
 // ---------------------------------------------------------------------------
 // countMappedVenues
@@ -33,7 +29,10 @@ describe("countMappedVenues", () => {
   });
 
   it("returns total when all venues have coordinates", () => {
-    const venues = [{ latitude: 1, longitude: 1 }, { latitude: 2, longitude: 2 }];
+    const venues = [
+      { latitude: 1, longitude: 1 },
+      { latitude: 2, longitude: 2 },
+    ];
     expect(countMappedVenues(venues)).toBe(2);
   });
 });
@@ -48,9 +47,7 @@ describe("countEventsOnMap", () => {
   });
 
   it("returns 0 when no venue has coordinates", () => {
-    const venues = [
-      { latitude: null, longitude: null, events: [{}, {}] },
-    ];
+    const venues = [{ latitude: null, longitude: null, events: [{}, {}] }];
     expect(countEventsOnMap(venues)).toBe(0);
   });
 

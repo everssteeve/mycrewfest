@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { type NextRequest, NextResponse } from "next/server";
 import { rankByTrendingScore } from "@/lib/festival-trending-score";
+import { prisma } from "@/lib/prisma";
 
 const RECENT_DAYS = 7;
 

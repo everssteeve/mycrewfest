@@ -40,7 +40,7 @@ export async function shareOrCopy(payload: SharePayload): Promise<ShareResult> {
 export function buildFestivalSharePayload(
   festivalName: string,
   slug: string,
-  baseUrl = ""
+  baseUrl = "",
 ): SharePayload {
   const url = `${baseUrl}/festival/${slug}`;
   return {
@@ -53,7 +53,7 @@ export function buildFestivalSharePayload(
 export function buildArtistSharePayload(
   artistName: string,
   artistId: string,
-  baseUrl = ""
+  baseUrl = "",
 ): SharePayload {
   const url = `${baseUrl}/artiste/${artistId}`;
   return {

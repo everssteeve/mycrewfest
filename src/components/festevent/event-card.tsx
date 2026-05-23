@@ -1,40 +1,46 @@
 "use client";
 
-import { MapPin, Clock, Ticket, ChevronDown, ChevronUp, Globe, ExternalLink, PenLine } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Clock,
+  ExternalLink,
+  Globe,
+  MapPin,
+  PenLine,
+  Ticket,
+} from "lucide-react";
 import { useState } from "react";
 import type { EventWithSelection } from "@/lib/api";
-import type { SelectionStatus } from "@/types";
-import { formatEventDuration, getAccessLabel, formatAgeRestriction } from "@/lib/event-format";
+import { formatAgeRestriction, formatEventDuration, getAccessLabel } from "@/lib/event-format";
 import { nextSelectionStatus } from "@/lib/selection";
+import type { SelectionStatus } from "@/types";
 
 // Extended type that includes confidence field returned by the programme API
 export interface EventWithSelectionAndConfidence extends EventWithSelection {
   confidence?: "auto" | "vérifié_humain";
 }
+
 import { Badge } from "@/components/ui/badge";
 
 // ---------------------------------------------------------------------------
 // Event type colour mapping
 // ---------------------------------------------------------------------------
 
-const EVENT_TYPE_COLORS: Record<
-  string,
-  { label: string; color: string; bg: string }
-> = {
-  concert:      { label: "Concert",      color: "var(--accent-pink)",    bg: "var(--pink-soft)" },
-  spectacle:    { label: "Spectacle",    color: "var(--secondary-cyan)", bg: "var(--cyan-soft)" },
-  atelier:      { label: "Atelier",      color: "var(--primary-neon)",   bg: "var(--neon-soft)" },
-  défilé:       { label: "Défilé",       color: "var(--warning-orange)", bg: "var(--orange-soft)" },
-  cypher:       { label: "Cypher",       color: "var(--accent-pink)",    bg: "var(--pink-soft)" },
-  conférence:   { label: "Conférence",   color: "var(--secondary-cyan)", bg: "var(--cyan-soft)" },
-  installation: { label: "Installation", color: "var(--primary-neon)",   bg: "var(--neon-soft)" },
-  autre:        { label: "Autre",        color: "var(--text-muted)",     bg: "rgba(255,255,255,0.06)" },
+const EVENT_TYPE_COLORS: Record<string, { label: string; color: string; bg: string }> = {
+  concert: { label: "Concert", color: "var(--accent-pink)", bg: "var(--pink-soft)" },
+  spectacle: { label: "Spectacle", color: "var(--secondary-cyan)", bg: "var(--cyan-soft)" },
+  atelier: { label: "Atelier", color: "var(--primary-neon)", bg: "var(--neon-soft)" },
+  défilé: { label: "Défilé", color: "var(--warning-orange)", bg: "var(--orange-soft)" },
+  cypher: { label: "Cypher", color: "var(--accent-pink)", bg: "var(--pink-soft)" },
+  conférence: { label: "Conférence", color: "var(--secondary-cyan)", bg: "var(--cyan-soft)" },
+  installation: { label: "Installation", color: "var(--primary-neon)", bg: "var(--neon-soft)" },
+  autre: { label: "Autre", color: "var(--text-muted)", bg: "rgba(255,255,255,0.06)" },
 };
 
 // ---------------------------------------------------------------------------
 // Selection button
 // ---------------------------------------------------------------------------
-
 
 interface SelectionButtonProps {
   status: SelectionStatus | null;
@@ -123,7 +129,7 @@ function formatTime(iso: string | null): string {
 // ---------------------------------------------------------------------------
 
 import { formatNotePreview, MAX_NOTE_LENGTH } from "@/lib/event-notes";
-import { highlightTerms, getHighlightStyle } from "@/lib/programme-search-highlight";
+import { getHighlightStyle, highlightTerms } from "@/lib/programme-search-highlight";
 
 interface EventCardProps {
   event: EventWithSelectionAndConfidence;
@@ -136,16 +142,25 @@ interface EventCardProps {
   searchQuery?: string;
 }
 
-export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngoing = false, note, onNoteChange, onArtistClick, searchQuery = "" }: EventCardProps) {
+export function EventCard({
+  event,
+  onSelectionCycle,
+  hasConflict = false,
+  isOngoing = false,
+  note,
+  onNoteChange,
+  onArtistClick,
+  searchQuery = "",
+}: EventCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const selectionStatus = event.selection?.status ?? null;
   const typeConfig = EVENT_TYPE_COLORS[event.eventType] ?? EVENT_TYPE_COLORS.autre;
   const hasArtistDetails = Boolean(
     event.artist?.description ||
-    (event.artist?.disciplines && event.artist.disciplines.length > 0) ||
-    event.artist?.siteUrl ||
-    event.artist?.instagram,
+      (event.artist?.disciplines && event.artist.disciplines.length > 0) ||
+      event.artist?.siteUrl ||
+      event.artist?.instagram,
   );
 
   const hasTime = Boolean(event.startTime);
@@ -160,9 +175,7 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
   const isModified = event.status === "modifié";
 
   const durationLabel =
-    !event.endTime && event.durationMins
-      ? formatEventDuration(event.durationMins)
-      : null;
+    !event.endTime && event.durationMins ? formatEventDuration(event.durationMins) : null;
   const accessLabel = getAccessLabel(event.access as "inclus" | "réservation_séparée");
   const ageLabel = formatAgeRestriction(event.ageMin, event.ageMax);
 
@@ -176,13 +189,13 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
         border: hasConflict
           ? "1.5px solid var(--warning-orange)"
           : isVu
-          ? "1px solid rgba(0,255,102,0.25)"
-          : "1px solid var(--border-color)",
+            ? "1px solid rgba(0,255,102,0.25)"
+            : "1px solid var(--border-color)",
         borderLeft: isVu
           ? "3px solid var(--primary-neon)"
           : hasConflict
-          ? "3px solid var(--warning-orange)"
-          : "1px solid var(--border-color)",
+            ? "3px solid var(--warning-orange)"
+            : "1px solid var(--border-color)",
         boxShadow: hasConflict ? "0 0 0 1px rgba(255,153,0,0.15)" : "none",
         padding: "var(--space-md)",
         paddingLeft: isVu || hasConflict ? "calc(var(--space-md) - 2px)" : "var(--space-md)",
@@ -240,9 +253,7 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
         </span>
 
         {/* IA badge */}
-        {event.confidence === "auto" && (
-          <Badge variant="ai">IA</Badge>
-        )}
+        {event.confidence === "auto" && <Badge variant="ai">IA</Badge>}
 
         {/* Conflict badge */}
         {hasConflict && (
@@ -254,6 +265,7 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
         {/* Ongoing badge */}
         {isOngoing && (
           <span
+            role="img"
             aria-label="En cours maintenant"
             data-testid="ongoing-badge"
             style={{
@@ -274,7 +286,16 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
               animation: "pulse 2s ease-in-out infinite",
             }}
           >
-            <span style={{ width: 6, height: 6, borderRadius: "50%", backgroundColor: "var(--primary-neon)", flexShrink: 0 }} aria-hidden="true" />
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                backgroundColor: "var(--primary-neon)",
+                flexShrink: 0,
+              }}
+              aria-hidden="true"
+            />
             En cours
           </span>
         )}
@@ -304,6 +325,7 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
         {/* Access type badge */}
         {accessLabel && (
           <span
+            role="img"
             aria-label="Réservation séparée requise"
             style={{
               display: "inline-flex",
@@ -330,6 +352,7 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
         {/* Age restriction badge */}
         {ageLabel && (
           <span
+            role="img"
             data-testid="event-age-restriction"
             aria-label={`Restriction d'âge : ${ageLabel}`}
             style={{
@@ -349,11 +372,17 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
             {ageLabel}
           </span>
         )}
-
       </div>
 
       {/* Row 2: title */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-sm)" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: "var(--space-sm)",
+        }}
+      >
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
           <span
             style={{
@@ -364,22 +393,29 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
               lineHeight: "var(--lh-snug)",
             }}
           >
-            {searchQuery ? (
-              highlightTerms(event.title, searchQuery).map((seg, i) =>
-                seg.highlighted ? (
-                  <mark key={i} style={{ ...getHighlightStyle(), padding: "0 1px" }}>{seg.text}</mark>
-                ) : (
-                  <span key={i}>{seg.text}</span>
+            {searchQuery
+              ? highlightTerms(event.title, searchQuery).map((seg, i) =>
+                  seg.highlighted ? (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: text segments from pure function, order is deterministic
+                    <mark key={i} style={{ ...getHighlightStyle(), padding: "0 1px" }}>
+                      {seg.text}
+                    </mark>
+                  ) : (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: text segments from pure function, order is deterministic
+                    <span key={i}>{seg.text}</span>
+                  ),
                 )
-              )
-            ) : event.title}
+              : event.title}
           </span>
-          {event.artist && (
-            onArtistClick ? (
+          {event.artist &&
+            (onArtistClick ? (
               <button
                 type="button"
                 data-testid={`event-artist-filter-${event.id}`}
-                onClick={(e) => { e.stopPropagation(); onArtistClick(event.artist!.name); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onArtistClick(event.artist?.name ?? "");
+                }}
                 style={{
                   background: "none",
                   border: "none",
@@ -407,16 +443,13 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
               >
                 {event.artist.name}
               </span>
-            )
-          )}
+            ))}
         </div>
 
         {/* Selection button */}
         <SelectionButton
           status={selectionStatus}
-          onCycle={() =>
-            onSelectionCycle(event.id, nextSelectionStatus(selectionStatus))
-          }
+          onCycle={() => onSelectionCycle(event.id, nextSelectionStatus(selectionStatus))}
         />
       </div>
 
@@ -438,9 +471,7 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
       )}
 
       {/* Row 4: tags */}
-      {event.tags && event.tags.length > 0 && (
-        <EventTagChips tags={event.tags} />
-      )}
+      {event.tags && event.tags.length > 0 && <EventTagChips tags={event.tags} />}
 
       {/* Row 4b: personal note */}
       {onNoteChange && (
@@ -449,7 +480,10 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
             <button
               type="button"
               data-testid={`event-note-toggle-${event.id}`}
-              onClick={(e) => { e.stopPropagation(); setNoteOpen(true); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setNoteOpen(true);
+              }}
               aria-label={note ? `Note : ${note}` : "Ajouter une note personnelle"}
               style={{
                 display: "inline-flex",
@@ -465,19 +499,27 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
               }}
             >
               <PenLine size={11} aria-hidden="true" />
-              {note
-                ? <span data-testid={`event-note-preview-${event.id}`}>{formatNotePreview(note)}</span>
-                : <span style={{ opacity: 0.5 }}>Note…</span>
-              }
+              {note ? (
+                <span data-testid={`event-note-preview-${event.id}`}>
+                  {formatNotePreview(note)}
+                </span>
+              ) : (
+                <span style={{ opacity: 0.5 }}>Note…</span>
+              )}
             </button>
           ) : (
-            <div onClick={(e) => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <div
+              role="presentation"
+              onClick={(e) => e.stopPropagation()}
+              style={{ display: "flex", flexDirection: "column", gap: 4 }}
+            >
               <textarea
-                autoFocus
                 data-testid={`event-note-input-${event.id}`}
                 value={note ?? ""}
                 onChange={(e) => onNoteChange(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Escape") setNoteOpen(false); }}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") setNoteOpen(false);
+                }}
                 maxLength={MAX_NOTE_LENGTH}
                 placeholder="Ta note personnelle…"
                 rows={2}
@@ -494,9 +536,17 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
                   outline: "none",
                 }}
               />
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs)", fontFamily: "var(--font-mono)" }}>
-                  {(note?.length ?? 0)}/{MAX_NOTE_LENGTH}
+              <div
+                style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
+              >
+                <span
+                  style={{
+                    color: "var(--text-dim)",
+                    fontSize: "var(--fs-xs)",
+                    fontFamily: "var(--font-mono)",
+                  }}
+                >
+                  {note?.length ?? 0}/{MAX_NOTE_LENGTH}
                 </span>
                 <button
                   type="button"
@@ -689,8 +739,8 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
                     textDecoration: "none",
                   }}
                 >
-                  <ExternalLink size={11} aria-hidden="true" />
-                  @{event.artist.instagram.replace(/^@/, "")}
+                  <ExternalLink size={11} aria-hidden="true" />@
+                  {event.artist.instagram.replace(/^@/, "")}
                 </a>
               )}
             </div>

@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { formatEventShareLine, generateProgrammeShareText } from "@/lib/programme-share";
 
 describe("formatEventShareLine", () => {
@@ -17,12 +17,20 @@ describe("formatEventShareLine", () => {
   });
 
   it("shows ♥ for intéressé", () => {
-    const event = { title: "Atelier", startTime: "2026-07-15T14:00:00", selection: { status: "intéressé" } };
+    const event = {
+      title: "Atelier",
+      startTime: "2026-07-15T14:00:00",
+      selection: { status: "intéressé" },
+    };
     expect(formatEventShareLine(event)).toContain("♥");
   });
 
   it("shows ✓ for vu", () => {
-    const event = { title: "Concert", startTime: "2026-07-15T20:00:00", selection: { status: "vu" } };
+    const event = {
+      title: "Concert",
+      startTime: "2026-07-15T20:00:00",
+      selection: { status: "vu" },
+    };
     expect(formatEventShareLine(event)).toContain("✓");
   });
 
@@ -32,7 +40,11 @@ describe("formatEventShareLine", () => {
   });
 
   it("omits venue section when no venue", () => {
-    const event = { title: "Concert", startTime: "2026-07-15T20:00:00", selection: { status: "vu" } };
+    const event = {
+      title: "Concert",
+      startTime: "2026-07-15T20:00:00",
+      selection: { status: "vu" },
+    };
     const line = formatEventShareLine(event);
     expect(line).not.toContain("·");
   });
@@ -40,8 +52,18 @@ describe("formatEventShareLine", () => {
 
 describe("generateProgrammeShareText", () => {
   const events = [
-    { title: "Concert B", startTime: "2026-07-15T22:00:00", venue: { name: "Scène B" }, selection: { status: "must-see" } },
-    { title: "Concert A", startTime: "2026-07-15T20:00:00", venue: { name: "Scène A" }, selection: { status: "intéressé" } },
+    {
+      title: "Concert B",
+      startTime: "2026-07-15T22:00:00",
+      venue: { name: "Scène B" },
+      selection: { status: "must-see" },
+    },
+    {
+      title: "Concert A",
+      startTime: "2026-07-15T20:00:00",
+      venue: { name: "Scène A" },
+      selection: { status: "intéressé" },
+    },
     { title: "Itinérant", selection: { status: "intéressé" } },
     { title: "Unselected", startTime: "2026-07-15T18:00:00", selection: null },
   ];

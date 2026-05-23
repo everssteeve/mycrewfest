@@ -32,10 +32,7 @@ export function addToRecentlyViewed(
   current: RecentlyViewedEntry[],
 ): RecentlyViewedEntry[] {
   const deduped = current.filter((e) => e.slug !== entry.slug);
-  return [
-    { ...entry, viewedAt: new Date().toISOString() },
-    ...deduped,
-  ].slice(0, MAX_ENTRIES);
+  return [{ ...entry, viewedAt: new Date().toISOString() }, ...deduped].slice(0, MAX_ENTRIES);
 }
 
 export function saveRecentlyViewed(entries: RecentlyViewedEntry[]): void {

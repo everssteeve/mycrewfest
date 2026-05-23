@@ -19,10 +19,7 @@ export interface FestivalRankEntry extends RankableFestival {
 /**
  * Returns the top N festivals sorted by follower count descending.
  */
-export function rankByFollowers(
-  festivals: RankableFestival[],
-  limit = 10,
-): FestivalRankEntry[] {
+export function rankByFollowers(festivals: RankableFestival[], limit = 10): FestivalRankEntry[] {
   return [...festivals]
     .filter((f) => f.followerCount > 0)
     .sort((a, b) => b.followerCount - a.followerCount || a.name.localeCompare(b.name, "fr"))
@@ -58,10 +55,7 @@ export function rankByUpcoming(
  * Returns the top N festivals with the most complete programmes (most events).
  * Only includes festivals with at least one event.
  */
-export function rankByProgramme(
-  festivals: RankableFestival[],
-  limit = 10,
-): FestivalRankEntry[] {
+export function rankByProgramme(festivals: RankableFestival[], limit = 10): FestivalRankEntry[] {
   return [...festivals]
     .filter((f) => f.eventCount > 0)
     .sort((a, b) => b.eventCount - a.eventCount || a.name.localeCompare(b.name, "fr"))

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
 import { Bell, BellOff, Loader2 } from "lucide-react";
+import { useState, useTransition } from "react";
 
 interface FollowButtonProps {
   festivalId: string;
@@ -50,9 +50,7 @@ export function FollowButton({
         paddingTop: 8,
         paddingBottom: 8,
         borderRadius: "var(--radius-md)",
-        border: followed
-          ? "1.5px solid var(--primary-neon)"
-          : "1.5px solid var(--border-strong)",
+        border: followed ? "1.5px solid var(--primary-neon)" : "1.5px solid var(--border-strong)",
         backgroundColor: followed ? "var(--neon-soft)" : "transparent",
         color: followed ? "var(--primary-neon)" : "var(--text-muted)",
         fontFamily: "var(--font-body)",

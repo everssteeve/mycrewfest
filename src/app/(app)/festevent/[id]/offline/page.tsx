@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { WifiOff } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { getEventsOffline } from "@/lib/offline";
 import type { OfflineEvent } from "@/types";
-import { useParams } from "next/navigation";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -123,8 +123,8 @@ export default function OfflineProgrammePage() {
               lineHeight: "var(--lh-base)",
             }}
           >
-            Aucun programme en cache. Connecte-toi au moins une fois avec du réseau pour
-            accéder au programme hors-ligne.
+            Aucun programme en cache. Connecte-toi au moins une fois avec du réseau pour accéder au
+            programme hors-ligne.
           </p>
         </div>
       )}

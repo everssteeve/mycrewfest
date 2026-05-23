@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useState } from "react";
 import {
+  buildStorageKey,
   parseNotesFromStorage,
   serializeNotesToStorage,
-  buildStorageKey,
   validateEventNote,
 } from "@/lib/event-notes";
 

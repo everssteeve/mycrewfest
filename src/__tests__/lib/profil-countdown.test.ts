@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  findNextFestEvent,
-  computeDaysUntilFestival,
-  isFestivalActive,
-  formatCountdownLabel,
-  getCountdownUrgency,
-  getCountdownColor,
   type CountdownFestEvent,
+  computeDaysUntilFestival,
+  findNextFestEvent,
+  formatCountdownLabel,
+  getCountdownColor,
+  getCountdownUrgency,
+  isFestivalActive,
 } from "@/lib/profil-countdown";
 
 const makeFE = (id: string, start: string, end: string): CountdownFestEvent => ({
@@ -68,7 +68,8 @@ describe("formatCountdownLabel", () => {
   it("En cours for active", () => expect(formatCountdownLabel(5, true)).toBe("En cours"));
   it("Demain for 0 days", () => expect(formatCountdownLabel(0, false)).toBe("Demain"));
   it("Dans 1 jour for 1 day", () => expect(formatCountdownLabel(1, false)).toBe("Dans 1 jour"));
-  it("plural for multiple days", () => expect(formatCountdownLabel(10, false)).toBe("Dans 10 jours"));
+  it("plural for multiple days", () =>
+    expect(formatCountdownLabel(10, false)).toBe("Dans 10 jours"));
 });
 
 describe("getCountdownUrgency", () => {

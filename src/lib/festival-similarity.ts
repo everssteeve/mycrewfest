@@ -13,9 +13,7 @@ export interface SimilarityResult {
 }
 
 function daysBetween(a: string, b: string): number {
-  return Math.abs(
-    (new Date(a).getTime() - new Date(b).getTime()) / (1000 * 60 * 60 * 24),
-  );
+  return Math.abs((new Date(a).getTime() - new Date(b).getTime()) / (1000 * 60 * 60 * 24));
 }
 
 export function computeSimilarityScore(

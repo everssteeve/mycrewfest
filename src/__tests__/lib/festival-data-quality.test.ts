@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   computeDataQualityScore,
+  countByGrade,
+  type FestivalQualityInput,
   getQualityGrade,
   getQualityGradeColor,
   runQualityChecks,
-  countByGrade,
-  type FestivalQualityInput,
 } from "@/lib/festival-data-quality";
 
 function makeInput(overrides: Partial<FestivalQualityInput> = {}): FestivalQualityInput {

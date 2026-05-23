@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -49,11 +49,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 
   // Accept: create festival and link
-  const slug =
-    submission.nameProposed
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "") + `-${Date.now()}`;
+  const slug = `${submission.nameProposed
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")}-${Date.now()}`;
 
   const festival = await prisma.festival.create({
     data: {

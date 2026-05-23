@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -13,16 +13,10 @@ const createCrewSchema = z.object({
  * GET /api/festevents/[id]/crew
  * Return the crew linked to this FestEvent.
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function GET(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { id } = await params;
@@ -34,10 +28,7 @@ export async function GET(
     });
 
     if (!festEvent) {
-      return NextResponse.json(
-        { error: "FestEvent introuvable." },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "FestEvent introuvable." }, { status: 404 });
     }
 
     if (!festEvent.crewId) {
@@ -76,10 +67,7 @@ export async function GET(
     });
   } catch (err) {
     console.error("[GET /api/festevents/[id]/crew]", err);
-    return NextResponse.json(
-      { error: "Erreur lors de la récupération du crew." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Erreur lors de la récupération du crew." }, { status: 500 });
   }
 }
 
@@ -87,16 +75,10 @@ export async function GET(
  * POST /api/festevents/[id]/crew
  * Create a crew for this FestEvent.
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function POST(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { id } = await params;
@@ -105,10 +87,7 @@ export async function POST(
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requête invalide." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
   }
 
   const parsed = createCrewSchema.safeParse(body);
@@ -125,10 +104,7 @@ export async function POST(
   });
 
   if (!festEvent) {
-    return NextResponse.json(
-      { error: "FestEvent introuvable." },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "FestEvent introuvable." }, { status: 404 });
   }
 
   if (festEvent.crewId) {
@@ -183,9 +159,6 @@ export async function POST(
     );
   } catch (err) {
     console.error("[POST /api/festevents/[id]/crew]", err);
-    return NextResponse.json(
-      { error: "Erreur lors de la création du crew." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Erreur lors de la création du crew." }, { status: 500 });
   }
 }

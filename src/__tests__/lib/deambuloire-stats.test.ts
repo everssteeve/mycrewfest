@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  countSouvenirPhotos,
-  countLinkedEventSouvenirs,
   countCrewSharedSouvenirs,
+  countLinkedEventSouvenirs,
+  countSouvenirPhotos,
   filterTodaySouvenirs,
 } from "@/lib/deambuloire-stats";
 
@@ -47,11 +47,7 @@ describe("countLinkedEventSouvenirs", () => {
   });
 
   it("counts souvenirs with a non-null eventId", () => {
-    const souvenirs = [
-      { eventId: "evt-1" },
-      { eventId: null },
-      { eventId: "evt-2" },
-    ];
+    const souvenirs = [{ eventId: "evt-1" }, { eventId: null }, { eventId: "evt-2" }];
     expect(countLinkedEventSouvenirs(souvenirs)).toBe(2);
   });
 
@@ -74,11 +70,7 @@ describe("countCrewSharedSouvenirs", () => {
   });
 
   it("counts shared souvenirs correctly", () => {
-    const souvenirs = [
-      { shareWithCrew: true },
-      { shareWithCrew: false },
-      { shareWithCrew: true },
-    ];
+    const souvenirs = [{ shareWithCrew: true }, { shareWithCrew: false }, { shareWithCrew: true }];
     expect(countCrewSharedSouvenirs(souvenirs)).toBe(2);
   });
 
@@ -99,18 +91,12 @@ describe("filterTodaySouvenirs", () => {
   });
 
   it("includes souvenirs from today", () => {
-    const souvenirs = [
-      { timestamp: "2026-05-23T10:00:00" },
-      { timestamp: "2026-05-23T20:00:00" },
-    ];
+    const souvenirs = [{ timestamp: "2026-05-23T10:00:00" }, { timestamp: "2026-05-23T20:00:00" }];
     expect(filterTodaySouvenirs(souvenirs, NOW)).toHaveLength(2);
   });
 
   it("excludes souvenirs from other days", () => {
-    const souvenirs = [
-      { timestamp: "2026-05-22T23:59:00" },
-      { timestamp: "2026-05-24T00:01:00" },
-    ];
+    const souvenirs = [{ timestamp: "2026-05-22T23:59:00" }, { timestamp: "2026-05-24T00:01:00" }];
     expect(filterTodaySouvenirs(souvenirs, NOW)).toHaveLength(0);
   });
 

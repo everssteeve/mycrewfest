@@ -7,9 +7,7 @@ export const SELECTION_CYCLE: ReadonlyArray<SelectionStatus | null> = [
   "vu",
 ];
 
-export function nextSelectionStatus(
-  current: SelectionStatus | null,
-): SelectionStatus | null {
+export function nextSelectionStatus(current: SelectionStatus | null): SelectionStatus | null {
   const idx = SELECTION_CYCLE.indexOf(current);
   if (idx === -1) return "intéressé";
   const next = SELECTION_CYCLE[(idx + 1) % SELECTION_CYCLE.length];
@@ -24,8 +22,6 @@ export const SELECTION_LABELS: Record<NonNullable<SelectionStatus> | "_add", str
 };
 
 /** One-tap "mark as seen" toggle: vu ↔ null (preserves other statuses). */
-export function toggleVuStatus(
-  current: SelectionStatus | null,
-): SelectionStatus | null {
+export function toggleVuStatus(current: SelectionStatus | null): SelectionStatus | null {
   return current === "vu" ? null : "vu";
 }

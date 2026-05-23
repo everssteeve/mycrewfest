@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { useEffect } from "react";
 
 export default function FestivalError({
   error,
@@ -20,10 +20,16 @@ export default function FestivalError({
       <span aria-hidden="true" style={{ fontSize: 48, lineHeight: 1, marginBottom: 16 }}>
         ⚡
       </span>
-      <p className="t-h3" style={{ color: "var(--text-main)", marginBottom: 8, fontSize: "var(--fs-base)" }}>
+      <p
+        className="t-h3"
+        style={{ color: "var(--text-main)", marginBottom: 8, fontSize: "var(--fs-base)" }}
+      >
         Impossible de charger ce festival
       </p>
-      <p className="t-caption" style={{ color: "var(--text-muted)", maxWidth: 240, marginBottom: 24 }}>
+      <p
+        className="t-caption"
+        style={{ color: "var(--text-muted)", maxWidth: 240, marginBottom: 24 }}
+      >
         Une erreur est survenue. Réessaie ou retourne au catalogue.
       </p>
       <div className="flex gap-3">

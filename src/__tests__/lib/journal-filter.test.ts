@@ -1,6 +1,13 @@
-import { describe, it, expect } from "vitest";
-import { matchesJournalQuery, filterAndGroupByDay, filterByCrew, filterByEntryType, countCrewSharedEntries, countEventLinkedEntries } from "@/lib/journal-filter";
+import { describe, expect, it } from "vitest";
 import type { SouvenirEntry } from "@/app/(app)/festevent/[id]/journal/_components/journal-view";
+import {
+  countCrewSharedEntries,
+  countEventLinkedEntries,
+  filterAndGroupByDay,
+  filterByCrew,
+  filterByEntryType,
+  matchesJournalQuery,
+} from "@/lib/journal-filter";
 
 function entry(
   id: string,
@@ -130,8 +137,14 @@ describe("filterAndGroupByDay", () => {
   });
 
   it("applies crewOnly filter before query filter", () => {
-    const e1 = { ...entry("1", { note: "crew note", timestamp: "2026-07-15T10:00:00" }), shareWithCrew: true };
-    const e2 = { ...entry("2", { note: "crew note", timestamp: "2026-07-15T12:00:00" }), shareWithCrew: false };
+    const e1 = {
+      ...entry("1", { note: "crew note", timestamp: "2026-07-15T10:00:00" }),
+      shareWithCrew: true,
+    };
+    const e2 = {
+      ...entry("2", { note: "crew note", timestamp: "2026-07-15T12:00:00" }),
+      shareWithCrew: false,
+    };
     const result = filterAndGroupByDay([e1, e2], "crew", true);
     const day = result.get("2026-07-15") ?? [];
     expect(day).toHaveLength(1);

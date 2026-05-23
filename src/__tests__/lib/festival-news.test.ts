@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { sortNewsItems, countByUrgency, countPinned } from "@/lib/festival-news";
+import { describe, expect, it } from "vitest";
+import { countByUrgency, countPinned, sortNewsItems } from "@/lib/festival-news";
 import type { NewsItemSummary } from "@/lib/types";
 
 function makeNews(id: string, opts: Partial<NewsItemSummary> = {}): NewsItemSummary {
@@ -37,8 +37,9 @@ describe("sortNewsItems", () => {
 
   it("sorts by publishedAt desc within same urgency", () => {
     const normals = sortNewsItems(items).filter((i) => !i.isPinned && i.urgencyLevel === "normal");
-    expect(new Date(normals[0].publishedAt).getTime())
-      .toBeGreaterThan(new Date(normals[1].publishedAt).getTime());
+    expect(new Date(normals[0].publishedAt).getTime()).toBeGreaterThan(
+      new Date(normals[1].publishedAt).getTime(),
+    );
   });
 
   it("does not mutate original array", () => {

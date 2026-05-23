@@ -5,10 +5,10 @@ export interface TrendingInput {
 }
 
 const PROXIMITY_MULTIPLIER = (daysUntil: number): number => {
-  if (daysUntil <= 0) return 0;      // past/ongoing — exclude from trending
-  if (daysUntil <= 14) return 3.0;   // this fortnight — very hot
-  if (daysUntil <= 30) return 2.0;   // this month — hot
-  if (daysUntil <= 60) return 1.5;   // 2 months out — warming up
+  if (daysUntil <= 0) return 0; // past/ongoing — exclude from trending
+  if (daysUntil <= 14) return 3.0; // this fortnight — very hot
+  if (daysUntil <= 30) return 2.0; // this month — hot
+  if (daysUntil <= 60) return 1.5; // 2 months out — warming up
   return 1.0;
 };
 
@@ -25,21 +25,15 @@ const SCORE_CAP = 1000;
  * Returns 0 for festivals that have already started or whose startDate is
  * in the past relative to `now`.
  */
-export function computeTrendingScore(
-  festival: TrendingInput,
-  now: Date = new Date(),
-): number {
+export function computeTrendingScore(festival: TrendingInput, now: Date = new Date()): number {
   const start = new Date(festival.startDate);
-  const daysUntil = Math.floor(
-    (start.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-  );
+  const daysUntil = Math.floor((start.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
   const multiplier = PROXIMITY_MULTIPLIER(daysUntil);
   if (multiplier === 0) return 0;
 
   const raw =
-    festival.followerCount * FOLLOWER_WEIGHT +
-    festival.recentNewsCount * NEWS_BONUS_PER_ITEM;
+    festival.followerCount * FOLLOWER_WEIGHT + festival.recentNewsCount * NEWS_BONUS_PER_ITEM;
 
   return Math.min(Math.round(raw * multiplier), SCORE_CAP);
 }
@@ -59,10 +53,14 @@ export function getTrendingTier(score: number): "chaud" | "montant" | "stable" |
  */
 export function getTrendingColor(tier: ReturnType<typeof getTrendingTier>): string {
   switch (tier) {
-    case "chaud": return "var(--danger-red)";
-    case "montant": return "var(--warning-orange)";
-    case "stable": return "var(--primary-neon)";
-    default: return "var(--text-dim)";
+    case "chaud":
+      return "var(--danger-red)";
+    case "montant":
+      return "var(--warning-orange)";
+    case "stable":
+      return "var(--primary-neon)";
+    default:
+      return "var(--text-dim)";
   }
 }
 

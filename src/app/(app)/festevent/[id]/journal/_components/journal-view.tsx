@@ -1,12 +1,34 @@
 "use client";
 
+import {
+  BookOpen,
+  Check,
+  Clock,
+  Copy,
+  Download,
+  Search,
+  Share2,
+  Trash2,
+  Users,
+  X,
+} from "lucide-react";
 import { useCallback, useMemo, useState, useTransition } from "react";
-import { BookOpen, Share2, Download, Trash2, Clock, Search, X, Copy, Check } from "lucide-react";
-import { filterAndGroupByDay, countCrewSharedEntries, countEventLinkedEntries, type JournalEntryTypeFilter } from "@/lib/journal-filter";
-import { Users } from "lucide-react";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
+import {
+  countCrewSharedEntries,
+  countEventLinkedEntries,
+  filterAndGroupByDay,
+  type JournalEntryTypeFilter,
+} from "@/lib/journal-filter";
+import {
+  computeAvgEntriesPerDay,
+  computeJournalStats,
+  countDaysWithPhotos,
+  countTotalJournalPhotos,
+  getDaysSinceLastEntry,
+  getMostActiveJournalDay,
+} from "@/lib/journal-stats";
 import { isEscapeKey } from "@/lib/keyboard-search";
-import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos, getDaysSinceLastEntry, computeAvgEntriesPerDay } from "@/lib/journal-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -72,9 +94,7 @@ function formatDate(iso: string): string {
   }
 }
 
-function groupByDay(
-  souvenirs: SouvenirEntry[],
-): Map<string, SouvenirEntry[]> {
+function _groupByDay(souvenirs: SouvenirEntry[]): Map<string, SouvenirEntry[]> {
   const map = new Map<string, SouvenirEntry[]>();
   for (const s of souvenirs) {
     try {
@@ -99,11 +119,7 @@ interface InlineNoteEditorProps {
   initialNote: string | null;
 }
 
-function InlineNoteEditor({
-  souvenirId,
-  festEventId,
-  initialNote,
-}: InlineNoteEditorProps) {
+function InlineNoteEditor({ souvenirId, festEventId, initialNote }: InlineNoteEditorProps) {
   const [note, setNote] = useState(initialNote ?? "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -112,14 +128,11 @@ function InlineNoteEditor({
     if (note === (initialNote ?? "")) return;
     setSaving(true);
     try {
-      await fetch(
-        `/api/festevents/${festEventId}/souvenirs/${souvenirId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ note }),
-        },
-      );
+      await fetch(`/api/festevents/${festEventId}/souvenirs/${souvenirId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ note }),
+      });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     } catch {
@@ -201,29 +214,19 @@ interface TimestampEditorProps {
   onUpdate: (newTs: string) => void;
 }
 
-function TimestampEditor({
-  souvenirId,
-  festEventId,
-  timestamp,
-  onUpdate,
-}: TimestampEditorProps) {
+function TimestampEditor({ souvenirId, festEventId, timestamp, onUpdate }: TimestampEditorProps) {
   const [editing, setEditing] = useState(false);
-  const [value, setValue] = useState(
-    () => new Date(timestamp).toISOString().slice(0, 16),
-  );
+  const [value, setValue] = useState(() => new Date(timestamp).toISOString().slice(0, 16));
 
   const handleSave = useCallback(async () => {
     setEditing(false);
     try {
       const iso = new Date(value).toISOString();
-      await fetch(
-        `/api/festevents/${festEventId}/souvenirs/${souvenirId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ timestamp: iso }),
-        },
-      );
+      await fetch(`/api/festevents/${festEventId}/souvenirs/${souvenirId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ timestamp: iso }),
+      });
       onUpdate(iso);
     } catch {
       // Silently fail
@@ -331,10 +334,9 @@ function SouvenirCard({
     if (!confirm("Supprimer ce souvenir ?")) return;
     startTransition(async () => {
       try {
-        await fetch(
-          `/api/festevents/${festEventId}/souvenirs/${souvenir.id}`,
-          { method: "DELETE" },
-        );
+        await fetch(`/api/festevents/${festEventId}/souvenirs/${souvenir.id}`, {
+          method: "DELETE",
+        });
         onDelete(souvenir.id);
       } catch {
         // Silently fail
@@ -540,7 +542,7 @@ function SouvenirCard({
         >
           {souvenir.photos.slice(0, 9).map((url, idx) => (
             <a
-              key={`${url}-${idx}`}
+              key={url}
               href={url}
               target="_blank"
               rel="noopener noreferrer"
@@ -554,7 +556,7 @@ function SouvenirCard({
               {/* biome-ignore lint/performance/noImgElement: thumbnails don't need next/image */}
               <img
                 src={url}
-                alt={`Photo ${idx + 1}`}
+                alt={`Souvenir ${idx + 1}`}
                 loading="lazy"
                 style={{
                   width: "100%",
@@ -670,11 +672,7 @@ export function JournalView({
           textAlign: "center",
         }}
       >
-        <BookOpen
-          size={48}
-          style={{ color: "var(--text-dim)" }}
-          strokeWidth={1.2}
-        />
+        <BookOpen size={48} style={{ color: "var(--text-dim)" }} strokeWidth={1.2} />
         <p
           style={{
             fontFamily: "var(--font-body)",
@@ -874,7 +872,8 @@ export function JournalView({
             }}
             title={`Jour le plus actif : ${mostActiveDay.date}`}
           >
-            ★ {new Date(mostActiveDay.date).toLocaleDateString("fr-FR", { weekday: "short" })} ({mostActiveDay.count})
+            ★ {new Date(mostActiveDay.date).toLocaleDateString("fr-FR", { weekday: "short" })} (
+            {mostActiveDay.count})
           </span>
         )}
         {eventLinkedCount > 0 && eventLinkedCount < souvenirs.length && (
@@ -1024,7 +1023,9 @@ export function JournalView({
                   fontSize: "var(--fs-xs)",
                   padding: "3px 10px",
                   borderRadius: "var(--radius-full)",
-                  border: isActive ? "1.5px solid var(--accent-pink)" : "1.5px solid var(--border-color)",
+                  border: isActive
+                    ? "1.5px solid var(--accent-pink)"
+                    : "1.5px solid var(--border-color)",
                   background: isActive ? "var(--pink-soft)" : "transparent",
                   color: isActive ? "var(--accent-pink)" : "var(--text-muted)",
                   cursor: "pointer",
@@ -1099,11 +1100,7 @@ export function JournalView({
       </div>
 
       {/* Print header */}
-      <div
-        className="journal-print-only"
-        style={{ display: "none" }}
-        aria-hidden="true"
-      >
+      <div className="journal-print-only" style={{ display: "none" }} aria-hidden="true">
         <h1
           style={{
             fontFamily: "var(--font-display)",
@@ -1171,7 +1168,13 @@ export function JournalView({
           }}
         >
           <Search size={32} style={{ color: "var(--text-dim)", opacity: 0.4 }} aria-hidden="true" />
-          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-muted)" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              color: "var(--text-muted)",
+            }}
+          >
             Aucune entrée ne correspond à "{searchQuery}".
           </p>
           <button

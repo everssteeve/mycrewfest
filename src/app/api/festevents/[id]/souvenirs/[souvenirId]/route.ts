@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 
 type RouteContext = { params: Promise<{ id: string; souvenirId: string }> };
 
@@ -9,10 +9,7 @@ type RouteContext = { params: Promise<{ id: string; souvenirId: string }> };
  * PATCH /api/festevents/[id]/souvenirs/[souvenirId]
  * Update note, photos, or timestamp of a souvenir.
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non connecté." }, { status: 401 });
@@ -50,12 +47,8 @@ export async function PATCH(
     data: {
       ...(body.note !== undefined ? { note: body.note } : {}),
       ...(body.freeText !== undefined ? { freeText: body.freeText } : {}),
-      ...(body.photos !== undefined
-        ? { photos: JSON.stringify(body.photos) }
-        : {}),
-      ...(body.timestamp !== undefined
-        ? { timestamp: new Date(body.timestamp) }
-        : {}),
+      ...(body.photos !== undefined ? { photos: JSON.stringify(body.photos) } : {}),
+      ...(body.timestamp !== undefined ? { timestamp: new Date(body.timestamp) } : {}),
     },
   });
 
@@ -73,10 +66,7 @@ export async function PATCH(
  * DELETE /api/festevents/[id]/souvenirs/[souvenirId]
  * Permanently delete a souvenir.
  */
-export async function DELETE(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non connecté." }, { status: 401 });

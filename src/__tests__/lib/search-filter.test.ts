@@ -1,12 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+import type { GlobalSearchResponse } from "@/lib/global-search";
 import {
-  countSearchResults,
   applySearchTypeFilter,
   buildTabLabel,
+  countSearchResults,
   isTabDisabled,
-  type SearchTypeFilter,
 } from "@/lib/search-filter";
-import type { GlobalSearchResponse } from "@/lib/global-search";
 
 const mockFestival = {
   type: "festival" as const,

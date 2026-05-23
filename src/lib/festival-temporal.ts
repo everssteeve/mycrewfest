@@ -5,7 +5,7 @@ const IMMINENT_DAYS = 7;
 export function getFestivalTemporalStatus(
   startDate: string | Date,
   endDate: string | Date,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): TemporalStatus {
   const start = new Date(startDate);
   const end = new Date(endDate);
@@ -25,10 +25,7 @@ export function getFestivalTemporalStatus(
   return "upcoming";
 }
 
-export function getDaysUntilStart(
-  startDate: string | Date,
-  now: Date = new Date()
-): number {
+export function getDaysUntilStart(startDate: string | Date, now: Date = new Date()): number {
   const start = new Date(startDate);
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const startDay = new Date(start.getFullYear(), start.getMonth(), start.getDate());
@@ -44,15 +41,16 @@ export function getDaysUntilStart(
  * - past → "Passé"
  * - upcoming → null (no badge needed)
  */
-export function formatTemporalBadge(
-  status: TemporalStatus,
-  daysUntil: number,
-): string | null {
+export function formatTemporalBadge(status: TemporalStatus, daysUntil: number): string | null {
   switch (status) {
-    case "en_cours": return "En cours";
-    case "imminent": return daysUntil <= 0 ? "Demain" : `Dans ${daysUntil} j`;
-    case "past": return "Passé";
-    case "upcoming": return null;
+    case "en_cours":
+      return "En cours";
+    case "imminent":
+      return daysUntil <= 0 ? "Demain" : `Dans ${daysUntil} j`;
+    case "past":
+      return "Passé";
+    case "upcoming":
+      return null;
   }
 }
 
@@ -66,7 +64,7 @@ const STATUS_ORDER: Record<TemporalStatus, number> = {
 export function compareByTemporalRelevance(
   a: { startDate: string; endDate: string },
   b: { startDate: string; endDate: string },
-  now: Date = new Date()
+  now: Date = new Date(),
 ): number {
   const statusA = getFestivalTemporalStatus(a.startDate, a.endDate, now);
   const statusB = getFestivalTemporalStatus(b.startDate, b.endDate, now);

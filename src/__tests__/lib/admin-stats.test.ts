@@ -1,9 +1,5 @@
-import { describe, it, expect } from "vitest";
-import {
-  buildAdminKpis,
-  hasPendingAlert,
-  formatKpiValue,
-} from "@/lib/admin-stats";
+import { describe, expect, it } from "vitest";
+import { buildAdminKpis, formatKpiValue, hasPendingAlert } from "@/lib/admin-stats";
 
 // ---------------------------------------------------------------------------
 // buildAdminKpis

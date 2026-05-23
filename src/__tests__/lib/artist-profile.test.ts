@@ -1,14 +1,16 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  sortAppearancesByDate,
-  splitByTemporality,
-  formatDisciplines,
+  type ArtistFestivalAppearance,
   buildInstagramUrl,
   buildSpotifyUrl,
-  type ArtistFestivalAppearance,
+  formatDisciplines,
+  sortAppearancesByDate,
+  splitByTemporality,
 } from "@/lib/artist-profile";
 
-function makeAppearance(overrides: Partial<ArtistFestivalAppearance> = {}): ArtistFestivalAppearance {
+function makeAppearance(
+  overrides: Partial<ArtistFestivalAppearance> = {},
+): ArtistFestivalAppearance {
   return {
     festivalId: "fest-1",
     festivalName: "Rock en Seine",

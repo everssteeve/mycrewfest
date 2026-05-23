@@ -1,14 +1,14 @@
-import { notFound, redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { FestivalForm } from "../../_components/festival-form";
 import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
 import {
   computeDataQualityScore,
+  type FestivalQualityInput,
   getQualityGrade,
   getQualityGradeColor,
   runQualityChecks,
-  type FestivalQualityInput,
 } from "@/lib/festival-data-quality";
+import { prisma } from "@/lib/prisma";
+import { FestivalForm } from "../../_components/festival-form";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -122,7 +122,14 @@ export default async function EditFestivalPage({ params }: Props) {
 
         {/* Score + failed checks */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)", marginBottom: 6 }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "var(--space-sm)",
+              marginBottom: 6,
+            }}
+          >
             <span
               data-testid="festival-edit-quality-score"
               style={{

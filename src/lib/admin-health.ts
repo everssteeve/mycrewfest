@@ -31,7 +31,10 @@ export function computeSignalDensity(totalSignals: number, totalFestEvents: numb
 }
 
 export function computeHealthScore(input: PlatformHealthInput): number {
-  const enrichmentRate = computeFestivalEnrichmentRate(input.totalFestivals, input.enrichedFestivals);
+  const enrichmentRate = computeFestivalEnrichmentRate(
+    input.totalFestivals,
+    input.enrichedFestivals,
+  );
   const profileRate = computeProfileCompletionRate(input.totalUsers, input.usersWithPseudo);
   const density = computeSignalDensity(input.totalSignals, input.totalFestEvents);
   // Density capped at 10 signals/festEvent = 100 points
@@ -56,7 +59,10 @@ export function getHealthScoreColor(score: number): string {
 }
 
 export function buildHealthMetrics(input: PlatformHealthInput): HealthMetric[] {
-  const enrichmentRate = computeFestivalEnrichmentRate(input.totalFestivals, input.enrichedFestivals);
+  const enrichmentRate = computeFestivalEnrichmentRate(
+    input.totalFestivals,
+    input.enrichedFestivals,
+  );
   const profileRate = computeProfileCompletionRate(input.totalUsers, input.usersWithPseudo);
   const density = computeSignalDensity(input.totalSignals, input.totalFestEvents);
 

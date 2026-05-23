@@ -20,11 +20,7 @@ const QUICK_STATUSES: Array<{
   { value: "rentre", label: "Je rentre dormir", icon: "🏕️" },
 ];
 
-export function QuickStatusBar({
-  crewId,
-  currentStatus,
-  onStatusChange,
-}: QuickStatusBarProps) {
+export function QuickStatusBar({ crewId, currentStatus, onStatusChange }: QuickStatusBarProps) {
   const [posting, setPosting] = useState(false);
 
   async function handleSelect(value: QuickStatus) {

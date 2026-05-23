@@ -8,7 +8,11 @@ export function formatFestivalDateRange(
   const sameYear = s.getFullYear() === e.getFullYear();
   const sameMonth = sameYear && s.getMonth() === e.getMonth();
   const opts: Intl.DateTimeFormatOptions = { day: "numeric", month: "long" };
-  const optsWithYear: Intl.DateTimeFormatOptions = { day: "numeric", month: "long", year: "numeric" };
+  const optsWithYear: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  };
 
   if (sameMonth) {
     return `${s.toLocaleDateString(locale, { day: "numeric" })}–${e.toLocaleDateString(locale, optsWithYear)}`;
@@ -27,9 +31,10 @@ export function buildFestivalOgDescription(params: {
   const location = `${params.city}, ${params.country}`;
   const base = `${location} · ${dateRange}`;
   if (params.description) {
-    const excerpt = params.description.length > 120
-      ? `${params.description.slice(0, 120).trimEnd()}…`
-      : params.description;
+    const excerpt =
+      params.description.length > 120
+        ? `${params.description.slice(0, 120).trimEnd()}…`
+        : params.description;
     return `${base} — ${excerpt}`;
   }
   return base;
@@ -45,9 +50,10 @@ export function buildArtistOgDescription(params: {
   if (params.countryCode) parts.push(params.countryCode);
   const base = parts.join(" · ");
   if (params.description) {
-    const excerpt = params.description.length > 140
-      ? `${params.description.slice(0, 140).trimEnd()}…`
-      : params.description;
+    const excerpt =
+      params.description.length > 140
+        ? `${params.description.slice(0, 140).trimEnd()}…`
+        : params.description;
     return base ? `${base} — ${excerpt}` : excerpt;
   }
   return base || "Artiste sur MyCrewFest";

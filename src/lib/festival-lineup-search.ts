@@ -1,7 +1,11 @@
 import type { ArtistSummary } from "@/types/index";
 
 export function normalizeQuery(q: string): string {
-  return q.trim().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+  return q
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "");
 }
 
 export function filterLineup(artists: ArtistSummary[], query: string): ArtistSummary[] {

@@ -1,33 +1,85 @@
 "use client";
 
+import { CalendarArrowDown, Check, ChevronUp, Copy, Search } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
 import { EventCard, type EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
-import { useSelections } from "@/hooks/use-selections";
-import type { SelectionStatus } from "@/types";
-import type { EventType } from "@/lib/api";
-import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, matchesVenueFilter, matchesDurationFilter, matchesAgeRestrictionFilter, type SelectionFilter, type DurationFilter, DURATION_FILTER_LABELS } from "@/lib/programme-search";
-import { formatTagLabel } from "@/lib/programme-tag-filter";
-import { isEscapeKey } from "@/lib/keyboard-search";
-import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
-import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
-import { isUpcomingOrOngoing, countUpcomingEvents } from "@/lib/programme-upcoming";
-import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
-import { findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents, countUniqueEventTypes, countNightEvents, getEarliestEventStartTime, getLatestEventEndTime, getPeakSelectionDay } from "@/lib/programme-summary";
-import { shouldShowScrollTop } from "@/lib/scroll-top";
-import { formatBilanDuration } from "@/lib/bilan";
-import { generateProgrammeShareText } from "@/lib/programme-share";
-import { buildProgrammeIcs, countExportableEvents } from "@/lib/programme-ics";
-import { computeTotalProgrammeDurationMins, computeSelectedDurationMins, computeTimeCoveragePercent, getDensityLabel, getDensityColor, formatDensityBadge } from "@/lib/programme-density";
-import { groupEventsByVenue, sortVenueGroups, sortEventsWithinGroup } from "@/lib/programme-group";
 import { useEventNotes } from "@/hooks/use-event-notes";
+import { useSelections } from "@/hooks/use-selections";
+import type { EventType } from "@/lib/api";
+import { formatBilanDuration } from "@/lib/bilan";
+import { countOngoingEvents, findOngoingEventIds } from "@/lib/event-status";
+import { isEscapeKey } from "@/lib/keyboard-search";
+import { matchesArtistFilter } from "@/lib/programme-artist";
+import { countConflictPairs, findConflictingEventIds } from "@/lib/programme-conflicts";
+import {
+  computeDayScores,
+  formatDayDuration,
+  getDayLoadColor,
+  getDayLoadLevel,
+} from "@/lib/programme-day-score";
+import { extractEventDays, formatDayLabel, getDefaultProgrammeDay } from "@/lib/programme-days";
+import {
+  computeSelectedDurationMins,
+  computeTimeCoveragePercent,
+  computeTotalProgrammeDurationMins,
+  formatDensityBadge,
+  getDensityColor,
+  getDensityLabel,
+} from "@/lib/programme-density";
+import {
+  findSelectedEventGaps,
+  findTightTransitionIds,
+  formatGapDuration,
+} from "@/lib/programme-gaps";
+import { groupEventsByVenue, sortEventsWithinGroup, sortVenueGroups } from "@/lib/programme-group";
+import { buildProgrammeIcs, countExportableEvents } from "@/lib/programme-ics";
+import {
+  DURATION_FILTER_LABELS,
+  type DurationFilter,
+  matchesAgeRestrictionFilter,
+  matchesDurationFilter,
+  matchesProgrammeQuery,
+  matchesSelectionFilter,
+  matchesTagFilter,
+  matchesVenueFilter,
+  type SelectionFilter,
+} from "@/lib/programme-search";
+import { generateProgrammeShareText } from "@/lib/programme-share";
+import { SORT_MODE_LABELS, type SortMode, sortProgrammeEvents } from "@/lib/programme-sort";
+import {
+  computeAvgEventDurationMins,
+  computeProgrammeDurationMins,
+  computeSelectionCoveragePercent,
+  countAgeRestrictedEvents,
+  countCancelledEvents,
+  countEventsByDay,
+  countIntéresséEvents,
+  countItinerantEvents,
+  countModifiedEvents,
+  countMustSeePendingEvents,
+  countNightEvents,
+  countReservationRequiredEvents,
+  countSelectionDays,
+  countUniqueArtists,
+  countUniqueEventTypes,
+  countUniqueProgrammeTags,
+  countUniqueVenues,
+  countVerifiedEvents,
+  countVuEventsByDay,
+  getEarliestEventStartTime,
+  getLatestEventEndTime,
+  getMaxEventDurationMins,
+  getPeakEventHour,
+  getPeakProgrammeDay,
+  getPeakSelectionDay,
+  getTopProgrammeTag,
+  getTopProgrammeVenue,
+} from "@/lib/programme-summary";
+import { formatTagLabel } from "@/lib/programme-tag-filter";
 import { buildTimelineSlots } from "@/lib/programme-timeline";
-import { matchesArtistFilter, countArtistAppearances } from "@/lib/programme-artist";
-import { findTightTransitionIds, findSelectedEventGaps, formatGapDuration } from "@/lib/programme-gaps";
-import { computeDayScores, getDayLoadLevel, getDayLoadColor, formatDayDuration } from "@/lib/programme-day-score";
-import { Copy, Check, CalendarArrowDown } from "lucide-react";
-import { ChevronUp } from "lucide-react";
+import { countUpcomingEvents, isUpcomingOrOngoing } from "@/lib/programme-upcoming";
+import { shouldShowScrollTop } from "@/lib/scroll-top";
+import type { SelectionStatus } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -83,9 +135,7 @@ export function ProgrammeView({
       const storeStatus = selections[e.id] as SelectionStatus | undefined;
       return {
         ...e,
-        selection: storeStatus
-          ? { id: e.selection?.id ?? e.id, status: storeStatus }
-          : e.selection,
+        selection: storeStatus ? { id: e.selection?.id ?? e.id, status: storeStatus } : e.selection,
       };
     });
   }, [initialEvents, selections]);
@@ -94,16 +144,14 @@ export function ProgrammeView({
   const eventDays = useMemo(() => extractEventDays(initialEvents), [initialEvents]);
 
   // Filters
-  const [activeDay, setActiveDay] = useState<string>(
-    () => getDefaultProgrammeDay(eventDays) ?? "",
-  );
+  const [activeDay, setActiveDay] = useState<string>(() => getDefaultProgrammeDay(eventDays) ?? "");
   const [activeTypes, setActiveTypes] = useState<Set<EventType>>(new Set());
   const [accessFilter, setAccessFilter] = useState<AccessFilter>("tous");
   const [selectionFilter, setSelectionFilter] = useState<SelectionFilter>("tous");
   const [activeTags, setActiveTags] = useState<Set<string>>(new Set());
   const [activeVenueId, setActiveVenueId] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<SortMode>("time");
-  const [shuffleSeed, setShuffleSeed] = useState(0);
+  const [_shuffleSeed, setShuffleSeed] = useState(0);
   const [activeDurationFilter, setActiveDurationFilter] = useState<DurationFilter>("tous");
   const [showOnlyAgeRestricted, setShowOnlyAgeRestricted] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -142,9 +190,7 @@ export function ProgrammeView({
         map.set(e.venue.id, { id: e.venue.id, name: e.venue.name });
       }
     }
-    return Array.from(map.values()).sort((a, b) =>
-      a.name.localeCompare(b.name, "fr"),
-    );
+    return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name, "fr"));
   }, [initialEvents]);
 
   const toggleTag = useCallback((tag: string) => {
@@ -187,15 +233,14 @@ export function ProgrammeView({
 
       // Access filter
       if (accessFilter === "inclus" && e.access !== "inclus") return false;
-      if (
-        accessFilter === "réservation" &&
-        e.access !== "réservation_séparée"
-      ) {
+      if (accessFilter === "réservation" && e.access !== "réservation_séparée") {
         return false;
       }
 
       // Selection filter
-      if (!matchesSelectionFilter({ selectionStatus: e.selection?.status ?? null }, selectionFilter)) {
+      if (
+        !matchesSelectionFilter({ selectionStatus: e.selection?.status ?? null }, selectionFilter)
+      ) {
         return false;
       }
 
@@ -222,12 +267,25 @@ export function ProgrammeView({
 
       return true;
     });
-  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, activeVenueId, searchQuery, upcomingOnly, activeDurationFilter, showOnlyAgeRestricted, activeArtist]);
+  }, [
+    events,
+    activeDay,
+    activeTypes,
+    accessFilter,
+    selectionFilter,
+    activeTags,
+    activeVenueId,
+    searchQuery,
+    upcomingOnly,
+    activeDurationFilter,
+    showOnlyAgeRestricted,
+    activeArtist,
+  ]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const sortedFilteredEvents = useMemo(
     () => sortProgrammeEvents(filteredEvents, sortMode),
-    [filteredEvents, sortMode, shuffleSeed],
+    [filteredEvents, sortMode],
   );
 
   // Conflict detection across ALL selected events (not just filtered)
@@ -250,10 +308,7 @@ export function ProgrammeView({
   }, [filteredEvents]);
 
   // Day-by-day selection score (must-see / interested / duration per day)
-  const dayScores = useMemo(
-    () => computeDayScores(events, eventDays),
-    [events, eventDays],
-  );
+  const dayScores = useMemo(() => computeDayScores(events, eventDays), [events, eventDays]);
 
   // Live "ongoing" event detection — refreshes every minute
   const ongoingIds = useMemo(() => findOngoingEventIds(events, now), [events, now]);
@@ -284,55 +339,31 @@ export function ProgrammeView({
     [filteredEvents],
   );
 
-  const itinerantCount = useMemo(
-    () => countItinerantEvents(filteredEvents),
-    [filteredEvents],
-  );
+  const itinerantCount = useMemo(() => countItinerantEvents(filteredEvents), [filteredEvents]);
 
   const vuCount = useMemo(
     () => filteredEvents.filter((e) => e.selection?.status === "vu").length,
     [filteredEvents],
   );
 
-  const venueCount = useMemo(
-    () => countUniqueVenues(filteredEvents),
-    [filteredEvents],
-  );
+  const venueCount = useMemo(() => countUniqueVenues(filteredEvents), [filteredEvents]);
 
-  const artistCount = useMemo(
-    () => countUniqueArtists(filteredEvents),
-    [filteredEvents],
-  );
+  const artistCount = useMemo(() => countUniqueArtists(filteredEvents), [filteredEvents]);
 
-  const verifiedCount = useMemo(
-    () => countVerifiedEvents(filteredEvents),
-    [filteredEvents],
-  );
+  const verifiedCount = useMemo(() => countVerifiedEvents(filteredEvents), [filteredEvents]);
 
-  const peakHour = useMemo(
-    () => getPeakEventHour(filteredEvents),
-    [filteredEvents],
-  );
+  const peakHour = useMemo(() => getPeakEventHour(filteredEvents), [filteredEvents]);
 
   const reservationCount = useMemo(
     () => countReservationRequiredEvents(filteredEvents),
     [filteredEvents],
   );
 
-  const cancelledCount = useMemo(
-    () => countCancelledEvents(filteredEvents),
-    [filteredEvents],
-  );
+  const cancelledCount = useMemo(() => countCancelledEvents(filteredEvents), [filteredEvents]);
 
-  const modifiedCount = useMemo(
-    () => countModifiedEvents(filteredEvents),
-    [filteredEvents],
-  );
+  const modifiedCount = useMemo(() => countModifiedEvents(filteredEvents), [filteredEvents]);
 
-  const topTag = useMemo(
-    () => getTopProgrammeTag(filteredEvents),
-    [filteredEvents],
-  );
+  const topTag = useMemo(() => getTopProgrammeTag(filteredEvents), [filteredEvents]);
 
   const topVenue = useMemo(
     () => (venueCount > 1 ? getTopProgrammeVenue(filteredEvents) : null),
@@ -344,60 +375,33 @@ export function ProgrammeView({
     [filteredEvents],
   );
 
-  const intéresséCount = useMemo(
-    () => countIntéresséEvents(filteredEvents),
-    [filteredEvents],
-  );
+  const intéresséCount = useMemo(() => countIntéresséEvents(filteredEvents), [filteredEvents]);
 
-  const selectionDays = useMemo(
-    () => countSelectionDays(events),
-    [events],
-  );
+  const selectionDays = useMemo(() => countSelectionDays(events), [events]);
 
-  const uniqueTagCount = useMemo(
-    () => countUniqueProgrammeTags(filteredEvents),
-    [filteredEvents],
-  );
+  const uniqueTagCount = useMemo(() => countUniqueProgrammeTags(filteredEvents), [filteredEvents]);
 
   const coveragePct = useMemo(
     () => computeSelectionCoveragePercent(filteredEvents),
     [filteredEvents],
   );
 
-  const peakDay = useMemo(
-    () => getPeakProgrammeDay(filteredEvents),
-    [filteredEvents],
-  );
+  const peakDay = useMemo(() => getPeakProgrammeDay(filteredEvents), [filteredEvents]);
 
   const ageRestrictedCount = useMemo(
     () => countAgeRestrictedEvents(filteredEvents),
     [filteredEvents],
   );
 
-  const eventTypeCount = useMemo(
-    () => countUniqueEventTypes(filteredEvents),
-    [filteredEvents],
-  );
+  const eventTypeCount = useMemo(() => countUniqueEventTypes(filteredEvents), [filteredEvents]);
 
-  const nightEventCount = useMemo(
-    () => countNightEvents(filteredEvents),
-    [filteredEvents],
-  );
+  const nightEventCount = useMemo(() => countNightEvents(filteredEvents), [filteredEvents]);
 
-  const earliestStart = useMemo(
-    () => getEarliestEventStartTime(filteredEvents),
-    [filteredEvents],
-  );
+  const earliestStart = useMemo(() => getEarliestEventStartTime(filteredEvents), [filteredEvents]);
 
-  const latestEnd = useMemo(
-    () => getLatestEventEndTime(filteredEvents),
-    [filteredEvents],
-  );
+  const latestEnd = useMemo(() => getLatestEventEndTime(filteredEvents), [filteredEvents]);
 
-  const peakSelectionDay = useMemo(
-    () => getPeakSelectionDay(events),
-    [events],
-  );
+  const peakSelectionDay = useMemo(() => getPeakSelectionDay(events), [events]);
 
   const hasActiveFilter =
     activeTypes.size > 0 ||
@@ -448,10 +452,7 @@ export function ProgrammeView({
     URL.revokeObjectURL(url);
   }, [events, festivalName]);
 
-  const icsExportCount = useMemo(
-    () => countExportableEvents(events, "selected"),
-    [events],
-  );
+  const icsExportCount = useMemo(() => countExportableEvents(events, "selected"), [events]);
 
   const totalDurationMins = useMemo(() => computeTotalProgrammeDurationMins(events), [events]);
   const selectedDurationMins = useMemo(() => computeSelectedDurationMins(events), [events]);
@@ -565,9 +566,10 @@ export function ProgrammeView({
               alignItems: "center",
               padding: "6px 16px",
               borderRadius: "var(--radius-full)",
-              border: activeDay === ""
-                ? "1.5px solid var(--accent-pink)"
-                : "1.5px solid var(--border-color)",
+              border:
+                activeDay === ""
+                  ? "1.5px solid var(--accent-pink)"
+                  : "1.5px solid var(--border-color)",
               backgroundColor: activeDay === "" ? "var(--pink-soft)" : "transparent",
               color: activeDay === "" ? "var(--accent-pink)" : "var(--text-muted)",
               fontFamily: "var(--font-body)",
@@ -629,6 +631,7 @@ export function ProgrammeView({
                 )}
                 {(vuDayCounts.get(d) ?? 0) > 0 && (
                   <span
+                    role="img"
                     style={{
                       marginLeft: 4,
                       fontFamily: "var(--font-mono)",
@@ -685,10 +688,15 @@ export function ProgrammeView({
               >
                 <span>{formatDayLabel(score.day)}</span>
                 {score.mustSee > 0 && (
-                  <span aria-label={`${score.mustSee} must-see`}>★{score.mustSee}</span>
+                  <span role="img" aria-label={`${score.mustSee} must-see`}>
+                    ★{score.mustSee}
+                  </span>
                 )}
                 {score.durationMins > 0 && (
-                  <span aria-label={`${formatDayDuration(score.durationMins)} sélectionnés`}>
+                  <span
+                    role="img"
+                    aria-label={`${formatDayDuration(score.durationMins)} sélectionnés`}
+                  >
                     {formatDayDuration(score.durationMins)}
                   </span>
                 )}
@@ -756,10 +764,8 @@ export function ProgrammeView({
                 accessFilter === a
                   ? "1.5px solid var(--secondary-cyan)"
                   : "1.5px solid var(--border-color)",
-              backgroundColor:
-                accessFilter === a ? "var(--cyan-soft)" : "transparent",
-              color:
-                accessFilter === a ? "var(--secondary-cyan)" : "var(--text-dim)",
+              backgroundColor: accessFilter === a ? "var(--cyan-soft)" : "transparent",
+              color: accessFilter === a ? "var(--secondary-cyan)" : "var(--text-dim)",
               fontFamily: "var(--font-body)",
               fontSize: "var(--fs-xs)",
               fontWeight: "var(--fw-bold)",
@@ -929,10 +935,8 @@ export function ProgrammeView({
                 activeVenueId === null
                   ? "1.5px solid var(--accent-pink)"
                   : "1.5px solid rgba(255,255,255,0.1)",
-              backgroundColor:
-                activeVenueId === null ? "var(--pink-soft)" : "transparent",
-              color:
-                activeVenueId === null ? "var(--accent-pink)" : "var(--text-dim)",
+              backgroundColor: activeVenueId === null ? "var(--pink-soft)" : "transparent",
+              color: activeVenueId === null ? "var(--accent-pink)" : "var(--text-dim)",
               fontFamily: "var(--font-body)",
               fontSize: "var(--fs-xs)",
               fontWeight: "var(--fw-bold)",
@@ -1003,9 +1007,7 @@ export function ProgrammeView({
           }}
         >
           {filteredEvents.length}
-          {hasActiveFilter && events.length !== filteredEvents.length
-            ? ` / ${events.length}`
-            : ""}{" "}
+          {hasActiveFilter && events.length !== filteredEvents.length ? ` / ${events.length}` : ""}{" "}
           événement{filteredEvents.length !== 1 ? "s" : ""}
         </span>
         {totalFilteredDurationMins > 0 && (
@@ -1039,22 +1041,24 @@ export function ProgrammeView({
             </span>
           </>
         )}
-        {maxEventDurationMins !== null && avgEventDurationMins !== null && maxEventDurationMins > avgEventDurationMins && (
-          <>
-            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
-            <span
-              data-testid="programme-max-duration"
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "var(--fs-xs)",
-                color: "var(--warning-orange)",
-              }}
-              title="Durée du plus long événement"
-            >
-              max {formatBilanDuration(maxEventDurationMins)}
-            </span>
-          </>
-        )}
+        {maxEventDurationMins !== null &&
+          avgEventDurationMins !== null &&
+          maxEventDurationMins > avgEventDurationMins && (
+            <>
+              <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+              <span
+                data-testid="programme-max-duration"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--warning-orange)",
+                }}
+                title="Durée du plus long événement"
+              >
+                max {formatBilanDuration(maxEventDurationMins)}
+              </span>
+            </>
+          )}
         {venueCount > 1 && (
           <>
             <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
@@ -1256,7 +1260,11 @@ export function ProgrammeView({
               }}
               title={`Jour le plus chargé de ta sélection : ${peakSelectionDay.count} événements`}
             >
-              ★ {new Date(peakSelectionDay.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short" })} +{peakSelectionDay.count}
+              ★{" "}
+              {new Date(`${peakSelectionDay.date}T12:00:00`).toLocaleDateString("fr-FR", {
+                weekday: "short",
+              })}{" "}
+              +{peakSelectionDay.count}
             </span>
           </>
         )}
@@ -1417,7 +1425,10 @@ export function ProgrammeView({
               }}
               title={`Jour le plus chargé : ${peakDay.date} (${peakDay.count} événements)`}
             >
-              {new Date(peakDay.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short" })} +{peakDay.count}
+              {new Date(`${peakDay.date}T12:00:00`).toLocaleDateString("fr-FR", {
+                weekday: "short",
+              })}{" "}
+              +{peakDay.count}
             </span>
           </>
         )}
@@ -1465,7 +1476,17 @@ export function ProgrammeView({
               }}
               title="Plage horaire du programme"
             >
-              {new Date(earliestStart).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", hour12: false })}→{new Date(latestEnd).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", hour12: false })}
+              {new Date(earliestStart).toLocaleTimeString("fr-FR", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              })}
+              →
+              {new Date(latestEnd).toLocaleTimeString("fr-FR", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              })}
             </span>
           </>
         )}
@@ -1487,7 +1508,11 @@ export function ProgrammeView({
                 padding: showOnlyAgeRestricted ? "0 4px" : 0,
                 cursor: "pointer",
               }}
-              title={showOnlyAgeRestricted ? "Afficher tous les événements" : "Filtrer : limites d'âge uniquement"}
+              title={
+                showOnlyAgeRestricted
+                  ? "Afficher tous les événements"
+                  : "Filtrer : limites d'âge uniquement"
+              }
             >
               <span data-testid="programme-age-restricted-count">
                 {ageRestrictedCount} limite âge
@@ -1672,9 +1697,10 @@ export function ProgrammeView({
               style={{
                 padding: "2px 8px",
                 borderRadius: "var(--radius-full)",
-                border: viewMode === "list"
-                  ? "1.5px solid var(--accent-pink)"
-                  : "1.5px solid rgba(255,255,255,0.1)",
+                border:
+                  viewMode === "list"
+                    ? "1.5px solid var(--accent-pink)"
+                    : "1.5px solid rgba(255,255,255,0.1)",
                 backgroundColor: viewMode === "list" ? "rgba(255,0,122,0.1)" : "transparent",
                 color: viewMode === "list" ? "var(--accent-pink)" : "var(--text-dim)",
                 fontFamily: "var(--font-body)",
@@ -1696,9 +1722,10 @@ export function ProgrammeView({
               style={{
                 padding: "2px 8px",
                 borderRadius: "var(--radius-full)",
-                border: viewMode === "by-venue"
-                  ? "1.5px solid var(--accent-pink)"
-                  : "1.5px solid rgba(255,255,255,0.1)",
+                border:
+                  viewMode === "by-venue"
+                    ? "1.5px solid var(--accent-pink)"
+                    : "1.5px solid rgba(255,255,255,0.1)",
                 backgroundColor: viewMode === "by-venue" ? "rgba(255,0,122,0.1)" : "transparent",
                 color: viewMode === "by-venue" ? "var(--accent-pink)" : "var(--text-dim)",
                 fontFamily: "var(--font-body)",
@@ -1714,11 +1741,7 @@ export function ProgrammeView({
           </div>
         )}
         {/* Sort controls */}
-        <div
-          style={{ display: "flex", gap: 4 }}
-          role="group"
-          aria-label="Trier par"
-        >
+        <div style={{ display: "flex", gap: 4 }} role="group" aria-label="Trier par">
           {(["time", "alpha", "venue", "random"] as SortMode[]).map((mode) => {
             const isActive = sortMode === mode;
             return (
@@ -1772,10 +1795,7 @@ export function ProgrammeView({
             textAlign: "center",
           }}
         >
-          <span
-            style={{ fontSize: 40, lineHeight: 1 }}
-            aria-hidden="true"
-          >
+          <span style={{ fontSize: 40, lineHeight: 1 }} aria-hidden="true">
             🎪
           </span>
           <p
@@ -1842,13 +1862,12 @@ export function ProgrammeView({
           ))}
         </div>
       ) : (
-        <div
-          style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}
-        >
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
           {sortMode === "time"
             ? buildTimelineSlots(sortedFilteredEvents).map((slot, i) =>
                 slot.type === "separator" ? (
                   <div
+                    // biome-ignore lint/suspicious/noArrayIndexKey: hour separators can repeat in edge cases
                     key={`sep-${slot.hour}-${i}`}
                     data-testid={`timeline-hour-${slot.hour}`}
                     aria-hidden="true"
@@ -1882,6 +1901,7 @@ export function ProgrammeView({
                   <div key={slot.event.id}>
                     {tightTransitionIds.has(slot.event.id) && (
                       <div
+                        role="img"
                         data-testid={`gap-warning-${slot.event.id}`}
                         aria-label={`Transition de ${Math.round(gapMinsByNextId.get(slot.event.id) ?? 0)} minutes — attention !`}
                         style={{
@@ -1905,7 +1925,8 @@ export function ProgrammeView({
                           marginRight: "auto",
                         }}
                       >
-                        ⚡ {formatGapDuration(gapMinsByNextId.get(slot.event.id) ?? 0)} — transition serrée
+                        ⚡ {formatGapDuration(gapMinsByNextId.get(slot.event.id) ?? 0)} — transition
+                        serrée
                       </div>
                     )}
                     <EventCard
@@ -1916,15 +1937,16 @@ export function ProgrammeView({
                       note={notes[slot.event.id]}
                       onNoteChange={(text) => setNote(slot.event.id, text)}
                       onArtistClick={setActiveArtist}
-                    searchQuery={searchQuery}
+                      searchQuery={searchQuery}
                     />
                   </div>
-                )
+                ),
               )
             : sortedFilteredEvents.map((e) => (
                 <div key={e.id}>
                   {tightTransitionIds.has(e.id) && (
                     <div
+                      role="img"
                       data-testid={`gap-warning-${e.id}`}
                       aria-label={`Transition de ${Math.round(gapMinsByNextId.get(e.id) ?? 0)} minutes — attention !`}
                       style={{
@@ -1962,8 +1984,7 @@ export function ProgrammeView({
                     searchQuery={searchQuery}
                   />
                 </div>
-              ))
-          }
+              ))}
         </div>
       )}
 

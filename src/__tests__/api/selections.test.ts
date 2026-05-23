@@ -3,8 +3,8 @@
  * /api/festevents/[id]/selections/[eventId] route handlers.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -35,9 +35,7 @@ vi.mock("@/auth", () => ({
 // Import route handlers
 // ---------------------------------------------------------------------------
 
-const { POST: postSelection } = await import(
-  "@/app/api/festevents/[id]/selections/route"
-);
+const { POST: postSelection } = await import("@/app/api/festevents/[id]/selections/route");
 const { DELETE: deleteSelection } = await import(
   "@/app/api/festevents/[id]/selections/[eventId]/route"
 );
@@ -88,27 +86,21 @@ describe("POST /api/festevents/[id]/selections", () => {
     const authMock = await getAuthMock();
     authMock.mockResolvedValueOnce(null);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/festevents/fe-1/selections",
-      {
-        method: "POST",
-        body: JSON.stringify({ eventId: "event-1", status: "intéressé" }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/festevents/fe-1/selections", {
+      method: "POST",
+      body: JSON.stringify({ eventId: "event-1", status: "intéressé" }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await postSelection(req, routeCtx);
     expect(res.status).toBe(401);
   });
 
   it("creates/updates a selection and returns 200 with id and status", async () => {
-    const req = new NextRequest(
-      "http://localhost:3000/api/festevents/fe-1/selections",
-      {
-        method: "POST",
-        body: JSON.stringify({ eventId: "event-1", status: "intéressé" }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/festevents/fe-1/selections", {
+      method: "POST",
+      body: JSON.stringify({ eventId: "event-1", status: "intéressé" }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await postSelection(req, routeCtx);
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -120,14 +112,11 @@ describe("POST /api/festevents/[id]/selections", () => {
     const prisma = await getPrismaMock();
     prisma.festEvent.findFirst.mockResolvedValueOnce(null);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/festevents/fe-unknown/selections",
-      {
-        method: "POST",
-        body: JSON.stringify({ eventId: "event-1", status: "intéressé" }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/festevents/fe-unknown/selections", {
+      method: "POST",
+      body: JSON.stringify({ eventId: "event-1", status: "intéressé" }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await postSelection(req, {
       params: Promise.resolve({ id: "fe-unknown" }),
     });
@@ -138,14 +127,11 @@ describe("POST /api/festevents/[id]/selections", () => {
     const prisma = await getPrismaMock();
     prisma.event.findFirst.mockResolvedValueOnce(null);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/festevents/fe-1/selections",
-      {
-        method: "POST",
-        body: JSON.stringify({ eventId: "event-other-festival", status: "must-see" }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/festevents/fe-1/selections", {
+      method: "POST",
+      body: JSON.stringify({ eventId: "event-other-festival", status: "must-see" }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await postSelection(req, routeCtx);
     expect(res.status).toBe(404);
     const body = await res.json();
@@ -153,27 +139,21 @@ describe("POST /api/festevents/[id]/selections", () => {
   });
 
   it("returns 422 for invalid status value", async () => {
-    const req = new NextRequest(
-      "http://localhost:3000/api/festevents/fe-1/selections",
-      {
-        method: "POST",
-        body: JSON.stringify({ eventId: "event-1", status: "invalid-status" }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/festevents/fe-1/selections", {
+      method: "POST",
+      body: JSON.stringify({ eventId: "event-1", status: "invalid-status" }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await postSelection(req, routeCtx);
     expect(res.status).toBe(422);
   });
 
   it("returns 422 when eventId is missing", async () => {
-    const req = new NextRequest(
-      "http://localhost:3000/api/festevents/fe-1/selections",
-      {
-        method: "POST",
-        body: JSON.stringify({ status: "intéressé" }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/festevents/fe-1/selections", {
+      method: "POST",
+      body: JSON.stringify({ status: "intéressé" }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await postSelection(req, routeCtx);
     expect(res.status).toBe(422);
   });
@@ -185,14 +165,11 @@ describe("POST /api/festevents/[id]/selections", () => {
       const prisma = await getPrismaMock();
       prisma.selection.upsert.mockResolvedValueOnce({ id: "sel-x", status });
 
-      const req = new NextRequest(
-        "http://localhost:3000/api/festevents/fe-1/selections",
-        {
-          method: "POST",
-          body: JSON.stringify({ eventId: "event-1", status }),
-          headers: { "Content-Type": "application/json" },
-        },
-      );
+      const req = new NextRequest("http://localhost:3000/api/festevents/fe-1/selections", {
+        method: "POST",
+        body: JSON.stringify({ eventId: "event-1", status }),
+        headers: { "Content-Type": "application/json" },
+      });
       const res = await postSelection(req, routeCtx);
       expect(res.status).toBe(200);
     }
@@ -219,19 +196,17 @@ describe("DELETE /api/festevents/[id]/selections/[eventId]", () => {
     const authMock = await getAuthMock();
     authMock.mockResolvedValueOnce(null);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/festevents/fe-1/selections/event-1",
-      { method: "DELETE" },
-    );
+    const req = new NextRequest("http://localhost:3000/api/festevents/fe-1/selections/event-1", {
+      method: "DELETE",
+    });
     const res = await deleteSelection(req, routeCtx);
     expect(res.status).toBe(401);
   });
 
   it("deletes the selection and returns deleted:true", async () => {
-    const req = new NextRequest(
-      "http://localhost:3000/api/festevents/fe-1/selections/event-1",
-      { method: "DELETE" },
-    );
+    const req = new NextRequest("http://localhost:3000/api/festevents/fe-1/selections/event-1", {
+      method: "DELETE",
+    });
     const res = await deleteSelection(req, routeCtx);
     expect(res.status).toBe(200);
     const body = await res.json();

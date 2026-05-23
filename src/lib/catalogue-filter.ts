@@ -160,7 +160,7 @@ export interface FestivalDurationComputable {
 export function computeFestivalDurationDays(startDate: string, endDate: string): number | null {
   const start = new Date(startDate.slice(0, 10));
   const end = new Date(endDate.slice(0, 10));
-  if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
   const days = Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1;
   return days < 1 ? 1 : days;
 }

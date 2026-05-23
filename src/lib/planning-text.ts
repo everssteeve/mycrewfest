@@ -26,10 +26,7 @@ function toYMD(iso: string): string {
  * Generates a human-readable planning text, grouped by day.
  * Events without startTime are placed in a trailing "Itinérant" section.
  */
-export function generatePlanningText(
-  events: PlanningTextEvent[],
-  festivalName: string,
-): string {
+export function generatePlanningText(events: PlanningTextEvent[], festivalName: string): string {
   if (events.length === 0) {
     return `🎪 Mon planning — ${festivalName}\n\nAucun événement sélectionné.`;
   }

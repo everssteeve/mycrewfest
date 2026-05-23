@@ -71,9 +71,7 @@ export interface CompletedAgableItem {
  * Returns null when no done items have parseable timestamps or the list has no
  * done items.
  */
-export function computeAvgDaysToComplete(
-  items: CompletedAgableItem[],
-): number | null {
+export function computeAvgDaysToComplete(items: CompletedAgableItem[]): number | null {
   let total = 0;
   let count = 0;
   for (const item of items) {

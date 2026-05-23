@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { getEventTimeStatus, findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
+import { describe, expect, it } from "vitest";
+import { countOngoingEvents, findOngoingEventIds, getEventTimeStatus } from "@/lib/event-status";
 
 const BASE = "2026-07-15T";
 function t(h: number, m = 0): string {
@@ -68,10 +68,10 @@ describe("findOngoingEventIds", () => {
 
   it("returns IDs of ongoing events only", () => {
     const events = [
-      { id: "e1", startTime: t(14), endTime: t(16) },    // past
-      { id: "e2", startTime: t(17), endTime: t(19) },    // ongoing
-      { id: "e3", startTime: t(20), endTime: t(22) },    // upcoming
-      { id: "e4", startTime: null },                      // unknown
+      { id: "e1", startTime: t(14), endTime: t(16) }, // past
+      { id: "e2", startTime: t(17), endTime: t(19) }, // ongoing
+      { id: "e3", startTime: t(20), endTime: t(22) }, // upcoming
+      { id: "e4", startTime: null }, // unknown
     ];
     const result = findOngoingEventIds(events, NOW);
     expect(result.has("e2")).toBe(true);

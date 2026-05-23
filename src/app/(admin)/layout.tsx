@@ -1,13 +1,9 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { AdminGlobalSearch } from "./admin/_components/admin-global-search";
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
 
   if (!session?.user) {
@@ -81,7 +77,9 @@ export default async function AdminLayout({
         </div>
 
         {/* Navigation */}
-        <nav style={{ display: "flex", flexDirection: "column", gap: 2, padding: "0 var(--space-sm)" }}>
+        <nav
+          style={{ display: "flex", flexDirection: "column", gap: 2, padding: "0 var(--space-sm)" }}
+        >
           {[
             { href: "/admin", label: "Dashboard" },
             { href: "/admin/festivals", label: "Festivals" },
@@ -160,9 +158,7 @@ export default async function AdminLayout({
         >
           <AdminGlobalSearch />
         </div>
-        <main style={{ flex: 1, padding: "var(--space-xl)" }}>
-          {children}
-        </main>
+        <main style={{ flex: 1, padding: "var(--space-xl)" }}>{children}</main>
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { isValidUrl, validateNewsInput } from "@/lib/news-admin";
 import { prisma } from "@/lib/prisma";
-import { validateNewsInput, isValidUrl } from "@/lib/news-admin";
 
 export interface CreateNewsResult {
   success: boolean;

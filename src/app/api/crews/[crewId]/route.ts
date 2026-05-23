@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -8,16 +8,10 @@ type RouteContext = { params: Promise<{ crewId: string }> };
  * GET /api/crews/[crewId]
  * Return crew detail + members + active signals.
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function GET(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { crewId } = await params;
@@ -40,19 +34,13 @@ export async function GET(
     });
 
     if (!crew) {
-      return NextResponse.json(
-        { error: "Crew introuvable." },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Crew introuvable." }, { status: 404 });
     }
 
     // Check the user is a member
     const isMember = crew.members.some((m) => m.userId === session.user?.id);
     if (!isMember) {
-      return NextResponse.json(
-        { error: "Accès refusé." },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
     }
 
     return NextResponse.json({
@@ -88,9 +76,6 @@ export async function GET(
     });
   } catch (err) {
     console.error("[GET /api/crews/[crewId]]", err);
-    return NextResponse.json(
-      { error: "Erreur lors de la récupération du crew." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Erreur lors de la récupération du crew." }, { status: 500 });
   }
 }

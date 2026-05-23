@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  type AdminSubmissionRow,
+  buildSubmissionSlug,
+  countSubmissionsByStatus,
+  filterSubmissionsByStatus,
   getSubmissionStatusColor,
   getSubmissionStatusLabel,
-  countSubmissionsByStatus,
   isSubmissionActionable,
   isSubmissionPendingOnly,
-  buildSubmissionSlug,
-  filterSubmissionsByStatus,
-  type AdminSubmissionRow,
 } from "@/lib/admin-submissions";
 
 const makeSub = (id: string, status: string): AdminSubmissionRow => ({
@@ -19,7 +19,9 @@ const makeSub = (id: string, status: string): AdminSubmissionRow => ({
 
 describe("getSubmissionStatusColor", () => {
   it("returns distinct colors for known statuses", () => {
-    const colors = ["en_attente", "en_traitement", "ajouté", "rejeté"].map(getSubmissionStatusColor);
+    const colors = ["en_attente", "en_traitement", "ajouté", "rejeté"].map(
+      getSubmissionStatusColor,
+    );
     const unique = new Set(colors);
     expect(unique.size).toBe(4);
   });
@@ -65,7 +67,8 @@ describe("countSubmissionsByStatus", () => {
 
 describe("isSubmissionActionable", () => {
   it("returns true for en_attente", () => expect(isSubmissionActionable("en_attente")).toBe(true));
-  it("returns true for en_traitement", () => expect(isSubmissionActionable("en_traitement")).toBe(true));
+  it("returns true for en_traitement", () =>
+    expect(isSubmissionActionable("en_traitement")).toBe(true));
   it("returns false for ajouté", () => expect(isSubmissionActionable("ajouté")).toBe(false));
   it("returns false for rejeté", () => expect(isSubmissionActionable("rejeté")).toBe(false));
 });
@@ -90,7 +93,13 @@ describe("buildSubmissionSlug", () => {
     expect(buildSubmissionSlug("Rock En Seine")).toBe("rock-en-seine");
   });
   it("strips accents", () => {
-    expect(buildSubmissionSlug("Eurockéennes")).toBe("eurockéennes".normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""));
+    expect(buildSubmissionSlug("Eurockéennes")).toBe(
+      "eurockéennes"
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "")
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, ""),
+    );
   });
   it("removes leading and trailing hyphens", () => {
     const result = buildSubmissionSlug("  Festival  ");

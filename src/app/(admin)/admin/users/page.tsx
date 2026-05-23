@@ -1,12 +1,12 @@
-import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import {
-  resolveUserDisplayName,
-  sortAdminUsers,
+  type AdminUserRow,
   countAdminUsers,
   countRegularUsers,
-  type AdminUserRow,
+  resolveUserDisplayName,
+  sortAdminUsers,
 } from "@/lib/admin-users";
+import { prisma } from "@/lib/prisma";
 import { UserSearchTable } from "./_components/user-search-table";
 
 async function getUsers(): Promise<AdminUserRow[]> {

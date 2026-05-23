@@ -1,4 +1,8 @@
-export type ActivityType = "user_signup" | "signal_posted" | "submission_received" | "festival_detected";
+export type ActivityType =
+  | "user_signup"
+  | "signal_posted"
+  | "submission_received"
+  | "festival_detected";
 
 export interface ActivityEntry {
   id: string;
@@ -51,9 +55,7 @@ export function formatActivityTimestamp(date: Date): string {
   });
 }
 
-export function countActivityByType(
-  entries: ActivityEntry[],
-): Record<ActivityType, number> {
+export function countActivityByType(entries: ActivityEntry[]): Record<ActivityType, number> {
   const counts: Record<ActivityType, number> = {
     user_signup: 0,
     signal_posted: 0,

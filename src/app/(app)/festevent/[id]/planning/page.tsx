@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { parseJsonArray } from "@/lib/api";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
+import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import { PlanningView } from "./_components/planning-view";
 
 type PageContext = { params: Promise<{ id: string }> };

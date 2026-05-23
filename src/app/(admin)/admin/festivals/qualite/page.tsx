@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
 import {
   computeDataQualityScore,
+  countByGrade,
+  type FestivalQualityInput,
   getQualityGrade,
   getQualityGradeColor,
   runQualityChecks,
-  countByGrade,
-  type FestivalQualityInput,
 } from "@/lib/festival-data-quality";
+import { prisma } from "@/lib/prisma";
 
 export const metadata = { title: "Admin — Qualité données" };
 
@@ -243,11 +243,23 @@ export default async function AdminFestivalQualitePage() {
                     color: check.passed ? "var(--text-muted)" : "var(--text-dim)",
                   }}
                 >
-                  <span style={{ color: check.passed ? "var(--primary-neon)" : "var(--danger-red)", flexShrink: 0 }}>
+                  <span
+                    style={{
+                      color: check.passed ? "var(--primary-neon)" : "var(--danger-red)",
+                      flexShrink: 0,
+                    }}
+                  >
                     {check.passed ? "✓" : "✗"}
                   </span>
                   <span>{check.label}</span>
-                  <span style={{ marginLeft: "auto", fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", opacity: 0.6 }}>
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "var(--fs-xs)",
+                      opacity: 0.6,
+                    }}
+                  >
                     +{check.weight}
                   </span>
                 </div>

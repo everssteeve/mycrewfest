@@ -1,8 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  countCrewSharedSouvenirs,
+  countLinkedEventSouvenirs,
+  countSouvenirPhotos,
+} from "@/lib/deambuloire-stats";
 import type { EventSummary } from "@/types";
-import { countSouvenirPhotos, countLinkedEventSouvenirs, countCrewSharedSouvenirs } from "@/lib/deambuloire-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -141,21 +145,35 @@ function SignalModal({ festivalId, onClose }: SignalModalProps) {
       >
         <div
           style={{
-            width: 40, height: 4, borderRadius: 2,
-            backgroundColor: "var(--border-strong)", margin: "0 auto var(--space-xs)",
+            width: 40,
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: "var(--border-strong)",
+            margin: "0 auto var(--space-xs)",
           }}
           aria-hidden="true"
         />
 
-        <h2 style={{
-          fontFamily: "var(--font-body)", fontSize: "var(--fs-base)",
-          fontWeight: "var(--fw-bold)", color: "var(--secondary-cyan)", margin: 0,
-        }}>
+        <h2
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-base)",
+            fontWeight: "var(--fw-bold)",
+            color: "var(--secondary-cyan)",
+            margin: 0,
+          }}
+        >
           📡 Signaler au crew
         </h2>
 
         {sent ? (
-          <p style={{ color: "var(--primary-neon)", fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)" }}>
+          <p
+            style={{
+              color: "var(--primary-neon)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+            }}
+          >
             Signal envoyé !
           </p>
         ) : (
@@ -167,19 +185,31 @@ function SignalModal({ festivalId, onClose }: SignalModalProps) {
               rows={3}
               maxLength={200}
               style={{
-                width: "100%", backgroundColor: "var(--bg-surface)",
-                border: "1.5px solid var(--border-color)", borderRadius: "var(--radius-md)",
-                padding: "10px var(--space-md)", fontFamily: "var(--font-body)",
-                fontSize: "var(--fs-sm)", color: "var(--text-main)", resize: "none",
-                outline: "none", boxSizing: "border-box",
+                width: "100%",
+                backgroundColor: "var(--bg-surface)",
+                border: "1.5px solid var(--border-color)",
+                borderRadius: "var(--radius-md)",
+                padding: "10px var(--space-md)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-sm)",
+                color: "var(--text-main)",
+                resize: "none",
+                outline: "none",
+                boxSizing: "border-box",
               }}
             />
 
-            <label style={{
-              display: "flex", alignItems: "center", gap: "var(--space-sm)",
-              cursor: "pointer", fontFamily: "var(--font-body)",
-              fontSize: "var(--fs-sm)", color: "var(--text-muted)",
-            }}>
+            <label
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "var(--space-sm)",
+                cursor: "pointer",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-sm)",
+                color: "var(--text-muted)",
+              }}
+            >
               <input
                 type="checkbox"
                 checked={shareLocation}
@@ -194,10 +224,17 @@ function SignalModal({ festivalId, onClose }: SignalModalProps) {
               onClick={handleSend}
               disabled={sending}
               style={{
-                width: "100%", padding: "14px var(--space-md)", borderRadius: "var(--radius-md)",
-                border: "none", backgroundColor: "var(--secondary-cyan)", color: "var(--text-on-neon)",
-                fontFamily: "var(--font-body)", fontSize: "var(--fs-base)", fontWeight: "var(--fw-bold)",
-                cursor: sending ? "not-allowed" : "pointer", transition: "var(--transition-fast)",
+                width: "100%",
+                padding: "14px var(--space-md)",
+                borderRadius: "var(--radius-md)",
+                border: "none",
+                backgroundColor: "var(--secondary-cyan)",
+                color: "var(--text-on-neon)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-base)",
+                fontWeight: "var(--fw-bold)",
+                cursor: sending ? "not-allowed" : "pointer",
+                transition: "var(--transition-fast)",
                 boxShadow: "var(--glow-cyan)",
               }}
             >
@@ -233,9 +270,7 @@ function LogForm({ festEventId, artists, onLogged }: LogFormProps) {
   const defaultTs = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   const [timestamp, setTimestamp] = useState(defaultTs);
 
-  const canSave = freeTextMode
-    ? freeText.trim().length > 0
-    : selectedArtistId.length > 0;
+  const canSave = freeTextMode ? freeText.trim().length > 0 : selectedArtistId.length > 0;
 
   const handleLog = async () => {
     if (!canSave) return;
@@ -282,11 +317,17 @@ function LogForm({ festEventId, artists, onLogged }: LogFormProps) {
             value={selectedArtistId}
             onChange={(e) => setSelectedArtistId(e.target.value)}
             style={{
-              width: "100%", backgroundColor: "var(--bg-surface-elevated)",
-              border: "1.5px solid var(--border-color)", borderRadius: "var(--radius-md)",
-              padding: "10px var(--space-md)", fontFamily: "var(--font-body)",
-              fontSize: "var(--fs-sm)", color: selectedArtistId ? "var(--text-main)" : "var(--text-dim)",
-              outline: "none", boxSizing: "border-box", colorScheme: "dark",
+              width: "100%",
+              backgroundColor: "var(--bg-surface-elevated)",
+              border: "1.5px solid var(--border-color)",
+              borderRadius: "var(--radius-md)",
+              padding: "10px var(--space-md)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              color: selectedArtistId ? "var(--text-main)" : "var(--text-dim)",
+              outline: "none",
+              boxSizing: "border-box",
+              colorScheme: "dark",
             }}
           >
             <option value="">Sélectionner une compagnie…</option>
@@ -300,9 +341,15 @@ function LogForm({ festEventId, artists, onLogged }: LogFormProps) {
             type="button"
             onClick={() => setFreeTextMode(true)}
             style={{
-              background: "none", border: "none", padding: 0, cursor: "pointer",
-              fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)",
-              color: "var(--text-muted)", textDecoration: "underline", textAlign: "left",
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-muted)",
+              textDecoration: "underline",
+              textAlign: "left",
             }}
           >
             Compagnie inconnue → texte libre
@@ -317,19 +364,34 @@ function LogForm({ festEventId, artists, onLogged }: LogFormProps) {
             placeholder="Nom de la compagnie ou description…"
             maxLength={160}
             style={{
-              width: "100%", backgroundColor: "var(--bg-surface-elevated)",
-              border: "1.5px solid var(--border-color)", borderRadius: "var(--radius-md)",
-              padding: "10px var(--space-md)", fontFamily: "var(--font-body)",
-              fontSize: "var(--fs-sm)", color: "var(--text-main)", outline: "none", boxSizing: "border-box",
+              width: "100%",
+              backgroundColor: "var(--bg-surface-elevated)",
+              border: "1.5px solid var(--border-color)",
+              borderRadius: "var(--radius-md)",
+              padding: "10px var(--space-md)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              color: "var(--text-main)",
+              outline: "none",
+              boxSizing: "border-box",
             }}
           />
           <button
             type="button"
-            onClick={() => { setFreeTextMode(false); setFreeText(""); }}
+            onClick={() => {
+              setFreeTextMode(false);
+              setFreeText("");
+            }}
             style={{
-              background: "none", border: "none", padding: 0, cursor: "pointer",
-              fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)",
-              color: "var(--text-muted)", textDecoration: "underline", textAlign: "left",
+              background: "none",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-muted)",
+              textDecoration: "underline",
+              textAlign: "left",
             }}
           >
             ← Choisir dans la liste
@@ -344,10 +406,16 @@ function LogForm({ festEventId, artists, onLogged }: LogFormProps) {
         placeholder="Note courte (optionnelle, 160 max)"
         maxLength={160}
         style={{
-          width: "100%", backgroundColor: "var(--bg-surface-elevated)",
-          border: "1.5px solid var(--border-color)", borderRadius: "var(--radius-md)",
-          padding: "10px var(--space-md)", fontFamily: "var(--font-body)",
-          fontSize: "var(--fs-sm)", color: "var(--text-main)", outline: "none", boxSizing: "border-box",
+          width: "100%",
+          backgroundColor: "var(--bg-surface-elevated)",
+          border: "1.5px solid var(--border-color)",
+          borderRadius: "var(--radius-md)",
+          padding: "10px var(--space-md)",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--fs-sm)",
+          color: "var(--text-main)",
+          outline: "none",
+          boxSizing: "border-box",
         }}
       />
 
@@ -356,18 +424,29 @@ function LogForm({ festEventId, artists, onLogged }: LogFormProps) {
         value={timestamp}
         onChange={(e) => setTimestamp(e.target.value)}
         style={{
-          backgroundColor: "var(--bg-surface-elevated)", border: "1.5px solid var(--border-color)",
-          borderRadius: "var(--radius-md)", padding: "10px var(--space-md)",
-          fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)",
-          color: "var(--text-muted)", outline: "none", colorScheme: "dark",
+          backgroundColor: "var(--bg-surface-elevated)",
+          border: "1.5px solid var(--border-color)",
+          borderRadius: "var(--radius-md)",
+          padding: "10px var(--space-md)",
+          fontFamily: "var(--font-mono)",
+          fontSize: "var(--fs-xs)",
+          color: "var(--text-muted)",
+          outline: "none",
+          colorScheme: "dark",
         }}
       />
 
-      <label style={{
-        display: "flex", alignItems: "center", gap: "var(--space-sm)",
-        cursor: "pointer", fontFamily: "var(--font-body)",
-        fontSize: "var(--fs-xs)", color: "var(--text-muted)",
-      }}>
+      <label
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-sm)",
+          cursor: "pointer",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--fs-xs)",
+          color: "var(--text-muted)",
+        }}
+      >
         <input
           type="checkbox"
           checked={geo}
@@ -382,12 +461,17 @@ function LogForm({ festEventId, artists, onLogged }: LogFormProps) {
         onClick={handleLog}
         disabled={!canSave || saving}
         style={{
-          width: "100%", padding: "12px var(--space-md)", borderRadius: "var(--radius-md)",
+          width: "100%",
+          padding: "12px var(--space-md)",
+          borderRadius: "var(--radius-md)",
           border: "none",
           backgroundColor: canSave && !saving ? "var(--primary-neon)" : "var(--border-color)",
           color: canSave && !saving ? "var(--text-on-neon)" : "var(--text-dim)",
-          fontFamily: "var(--font-body)", fontSize: "var(--fs-base)", fontWeight: "var(--fw-bold)",
-          cursor: canSave && !saving ? "pointer" : "not-allowed", transition: "var(--transition-fast)",
+          fontFamily: "var(--font-body)",
+          fontSize: "var(--fs-base)",
+          fontWeight: "var(--fw-bold)",
+          cursor: canSave && !saving ? "pointer" : "not-allowed",
+          transition: "var(--transition-fast)",
           boxShadow: canSave && !saving ? "var(--glow-neon)" : "none",
         }}
       >
@@ -467,11 +551,15 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
     >
       {/* Header */}
       <div>
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)", marginBottom: "var(--space-xs)" }}>
-          <h1
-            className="t-h2"
-            style={{ color: "var(--text-main)", margin: 0, flex: 1 }}
-          >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-sm)",
+            marginBottom: "var(--space-xs)",
+          }}
+        >
+          <h1 className="t-h2" style={{ color: "var(--text-main)", margin: 0, flex: 1 }}>
             Déambulation
           </h1>
           {todaySouvenirs.length > 0 && (
@@ -495,14 +583,25 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
             </span>
           )}
         </div>
-        <p style={{
-          fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)",
-          color: "var(--text-muted)", margin: 0,
-        }}>
+        <p
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--text-muted)",
+            margin: 0,
+          }}
+        >
           Parcours libre — enregistre ce que tu découvres.
         </p>
         {todaySouvenirs.length > 0 && (
-          <div style={{ display: "flex", gap: "var(--space-xs)", flexWrap: "wrap", marginTop: "var(--space-xs)" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "var(--space-xs)",
+              flexWrap: "wrap",
+              marginTop: "var(--space-xs)",
+            }}
+          >
             {photoCount > 0 && (
               <span
                 data-testid="deambuloire-photo-count"
@@ -518,7 +617,9 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
             )}
             {linkedCount > 0 && (
               <>
-                {photoCount > 0 && <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>}
+                {photoCount > 0 && (
+                  <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+                )}
                 <span
                   data-testid="deambuloire-linked-count"
                   style={{
@@ -534,7 +635,9 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
             )}
             {sharedCount > 0 && (
               <>
-                {(photoCount > 0 || linkedCount > 0) && <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>}
+                {(photoCount > 0 || linkedCount > 0) && (
+                  <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+                )}
                 <span
                   data-testid="deambuloire-shared-count"
                   style={{
@@ -554,23 +657,43 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
 
       {/* Logger section */}
       <section>
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)", marginBottom: "var(--space-sm)" }}>
-          <h2 style={{
-            fontFamily: "var(--font-body)", fontSize: "var(--fs-base)",
-            fontWeight: "var(--fw-bold)", color: "var(--text-main)", margin: 0, flex: 1,
-          }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-sm)",
+            marginBottom: "var(--space-sm)",
+          }}
+        >
+          <h2
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-base)",
+              fontWeight: "var(--fw-bold)",
+              color: "var(--text-main)",
+              margin: 0,
+              flex: 1,
+            }}
+          >
             Logger ce que je vois
           </h2>
           <button
             type="button"
             onClick={() => setSignalOpen(true)}
             style={{
-              display: "inline-flex", alignItems: "center", gap: "var(--space-xs)",
-              padding: "6px 12px", borderRadius: "var(--radius-full)",
-              border: "1.5px solid var(--secondary-cyan)", backgroundColor: "var(--cyan-soft)",
-              color: "var(--secondary-cyan)", fontFamily: "var(--font-body)",
-              fontSize: "var(--fs-xs)", fontWeight: "var(--fw-bold)",
-              cursor: "pointer", whiteSpace: "nowrap",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "var(--space-xs)",
+              padding: "6px 12px",
+              borderRadius: "var(--radius-full)",
+              border: "1.5px solid var(--secondary-cyan)",
+              backgroundColor: "var(--cyan-soft)",
+              color: "var(--secondary-cyan)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              fontWeight: "var(--fw-bold)",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
             }}
           >
             📡 Signaler au crew
@@ -583,30 +706,41 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
             type="button"
             onClick={() => setLogOpen(true)}
             style={{
-              width: "100%", padding: "14px var(--space-md)", borderRadius: "var(--radius-md)",
-              border: "none", backgroundColor: "var(--primary-neon)", color: "var(--text-on-neon)",
-              fontFamily: "var(--font-body)", fontSize: "var(--fs-base)", fontWeight: "var(--fw-bold)",
-              cursor: "pointer", transition: "var(--transition-fast)",
-              boxShadow: "var(--glow-neon)", display: "flex", alignItems: "center",
-              justifyContent: "center", gap: "var(--space-sm)",
+              width: "100%",
+              padding: "14px var(--space-md)",
+              borderRadius: "var(--radius-md)",
+              border: "none",
+              backgroundColor: "var(--primary-neon)",
+              color: "var(--text-on-neon)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-base)",
+              fontWeight: "var(--fw-bold)",
+              cursor: "pointer",
+              transition: "var(--transition-fast)",
+              boxShadow: "var(--glow-neon)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "var(--space-sm)",
             }}
           >
             👁 J&apos;ai vu ça
           </button>
         ) : (
           <div>
-            <LogForm
-              festEventId={festEventId}
-              artists={artists}
-              onLogged={handleLogged}
-            />
+            <LogForm festEventId={festEventId} artists={artists} onLogged={handleLogged} />
             <button
               type="button"
               onClick={() => setLogOpen(false)}
               style={{
-                marginTop: "var(--space-xs)", background: "none", border: "none",
-                cursor: "pointer", fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)",
-                color: "var(--text-muted)", padding: 0,
+                marginTop: "var(--space-xs)",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-muted)",
+                padding: 0,
               }}
             >
               Annuler
@@ -617,20 +751,36 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
 
       {/* Journal du jour */}
       <section>
-        <h2 style={{
-          fontFamily: "var(--font-body)", fontSize: "var(--fs-base)",
-          fontWeight: "var(--fw-bold)", color: "var(--text-main)",
-          marginBottom: "var(--space-sm)",
-        }}>
+        <h2
+          style={{
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-base)",
+            fontWeight: "var(--fw-bold)",
+            color: "var(--text-main)",
+            marginBottom: "var(--space-sm)",
+          }}
+        >
           Journal du jour
         </h2>
 
         {loadingLog ? (
-          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-dim)" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              color: "var(--text-dim)",
+            }}
+          >
             Chargement…
           </p>
         ) : todaySouvenirs.length === 0 ? (
-          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-dim)" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              color: "var(--text-dim)",
+            }}
+          >
             Rien encore aujourd&apos;hui. Commence à logger !
           </p>
         ) : (
@@ -649,27 +799,42 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
                 }}
               >
                 {/* Time */}
-                <span style={{
-                  fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)",
-                  color: "var(--accent-pink)", flexShrink: 0, paddingTop: 2,
-                }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--accent-pink)",
+                    flexShrink: 0,
+                    paddingTop: 2,
+                  }}
+                >
                   {formatTime(s.timestamp)}
                 </span>
 
                 {/* Content */}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{
-                    fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)",
-                    fontWeight: "var(--fw-medium)", color: "var(--text-main)",
-                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                  }}>
+                  <div
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: "var(--fs-sm)",
+                      fontWeight: "var(--fw-medium)",
+                      color: "var(--text-main)",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {s.event?.artist?.name ?? s.event?.title ?? s.freeText ?? "Souvenir"}
                   </div>
                   {s.note && (
-                    <div style={{
-                      fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)",
-                      color: "var(--text-muted)", marginTop: 2,
-                    }}>
+                    <div
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontSize: "var(--fs-xs)",
+                        color: "var(--text-muted)",
+                        marginTop: 2,
+                      }}
+                    >
                       {s.note}
                     </div>
                   )}
@@ -680,11 +845,14 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
                   // biome-ignore lint/performance/noImgElement: thumbnail
                   <img
                     src={s.photos[0]}
-                    alt="Photo souvenir"
+                    alt="Souvenir"
                     style={{
-                      width: 48, height: 48, objectFit: "cover",
+                      width: 48,
+                      height: 48,
+                      objectFit: "cover",
                       borderRadius: "var(--radius-sm)",
-                      border: "1px solid var(--border-color)", flexShrink: 0,
+                      border: "1px solid var(--border-color)",
+                      flexShrink: 0,
                     }}
                   />
                 )}
@@ -695,12 +863,7 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
       </section>
 
       {/* Signal modal */}
-      {signalOpen && (
-        <SignalModal
-          festivalId={festivalId}
-          onClose={() => setSignalOpen(false)}
-        />
-      )}
+      {signalOpen && <SignalModal festivalId={festivalId} onClose={() => setSignalOpen(false)} />}
     </div>
   );
 }

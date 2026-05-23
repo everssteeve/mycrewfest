@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  groupEventsByVenue,
-  sortVenueGroups,
-  sortEventsWithinGroup,
   countEventsPerVenue,
   type GroupableEvent,
+  groupEventsByVenue,
+  sortEventsWithinGroup,
+  sortVenueGroups,
 } from "@/lib/programme-group";
 
 const makeEvent = (overrides: Partial<GroupableEvent> = {}): GroupableEvent => ({
@@ -117,14 +117,14 @@ describe("countEventsPerVenue", () => {
       makeEvent({ venue: { id: "v2", name: "Temple" } }),
     ];
     const counts = countEventsPerVenue(events);
-    expect(counts["v1"]).toBe(2);
-    expect(counts["v2"]).toBe(1);
+    expect(counts.v1).toBe(2);
+    expect(counts.v2).toBe(1);
   });
 
   it("groups null venue under __no_venue__", () => {
     const events = [makeEvent({ venue: null }), makeEvent({ venue: null })];
     const counts = countEventsPerVenue(events);
-    expect(counts["__no_venue__"]).toBe(2);
+    expect(counts.__no_venue__).toBe(2);
   });
 
   it("returns empty for empty input", () => {

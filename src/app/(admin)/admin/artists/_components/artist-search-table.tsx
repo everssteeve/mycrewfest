@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useMemo, useTransition } from "react";
 import { Search } from "lucide-react";
-import { filterAdminArtists, filterOrphanArtists, sortAdminArtistsByEventCount, type AdminArtistRow } from "@/lib/admin-artists";
+import { useMemo, useState, useTransition } from "react";
+import {
+  type AdminArtistRow,
+  filterAdminArtists,
+  filterOrphanArtists,
+  sortAdminArtistsByEventCount,
+} from "@/lib/admin-artists";
 
 interface Props {
   artists: AdminArtistRow[];
@@ -96,7 +101,10 @@ export function ArtistSearchTable({ artists, updateArtistCountry }: Props) {
               style={{
                 padding: "4px 12px",
                 borderRadius: 20,
-                border: sortMode === mode ? "1px solid var(--secondary-cyan)" : "1px solid var(--border-color)",
+                border:
+                  sortMode === mode
+                    ? "1px solid var(--secondary-cyan)"
+                    : "1px solid var(--border-color)",
                 background: sortMode === mode ? "rgba(0,229,255,0.1)" : "transparent",
                 color: sortMode === mode ? "var(--secondary-cyan)" : "var(--text-dim)",
                 fontSize: "0.68rem",
@@ -133,7 +141,12 @@ export function ArtistSearchTable({ artists, updateArtistCountry }: Props) {
         </button>
         <span
           data-testid="admin-artists-filtered-count"
-          style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", whiteSpace: "nowrap" }}
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-xs)",
+            color: "var(--text-dim)",
+            whiteSpace: "nowrap",
+          }}
         >
           {filtered.length} / {artists.length}
         </span>
@@ -186,11 +199,26 @@ export function ArtistSearchTable({ artists, updateArtistCountry }: Props) {
               >
                 {/* Name */}
                 <td style={{ padding: "var(--space-sm) var(--space-md)", minWidth: 160 }}>
-                  <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-main)", margin: 0, fontWeight: "var(--fw-bold)" }}>
+                  <p
+                    style={{
+                      fontFamily: "var(--font-body)",
+                      fontSize: "var(--fs-sm)",
+                      color: "var(--text-main)",
+                      margin: 0,
+                      fontWeight: "var(--fw-bold)",
+                    }}
+                  >
                     {artist.name}
                   </p>
                   {artist.instagram && (
-                    <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", margin: "2px 0 0" }}>
+                    <p
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--fs-xs)",
+                        color: "var(--text-dim)",
+                        margin: "2px 0 0",
+                      }}
+                    >
                       @{artist.instagram}
                     </p>
                   )}
@@ -219,7 +247,13 @@ export function ArtistSearchTable({ artists, updateArtistCountry }: Props) {
                       ))}
                     </div>
                   ) : (
-                    <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--danger-red)" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontSize: "var(--fs-xs)",
+                        color: "var(--danger-red)",
+                      }}
+                    >
                       —
                     </span>
                   )}
@@ -236,7 +270,6 @@ export function ArtistSearchTable({ artists, updateArtistCountry }: Props) {
                         onChange={(e) => setEditValue(e.target.value.toUpperCase().slice(0, 2))}
                         placeholder="FR"
                         maxLength={2}
-                        autoFocus
                         onKeyDown={(e) => {
                           if (e.key === "Enter") saveEdit(artist.id);
                           if (e.key === "Escape") cancelEdit();
@@ -260,14 +293,31 @@ export function ArtistSearchTable({ artists, updateArtistCountry }: Props) {
                         data-testid={`admin-artist-country-save-${artist.id}`}
                         onClick={() => saveEdit(artist.id)}
                         disabled={isPending}
-                        style={{ padding: "2px 6px", background: "var(--primary-neon)", border: "none", borderRadius: "var(--radius-sm)", color: "#000", fontSize: "0.65rem", fontWeight: 700, cursor: "pointer" }}
+                        style={{
+                          padding: "2px 6px",
+                          background: "var(--primary-neon)",
+                          border: "none",
+                          borderRadius: "var(--radius-sm)",
+                          color: "#000",
+                          fontSize: "0.65rem",
+                          fontWeight: 700,
+                          cursor: "pointer",
+                        }}
                       >
                         ✓
                       </button>
                       <button
                         type="button"
                         onClick={cancelEdit}
-                        style={{ padding: "2px 6px", background: "transparent", border: "1px solid var(--border-color)", borderRadius: "var(--radius-sm)", color: "var(--text-dim)", fontSize: "0.65rem", cursor: "pointer" }}
+                        style={{
+                          padding: "2px 6px",
+                          background: "transparent",
+                          border: "1px solid var(--border-color)",
+                          borderRadius: "var(--radius-sm)",
+                          color: "var(--text-dim)",
+                          fontSize: "0.65rem",
+                          cursor: "pointer",
+                        }}
                       >
                         ✕
                       </button>
@@ -297,7 +347,13 @@ export function ArtistSearchTable({ artists, updateArtistCountry }: Props) {
 
                 {/* Event count */}
                 <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-sm)", color: "var(--accent-pink)" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "var(--fs-sm)",
+                      color: "var(--accent-pink)",
+                    }}
+                  >
                     {artist.eventCount}
                   </span>
                 </td>
@@ -333,7 +389,13 @@ export function ArtistSearchTable({ artists, updateArtistCountry }: Props) {
         {filtered.length === 0 && (
           <div
             data-testid="admin-artists-empty"
-            style={{ padding: "var(--space-2xl)", textAlign: "center", color: "var(--text-dim)", fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)" }}
+            style={{
+              padding: "var(--space-2xl)",
+              textAlign: "center",
+              color: "var(--text-dim)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+            }}
           >
             Aucun artiste ne correspond à cette recherche.
           </div>

@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  computeSouvenirStats,
-  sortSouvenirsByDate,
-  filterSouvenirs,
-  countRecentSouvenirs,
-  topContributors,
   type AdminSouvenirRow,
+  computeSouvenirStats,
+  countRecentSouvenirs,
+  filterSouvenirs,
+  sortSouvenirsByDate,
+  topContributors,
 } from "@/lib/admin-souvenirs";
 
 const makeRow = (overrides: Partial<AdminSouvenirRow> & { id: string }): AdminSouvenirRow => ({
@@ -22,8 +22,20 @@ const makeRow = (overrides: Partial<AdminSouvenirRow> & { id: string }): AdminSo
 });
 
 const rows: AdminSouvenirRow[] = [
-  makeRow({ id: "s1", freeText: "Super concert", hasPhotos: true, shareWithCrew: true, createdAt: "2026-07-03T12:00:00.000Z" }),
-  makeRow({ id: "s2", userId: "u2", userName: "Bob", note: "Ambiance incroyable", createdAt: "2026-07-02T10:00:00.000Z" }),
+  makeRow({
+    id: "s1",
+    freeText: "Super concert",
+    hasPhotos: true,
+    shareWithCrew: true,
+    createdAt: "2026-07-03T12:00:00.000Z",
+  }),
+  makeRow({
+    id: "s2",
+    userId: "u2",
+    userName: "Bob",
+    note: "Ambiance incroyable",
+    createdAt: "2026-07-02T10:00:00.000Z",
+  }),
   makeRow({ id: "s3", userId: "u2", userName: "Bob", createdAt: "2026-07-01T08:00:00.000Z" }),
 ];
 

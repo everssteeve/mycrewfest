@@ -1,11 +1,11 @@
-import { prisma } from "@/lib/prisma";
 import {
+  type AdminSouvenirRow,
   computeSouvenirStats,
   sortSouvenirsByDate,
   topContributors,
-  type AdminSouvenirRow,
 } from "@/lib/admin-souvenirs";
 import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 
 export const metadata = { title: "Admin — Souvenirs" };
 
@@ -46,10 +46,30 @@ export default async function AdminSouvenirsPage() {
   const contributors = topContributors(souvenirs, 5);
 
   const kpis = [
-    { label: "Total", value: stats.total, color: "var(--secondary-cyan)", testid: "admin-souvenirs-kpi-total" },
-    { label: "Avec texte", value: stats.withText, color: "var(--primary-neon)", testid: "admin-souvenirs-kpi-text" },
-    { label: "Avec photos", value: stats.withPhotos, color: "var(--accent-pink)", testid: "admin-souvenirs-kpi-photos" },
-    { label: "Partagés", value: stats.sharedWithCrew, color: "var(--warning-orange)", testid: "admin-souvenirs-kpi-shared" },
+    {
+      label: "Total",
+      value: stats.total,
+      color: "var(--secondary-cyan)",
+      testid: "admin-souvenirs-kpi-total",
+    },
+    {
+      label: "Avec texte",
+      value: stats.withText,
+      color: "var(--primary-neon)",
+      testid: "admin-souvenirs-kpi-text",
+    },
+    {
+      label: "Avec photos",
+      value: stats.withPhotos,
+      color: "var(--accent-pink)",
+      testid: "admin-souvenirs-kpi-photos",
+    },
+    {
+      label: "Partagés",
+      value: stats.sharedWithCrew,
+      color: "var(--warning-orange)",
+      testid: "admin-souvenirs-kpi-shared",
+    },
   ];
 
   return (
@@ -85,7 +105,12 @@ export default async function AdminSouvenirsPage() {
       {/* KPIs */}
       <div
         data-testid="admin-souvenirs-kpis"
-        style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12, marginBottom: 28 }}
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+          gap: 12,
+          marginBottom: 28,
+        }}
       >
         {kpis.map((kpi) => (
           <div
@@ -98,10 +123,26 @@ export default async function AdminSouvenirsPage() {
               padding: "14px 16px",
             }}
           >
-            <p style={{ margin: 0, fontSize: "1.4rem", fontWeight: 900, fontFamily: "var(--font-mono, monospace)", color: kpi.color }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "1.4rem",
+                fontWeight: 900,
+                fontFamily: "var(--font-mono, monospace)",
+                color: kpi.color,
+              }}
+            >
               {kpi.value}
             </p>
-            <p style={{ margin: "4px 0 0", fontSize: "0.72rem", color: "var(--text-dim, #666)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <p
+              style={{
+                margin: "4px 0 0",
+                fontSize: "0.72rem",
+                color: "var(--text-dim, #666)",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+              }}
+            >
               {kpi.label}
             </p>
           </div>
@@ -209,10 +250,24 @@ export default async function AdminSouvenirsPage() {
                   padding: "12px 16px",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    flexWrap: "wrap",
+                  }}
+                >
                   <div>
                     <p style={{ margin: 0, fontWeight: 700, fontSize: "0.9rem" }}>{s.userName}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: "0.75rem", color: "var(--text-dim, #666)" }}>
+                    <p
+                      style={{
+                        margin: "2px 0 0",
+                        fontSize: "0.75rem",
+                        color: "var(--text-dim, #666)",
+                      }}
+                    >
                       {s.festivalName} · {new Date(s.createdAt).toLocaleDateString("fr-FR")}
                     </p>
                   </div>

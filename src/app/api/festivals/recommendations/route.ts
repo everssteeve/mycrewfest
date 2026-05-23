@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
+import {
+  buildRecommendationScores,
+  hasEnoughData,
+  topRecommendations,
+} from "@/lib/festival-recommendations";
 import { prisma } from "@/lib/prisma";
-import { buildRecommendationScores, topRecommendations, hasEnoughData } from "@/lib/festival-recommendations";
 
 const LIMIT = 5;
 
@@ -17,7 +21,14 @@ export async function GET() {
     where: { userId },
     select: {
       festival: {
-        select: { id: true, slug: true, festivalType: true, country: true, startDate: true, endDate: true },
+        select: {
+          id: true,
+          slug: true,
+          festivalType: true,
+          country: true,
+          startDate: true,
+          endDate: true,
+        },
       },
     },
   });

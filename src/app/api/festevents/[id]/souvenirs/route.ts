@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -9,10 +9,7 @@ type RouteContext = { params: Promise<{ id: string }> };
  * GET /api/festevents/[id]/souvenirs
  * List all souvenirs for a FestEvent, newest first.
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function GET(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non connecté." }, { status: 401 });
@@ -77,10 +74,7 @@ export async function GET(
  * Create a new souvenir for the authenticated user.
  * Body: { eventId?: string, freeText?: string, note?: string, photos?: string[], timestamp?: string }
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function POST(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non connecté." }, { status: 401 });
@@ -112,10 +106,7 @@ export async function POST(
   }
 
   if (!body.eventId && !body.freeText) {
-    return NextResponse.json(
-      { error: "Fournir au moins eventId ou freeText." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Fournir au moins eventId ou freeText." }, { status: 400 });
   }
 
   // Validate eventId if provided

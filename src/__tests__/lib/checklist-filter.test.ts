@@ -1,5 +1,11 @@
-import { describe, it, expect } from "vitest";
-import { filterByAssignee, getUniqueAssignees, computeAssigneeStats, countUnassignedPendingItems, getMostLoadedAssignee } from "@/lib/checklist-filter";
+import { describe, expect, it } from "vitest";
+import {
+  computeAssigneeStats,
+  countUnassignedPendingItems,
+  filterByAssignee,
+  getMostLoadedAssignee,
+  getUniqueAssignees,
+} from "@/lib/checklist-filter";
 
 describe("filterByAssignee", () => {
   const items = [

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -8,10 +8,7 @@ type RouteContext = { params: Promise<{ slug: string }> };
  * POST /api/festivals/[slug]/follow
  * Follow a festival (auth required).
  */
-export async function POST(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function POST(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(
@@ -49,10 +46,7 @@ export async function POST(
     return NextResponse.json({ followed: true }, { status: 200 });
   } catch (err) {
     console.error("[POST /api/festivals/[slug]/follow]", err);
-    return NextResponse.json(
-      { error: "Erreur lors du suivi du festival." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Erreur lors du suivi du festival." }, { status: 500 });
   }
 }
 
@@ -60,10 +54,7 @@ export async function POST(
  * DELETE /api/festivals/[slug]/follow
  * Unfollow a festival (auth required).
  */
-export async function DELETE(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json(
@@ -94,9 +85,6 @@ export async function DELETE(
     return NextResponse.json({ followed: false }, { status: 200 });
   } catch (err) {
     console.error("[DELETE /api/festivals/[slug]/follow]", err);
-    return NextResponse.json(
-      { error: "Erreur lors de la suppression du suivi." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Erreur lors de la suppression du suivi." }, { status: 500 });
   }
 }

@@ -1,17 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  filterActivityEntries,
-  sortActivityEntriesDesc,
-  formatActivityTimestamp,
-  countActivityByType,
   type ActivityEntry,
+  countActivityByType,
+  filterActivityEntries,
+  formatActivityTimestamp,
+  sortActivityEntriesDesc,
 } from "@/lib/admin-activity";
 
-const makeEntry = (
-  id: string,
-  type: ActivityEntry["type"],
-  occurredAt: Date,
-): ActivityEntry => ({
+const makeEntry = (id: string, type: ActivityEntry["type"], occurredAt: Date): ActivityEntry => ({
   id,
   type,
   label: `Label ${id}`,

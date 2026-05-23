@@ -1,28 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 const updateFestEventSchema = z.object({
   mode: z.enum(["solo", "crew"]).optional(),
-  programTypeOverride: z
-    .enum(["structuré", "déambulatoire", "hybride"])
-    .nullable()
-    .optional(),
+  programTypeOverride: z.enum(["structuré", "déambulatoire", "hybride"]).nullable().optional(),
   presenceDates: z.array(z.string()).optional(),
-  arrivalConstraint: z
-    .string()
-    .datetime({ offset: true })
-    .nullable()
-    .optional(),
-  departureConstraint: z
-    .string()
-    .datetime({ offset: true })
-    .nullable()
-    .optional(),
+  arrivalConstraint: z.string().datetime({ offset: true }).nullable().optional(),
+  departureConstraint: z.string().datetime({ offset: true }).nullable().optional(),
   comfortMarginMins: z.number().int().min(0).max(120).optional(),
 });
 
@@ -36,16 +25,10 @@ async function resolveFestEvent(id: string, userId: string) {
  * GET /api/festevents/[id]
  * Get the detail of a FestEvent (auth required).
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function GET(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { id } = await params;
@@ -101,10 +84,7 @@ export async function GET(
     });
 
     if (!fe) {
-      return NextResponse.json(
-        { error: "FestEvent introuvable." },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "FestEvent introuvable." }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -166,16 +146,10 @@ export async function GET(
  * PUT /api/festevents/[id]
  * Update a FestEvent (auth required).
  */
-export async function PUT(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function PUT(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { id } = await params;
@@ -184,10 +158,7 @@ export async function PUT(
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requête invalide." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
   }
 
   const parsed = updateFestEventSchema.safeParse(body);
@@ -200,10 +171,7 @@ export async function PUT(
 
   const existing = await resolveFestEvent(id, session.user.id);
   if (!existing) {
-    return NextResponse.json(
-      { error: "FestEvent introuvable." },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "FestEvent introuvable." }, { status: 404 });
   }
 
   const {
@@ -228,9 +196,7 @@ export async function PUT(
           arrivalConstraint: arrivalConstraint ? new Date(arrivalConstraint) : null,
         }),
         ...(departureConstraint !== undefined && {
-          departureConstraint: departureConstraint
-            ? new Date(departureConstraint)
-            : null,
+          departureConstraint: departureConstraint ? new Date(departureConstraint) : null,
         }),
         ...(comfortMarginMins !== undefined && { comfortMarginMins }),
       },
@@ -251,26 +217,17 @@ export async function PUT(
  * DELETE /api/festevents/[id]
  * Delete a FestEvent (auth required).
  */
-export async function DELETE(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { id } = await params;
 
   const existing = await resolveFestEvent(id, session.user.id);
   if (!existing) {
-    return NextResponse.json(
-      { error: "FestEvent introuvable." },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "FestEvent introuvable." }, { status: 404 });
   }
 
   try {

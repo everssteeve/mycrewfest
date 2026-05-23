@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -8,10 +8,7 @@ type RouteContext = { params: Promise<{ id: string }> };
  * GET /api/festevents/[id]/checklist
  * Returns checklist items for a festEvent.
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function GET(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non connecté." }, { status: 401 });
@@ -60,10 +57,7 @@ export async function GET(
  * Creates a new checklist item.
  * Body: { label: string; cost?: number; assigneeName?: string }
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function POST(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non connecté." }, { status: 401 });

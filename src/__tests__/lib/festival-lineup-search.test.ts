@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { normalizeQuery, filterLineup } from "@/lib/festival-lineup-search";
+import { describe, expect, it } from "vitest";
+import { filterLineup, normalizeQuery } from "@/lib/festival-lineup-search";
 import type { ArtistSummary } from "@/types/index";
 
 const artists: ArtistSummary[] = [

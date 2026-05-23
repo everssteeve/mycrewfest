@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { generateIcs, type IcsEvent } from "@/lib/ics";
 
 const BASE_EVENT: IcsEvent = {
@@ -27,10 +27,7 @@ describe("generateIcs", () => {
   });
 
   it("generates a VEVENT for each event", () => {
-    const events = [
-      BASE_EVENT,
-      { ...BASE_EVENT, uid: "event-xyz", summary: "Radiohead" },
-    ];
+    const events = [BASE_EVENT, { ...BASE_EVENT, uid: "event-xyz", summary: "Radiohead" }];
     const ics = generateIcs(events, "Test");
     const beginMatches = ics.match(/BEGIN:VEVENT/g);
     expect(beginMatches?.length).toBe(2);

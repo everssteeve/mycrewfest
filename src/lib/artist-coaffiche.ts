@@ -6,18 +6,15 @@ export interface CoAfficheArtist {
   sharedFestivalCount: number;
 }
 
-export function rankCoAfficheArtists(
-  artists: CoAfficheArtist[],
-  limit = 4,
-): CoAfficheArtist[] {
+export function rankCoAfficheArtists(artists: CoAfficheArtist[], limit = 4): CoAfficheArtist[] {
   return [...artists]
-    .sort((a, b) => b.sharedFestivalCount - a.sharedFestivalCount || a.name.localeCompare(b.name, "fr"))
+    .sort(
+      (a, b) => b.sharedFestivalCount - a.sharedFestivalCount || a.name.localeCompare(b.name, "fr"),
+    )
     .slice(0, limit);
 }
 
-export function deduplicateByFestivalCount(
-  artists: CoAfficheArtist[],
-): CoAfficheArtist[] {
+export function deduplicateByFestivalCount(artists: CoAfficheArtist[]): CoAfficheArtist[] {
   const seen = new Set<string>();
   const result: CoAfficheArtist[] = [];
   for (const a of artists) {

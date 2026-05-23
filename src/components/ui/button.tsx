@@ -1,5 +1,5 @@
-import { type ButtonHTMLAttributes, forwardRef } from "react";
 import { clsx } from "clsx";
+import { type ButtonHTMLAttributes, forwardRef } from "react";
 
 type ButtonVariant = "primary" | "pink" | "cyan" | "ghost";
 type ButtonSize = "sm" | "md" | "lg";
@@ -75,20 +75,8 @@ function LoadingSpinner() {
       fill="none"
       aria-hidden="true"
     >
-      <circle
-        cx={8}
-        cy={8}
-        r={6}
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeOpacity={0.3}
-      />
-      <path
-        d="M14 8a6 6 0 0 0-6-6"
-        stroke="currentColor"
-        strokeWidth={2}
-        strokeLinecap="round"
-      />
+      <circle cx={8} cy={8} r={6} stroke="currentColor" strokeWidth={2} strokeOpacity={0.3} />
+      <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth={2} strokeLinecap="round" />
     </svg>
   );
 }

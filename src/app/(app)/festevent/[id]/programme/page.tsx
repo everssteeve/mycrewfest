@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { parseJsonArray } from "@/lib/api";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
+import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import { ProgrammeView } from "./_components/programme-view";
 
 type PageContext = { params: Promise<{ id: string }> };
@@ -52,7 +52,10 @@ async function fetchProgramme(
   ]);
 
   const selectionMap = new Map(
-    userSelections.map((s) => [s.eventId, { id: s.id, status: s.status as "intéressé" | "must-see" | "vu" }]),
+    userSelections.map((s) => [
+      s.eventId,
+      { id: s.id, status: s.status as "intéressé" | "must-see" | "vu" },
+    ]),
   );
 
   const mapped: EventWithSelectionAndConfidence[] = events.map((e) => ({

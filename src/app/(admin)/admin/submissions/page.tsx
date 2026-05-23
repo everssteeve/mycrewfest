@@ -1,17 +1,15 @@
-import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import {
+  buildSubmissionSlug,
+  countSubmissionsByStatus,
+  filterSubmissionsByStatus,
   getSubmissionStatusColor,
   getSubmissionStatusLabel,
-  countSubmissionsByStatus,
   isSubmissionActionable,
   isSubmissionPendingOnly,
-  buildSubmissionSlug,
-  filterSubmissionsByStatus,
-  SUBMISSION_STATUS_LABELS,
-  type SubmissionStatus,
 } from "@/lib/admin-submissions";
+import { prisma } from "@/lib/prisma";
 
 async function getSubmissions() {
   return prisma.festivalSubmission.findMany({
@@ -28,7 +26,12 @@ export default async function AdminSubmissionsPage({ searchParams }: PageProps) 
   const { status: activeStatus } = await searchParams;
   const submissions = await getSubmissions();
   const counts = countSubmissionsByStatus(
-    submissions.map((s) => ({ id: s.id, nameProposed: s.nameProposed, status: s.status, submittedAt: s.submittedAt })),
+    submissions.map((s) => ({
+      id: s.id,
+      nameProposed: s.nameProposed,
+      status: s.status,
+      submittedAt: s.submittedAt,
+    })),
   );
   const filtered = filterSubmissionsByStatus(submissions, activeStatus ?? null);
 
@@ -72,18 +75,59 @@ export default async function AdminSubmissionsPage({ searchParams }: PageProps) 
             display: "block",
           }}
         >
-          <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-2xl)", color: "var(--text-main)", margin: 0, fontWeight: "var(--fw-bold)" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-2xl)",
+              color: "var(--text-main)",
+              margin: 0,
+              fontWeight: "var(--fw-bold)",
+            }}
+          >
             {submissions.length}
           </p>
-          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "4px 0 0" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-muted)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              margin: "4px 0 0",
+            }}
+          >
             Toutes
           </p>
         </Link>
         {[
-          { label: "En attente", status: "en_attente", value: counts.en_attente, color: "var(--warning-orange)", testid: "admin-submissions-kpi-pending" },
-          { label: "En traitement", status: "en_traitement", value: counts.en_traitement, color: "var(--secondary-cyan)", testid: "admin-submissions-kpi-processing" },
-          { label: "Ajoutés", status: "ajouté", value: counts.ajouté, color: "var(--primary-neon)", testid: "admin-submissions-kpi-accepted" },
-          { label: "Rejetés", status: "rejeté", value: counts.rejeté, color: "var(--danger-red)", testid: "admin-submissions-kpi-rejected" },
+          {
+            label: "En attente",
+            status: "en_attente",
+            value: counts.en_attente,
+            color: "var(--warning-orange)",
+            testid: "admin-submissions-kpi-pending",
+          },
+          {
+            label: "En traitement",
+            status: "en_traitement",
+            value: counts.en_traitement,
+            color: "var(--secondary-cyan)",
+            testid: "admin-submissions-kpi-processing",
+          },
+          {
+            label: "Ajoutés",
+            status: "ajouté",
+            value: counts.ajouté,
+            color: "var(--primary-neon)",
+            testid: "admin-submissions-kpi-accepted",
+          },
+          {
+            label: "Rejetés",
+            status: "rejeté",
+            value: counts.rejeté,
+            color: "var(--danger-red)",
+            testid: "admin-submissions-kpi-rejected",
+          },
         ].map((kpi) => {
           const isActive = activeStatus === kpi.status;
           return (
@@ -101,10 +145,27 @@ export default async function AdminSubmissionsPage({ searchParams }: PageProps) 
                 display: "block",
               }}
             >
-              <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-2xl)", color: kpi.color, margin: 0, fontWeight: "var(--fw-bold)" }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-2xl)",
+                  color: kpi.color,
+                  margin: 0,
+                  fontWeight: "var(--fw-bold)",
+                }}
+              >
                 {kpi.value}
               </p>
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "4px 0 0" }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-muted)",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.06em",
+                  margin: "4px 0 0",
+                }}
+              >
                 {kpi.label}
               </p>
             </Link>
@@ -158,12 +219,25 @@ export default async function AdminSubmissionsPage({ searchParams }: PageProps) 
                   }}
                 >
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                    <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-main)" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontSize: "var(--fs-sm)",
+                        color: "var(--text-main)",
+                      }}
+                    >
                       {authorName}
                     </span>
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                    <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-main)", fontWeight: "var(--fw-bold)" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontSize: "var(--fs-sm)",
+                        color: "var(--text-main)",
+                        fontWeight: "var(--fw-bold)",
+                      }}
+                    >
                       {sub.nameProposed}
                     </span>
                   </td>
@@ -172,9 +246,15 @@ export default async function AdminSubmissionsPage({ searchParams }: PageProps) 
                       href={sub.officialUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--secondary-cyan)", textDecoration: "none" }}
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--fs-xs)",
+                        color: "var(--secondary-cyan)",
+                        textDecoration: "none",
+                      }}
                     >
-                      {sub.officialUrl.slice(0, 40)}{sub.officialUrl.length > 40 ? "…" : ""}
+                      {sub.officialUrl.slice(0, 40)}
+                      {sub.officialUrl.length > 40 ? "…" : ""}
                     </a>
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
@@ -194,21 +274,33 @@ export default async function AdminSubmissionsPage({ searchParams }: PageProps) 
                     </span>
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)" }}>
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--fs-xs)",
+                        color: "var(--text-dim)",
+                      }}
+                    >
                       {new Date(sub.submittedAt).toLocaleDateString("fr-FR")}
                     </span>
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
                     {isSubmissionActionable(sub.status) ? (
                       <div style={{ display: "flex", gap: "var(--space-xs)", flexWrap: "wrap" }}>
-                        {isSubmissionPendingOnly(sub.status) && (
-                          <TakeChargeButton id={sub.id} />
-                        )}
+                        {isSubmissionPendingOnly(sub.status) && <TakeChargeButton id={sub.id} />}
                         <AcceptButton id={sub.id} name={sub.nameProposed} url={sub.officialUrl} />
                         <RejectButton id={sub.id} />
                       </div>
                     ) : (
-                      <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-dim)" }}>—</span>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-body)",
+                          fontSize: "var(--fs-xs)",
+                          color: "var(--text-dim)",
+                        }}
+                      >
+                        —
+                      </span>
                     )}
                   </td>
                 </tr>

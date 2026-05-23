@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  filterArtists,
-  getAvailableDisciplines,
-  getAvailableCountries,
-  sortArtistsByName,
-  sortArtistsByFestivalCount,
-  sortArtists,
   type ArtistListItem,
+  filterArtists,
+  getAvailableCountries,
+  getAvailableDisciplines,
+  sortArtists,
+  sortArtistsByFestivalCount,
+  sortArtistsByName,
 } from "@/lib/artist-filter";
 
 function makeArtist(overrides: Partial<ArtistListItem> = {}): ArtistListItem {
@@ -24,7 +24,12 @@ describe("filterArtists", () => {
   const artists = [
     makeArtist({ id: "a1", name: "Iron Maiden", disciplines: ["Heavy Metal"], countryCode: "GB" }),
     makeArtist({ id: "a2", name: "Deep Purple", disciplines: ["Hard Rock"], countryCode: "GB" }),
-    makeArtist({ id: "a3", name: "Alice Cooper", disciplines: ["Heavy Metal", "Rock"], countryCode: "US" }),
+    makeArtist({
+      id: "a3",
+      name: "Alice Cooper",
+      disciplines: ["Heavy Metal", "Rock"],
+      countryCode: "US",
+    }),
   ];
 
   it("returns all artists when query and discipline are empty", () => {

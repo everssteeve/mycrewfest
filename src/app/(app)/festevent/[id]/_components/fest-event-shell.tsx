@@ -1,16 +1,16 @@
 "use client";
 
+import { isWithinInterval, parseISO } from "date-fns";
+import { Settings } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { isWithinInterval, parseISO } from "date-fns";
-import { Settings } from "lucide-react";
-import type { FestivalSummary } from "@/lib/api";
 import { EventCountdown } from "@/components/festevent/event-countdown";
 import { NowPlayingBar } from "@/components/festevent/now-playing-bar";
 import { QuickLogFab } from "@/components/festevent/quick-log-fab";
-import { FestEventSettingsSheet } from "./festevent-settings-sheet";
 import { SelectionProgressBar } from "@/components/festevent/selection-progress-bar";
+import type { FestivalSummary } from "@/lib/api";
+import { FestEventSettingsSheet } from "./festevent-settings-sheet";
 
 interface FestEventShellProps {
   festEventId: string;
@@ -19,10 +19,7 @@ interface FestEventShellProps {
   children: React.ReactNode;
 }
 
-function buildTabs(
-  base: string,
-  programType: string,
-): Array<{ label: string; href: string }> {
+function buildTabs(base: string, programType: string): Array<{ label: string; href: string }> {
   const tabs: Array<{ label: string; href: string }> = [
     { label: "Programme", href: `${base}/programme` },
     { label: "Planning", href: `${base}/planning` },
@@ -112,12 +109,7 @@ export function FestEventShell({
           >
             {festival.name}
           </span>
-          {!past && (
-            <EventCountdown
-              startDate={festival.startDate}
-              endDate={festival.endDate}
-            />
-          )}
+          {!past && <EventCountdown startDate={festival.startDate} endDate={festival.endDate} />}
           {past && (
             <span
               style={{
@@ -198,9 +190,7 @@ export function FestEventShell({
         </div>
 
         {/* Progress bar — visible only during festival */}
-        {during && (
-          <SelectionProgressBar festEventId={festEventId} />
-        )}
+        {during && <SelectionProgressBar festEventId={festEventId} />}
       </header>
 
       {/* Content — offset for double header (header + tabs + progress bar when during) */}
@@ -226,9 +216,7 @@ export function FestEventShell({
       </div>
 
       {/* F07 — NowPlayingBar: visible only during festival */}
-      {during && (
-        <NowPlayingBar festEventId={festEventId} />
-      )}
+      {during && <NowPlayingBar festEventId={festEventId} />}
 
       {/* F12 — QuickLogFab: visible on all pages */}
       <QuickLogFab festEventId={festEventId} />

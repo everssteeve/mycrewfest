@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  rankByFollowers,
-  rankByUpcoming,
-  rankByProgramme,
-  getRankMedal,
   getRankColor,
+  getRankMedal,
   type RankableFestival,
+  rankByFollowers,
+  rankByProgramme,
+  rankByUpcoming,
 } from "@/lib/festival-rankings";
 
 const makeFestival = (

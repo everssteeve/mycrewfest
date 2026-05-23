@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -9,10 +9,7 @@ type RouteContext = { params: Promise<{ id: string; itemId: string }> };
  * Toggle done, update label or cost.
  * Body: { done?: boolean; label?: string; cost?: number | null; assigneeName?: string | null }
  */
-export async function PATCH(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function PATCH(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non connecté." }, { status: 401 });
@@ -74,10 +71,7 @@ export async function PATCH(
 /**
  * DELETE /api/festevents/[id]/checklist/[itemId]
  */
-export async function DELETE(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function DELETE(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non connecté." }, { status: 401 });

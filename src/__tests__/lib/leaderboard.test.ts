@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   buildLeaderboard,
-  getUserPosition,
   filterTopN,
-  resolveDisplayName,
+  getUserPosition,
   RANK_COLORS,
   RANK_LABELS,
+  resolveDisplayName,
 } from "@/lib/leaderboard";
 
 const BASE_USER = {
@@ -34,9 +34,9 @@ describe("resolveDisplayName", () => {
 describe("buildLeaderboard", () => {
   it("sorts by score descending", () => {
     const users = [
-      { ...BASE_USER, id: "u1", festEventsCount: 1 },  // score 10
-      { ...BASE_USER, id: "u2", festEventsCount: 5 },  // score 50
-      { ...BASE_USER, id: "u3", festEventsCount: 3 },  // score 30
+      { ...BASE_USER, id: "u1", festEventsCount: 1 }, // score 10
+      { ...BASE_USER, id: "u2", festEventsCount: 5 }, // score 50
+      { ...BASE_USER, id: "u3", festEventsCount: 3 }, // score 30
     ];
     const result = buildLeaderboard(users, {});
     expect(result[0].userId).toBe("u2");

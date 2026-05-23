@@ -1,12 +1,12 @@
-import { prisma } from "@/lib/prisma";
 import {
-  resolveCrewDisplayName,
+  type AdminCrewRow,
+  computeCrewStats,
   getCrewSizeTier,
   getCrewSizeTierColor,
+  resolveCrewDisplayName,
   sortCrewsBySize,
-  computeCrewStats,
-  type AdminCrewRow,
 } from "@/lib/admin-crews";
+import { prisma } from "@/lib/prisma";
 
 async function getAdminCrews(): Promise<AdminCrewRow[]> {
   const crews = await prisma.crew.findMany({
@@ -67,10 +67,30 @@ export default async function AdminCrewsPage() {
         }}
       >
         {[
-          { label: "Total crews", value: stats.total, color: "var(--text-main)", testid: "admin-crews-kpi-total" },
-          { label: "Total membres", value: stats.totalMembers, color: "var(--secondary-cyan)", testid: "admin-crews-kpi-members" },
-          { label: "Taille moy.", value: stats.avgSize, color: "var(--primary-neon)", testid: "admin-crews-kpi-avg" },
-          { label: "Avec fest.", value: stats.withFestEvent, color: "var(--accent-pink)", testid: "admin-crews-kpi-withfest" },
+          {
+            label: "Total crews",
+            value: stats.total,
+            color: "var(--text-main)",
+            testid: "admin-crews-kpi-total",
+          },
+          {
+            label: "Total membres",
+            value: stats.totalMembers,
+            color: "var(--secondary-cyan)",
+            testid: "admin-crews-kpi-members",
+          },
+          {
+            label: "Taille moy.",
+            value: stats.avgSize,
+            color: "var(--primary-neon)",
+            testid: "admin-crews-kpi-avg",
+          },
+          {
+            label: "Avec fest.",
+            value: stats.withFestEvent,
+            color: "var(--accent-pink)",
+            testid: "admin-crews-kpi-withfest",
+          },
         ].map((kpi) => (
           <div
             key={kpi.label}
@@ -210,7 +230,8 @@ export default async function AdminCrewsPage() {
                       style={{
                         fontFamily: "var(--font-mono)",
                         fontSize: "var(--fs-xs)",
-                        color: crew.festEventCount > 0 ? "var(--secondary-cyan)" : "var(--text-dim)",
+                        color:
+                          crew.festEventCount > 0 ? "var(--secondary-cyan)" : "var(--text-dim)",
                       }}
                     >
                       {crew.festEventCount}

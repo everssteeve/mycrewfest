@@ -1,9 +1,9 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { countByUrgency, countPinned, sortNewsItems } from "@/lib/festival-news";
 import { prisma } from "@/lib/prisma";
-import { sortNewsItems, countByUrgency, countPinned } from "@/lib/festival-news";
 import type { NewsItemSummary } from "@/lib/types";
 
 type PageContext = { params: Promise<{ slug: string }> };
@@ -17,7 +17,9 @@ const CATEGORY_LABELS: Record<string, string> = {
   autre: "Info",
 };
 
-async function fetchFestivalNews(slug: string): Promise<{ festivalName: string; items: NewsItemSummary[] } | null> {
+async function fetchFestivalNews(
+  slug: string,
+): Promise<{ festivalName: string; items: NewsItemSummary[] } | null> {
   const festival = await prisma.festival.findUnique({
     where: { slug },
     select: { id: true, name: true },
@@ -149,20 +151,30 @@ export default async function FestivalActualitesPage({ params }: PageContext) {
             data-testid={`festival-news-item-${item.id}`}
             style={{
               background: "var(--bg-card, #141519)",
-              border: item.urgencyLevel === "critique"
-                ? "1px solid rgba(255,51,85,0.4)"
-                : "1px solid var(--border-subtle, #1E1F26)",
-              borderLeft: item.urgencyLevel === "critique"
-                ? "3px solid var(--danger-red, #FF3355)"
-                : item.isPinned
-                  ? "3px solid var(--warning-orange, #FF9900)"
-                  : "3px solid transparent",
+              border:
+                item.urgencyLevel === "critique"
+                  ? "1px solid rgba(255,51,85,0.4)"
+                  : "1px solid var(--border-subtle, #1E1F26)",
+              borderLeft:
+                item.urgencyLevel === "critique"
+                  ? "3px solid var(--danger-red, #FF3355)"
+                  : item.isPinned
+                    ? "3px solid var(--warning-orange, #FF9900)"
+                    : "3px solid transparent",
               borderRadius: 10,
               padding: "12px 16px",
             }}
           >
             {/* Meta row */}
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 8,
+                marginBottom: 6,
+              }}
+            >
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                 <span
                   style={{
@@ -170,30 +182,54 @@ export default async function FestivalActualitesPage({ params }: PageContext) {
                     fontWeight: 700,
                     textTransform: "uppercase",
                     letterSpacing: "0.05em",
-                    color: item.urgencyLevel === "critique"
-                      ? "var(--danger-red, #FF3355)"
-                      : "var(--secondary-cyan, #00E5FF)",
+                    color:
+                      item.urgencyLevel === "critique"
+                        ? "var(--danger-red, #FF3355)"
+                        : "var(--secondary-cyan, #00E5FF)",
                   }}
                 >
                   {CATEGORY_LABELS[item.category] ?? item.category}
                 </span>
                 {item.isPinned && (
-                  <span style={{ fontSize: "0.68rem", color: "var(--warning-orange, #FF9900)" }}>★</span>
+                  <span style={{ fontSize: "0.68rem", color: "var(--warning-orange, #FF9900)" }}>
+                    ★
+                  </span>
                 )}
               </div>
-              <span style={{ fontSize: "0.68rem", color: "var(--text-dim, #666)", fontFamily: "var(--font-mono, monospace)", flexShrink: 0 }}>
-                {new Date(item.publishedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+              <span
+                style={{
+                  fontSize: "0.68rem",
+                  color: "var(--text-dim, #666)",
+                  fontFamily: "var(--font-mono, monospace)",
+                  flexShrink: 0,
+                }}
+              >
+                {new Date(item.publishedAt).toLocaleDateString("fr-FR", {
+                  day: "numeric",
+                  month: "short",
+                })}
               </span>
             </div>
 
             {/* Summary */}
-            <p style={{ margin: 0, fontSize: "0.85rem", lineHeight: 1.5, color: "var(--text-primary, #F0F0F0)" }}>
+            <p
+              style={{
+                margin: 0,
+                fontSize: "0.85rem",
+                lineHeight: 1.5,
+                color: "var(--text-primary, #F0F0F0)",
+              }}
+            >
               {item.sourceUrl ? (
                 <a
                   href={item.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{ color: "inherit", textDecoration: "underline", textDecorationColor: "var(--text-dim, #666)" }}
+                  style={{
+                    color: "inherit",
+                    textDecoration: "underline",
+                    textDecorationColor: "var(--text-dim, #666)",
+                  }}
                 >
                   {item.summary}
                 </a>
@@ -203,7 +239,15 @@ export default async function FestivalActualitesPage({ params }: PageContext) {
             </p>
 
             {/* Source */}
-            <p style={{ margin: "4px 0 0", fontSize: "0.68rem", color: "var(--text-dim, #666)", textTransform: "uppercase", letterSpacing: "0.04em" }}>
+            <p
+              style={{
+                margin: "4px 0 0",
+                fontSize: "0.68rem",
+                color: "var(--text-dim, #666)",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}
+            >
               {item.source}
             </p>
           </div>

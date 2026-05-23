@@ -14,17 +14,90 @@ export default function FestivalLoading() {
         }}
       >
         <div className="flex gap-2">
-          <div className="animate-pulse" style={{ height: 22, width: 100, borderRadius: 4, backgroundColor: "var(--bg-surface-elevated)" }} />
-          <div className="animate-pulse" style={{ height: 22, width: 60, borderRadius: 4, backgroundColor: "var(--bg-surface-elevated)" }} />
+          <div
+            className="animate-pulse"
+            style={{
+              height: 22,
+              width: 100,
+              borderRadius: 4,
+              backgroundColor: "var(--bg-surface-elevated)",
+            }}
+          />
+          <div
+            className="animate-pulse"
+            style={{
+              height: 22,
+              width: 60,
+              borderRadius: 4,
+              backgroundColor: "var(--bg-surface-elevated)",
+            }}
+          />
         </div>
-        <div className="animate-pulse" style={{ height: 36, width: "75%", borderRadius: 6, backgroundColor: "var(--bg-surface-elevated)" }} />
-        <div className="animate-pulse" style={{ height: 22, width: "45%", borderRadius: 4, backgroundColor: "var(--bg-surface-elevated)" }} />
-        <div className="animate-pulse" style={{ height: 16, width: "60%", borderRadius: 4, backgroundColor: "var(--bg-surface-elevated)" }} />
-        <div className="animate-pulse" style={{ height: 14, width: "90%", borderRadius: 4, backgroundColor: "var(--bg-surface-elevated)" }} />
-        <div className="animate-pulse" style={{ height: 14, width: "80%", borderRadius: 4, backgroundColor: "var(--bg-surface-elevated)" }} />
+        <div
+          className="animate-pulse"
+          style={{
+            height: 36,
+            width: "75%",
+            borderRadius: 6,
+            backgroundColor: "var(--bg-surface-elevated)",
+          }}
+        />
+        <div
+          className="animate-pulse"
+          style={{
+            height: 22,
+            width: "45%",
+            borderRadius: 4,
+            backgroundColor: "var(--bg-surface-elevated)",
+          }}
+        />
+        <div
+          className="animate-pulse"
+          style={{
+            height: 16,
+            width: "60%",
+            borderRadius: 4,
+            backgroundColor: "var(--bg-surface-elevated)",
+          }}
+        />
+        <div
+          className="animate-pulse"
+          style={{
+            height: 14,
+            width: "90%",
+            borderRadius: 4,
+            backgroundColor: "var(--bg-surface-elevated)",
+          }}
+        />
+        <div
+          className="animate-pulse"
+          style={{
+            height: 14,
+            width: "80%",
+            borderRadius: 4,
+            backgroundColor: "var(--bg-surface-elevated)",
+          }}
+        />
         <div className="flex gap-3 pt-2">
-          <div className="animate-pulse" style={{ height: 44, flex: 1, maxWidth: 260, borderRadius: "var(--radius-md)", backgroundColor: "var(--bg-surface-elevated)" }} />
-          <div className="animate-pulse" style={{ height: 44, width: 100, borderRadius: "var(--radius-md)", backgroundColor: "var(--bg-surface-elevated)" }} />
+          <div
+            className="animate-pulse"
+            style={{
+              height: 44,
+              flex: 1,
+              maxWidth: 260,
+              borderRadius: "var(--radius-md)",
+              backgroundColor: "var(--bg-surface-elevated)",
+            }}
+          />
+          <div
+            className="animate-pulse"
+            style={{
+              height: 44,
+              width: 100,
+              borderRadius: "var(--radius-md)",
+              backgroundColor: "var(--bg-surface-elevated)",
+            }}
+          />
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@ export interface FestivalIcsInput {
   name: string;
   slug: string;
   startDate: string; // ISO
-  endDate: string;   // ISO
+  endDate: string; // ISO
   city: string;
   country: string;
   description?: string;
@@ -16,11 +16,15 @@ function fmtDate(iso: string): string {
 
 function fmtDateTime(iso: string): string {
   // UTC datetime: YYYYMMDDTHHmmssZ
-  return iso.replace(/[-:.]/g, "").replace("000Z", "00Z").slice(0, 15) + "Z";
+  return `${iso.replace(/[-:.]/g, "").replace("000Z", "00Z").slice(0, 15)}Z`;
 }
 
 function escapeIcs(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\n/g, "\\n");
 }
 
 function foldLine(line: string): string {
@@ -31,7 +35,7 @@ function foldLine(line: string): string {
   parts.push(line.slice(0, 75));
   i = 75;
   while (i < line.length) {
-    parts.push(" " + line.slice(i, i + 74));
+    parts.push(` ${line.slice(i, i + 74)}`);
     i += 74;
   }
   return parts.join("\r\n");
@@ -73,7 +77,7 @@ export function buildFestivalIcs(festival: FestivalIcsInput, baseUrl = ""): stri
     "END:VCALENDAR",
   ];
 
-  return lines.join("\r\n") + "\r\n";
+  return `${lines.join("\r\n")}\r\n`;
 }
 
 export function festivalIcsFilename(slug: string): string {

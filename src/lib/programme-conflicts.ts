@@ -20,13 +20,10 @@ function resolveEnd(event: ConflictCheckable): Date | null {
  * Returns a Set of event IDs that overlap with at least one other selected event.
  * Only considers events with status "must-see" or "intéressé".
  */
-export function findConflictingEventIds<T extends ConflictCheckable>(
-  events: T[],
-): Set<string> {
+export function findConflictingEventIds<T extends ConflictCheckable>(events: T[]): Set<string> {
   const selected = events.filter(
     (e) =>
-      e.startTime &&
-      (e.selection?.status === "must-see" || e.selection?.status === "intéressé"),
+      e.startTime && (e.selection?.status === "must-see" || e.selection?.status === "intéressé"),
   );
 
   const conflicting = new Set<string>();
@@ -57,13 +54,10 @@ export function findConflictingEventIds<T extends ConflictCheckable>(
 /**
  * Returns the number of overlapping pairs among selected events (must-see or intéressé).
  */
-export function countConflictPairs<T extends ConflictCheckable>(
-  events: T[],
-): number {
+export function countConflictPairs<T extends ConflictCheckable>(events: T[]): number {
   const selected = events.filter(
     (e) =>
-      e.startTime &&
-      (e.selection?.status === "must-see" || e.selection?.status === "intéressé"),
+      e.startTime && (e.selection?.status === "must-see" || e.selection?.status === "intéressé"),
   );
 
   let pairs = 0;

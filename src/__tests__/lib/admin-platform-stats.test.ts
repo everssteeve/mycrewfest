@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   computeFestivalEngagementScore,
-  sortFestivalsByEngagement,
+  computeTotalEngagement,
   getEngagementTier,
   getEngagementTierColor,
-  computeTotalEngagement,
+  sortFestivalsByEngagement,
   type TopFestivalEntry,
 } from "@/lib/admin-platform-stats";
 
@@ -36,9 +36,9 @@ describe("computeFestivalEngagementScore", () => {
   });
 
   it("sums both weights correctly", () => {
-    expect(
-      computeFestivalEngagementScore(fest({ followersCount: 4, festEventsCount: 2 })),
-    ).toBe(10);
+    expect(computeFestivalEngagementScore(fest({ followersCount: 4, festEventsCount: 2 }))).toBe(
+      10,
+    );
   });
 });
 

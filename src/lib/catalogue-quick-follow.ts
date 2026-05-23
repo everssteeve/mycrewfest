@@ -3,9 +3,7 @@ export function buildFollowApiUrl(slug: string): string {
 }
 
 export function getFollowToggleAriaLabel(followed: boolean, festivalName: string): string {
-  return followed
-    ? `Ne plus suivre ${festivalName}`
-    : `Suivre ${festivalName}`;
+  return followed ? `Ne plus suivre ${festivalName}` : `Suivre ${festivalName}`;
 }
 
 export function getFollowButtonLabel(followed: boolean): string {

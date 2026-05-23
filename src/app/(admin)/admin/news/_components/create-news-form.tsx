@@ -1,8 +1,14 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useRef, useState } from "react";
+import {
+  CATEGORY_LABELS,
+  SOURCE_LABELS,
+  VALID_CATEGORIES,
+  VALID_SOURCES,
+  VALID_URGENCY,
+} from "@/lib/news-admin";
 import { createNewsItem } from "../_actions/create-news";
-import { VALID_SOURCES, VALID_CATEGORIES, VALID_URGENCY, SOURCE_LABELS, CATEGORY_LABELS } from "@/lib/news-admin";
 
 interface FestivalOption {
   id: string;
@@ -68,11 +74,21 @@ export function CreateNewsForm({ festivals }: Props) {
 
   return (
     <div style={{ marginBottom: "var(--space-xl)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-md)", marginBottom: open ? "var(--space-md)" : 0 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "var(--space-md)",
+          marginBottom: open ? "var(--space-md)" : 0,
+        }}
+      >
         <button
           data-testid="admin-news-create-toggle"
           type="button"
-          onClick={() => { setOpen((v) => !v); setError(null); }}
+          onClick={() => {
+            setOpen((v) => !v);
+            setError(null);
+          }}
           style={{
             padding: "8px 18px",
             background: open ? "transparent" : "var(--primary-neon)",
@@ -93,7 +109,11 @@ export function CreateNewsForm({ festivals }: Props) {
         {success && (
           <span
             data-testid="admin-news-create-success"
-            style={{ color: "var(--primary-neon)", fontSize: "var(--fs-sm)", fontFamily: "var(--font-body)" }}
+            style={{
+              color: "var(--primary-neon)",
+              fontSize: "var(--fs-sm)",
+              fontFamily: "var(--font-body)",
+            }}
           >
             ✓ News créée
           </span>
@@ -117,50 +137,74 @@ export function CreateNewsForm({ festivals }: Props) {
         >
           {/* Festival */}
           <div style={{ gridColumn: "1 / -1" }}>
-            <label htmlFor="news-festival" style={labelStyle}>Festival *</label>
+            <label htmlFor="news-festival" style={labelStyle}>
+              Festival *
+            </label>
             <select id="news-festival" name="festivalId" required style={inputStyle}>
               <option value="">— Choisir un festival —</option>
               {festivals.map((f) => (
-                <option key={f.id} value={f.id}>{f.name}</option>
+                <option key={f.id} value={f.id}>
+                  {f.name}
+                </option>
               ))}
             </select>
           </div>
 
           {/* Source */}
           <div>
-            <label htmlFor="news-source" style={labelStyle}>Source *</label>
+            <label htmlFor="news-source" style={labelStyle}>
+              Source *
+            </label>
             <select id="news-source" name="source" required style={inputStyle}>
               <option value="">— Choisir —</option>
               {VALID_SOURCES.map((s) => (
-                <option key={s} value={s}>{SOURCE_LABELS[s]}</option>
+                <option key={s} value={s}>
+                  {SOURCE_LABELS[s]}
+                </option>
               ))}
             </select>
           </div>
 
           {/* Category */}
           <div>
-            <label htmlFor="news-category" style={labelStyle}>Catégorie *</label>
+            <label htmlFor="news-category" style={labelStyle}>
+              Catégorie *
+            </label>
             <select id="news-category" name="category" required style={inputStyle}>
               <option value="">— Choisir —</option>
               {VALID_CATEGORIES.map((c) => (
-                <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
+                <option key={c} value={c}>
+                  {CATEGORY_LABELS[c]}
+                </option>
               ))}
             </select>
           </div>
 
           {/* Urgency */}
           <div>
-            <label htmlFor="news-urgency" style={labelStyle}>Urgence *</label>
-            <select id="news-urgency" name="urgencyLevel" defaultValue="normal" required style={inputStyle}>
+            <label htmlFor="news-urgency" style={labelStyle}>
+              Urgence *
+            </label>
+            <select
+              id="news-urgency"
+              name="urgencyLevel"
+              defaultValue="normal"
+              required
+              style={inputStyle}
+            >
               {VALID_URGENCY.map((u) => (
-                <option key={u} value={u}>{u === "critique" ? "Critique" : "Normal"}</option>
+                <option key={u} value={u}>
+                  {u === "critique" ? "Critique" : "Normal"}
+                </option>
               ))}
             </select>
           </div>
 
           {/* Published at */}
           <div>
-            <label htmlFor="news-published" style={labelStyle}>Date de publication *</label>
+            <label htmlFor="news-published" style={labelStyle}>
+              Date de publication *
+            </label>
             <input
               id="news-published"
               type="datetime-local"
@@ -173,7 +217,9 @@ export function CreateNewsForm({ festivals }: Props) {
 
           {/* Source URL */}
           <div style={{ gridColumn: "1 / -1" }}>
-            <label htmlFor="news-source-url" style={labelStyle}>Lien source (optionnel)</label>
+            <label htmlFor="news-source-url" style={labelStyle}>
+              Lien source (optionnel)
+            </label>
             <input
               id="news-source-url"
               type="url"
@@ -185,7 +231,9 @@ export function CreateNewsForm({ festivals }: Props) {
 
           {/* Summary */}
           <div style={{ gridColumn: "1 / -1" }}>
-            <label htmlFor="news-summary" style={labelStyle}>Résumé * (10–500 caractères)</label>
+            <label htmlFor="news-summary" style={labelStyle}>
+              Résumé * (10–500 caractères)
+            </label>
             <textarea
               id="news-summary"
               name="summary"

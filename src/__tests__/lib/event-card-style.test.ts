@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { getEventCardVisualState } from "@/lib/event-card-style";
 
 describe("getEventCardVisualState — opacity", () => {

@@ -80,7 +80,10 @@ function AgentCard({
         {description}
       </p>
 
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+      <form
+        onSubmit={handleSubmit}
+        style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}
+      >
         {fields.map((field) => (
           <div key={field.name}>
             <label

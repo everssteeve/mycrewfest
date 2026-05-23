@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import type { EventSummary } from "@/types";
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -11,10 +11,7 @@ type RouteContext = { params: Promise<{ id: string }> };
  * Returns the currently-playing event (or null) and the next must-see event
  * for the authenticated user, calculated from the current server time.
  */
-export async function GET(
-  _request: Request,
-  { params }: RouteContext,
-) {
+export async function GET(_request: Request, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Non connecté." }, { status: 401 });
@@ -58,9 +55,7 @@ export async function GET(
     },
   });
 
-  const toEventSummary = (
-    e: (typeof mustSeeSelections)[0]["event"],
-  ): EventSummary => ({
+  const toEventSummary = (e: (typeof mustSeeSelections)[0]["event"]): EventSummary => ({
     id: e.id,
     title: e.title,
     eventType: e.eventType as EventSummary["eventType"],
@@ -101,9 +96,7 @@ export async function GET(
     return afterStart && beforeEnd;
   });
 
-  const current: EventSummary | null = currentSel
-    ? toEventSummary(currentSel.event)
-    : null;
+  const current: EventSummary | null = currentSel ? toEventSummary(currentSel.event) : null;
 
   // Find next must-see event (startTime > now)
   const nextSel = mustSeeSelections.find((s) => {
@@ -111,9 +104,7 @@ export async function GET(
     return start != null && start > now;
   });
 
-  const next: EventSummary | null = nextSel
-    ? toEventSummary(nextSel.event)
-    : null;
+  const next: EventSummary | null = nextSel ? toEventSummary(nextSel.event) : null;
 
   const minsUntilNext: number | null =
     nextSel?.event.startTime != null

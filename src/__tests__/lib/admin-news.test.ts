@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  filterAdminNews,
-  sortAdminNewsByDate,
+  type AdminNewsRow,
   countCritiqueNews,
   countPinnedNews,
-  type AdminNewsRow,
+  filterAdminNews,
+  sortAdminNewsByDate,
 } from "@/lib/admin-news";
 
 function makeRow(overrides: Partial<AdminNewsRow> = {}): AdminNewsRow {
@@ -25,10 +25,41 @@ function makeRow(overrides: Partial<AdminNewsRow> = {}): AdminNewsRow {
 }
 
 const NEWS: AdminNewsRow[] = [
-  makeRow({ id: "n1", festivalName: "Hellfest", summary: "Annonce du lineup.", urgencyLevel: "normal", isPinned: true, publishedAt: "2026-05-10T00:00:00.000Z" }),
-  makeRow({ id: "n2", festivalName: "Solidays", summary: "Changement de scène.", urgencyLevel: "critique", isPinned: false, publishedAt: "2026-05-15T00:00:00.000Z", category: "logistique" }),
-  makeRow({ id: "n3", festivalName: "Vieilles Charrues", summary: "Billetterie ouverte.", urgencyLevel: "normal", isPinned: false, publishedAt: "2026-04-20T00:00:00.000Z", category: "autre" }),
-  makeRow({ id: "n4", festivalName: "Hellfest", summary: "Annulation d'un artiste.", urgencyLevel: "critique", isPinned: true, publishedAt: "2026-05-20T00:00:00.000Z", category: "annulation" }),
+  makeRow({
+    id: "n1",
+    festivalName: "Hellfest",
+    summary: "Annonce du lineup.",
+    urgencyLevel: "normal",
+    isPinned: true,
+    publishedAt: "2026-05-10T00:00:00.000Z",
+  }),
+  makeRow({
+    id: "n2",
+    festivalName: "Solidays",
+    summary: "Changement de scène.",
+    urgencyLevel: "critique",
+    isPinned: false,
+    publishedAt: "2026-05-15T00:00:00.000Z",
+    category: "logistique",
+  }),
+  makeRow({
+    id: "n3",
+    festivalName: "Vieilles Charrues",
+    summary: "Billetterie ouverte.",
+    urgencyLevel: "normal",
+    isPinned: false,
+    publishedAt: "2026-04-20T00:00:00.000Z",
+    category: "autre",
+  }),
+  makeRow({
+    id: "n4",
+    festivalName: "Hellfest",
+    summary: "Annulation d'un artiste.",
+    urgencyLevel: "critique",
+    isPinned: true,
+    publishedAt: "2026-05-20T00:00:00.000Z",
+    category: "annulation",
+  }),
 ];
 
 describe("filterAdminNews", () => {
@@ -44,7 +75,7 @@ describe("filterAdminNews", () => {
   it("filters by summary keyword", () => {
     const result = filterAdminNews(NEWS, "billetterie", "", "");
     expect(result).toHaveLength(1);
-    expect(result[0]!.id).toBe("n3");
+    expect(result[0]?.id).toBe("n3");
   });
 
   it("filters by urgencyLevel = critique", () => {
@@ -62,13 +93,13 @@ describe("filterAdminNews", () => {
   it("filters by category", () => {
     const result = filterAdminNews(NEWS, "", "", "logistique");
     expect(result).toHaveLength(1);
-    expect(result[0]!.id).toBe("n2");
+    expect(result[0]?.id).toBe("n2");
   });
 
   it("combines query and urgency filter", () => {
     const result = filterAdminNews(NEWS, "hell", "critique", "");
     expect(result).toHaveLength(1);
-    expect(result[0]!.id).toBe("n4");
+    expect(result[0]?.id).toBe("n4");
   });
 
   it("returns empty when no match", () => {
@@ -84,10 +115,10 @@ describe("filterAdminNews", () => {
 describe("sortAdminNewsByDate", () => {
   it("sorts by publishedAt descending", () => {
     const sorted = sortAdminNewsByDate(NEWS);
-    expect(sorted[0]!.id).toBe("n4"); // 2026-05-20
-    expect(sorted[1]!.id).toBe("n2"); // 2026-05-15
-    expect(sorted[2]!.id).toBe("n1"); // 2026-05-10
-    expect(sorted[3]!.id).toBe("n3"); // 2026-04-20
+    expect(sorted[0]?.id).toBe("n4"); // 2026-05-20
+    expect(sorted[1]?.id).toBe("n2"); // 2026-05-15
+    expect(sorted[2]?.id).toBe("n1"); // 2026-05-10
+    expect(sorted[3]?.id).toBe("n3"); // 2026-04-20
   });
 
   it("does not mutate the original array", () => {

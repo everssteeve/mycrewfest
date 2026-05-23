@@ -15,9 +15,7 @@ export interface AgendaIcsEvent {
 export function deriveAgendaEndIso(event: AgendaIcsEvent): string {
   if (event.endTime) return event.endTime;
   if (event.durationMins) {
-    const end = new Date(
-      new Date(event.startTime).getTime() + event.durationMins * 60_000,
-    );
+    const end = new Date(new Date(event.startTime).getTime() + event.durationMins * 60_000);
     return end.toISOString();
   }
   // Default: 1 hour
@@ -46,7 +44,5 @@ export function buildAgendaIcsEvent(event: AgendaIcsEvent): IcsEvent {
 }
 
 export function buildAgendaIcsEvents(events: AgendaIcsEvent[]): IcsEvent[] {
-  return events
-    .filter((e) => !!e.startTime)
-    .map(buildAgendaIcsEvent);
+  return events.filter((e) => !!e.startTime).map(buildAgendaIcsEvent);
 }

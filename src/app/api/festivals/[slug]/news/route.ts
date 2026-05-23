@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(
@@ -14,10 +14,7 @@ export async function GET(
     });
 
     if (!festival) {
-      return NextResponse.json(
-        { error: "Festival introuvable." },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Festival introuvable." }, { status: 404 });
     }
 
     const newsItems = await prisma.newsItem.findMany({

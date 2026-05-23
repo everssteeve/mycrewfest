@@ -1,9 +1,9 @@
-import { redirect } from "next/navigation";
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { ProfilView, type ProfilData } from "./_components/profil-view";
 import { extractSeenArtists, topSeenArtists } from "@/lib/seen-artists";
+import { type ProfilData, ProfilView } from "./_components/profil-view";
 
 export const metadata: Metadata = {
   title: "Mon profil",

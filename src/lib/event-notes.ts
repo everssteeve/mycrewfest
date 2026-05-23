@@ -10,7 +10,7 @@ export function validateEventNote(text: string): { valid: boolean; reason?: stri
 export function formatNotePreview(text: string, maxLen: number = 60): string {
   const trimmed = text.trim();
   if (trimmed.length <= maxLen) return trimmed;
-  return trimmed.slice(0, maxLen).trimEnd() + "…";
+  return `${trimmed.slice(0, maxLen).trimEnd()}…`;
 }
 
 export function parseNotesFromStorage(raw: string | null): Record<string, string> {

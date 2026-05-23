@@ -9,9 +9,7 @@ function toLocalYMD(iso: string): string {
 /**
  * Returns a map of YYYY-MM-DD → event count for events that have a startTime.
  */
-export function countEventsByDay<T extends SummaryFilterable>(
-  events: T[],
-): Map<string, number> {
+export function countEventsByDay<T extends SummaryFilterable>(events: T[]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const e of events) {
     if (!e.startTime) continue;
@@ -24,9 +22,7 @@ export function countEventsByDay<T extends SummaryFilterable>(
 /**
  * Returns the count of events without a startTime ("itinérant" events).
  */
-export function countItinerantEvents<T extends SummaryFilterable>(
-  events: T[],
-): number {
+export function countItinerantEvents<T extends SummaryFilterable>(events: T[]): number {
   return events.filter((e) => !e.startTime).length;
 }
 
@@ -40,9 +36,7 @@ export interface DurationSummable {
  * Sums total programme duration in minutes across all events.
  * Uses durationMins when available, otherwise derives from startTime/endTime.
  */
-export function computeProgrammeDurationMins<T extends DurationSummable>(
-  events: T[],
-): number {
+export function computeProgrammeDurationMins<T extends DurationSummable>(events: T[]): number {
   let total = 0;
   for (const e of events) {
     if (e.durationMins) {
@@ -84,9 +78,7 @@ export function computeAvgEventDurationMins<T extends DurationSummable>(
  * no events have duration data. Uses durationMins when available, otherwise derives
  * from startTime/endTime. Only positive durations are considered.
  */
-export function getMaxEventDurationMins<T extends DurationSummable>(
-  events: T[],
-): number | null {
+export function getMaxEventDurationMins<T extends DurationSummable>(events: T[]): number | null {
   let max: number | null = null;
   for (const e of events) {
     let mins: number | null = null;
@@ -113,18 +105,14 @@ export interface SelectionFilterable {
 /**
  * Returns the count of events with selection.status === "must-see".
  */
-export function countMustSeePendingEvents<T extends SelectionFilterable>(
-  events: T[],
-): number {
+export function countMustSeePendingEvents<T extends SelectionFilterable>(events: T[]): number {
   return events.filter((e) => e.selection?.status === "must-see").length;
 }
 
 /**
  * Returns the count of events with selection.status === "intéressé".
  */
-export function countIntéresséEvents<T extends SelectionFilterable>(
-  events: T[],
-): number {
+export function countIntéresséEvents<T extends SelectionFilterable>(events: T[]): number {
   return events.filter((e) => e.selection?.status === "intéressé").length;
 }
 
@@ -137,9 +125,7 @@ export interface SelectionDayFilterable {
  * Returns the number of distinct days that have at least one selected event
  * (status "must-see" or "intéressé"). Events without a startTime are excluded.
  */
-export function countSelectionDays<T extends SelectionDayFilterable>(
-  events: T[],
-): number {
+export function countSelectionDays<T extends SelectionDayFilterable>(events: T[]): number {
   const days = new Set<string>();
   for (const e of events) {
     if (!e.startTime) continue;
@@ -153,9 +139,7 @@ export function countSelectionDays<T extends SelectionDayFilterable>(
 /**
  * Returns a map of YYYY-MM-DD → vu event count for events with selection.status === "vu".
  */
-export function countVuEventsByDay<T extends VuCountFilterable>(
-  events: T[],
-): Map<string, number> {
+export function countVuEventsByDay<T extends VuCountFilterable>(events: T[]): Map<string, number> {
   const counts = new Map<string, number>();
   for (const e of events) {
     if (!e.startTime || e.selection?.status !== "vu") continue;
@@ -194,9 +178,7 @@ export interface TopVenueResult {
  * Returns the venue with the most events, or null when no events have a venue.
  * Ties are broken alphabetically by venue name.
  */
-export function getTopProgrammeVenue<T extends VenueNameable>(
-  events: T[],
-): TopVenueResult | null {
+export function getTopProgrammeVenue<T extends VenueNameable>(events: T[]): TopVenueResult | null {
   const counts = new Map<string, number>();
   for (const e of events) {
     if (e.venue?.name) {
@@ -310,9 +292,7 @@ export interface TopTagResult {
  * Returns the most common tag across all events, or null when no tags are present.
  * Ties are broken alphabetically (lowest tag name wins).
  */
-export function getTopProgrammeTag<T extends TaggableEvent>(
-  events: T[],
-): TopTagResult | null {
+export function getTopProgrammeTag<T extends TaggableEvent>(events: T[]): TopTagResult | null {
   const counts = new Map<string, number>();
   for (const e of events) {
     for (const tag of e.tags ?? []) {
@@ -389,9 +369,7 @@ export interface AgeRestrictedFilterable {
  * Returns the count of events that have any age restriction (ageMin or ageMax set
  * to a positive value).
  */
-export function countAgeRestrictedEvents<T extends AgeRestrictedFilterable>(
-  events: T[],
-): number {
+export function countAgeRestrictedEvents<T extends AgeRestrictedFilterable>(events: T[]): number {
   return events.filter(
     (e) => (e.ageMin != null && e.ageMin > 0) || (e.ageMax != null && e.ageMax > 0),
   ).length;
@@ -421,10 +399,7 @@ export interface NightFilterable {
  * Returns the count of events that start at or after `nightHour` (default: 22h).
  * Events without a startTime are excluded.
  */
-export function countNightEvents<T extends NightFilterable>(
-  events: T[],
-  nightHour = 22,
-): number {
+export function countNightEvents<T extends NightFilterable>(events: T[], nightHour = 22): number {
   return events.filter((e) => {
     if (!e.startTime) return false;
     return new Date(e.startTime).getHours() >= nightHour;
@@ -499,9 +474,7 @@ export function getEarliestEventStartTime<T extends TimeRangeFilterable>(
  * startTime + durationMins, or startTime + 1h as fallback), or null when no
  * events have a startTime.
  */
-export function getLatestEventEndTime<T extends TimeRangeFilterable>(
-  events: T[],
-): string | null {
+export function getLatestEventEndTime<T extends TimeRangeFilterable>(events: T[]): string | null {
   let latest: string | null = null;
   for (const e of events) {
     if (!e.startTime) continue;

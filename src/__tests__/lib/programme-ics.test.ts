@@ -1,16 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  isExportable,
-  deriveEndIso,
-  toIcsEvent,
   buildProgrammeIcs,
   countExportableEvents,
+  deriveEndIso,
   type IcsConvertible,
+  isExportable,
+  toIcsEvent,
 } from "@/lib/programme-ics";
 
-const makeEvent = (
-  overrides: Partial<IcsConvertible> = {},
-): IcsConvertible => ({
+const makeEvent = (overrides: Partial<IcsConvertible> = {}): IcsConvertible => ({
   id: "evt-1",
   title: "Concert",
   startTime: "2026-06-19T20:00:00.000Z",
@@ -31,20 +29,34 @@ describe("isExportable", () => {
 
   describe("filter=must-see", () => {
     it("true for must-see", () => expect(isExportable(makeEvent(), "must-see")).toBe(true));
-    it("false for intéressant", () => expect(isExportable(makeEvent({ selection: { status: "intéressant" } }), "must-see")).toBe(false));
-    it("false for null selection", () => expect(isExportable(makeEvent({ selection: null }), "must-see")).toBe(false));
+    it("false for intéressant", () =>
+      expect(isExportable(makeEvent({ selection: { status: "intéressant" } }), "must-see")).toBe(
+        false,
+      ));
+    it("false for null selection", () =>
+      expect(isExportable(makeEvent({ selection: null }), "must-see")).toBe(false));
   });
 
   describe("filter=selected", () => {
-    it("true for must-see", () => expect(isExportable(makeEvent({ selection: { status: "must-see" } }), "selected")).toBe(true));
-    it("true for intéressant", () => expect(isExportable(makeEvent({ selection: { status: "intéressant" } }), "selected")).toBe(true));
-    it("false for vu", () => expect(isExportable(makeEvent({ selection: { status: "vu" } }), "selected")).toBe(false));
-    it("false for null", () => expect(isExportable(makeEvent({ selection: null }), "selected")).toBe(false));
+    it("true for must-see", () =>
+      expect(isExportable(makeEvent({ selection: { status: "must-see" } }), "selected")).toBe(
+        true,
+      ));
+    it("true for intéressant", () =>
+      expect(isExportable(makeEvent({ selection: { status: "intéressant" } }), "selected")).toBe(
+        true,
+      ));
+    it("false for vu", () =>
+      expect(isExportable(makeEvent({ selection: { status: "vu" } }), "selected")).toBe(false));
+    it("false for null", () =>
+      expect(isExportable(makeEvent({ selection: null }), "selected")).toBe(false));
   });
 
   describe("filter=all-with-time", () => {
-    it("true for any event with startTime", () => expect(isExportable(makeEvent({ selection: null }), "all-with-time")).toBe(true));
-    it("false without startTime", () => expect(isExportable(makeEvent({ startTime: null }), "all-with-time")).toBe(false));
+    it("true for any event with startTime", () =>
+      expect(isExportable(makeEvent({ selection: null }), "all-with-time")).toBe(true));
+    it("false without startTime", () =>
+      expect(isExportable(makeEvent({ startTime: null }), "all-with-time")).toBe(false));
   });
 });
 

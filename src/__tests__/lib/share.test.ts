@@ -1,5 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { shareOrCopy, buildFestivalSharePayload, buildArtistSharePayload, type SharePayload } from "@/lib/share";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  buildArtistSharePayload,
+  buildFestivalSharePayload,
+  type SharePayload,
+  shareOrCopy,
+} from "@/lib/share";
 
 const PAYLOAD: SharePayload = {
   title: "Hellfest 2026",
@@ -43,7 +48,7 @@ describe("buildFestivalSharePayload", () => {
     const p = buildFestivalSharePayload(
       "Hellfest 2026",
       "hellfest-2026",
-      "https://app.mycrewfest.com"
+      "https://app.mycrewfest.com",
     );
     expect(p.title).toBe("Hellfest 2026");
     expect(p.url).toBe("https://app.mycrewfest.com/festival/hellfest-2026");

@@ -14,14 +14,18 @@ function foldLine(line: string): string {
   let remaining = line;
   while (remaining.length > max) {
     parts.push(remaining.slice(0, max));
-    remaining = " " + remaining.slice(max);
+    remaining = ` ${remaining.slice(max)}`;
   }
   parts.push(remaining);
   return parts.join("\r\n");
 }
 
 function escapeText(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\n/g, "\\n");
 }
 
 function toIcsDateTime(iso: string): string {
@@ -94,5 +98,5 @@ export function generateIcs(events: IcsEvent[], calendarName: string): string {
   const footer = "END:VCALENDAR";
 
   const parts = [header, tzBlock, ...vevents, footer];
-  return parts.join("\r\n") + "\r\n";
+  return `${parts.join("\r\n")}\r\n`;
 }

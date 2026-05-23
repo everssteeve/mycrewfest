@@ -1,5 +1,5 @@
-import { type HTMLAttributes } from "react";
 import { clsx } from "clsx";
+import type { HTMLAttributes } from "react";
 
 interface ScreenWrapperProps extends HTMLAttributes<HTMLDivElement> {
   withHeader?: boolean;
@@ -34,12 +34,7 @@ export function ScreenWrapper({
       }}
       {...props}
     >
-      <div
-        className={clsx(
-          "w-full px-4",
-          maxWidth && "mx-auto max-w-[var(--max-content)]",
-        )}
-      >
+      <div className={clsx("w-full px-4", maxWidth && "mx-auto max-w-[var(--max-content)]")}>
         {children}
       </div>
     </div>

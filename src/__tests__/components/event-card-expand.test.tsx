@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import { EventCard } from "@/components/festevent/event-card";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
+import { EventCard } from "@/components/festevent/event-card";
 
 function makeEvent(
   override: Partial<EventWithSelectionAndConfidence> = {},
@@ -30,7 +30,17 @@ describe("EventCard — expand artist details", () => {
   it("does not show expand button when artist has no details", () => {
     render(
       <EventCard
-        event={makeEvent({ artist: { id: "a1", name: "Artiste", description: null, disciplines: [], countryCode: null, siteUrl: null, instagram: null } })}
+        event={makeEvent({
+          artist: {
+            id: "a1",
+            name: "Artiste",
+            description: null,
+            disciplines: [],
+            countryCode: null,
+            siteUrl: null,
+            instagram: null,
+          },
+        })}
         onSelectionCycle={onSelectionCycle}
       />,
     );

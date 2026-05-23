@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { CheckCircle } from "lucide-react";
+import { useState } from "react";
 
 export function SoumettreForm() {
   const [name, setName] = useState("");
@@ -58,10 +58,7 @@ export function SoumettreForm() {
         >
           Soumission envoyée !
         </p>
-        <p
-          className="t-caption"
-          style={{ color: "var(--text-muted)", maxWidth: 260 }}
-        >
+        <p className="t-caption" style={{ color: "var(--text-muted)", maxWidth: 260 }}>
           Merci ! On va vérifier ça et l'ajouter au catalogue prochainement.
         </p>
       </div>
@@ -84,11 +81,7 @@ export function SoumettreForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="festival-name"
-          className="t-meta"
-          style={{ color: "var(--text-muted)" }}
-        >
+        <label htmlFor="festival-name" className="t-meta" style={{ color: "var(--text-muted)" }}>
           Nom du festival
         </label>
         <input
@@ -113,11 +106,7 @@ export function SoumettreForm() {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label
-          htmlFor="festival-url"
-          className="t-meta"
-          style={{ color: "var(--text-muted)" }}
-        >
+        <label htmlFor="festival-url" className="t-meta" style={{ color: "var(--text-muted)" }}>
           URL officielle
         </label>
         <input
@@ -140,11 +129,7 @@ export function SoumettreForm() {
       </div>
 
       {error && (
-        <p
-          className="t-caption"
-          role="alert"
-          style={{ color: "var(--danger-red)" }}
-        >
+        <p className="t-caption" role="alert" style={{ color: "var(--danger-red)" }}>
           {error}
         </p>
       )}

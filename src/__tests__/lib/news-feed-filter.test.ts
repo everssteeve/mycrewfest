@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  filterFeedByFestival,
+  type FeedItem,
   filterFeedByCategory,
+  filterFeedByFestival,
   getAvailableCategoriesFromFeed,
   getFollowedFestivalsFromFeed,
-  type FeedItem,
 } from "@/lib/news-feed";
 
 const makeItem = (

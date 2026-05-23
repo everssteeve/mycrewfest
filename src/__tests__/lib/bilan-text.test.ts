@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { generateBilanText } from "@/lib/bilan-text";
+import { describe, expect, it } from "vitest";
 import type { BilantableEvent } from "@/lib/bilan";
+import { generateBilanText } from "@/lib/bilan-text";
 
 function ev(
   title: string,
@@ -63,10 +63,7 @@ describe("generateBilanText — missed must-sees", () => {
   });
 
   it("shows warning count for missed must-sees", () => {
-    const result = generateBilanText(
-      [ev("A", "must-see"), ev("B", "must-see")],
-      "Fest",
-    );
+    const result = generateBilanText([ev("A", "must-see"), ev("B", "must-see")], "Fest");
     expect(result).toContain("2 must-see manqués");
   });
 

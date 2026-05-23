@@ -1,5 +1,10 @@
 export type CountdownState = "upcoming" | "ongoing" | "past";
-export type CountdownBadgeState = "upcoming_urgent" | "upcoming_soon" | "upcoming" | "ongoing" | "past";
+export type CountdownBadgeState =
+  | "upcoming_urgent"
+  | "upcoming_soon"
+  | "upcoming"
+  | "ongoing"
+  | "past";
 
 export interface CountdownInfo {
   state: CountdownState;
@@ -20,7 +25,7 @@ export interface CountdownInfo {
 export function getFestivalCountdown(
   startDate: Date,
   endDate: Date,
-  now: Date = new Date()
+  now: Date = new Date(),
 ): CountdownInfo {
   const nowMs = now.getTime();
   const startMs = startDate.getTime();

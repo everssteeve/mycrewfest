@@ -1,17 +1,17 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  type AgeRestrictionFilterable,
+  type DurationFilterable,
+  matchesAgeRestrictionFilter,
+  matchesDurationFilter,
   matchesProgrammeQuery,
   matchesSelectionFilter,
   matchesTagFilter,
   matchesVenueFilter,
-  matchesDurationFilter,
-  matchesAgeRestrictionFilter,
   type SearchableEvent,
   type SelectionFilterable,
   type TagFilterable,
   type VenueFilterable,
-  type DurationFilterable,
-  type AgeRestrictionFilterable,
 } from "@/lib/programme-search";
 
 const BASE: SearchableEvent = {
@@ -253,7 +253,10 @@ describe("matchesDurationFilter", () => {
 // matchesAgeRestrictionFilter
 // ---------------------------------------------------------------------------
 
-const age = (ageMin?: number | null, ageMax?: number | null): AgeRestrictionFilterable => ({ ageMin, ageMax });
+const age = (ageMin?: number | null, ageMax?: number | null): AgeRestrictionFilterable => ({
+  ageMin,
+  ageMax,
+});
 
 describe("matchesAgeRestrictionFilter", () => {
   it("always returns true when showOnlyRestricted is false", () => {

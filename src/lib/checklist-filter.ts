@@ -42,9 +42,7 @@ export function countUnassignedPendingItems<T extends AssigneeStatsItem>(items: 
  * Returns per-assignee task completion stats, sorted alphabetically.
  * Only includes items that have an assigneeName.
  */
-export function computeAssigneeStats<T extends AssigneeStatsItem>(
-  items: T[],
-): AssigneeStat[] {
+export function computeAssigneeStats<T extends AssigneeStatsItem>(items: T[]): AssigneeStat[] {
   const map = new Map<string, { total: number; done: number }>();
 
   for (const item of items) {
@@ -85,7 +83,11 @@ export function getMostLoadedAssignee<T extends AssigneeStatsItem>(
   if (pending.size === 0) return null;
   let top: MostLoadedResult | null = null;
   for (const [assigneeName, pendingCount] of pending) {
-    if (!top || pendingCount > top.pendingCount || (pendingCount === top.pendingCount && assigneeName < top.assigneeName)) {
+    if (
+      !top ||
+      pendingCount > top.pendingCount ||
+      (pendingCount === top.pendingCount && assigneeName < top.assigneeName)
+    ) {
       top = { assigneeName, pendingCount };
     }
   }

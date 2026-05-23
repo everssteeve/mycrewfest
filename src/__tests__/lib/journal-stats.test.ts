@@ -1,5 +1,13 @@
-import { describe, it, expect } from "vitest";
-import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos, getDaysSinceLastEntry, computeAvgEntriesPerDay, type JournalStatsEntry } from "@/lib/journal-stats";
+import { describe, expect, it } from "vitest";
+import {
+  computeAvgEntriesPerDay,
+  computeJournalStats,
+  countDaysWithPhotos,
+  countTotalJournalPhotos,
+  getDaysSinceLastEntry,
+  getMostActiveJournalDay,
+  type JournalStatsEntry,
+} from "@/lib/journal-stats";
 
 const entry = (overrides: Partial<JournalStatsEntry> = {}): JournalStatsEntry => ({
   timestamp: "2025-07-15T14:30:00Z",
@@ -9,7 +17,14 @@ const entry = (overrides: Partial<JournalStatsEntry> = {}): JournalStatsEntry =>
 
 describe("computeJournalStats", () => {
   it("returns zeros for empty array", () => {
-    expect(computeJournalStats([])).toEqual({ totalEntries: 0, totalDays: 0, entriesWithPhotos: 0, totalWords: 0, maxStreakDays: 0, avgWordsPerEntry: 0 });
+    expect(computeJournalStats([])).toEqual({
+      totalEntries: 0,
+      totalDays: 0,
+      entriesWithPhotos: 0,
+      totalWords: 0,
+      maxStreakDays: 0,
+      avgWordsPerEntry: 0,
+    });
   });
 
   it("counts total entries", () => {
@@ -73,10 +88,7 @@ describe("computeJournalStats", () => {
   });
 
   it("all entries with photos", () => {
-    const entries = [
-      entry({ photos: ["a.jpg"] }),
-      entry({ photos: ["b.jpg"] }),
-    ];
+    const entries = [entry({ photos: ["a.jpg"] }), entry({ photos: ["b.jpg"] })];
     expect(computeJournalStats(entries).entriesWithPhotos).toBe(2);
   });
 });
@@ -103,10 +115,7 @@ describe("computeJournalStats — totalWords", () => {
   });
 
   it("sums words across multiple entries", () => {
-    const entries = [
-      entry({ freeText: "un deux trois" }),
-      entry({ freeText: "quatre cinq" }),
-    ];
+    const entries = [entry({ freeText: "un deux trois" }), entry({ freeText: "quatre cinq" })];
     expect(computeJournalStats(entries).totalWords).toBe(5);
   });
 
@@ -181,7 +190,7 @@ describe("computeJournalStats — avgWordsPerEntry", () => {
 
   it("computes average from freeText", () => {
     const entries = [
-      entry({ freeText: "hello world" }),       // 2 words
+      entry({ freeText: "hello world" }), // 2 words
       entry({ freeText: "one two three four" }), // 4 words
     ];
     // avg = (2+4)/2 = 3
@@ -197,8 +206,8 @@ describe("computeJournalStats — avgWordsPerEntry", () => {
 
   it("rounds to nearest integer", () => {
     const entries = [
-      entry({ freeText: "one" }),      // 1 word
-      entry({ freeText: "a b" }),      // 2 words
+      entry({ freeText: "one" }), // 1 word
+      entry({ freeText: "a b" }), // 2 words
     ];
     // avg = 1.5 → rounds to 2
     expect(computeJournalStats(entries).avgWordsPerEntry).toBe(2);
@@ -243,10 +252,7 @@ describe("getMostActiveJournalDay", () => {
   });
 
   it("breaks ties by earliest date", () => {
-    const entries = [
-      { timestamp: "2025-07-14T10:00:00Z" },
-      { timestamp: "2025-07-16T10:00:00Z" },
-    ];
+    const entries = [{ timestamp: "2025-07-14T10:00:00Z" }, { timestamp: "2025-07-16T10:00:00Z" }];
     const result = getMostActiveJournalDay(entries);
     expect(result?.count).toBe(1);
   });
@@ -378,10 +384,7 @@ describe("getDaysSinceLastEntry", () => {
   });
 
   it("ignores entries with invalid timestamps", () => {
-    const entries = [
-      { timestamp: "invalid" },
-      { timestamp: "2026-05-22T10:00:00Z" },
-    ];
+    const entries = [{ timestamp: "invalid" }, { timestamp: "2026-05-22T10:00:00Z" }];
     expect(getDaysSinceLastEntry(entries, NOW)).toBe(1);
   });
 

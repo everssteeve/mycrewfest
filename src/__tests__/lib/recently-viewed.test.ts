@@ -1,9 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  loadRecentlyViewed,
   addToRecentlyViewed,
-  saveRecentlyViewed,
   clearRecentlyViewed,
+  loadRecentlyViewed,
+  saveRecentlyViewed,
 } from "@/lib/recently-viewed";
 
 const ENTRY_A = { slug: "hellfest-2026", name: "Hellfest", city: "Clisson" };
@@ -68,9 +68,15 @@ describe("loadRecentlyViewed", () => {
         let store: Record<string, string> = {};
         return {
           getItem: (k: string) => store[k] ?? null,
-          setItem: (k: string, v: string) => { store[k] = v; },
-          removeItem: (k: string) => { delete store[k]; },
-          clear: () => { store = {}; },
+          setItem: (k: string, v: string) => {
+            store[k] = v;
+          },
+          removeItem: (k: string) => {
+            delete store[k];
+          },
+          clear: () => {
+            store = {};
+          },
         };
       })(),
     });
@@ -92,7 +98,12 @@ describe("loadRecentlyViewed", () => {
 
   it("filters out entries missing slug or name", () => {
     const raw = [
-      { slug: "hellfest-2026", name: "Hellfest", city: "Clisson", viewedAt: "2026-01-01T00:00:00.000Z" },
+      {
+        slug: "hellfest-2026",
+        name: "Hellfest",
+        city: "Clisson",
+        viewedAt: "2026-01-01T00:00:00.000Z",
+      },
       { name: "No Slug", city: "X", viewedAt: "2026-01-01T00:00:00.000Z" },
       { slug: "no-name", city: "X", viewedAt: "2026-01-01T00:00:00.000Z" },
     ];
@@ -116,9 +127,15 @@ describe("clearRecentlyViewed", () => {
         let store: Record<string, string> = {};
         return {
           getItem: (k: string) => store[k] ?? null,
-          setItem: (k: string, v: string) => { store[k] = v; },
-          removeItem: (k: string) => { delete store[k]; },
-          clear: () => { store = {}; },
+          setItem: (k: string, v: string) => {
+            store[k] = v;
+          },
+          removeItem: (k: string) => {
+            delete store[k];
+          },
+          clear: () => {
+            store = {};
+          },
         };
       })(),
     });

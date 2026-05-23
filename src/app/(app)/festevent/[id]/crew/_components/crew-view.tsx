@@ -1,15 +1,19 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Avatar, AvatarStack } from "@/components/ui/avatar";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useEffect, useMemo, useState } from "react";
 import { CrewCompass } from "@/components/crew/crew-compass";
 import { QuickStatusBar } from "@/components/crew/quick-status-bar";
 import { RallyPoint } from "@/components/crew/rally-point";
+import { Avatar, AvatarStack } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  countCrewAdmins,
+  countCrewMembersActiveGeoloc,
+  countCrewMembersWithGeoloc,
+} from "@/lib/crew-stats";
 import { useCrewStore } from "@/store/use-crew-store";
 import type { CrewData, CrewMemberData, EventSummary, QuickStatus } from "@/types";
-import { countCrewAdmins, countCrewMembersWithGeoloc, countCrewMembersActiveGeoloc } from "@/lib/crew-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -45,6 +49,7 @@ function GeolocIcon({ status }: { status: "off" | "active" | "background" }) {
   if (status === "active") {
     return (
       <span
+        role="img"
         title="Géoloc active"
         style={{ color: "var(--primary-neon)", fontSize: 12 }}
         aria-label="Géoloc active"
@@ -56,6 +61,7 @@ function GeolocIcon({ status }: { status: "off" | "active" | "background" }) {
   if (status === "background") {
     return (
       <span
+        role="img"
         title="Géoloc en arrière-plan"
         style={{ color: "var(--warning-orange)", fontSize: 12 }}
         aria-label="Géoloc arrière-plan"
@@ -66,6 +72,7 @@ function GeolocIcon({ status }: { status: "off" | "active" | "background" }) {
   }
   return (
     <span
+      role="img"
       title="Géoloc désactivée"
       style={{ color: "var(--text-dim)", fontSize: 12 }}
       aria-label="Géoloc désactivée"
@@ -189,10 +196,7 @@ function EmptyCrewState({
       </div>
 
       <div style={{ textAlign: "center" }}>
-        <h2
-          className="t-h2"
-          style={{ color: "var(--text-main)", marginBottom: "var(--space-sm)" }}
-        >
+        <h2 className="t-h2" style={{ color: "var(--text-main)", marginBottom: "var(--space-sm)" }}>
           Pas encore de crew
         </h2>
         <p
@@ -217,18 +221,10 @@ function EmptyCrewState({
             maxWidth: 320,
           }}
         >
-          <Button
-            variant="primary"
-            fullWidth
-            onClick={() => setView("create")}
-          >
+          <Button variant="primary" fullWidth onClick={() => setView("create")}>
             Créer un crew
           </Button>
-          <Button
-            variant="ghost"
-            fullWidth
-            onClick={() => setView("join")}
-          >
+          <Button variant="ghost" fullWidth onClick={() => setView("join")}>
             Rejoindre avec un code
           </Button>
         </div>
@@ -245,6 +241,7 @@ function EmptyCrewState({
           }}
         >
           <label
+            htmlFor="crew-name-input"
             style={{
               fontFamily: "var(--font-body)",
               fontSize: "var(--fs-sm)",
@@ -254,6 +251,7 @@ function EmptyCrewState({
             Nom du crew
           </label>
           <input
+            id="crew-name-input"
             type="text"
             placeholder="Les Incroyables, Squad A, …"
             value={crewName}
@@ -281,18 +279,16 @@ function EmptyCrewState({
               {error}
             </p>
           )}
-          <Button
-            variant="primary"
-            fullWidth
-            loading={loading}
-            onClick={handleCreate}
-          >
+          <Button variant="primary" fullWidth loading={loading} onClick={handleCreate}>
             Créer
           </Button>
           <Button
             variant="ghost"
             fullWidth
-            onClick={() => { setView("idle"); setError(null); }}
+            onClick={() => {
+              setView("idle");
+              setError(null);
+            }}
           >
             Annuler
           </Button>
@@ -310,6 +306,7 @@ function EmptyCrewState({
           }}
         >
           <label
+            htmlFor="invite-code-input"
             style={{
               fontFamily: "var(--font-body)",
               fontSize: "var(--fs-sm)",
@@ -319,6 +316,7 @@ function EmptyCrewState({
             Code d&apos;invitation
           </label>
           <input
+            id="invite-code-input"
             type="text"
             placeholder="Colle le code ici"
             value={inviteCode}
@@ -346,18 +344,16 @@ function EmptyCrewState({
               {error}
             </p>
           )}
-          <Button
-            variant="cyan"
-            fullWidth
-            loading={loading}
-            onClick={handleJoin}
-          >
+          <Button variant="cyan" fullWidth loading={loading} onClick={handleJoin}>
             Rejoindre
           </Button>
           <Button
             variant="ghost"
             fullWidth
-            onClick={() => { setView("idle"); setError(null); }}
+            onClick={() => {
+              setView("idle");
+              setError(null);
+            }}
           >
             Annuler
           </Button>
@@ -375,10 +371,7 @@ function computeSharedSelections(
   members: CrewMemberData[],
   memberSelectionsMap: Record<string, EventSummary[]>,
 ): CrewSelection[] {
-  const eventMap = new Map<
-    string,
-    { event: EventSummary; memberNames: string[] }
-  >();
+  const eventMap = new Map<string, { event: EventSummary; memberNames: string[] }>();
 
   for (const member of members) {
     const sels = memberSelectionsMap[member.userId] ?? [];
@@ -404,9 +397,7 @@ function computeSharedSelections(
       endTime: event.endTime ?? null,
       memberNames,
     }))
-    .sort((a, b) =>
-      (a.startTime ?? "").localeCompare(b.startTime ?? ""),
-    );
+    .sort((a, b) => (a.startTime ?? "").localeCompare(b.startTime ?? ""));
 }
 
 function computeFreeMoments(
@@ -421,10 +412,7 @@ function computeFreeMoments(
   if (allEvents.length === 0) return [];
 
   const times = allEvents
-    .flatMap((e) => [
-      new Date(e.startTime!).getTime(),
-      new Date(e.endTime!).getTime(),
-    ])
+    .flatMap((e) => [new Date(e.startTime!).getTime(), new Date(e.endTime!).getTime()])
     .sort((a, b) => a - b);
 
   if (times.length < 2) return [];
@@ -478,9 +466,9 @@ function WithCrewView({
 }) {
   const { quickStatus, setQuickStatus, setCrew, setRallyPoint } = useCrewStore();
   const [copied, setCopied] = useState(false);
-  const [memberSelectionsMap, setMemberSelectionsMap] = useState<
-    Record<string, EventSummary[]>
-  >({ [myUserId]: mySelections });
+  const [memberSelectionsMap, _setMemberSelectionsMap] = useState<Record<string, EventSummary[]>>({
+    [myUserId]: mySelections,
+  });
   const [localCrew, setLocalCrew] = useState<CrewData>(crew);
 
   const myMember = localCrew.members.find((m) => m.userId === myUserId);
@@ -488,8 +476,14 @@ function WithCrewView({
   const inviteLink = `https://mycrewfest.app/join/${localCrew.inviteCode}`;
 
   const adminCount = useMemo(() => countCrewAdmins(localCrew.members), [localCrew.members]);
-  const geolocCount = useMemo(() => countCrewMembersWithGeoloc(localCrew.members), [localCrew.members]);
-  const activeGeolocCount = useMemo(() => countCrewMembersActiveGeoloc(localCrew.members), [localCrew.members]);
+  const geolocCount = useMemo(
+    () => countCrewMembersWithGeoloc(localCrew.members),
+    [localCrew.members],
+  );
+  const activeGeolocCount = useMemo(
+    () => countCrewMembersActiveGeoloc(localCrew.members),
+    [localCrew.members],
+  );
 
   // Copy invite link
   async function handleCopyCode() {
@@ -518,10 +512,7 @@ function WithCrewView({
   // Update store on load
   useEffect(() => {
     setCrew(localCrew);
-    if (
-      localCrew.rallyLatitude != null &&
-      localCrew.rallyLongitude != null
-    ) {
+    if (localCrew.rallyLatitude != null && localCrew.rallyLongitude != null) {
       setRallyPoint({
         lat: localCrew.rallyLatitude,
         lng: localCrew.rallyLongitude,
@@ -531,11 +522,7 @@ function WithCrewView({
   }, [localCrew, setCrew, setRallyPoint]);
 
   // Handle rally point update
-  function handleRallyUpdated(point: {
-    lat: number;
-    lng: number;
-    description?: string;
-  }) {
+  function handleRallyUpdated(point: { lat: number; lng: number; description?: string }) {
     setRallyPoint(point);
     setLocalCrew((prev) => ({
       ...prev,
@@ -551,14 +538,8 @@ function WithCrewView({
   }
 
   // Compute shared planning data
-  const sharedSelections = computeSharedSelections(
-    localCrew.members,
-    memberSelectionsMap,
-  );
-  const freeMoments = computeFreeMoments(
-    localCrew.members,
-    memberSelectionsMap,
-  );
+  const sharedSelections = computeSharedSelections(localCrew.members, memberSelectionsMap);
+  const freeMoments = computeFreeMoments(localCrew.members, memberSelectionsMap);
 
   return (
     <div
@@ -694,7 +675,14 @@ function WithCrewView({
 
         {/* Crew stats strip */}
         {localCrew.members.length > 0 && (
-          <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap", marginBottom: "var(--space-xs)" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: "var(--space-sm)",
+              flexWrap: "wrap",
+              marginBottom: "var(--space-xs)",
+            }}
+          >
             {geolocCount > 0 && (
               <span
                 data-testid="crew-geoloc-count"
@@ -857,9 +845,7 @@ function WithCrewView({
                     flexShrink: 0,
                   }}
                 >
-                  <span style={{ fontSize: 12 }}>
-                    {STATUS_META[quickStatus].icon}
-                  </span>
+                  <span style={{ fontSize: 12 }}>{STATUS_META[quickStatus].icon}</span>
                   <span
                     style={{
                       fontFamily: "var(--font-body)",
@@ -877,11 +863,7 @@ function WithCrewView({
       </div>
 
       {/* ── Crew Compass ──────────────────────────────────────────────────── */}
-      <CrewCompass
-        crewId={localCrew.id}
-        members={localCrew.members}
-        myUserId={myUserId}
-      />
+      <CrewCompass crewId={localCrew.id} members={localCrew.members} myUserId={myUserId} />
 
       {/* ── Plannings en commun ───────────────────────────────────────────── */}
       {sharedSelections.length > 0 && (
@@ -983,12 +965,8 @@ function WithCrewView({
             Moments libres
           </h3>
 
-          {freeMoments.map((m, i) => (
-            <Card
-              key={`moment-${i}`}
-              accent="cyan"
-              padding="sm"
-            >
+          {freeMoments.map((m) => (
+            <Card key={m.start} accent="cyan" padding="sm">
               <div
                 style={{
                   display: "flex",
@@ -1028,9 +1006,7 @@ function WithCrewView({
                 >
                   {m.durationMins >= 60
                     ? `${Math.floor(m.durationMins / 60)}h${
-                        m.durationMins % 60 > 0
-                          ? `${m.durationMins % 60}m`
-                          : ""
+                        m.durationMins % 60 > 0 ? `${m.durationMins % 60}m` : ""
                       }`
                     : `${m.durationMins}m`}
                 </span>
@@ -1047,12 +1023,7 @@ function WithCrewView({
           borderTop: "1px solid var(--border-color)",
         }}
       >
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={onLeave}
-          style={{ color: "var(--danger-red)" }}
-        >
+        <Button variant="ghost" size="sm" onClick={onLeave} style={{ color: "var(--danger-red)" }}>
           Quitter le crew
         </Button>
       </div>
@@ -1072,9 +1043,7 @@ export function CrewView({
   mySelections,
 }: CrewViewProps) {
   const { crew, setCrew } = useCrewStore();
-  const [localCrew, setLocalCrew] = useState<CrewData | null>(
-    crew ?? initialCrew,
-  );
+  const [localCrew, setLocalCrew] = useState<CrewData | null>(crew ?? initialCrew);
 
   // Sync store → local
   useEffect(() => {
@@ -1100,12 +1069,7 @@ export function CrewView({
   }
 
   if (!localCrew) {
-    return (
-      <EmptyCrewState
-        festEventId={festEventId}
-        onCrewCreated={handleCrewCreated}
-      />
-    );
+    return <EmptyCrewState festEventId={festEventId} onCrewCreated={handleCrewCreated} />;
   }
 
   return (

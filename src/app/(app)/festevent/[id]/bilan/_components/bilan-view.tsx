@@ -1,13 +1,19 @@
 "use client";
 
+import { Check, Clock, Copy, Eye, Flame, MapPin, Star, Tag, Trophy } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
-import { MapPin, Eye, Clock, Star, Copy, Check, Tag, Trophy, Flame } from "lucide-react";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import { useSelections } from "@/hooks/use-selections";
-import type { SelectionStatus } from "@/types";
-import { computeBilan, formatBilanDuration, formatAvgHour, formatBestDay, computeMissedMustSeeDurationMins } from "@/lib/bilan";
-import { generateBilanText } from "@/lib/bilan-text";
+import {
+  computeBilan,
+  computeMissedMustSeeDurationMins,
+  formatAvgHour,
+  formatBestDay,
+  formatBilanDuration,
+} from "@/lib/bilan";
 import { computeSelectionCompletionPercent, computeTotalSelected } from "@/lib/bilan-progress";
+import { generateBilanText } from "@/lib/bilan-text";
+import type { SelectionStatus } from "@/types";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -31,7 +37,13 @@ interface StatCardProps {
   "data-testid"?: string;
 }
 
-function StatCard({ value, label, color = "var(--primary-neon)", icon, "data-testid": testId }: StatCardProps) {
+function StatCard({
+  value,
+  label,
+  color = "var(--primary-neon)",
+  icon,
+  "data-testid": testId,
+}: StatCardProps) {
   return (
     <div
       data-testid={testId}
@@ -272,9 +284,7 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
       const storeStatus = selections[e.id] as SelectionStatus | undefined;
       return {
         ...e,
-        selection: storeStatus
-          ? { id: e.selection?.id ?? e.id, status: storeStatus }
-          : e.selection,
+        selection: storeStatus ? { id: e.selection?.id ?? e.id, status: storeStatus } : e.selection,
       };
     });
   }, [initialEvents, selections]);
@@ -297,10 +307,7 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
     setTimeout(() => setCopied(false), 2000);
   }, [events, festivalName]);
 
-  const seenEvents = useMemo(
-    () => events.filter((e) => e.selection?.status === "vu"),
-    [events],
-  );
+  const seenEvents = useMemo(() => events.filter((e) => e.selection?.status === "vu"), [events]);
 
   const missedMustSees = useMemo(
     () => events.filter((e) => e.selection?.status === "must-see"),
@@ -323,7 +330,14 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
       }}
     >
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "var(--space-sm)" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-end",
+          justifyContent: "space-between",
+          gap: "var(--space-sm)",
+        }}
+      >
         <div>
           <p
             style={{
@@ -376,65 +390,75 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
       </div>
 
       {/* Selection completion progress bar */}
-      {computeTotalSelected(stats.totalSeen, stats.mustSeePending, stats.intéresséPending) > 0 && (() => {
-        const total = computeTotalSelected(stats.totalSeen, stats.mustSeePending, stats.intéresséPending);
-        const percent = computeSelectionCompletionPercent(stats.totalSeen, stats.mustSeePending, stats.intéresséPending);
-        return (
-          <div
-            data-testid="bilan-progress"
-            style={{ display: "flex", flexDirection: "column", gap: 6 }}
-          >
+      {computeTotalSelected(stats.totalSeen, stats.mustSeePending, stats.intéresséPending) > 0 &&
+        (() => {
+          const total = computeTotalSelected(
+            stats.totalSeen,
+            stats.mustSeePending,
+            stats.intéresséPending,
+          );
+          const percent = computeSelectionCompletionPercent(
+            stats.totalSeen,
+            stats.mustSeePending,
+            stats.intéresséPending,
+          );
+          return (
             <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "baseline",
-              }}
-            >
-              <span
-                style={{
-                  fontFamily: "var(--font-body)",
-                  fontSize: "var(--fs-xs)",
-                  color: "var(--text-muted)",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.06em",
-                }}
-              >
-                {stats.totalSeen} / {total} sélections vues
-              </span>
-              <span
-                style={{
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "var(--fs-sm)",
-                  color: percent === 100 ? "var(--primary-neon)" : "var(--text-dim)",
-                  fontWeight: "var(--fw-bold)",
-                }}
-              >
-                {percent}%
-              </span>
-            </div>
-            <div
-              style={{
-                height: 6,
-                borderRadius: "var(--radius-full)",
-                backgroundColor: "var(--bg-surface)",
-                overflow: "hidden",
-              }}
+              data-testid="bilan-progress"
+              style={{ display: "flex", flexDirection: "column", gap: 6 }}
             >
               <div
                 style={{
-                  height: "100%",
-                  width: `${percent}%`,
-                  borderRadius: "var(--radius-full)",
-                  backgroundColor: percent === 100 ? "var(--primary-neon)" : "var(--secondary-cyan)",
-                  transition: "width 0.4s ease",
-                  boxShadow: percent === 100 ? "0 0 8px var(--primary-neon)" : "none",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
                 }}
-              />
+              >
+                <span
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--text-muted)",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.06em",
+                  }}
+                >
+                  {stats.totalSeen} / {total} sélections vues
+                </span>
+                <span
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-sm)",
+                    color: percent === 100 ? "var(--primary-neon)" : "var(--text-dim)",
+                    fontWeight: "var(--fw-bold)",
+                  }}
+                >
+                  {percent}%
+                </span>
+              </div>
+              <div
+                style={{
+                  height: 6,
+                  borderRadius: "var(--radius-full)",
+                  backgroundColor: "var(--bg-surface)",
+                  overflow: "hidden",
+                }}
+              >
+                <div
+                  style={{
+                    height: "100%",
+                    width: `${percent}%`,
+                    borderRadius: "var(--radius-full)",
+                    backgroundColor:
+                      percent === 100 ? "var(--primary-neon)" : "var(--secondary-cyan)",
+                    transition: "width 0.4s ease",
+                    boxShadow: percent === 100 ? "0 0 8px var(--primary-neon)" : "none",
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
 
       {/* Stats grid */}
       <div style={{ display: "flex", gap: "var(--space-sm)" }}>
@@ -482,7 +506,11 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
             gap: "var(--space-sm)",
           }}
         >
-          <MapPin size={16} style={{ color: "var(--accent-pink)", flexShrink: 0 }} aria-hidden="true" />
+          <MapPin
+            size={16}
+            style={{ color: "var(--accent-pink)", flexShrink: 0 }}
+            aria-hidden="true"
+          />
           <div>
             <p
               style={{
@@ -537,7 +565,11 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
             gap: "var(--space-sm)",
           }}
         >
-          <Tag size={16} style={{ color: "var(--secondary-cyan)", flexShrink: 0 }} aria-hidden="true" />
+          <Tag
+            size={16}
+            style={{ color: "var(--secondary-cyan)", flexShrink: 0 }}
+            aria-hidden="true"
+          />
           <div>
             <p
               style={{
@@ -580,7 +612,9 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
             gap: "var(--space-sm)",
           }}
         >
-          <span style={{ fontSize: 18, lineHeight: 1 }} aria-hidden="true">🎨</span>
+          <span style={{ fontSize: 18, lineHeight: 1 }} aria-hidden="true">
+            🎨
+          </span>
           <div>
             <p
               style={{
@@ -623,7 +657,11 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
             gap: "var(--space-sm)",
           }}
         >
-          <Clock size={16} style={{ color: "var(--warning-orange)", flexShrink: 0 }} aria-hidden="true" />
+          <Clock
+            size={16}
+            style={{ color: "var(--warning-orange)", flexShrink: 0 }}
+            aria-hidden="true"
+          />
           <div>
             <p
               style={{
@@ -666,7 +704,11 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
             gap: "var(--space-sm)",
           }}
         >
-          <Clock size={16} style={{ color: "var(--secondary-cyan)", flexShrink: 0 }} aria-hidden="true" />
+          <Clock
+            size={16}
+            style={{ color: "var(--secondary-cyan)", flexShrink: 0 }}
+            aria-hidden="true"
+          />
           <div>
             <p
               style={{
@@ -709,7 +751,11 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
             gap: "var(--space-sm)",
           }}
         >
-          <Trophy size={16} style={{ color: "var(--primary-neon)", flexShrink: 0 }} aria-hidden="true" />
+          <Trophy
+            size={16}
+            style={{ color: "var(--primary-neon)", flexShrink: 0 }}
+            aria-hidden="true"
+          />
           <div>
             <p
               style={{
@@ -763,7 +809,11 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
             gap: "var(--space-sm)",
           }}
         >
-          <Flame size={16} style={{ color: "var(--warning-orange)", flexShrink: 0 }} aria-hidden="true" />
+          <Flame
+            size={16}
+            style={{ color: "var(--warning-orange)", flexShrink: 0 }}
+            aria-hidden="true"
+          />
           <div>
             <p
               style={{
@@ -806,7 +856,9 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
             gap: "var(--space-sm)",
           }}
         >
-          <span style={{ fontSize: 18, lineHeight: 1 }} aria-hidden="true">🎭</span>
+          <span style={{ fontSize: 18, lineHeight: 1 }} aria-hidden="true">
+            🎭
+          </span>
           <div>
             <p
               style={{
@@ -890,11 +942,7 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
           </h2>
           <div>
             {missedMustSees.map((e) => (
-              <MissedMustSeeRow
-                key={e.id}
-                event={e}
-                onMarkVu={() => updateSelection(e.id, "vu")}
-              />
+              <MissedMustSeeRow key={e.id} event={e} onMarkVu={() => updateSelection(e.id, "vu")} />
             ))}
           </div>
         </section>
@@ -914,8 +962,16 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
           }}
           role="status"
         >
-          <span style={{ fontSize: 40 }} aria-hidden="true">🎪</span>
-          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-muted)" }}>
+          <span style={{ fontSize: 40 }} aria-hidden="true">
+            🎪
+          </span>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              color: "var(--text-muted)",
+            }}
+          >
             Aucun événement marqué pour ce festival.
           </p>
         </div>

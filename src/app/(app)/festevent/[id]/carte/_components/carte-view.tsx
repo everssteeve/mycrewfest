@@ -1,8 +1,8 @@
 "use client";
 
+import { ChevronDown, MapPin, Navigation, Users, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { MapPin, Navigation, X, ChevronDown, Users } from "lucide-react";
-import { countMappedVenues, countEventsOnMap, countVisibleCrewMembers } from "@/lib/carte-stats";
+import { countEventsOnMap, countMappedVenues, countVisibleCrewMembers } from "@/lib/carte-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -52,9 +52,7 @@ function formatTime(iso: string | null): string {
 }
 
 /** Normalize a lat/lng array to [0, 100] percentage coords within bounding box */
-function normalizePositions(
-  venues: VenueWithEvents[],
-): Map<string, { x: number; y: number }> {
+function normalizePositions(venues: VenueWithEvents[]): Map<string, { x: number; y: number }> {
   const withCoords = venues.filter((v) => v.latitude != null && v.longitude != null);
   if (withCoords.length === 0) return new Map();
 
@@ -72,8 +70,8 @@ function normalizePositions(
   const map = new Map<string, { x: number; y: number }>();
   for (const v of withCoords) {
     // lat increases upward → invert Y; lng increases rightward → X
-    const x = ((v.longitude! - minLng) / lngRange) * 80 + 10;
-    const y = 100 - ((v.latitude! - minLat) / latRange) * 80 - 10;
+    const x = (((v.longitude as number) - minLng) / lngRange) * 80 + 10;
+    const y = 100 - (((v.latitude as number) - minLat) / latRange) * 80 - 10;
     map.set(v.id, { x, y });
   }
   return map;
@@ -154,15 +152,7 @@ function VenuePin({
 // Crew member pin
 // ---------------------------------------------------------------------------
 
-function CrewPin({
-  x,
-  y,
-  member,
-}: {
-  x: number;
-  y: number;
-  member: CrewMemberPosition;
-}) {
+function CrewPin({ x, y, member }: { x: number; y: number; member: CrewMemberPosition }) {
   const initials = member.userName
     .split(" ")
     .map((w) => w[0])
@@ -215,13 +205,7 @@ function CrewPin({
 // Venue bottom sheet
 // ---------------------------------------------------------------------------
 
-function VenueSheet({
-  venue,
-  onClose,
-}: {
-  venue: VenueWithEvents;
-  onClose: () => void;
-}) {
+function VenueSheet({ venue, onClose }: { venue: VenueWithEvents; onClose: () => void }) {
   const today = new Date().toLocaleDateString("sv-SE");
 
   const todaysEvents = venue.events.filter((e) => {
@@ -240,6 +224,7 @@ function VenueSheet({
 
   return (
     <div
+      role="presentation"
       style={{
         position: "fixed",
         inset: 0,
@@ -250,8 +235,12 @@ function VenueSheet({
         justifyContent: "center",
       }}
       onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") onClose();
+      }}
     >
       <div
+        role="presentation"
         style={{
           background: "var(--bg-card)",
           border: "1px solid var(--border-color)",
@@ -286,8 +275,14 @@ function VenueSheet({
             </span>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            style={{ color: "var(--text-muted)", background: "none", border: "none", cursor: "pointer" }}
+            style={{
+              color: "var(--text-muted)",
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+            }}
           >
             <X size={20} />
           </button>
@@ -296,7 +291,16 @@ function VenueSheet({
         {/* Today's events */}
         {todaysEvents.length > 0 ? (
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-            <p style={{ fontSize: "var(--fs-xs)", color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: "var(--fw-bold)", margin: 0 }}>
+            <p
+              style={{
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                fontWeight: "var(--fw-bold)",
+                margin: 0,
+              }}
+            >
               Aujourd'hui
             </p>
             {todaysEvents.map((e) => (
@@ -313,7 +317,14 @@ function VenueSheet({
                 }}
               >
                 <div>
-                  <p style={{ color: "var(--text-main)", fontSize: "var(--fs-sm)", margin: 0, fontWeight: "var(--fw-bold)" }}>
+                  <p
+                    style={{
+                      color: "var(--text-main)",
+                      fontSize: "var(--fs-sm)",
+                      margin: 0,
+                      fontWeight: "var(--fw-bold)",
+                    }}
+                  >
                     {e.title}
                   </p>
                   {e.artist && (
@@ -350,7 +361,16 @@ function VenueSheet({
         {/* All events if no today's */}
         {todaysEvents.length === 0 && venue.events.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-            <p style={{ fontSize: "var(--fs-xs)", color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: "var(--fw-bold)", margin: 0 }}>
+            <p
+              style={{
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                fontWeight: "var(--fw-bold)",
+                margin: 0,
+              }}
+            >
               Programme
             </p>
             {venue.events.slice(0, 5).map((e) => (
@@ -366,9 +386,17 @@ function VenueSheet({
                   borderRadius: "var(--radius-sm)",
                 }}
               >
-                <span style={{ color: "var(--text-main)", fontSize: "var(--fs-sm)" }}>{e.title}</span>
+                <span style={{ color: "var(--text-main)", fontSize: "var(--fs-sm)" }}>
+                  {e.title}
+                </span>
                 {e.startTime && (
-                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)" }}>
+                  <span
+                    style={{
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "var(--fs-xs)",
+                      color: "var(--text-dim)",
+                    }}
+                  >
                     {formatTime(e.startTime)}
                   </span>
                 )}
@@ -464,9 +492,7 @@ function GpsMap({
       {/* Crew member pins */}
       {crewPositions.map((m) => {
         const pos = toXY(m.lat, m.lng);
-        return (
-          <CrewPin key={m.userId} x={pos.x} y={pos.y} member={m} />
-        );
+        return <CrewPin key={m.userId} x={pos.x} y={pos.y} member={m} />;
       })}
 
       {/* My position */}
@@ -534,9 +560,17 @@ function TextList({
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
-              <MapPin size={16} style={{ color: isSelected ? "var(--primary-neon)" : "var(--text-dim)", flexShrink: 0 }} />
+              <MapPin
+                size={16}
+                style={{
+                  color: isSelected ? "var(--primary-neon)" : "var(--text-dim)",
+                  flexShrink: 0,
+                }}
+              />
               <div>
-                <p style={{ margin: 0, fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>{v.name}</p>
+                <p style={{ margin: 0, fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
+                  {v.name}
+                </p>
                 <p style={{ margin: 0, fontSize: "var(--fs-xs)", color: "var(--text-dim)" }}>
                   {v.events.length} événement{v.events.length !== 1 ? "s" : ""}
                 </p>
@@ -554,12 +588,7 @@ function TextList({
 // Main component
 // ---------------------------------------------------------------------------
 
-export function CarteView({
-  festivalName,
-  mapImageUrl,
-  venues,
-  crewPositions,
-}: CarteViewProps) {
+export function CarteView({ festivalName, mapImageUrl, venues, crewPositions }: CarteViewProps) {
   const [selectedVenueId, setSelectedVenueId] = useState<string | null>(null);
   const [myPosition, setMyPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [trackingMe, setTrackingMe] = useState(false);
@@ -618,9 +647,18 @@ export function CarteView({
   }, []);
 
   return (
-    <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+    <div
+      style={{
+        paddingTop: "var(--space-lg)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-md)",
+      }}
+    >
       {/* Stats strip */}
-      <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap", alignItems: "center" }}>
+      <div
+        style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap", alignItems: "center" }}
+      >
         {mappedVenueCount > 0 && (
           <span
             data-testid="carte-mapped-venue-count"
@@ -631,12 +669,15 @@ export function CarteView({
             }}
             title="Lieux avec coordonnées GPS sur la carte"
           >
-            {mappedVenueCount} lieu{mappedVenueCount !== 1 ? "x" : ""} cartographié{mappedVenueCount !== 1 ? "s" : ""}
+            {mappedVenueCount} lieu{mappedVenueCount !== 1 ? "x" : ""} cartographié
+            {mappedVenueCount !== 1 ? "s" : ""}
           </span>
         )}
         {eventsOnMapCount > 0 && (
           <>
-            {mappedVenueCount > 0 && <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>}
+            {mappedVenueCount > 0 && (
+              <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            )}
             <span
               data-testid="carte-events-on-map"
               style={{
@@ -652,7 +693,9 @@ export function CarteView({
         )}
         {visibleCrewCount > 0 && (
           <>
-            {(mappedVenueCount > 0 || eventsOnMapCount > 0) && <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>}
+            {(mappedVenueCount > 0 || eventsOnMapCount > 0) && (
+              <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            )}
             <span
               data-testid="carte-visible-crew-count"
               style={{
@@ -670,7 +713,13 @@ export function CarteView({
 
       {/* Header controls */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ color: "var(--text-main)", fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
+        <span
+          style={{
+            color: "var(--text-main)",
+            fontWeight: "var(--fw-bold)",
+            fontSize: "var(--fs-sm)",
+          }}
+        >
           {venues.length} lieu{venues.length !== 1 ? "x" : ""}
         </span>
         <div style={{ display: "flex", gap: "var(--space-sm)" }}>
@@ -718,7 +767,9 @@ export function CarteView({
       </div>
 
       {geoError && (
-        <p style={{ fontSize: "var(--fs-xs)", color: "var(--accent-orange)", margin: 0 }}>{geoError}</p>
+        <p style={{ fontSize: "var(--fs-xs)", color: "var(--accent-orange)", margin: 0 }}>
+          {geoError}
+        </p>
       )}
 
       {/* Map area */}
@@ -785,7 +836,16 @@ export function CarteView({
       {/* Venue list */}
       {venues.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
-          <p style={{ fontSize: "var(--fs-xs)", color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: "var(--fw-bold)", margin: 0 }}>
+          <p
+            style={{
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-dim)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              fontWeight: "var(--fw-bold)",
+              margin: 0,
+            }}
+          >
             Lieux
           </p>
           <TextList
@@ -812,10 +872,7 @@ export function CarteView({
 
       {/* Venue bottom sheet */}
       {selectedVenue && (
-        <VenueSheet
-          venue={selectedVenue}
-          onClose={() => setSelectedVenueId(null)}
-        />
+        <VenueSheet venue={selectedVenue} onClose={() => setSelectedVenueId(null)} />
       )}
     </div>
   );

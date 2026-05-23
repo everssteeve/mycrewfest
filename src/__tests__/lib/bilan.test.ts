@@ -1,9 +1,22 @@
-import { describe, it, expect } from "vitest";
-import { computeBilan, formatBilanDuration, formatAvgHour, formatBestDay, computeMissedMustSeeDurationMins, type BilantableEvent } from "@/lib/bilan";
+import { describe, expect, it } from "vitest";
+import {
+  type BilantableEvent,
+  computeBilan,
+  computeMissedMustSeeDurationMins,
+  formatAvgHour,
+  formatBestDay,
+  formatBilanDuration,
+} from "@/lib/bilan";
 
 function ev(
   status: string | null,
-  opts: { durationMins?: number; venueName?: string; title?: string; tags?: string[]; startTime?: string } = {},
+  opts: {
+    durationMins?: number;
+    venueName?: string;
+    title?: string;
+    tags?: string[];
+    startTime?: string;
+  } = {},
 ): BilantableEvent {
   return {
     title: opts.title ?? "Event",
@@ -27,13 +40,7 @@ describe("computeBilan", () => {
   });
 
   it("counts only 'vu' events as seen", () => {
-    const events = [
-      ev("vu"),
-      ev("vu"),
-      ev("must-see"),
-      ev("intéressé"),
-      ev(null),
-    ];
+    const events = [ev("vu"), ev("vu"), ev("must-see"), ev("intéressé"), ev(null)];
     expect(computeBilan(events).totalSeen).toBe(2);
   });
 
@@ -172,10 +179,7 @@ describe("computeBilan — avgStartHour", () => {
   });
 
   it("ignores vu events without startTime in average", () => {
-    const events = [
-      ev("vu", { startTime: "2025-07-15T20:00:00Z" }),
-      ev("vu"),
-    ];
+    const events = [ev("vu", { startTime: "2025-07-15T20:00:00Z" }), ev("vu")];
     const stats = computeBilan(events);
     const singleStats = computeBilan([ev("vu", { startTime: "2025-07-15T20:00:00Z" })]);
     expect(stats.avgStartHour).toBe(singleStats.avgStartHour);
@@ -200,7 +204,7 @@ describe("computeBilan — bestDay", () => {
     ];
     const stats = computeBilan(events);
     expect(stats.bestDay).not.toBeNull();
-    expect(stats.bestDay!.count).toBe(3);
+    expect(stats.bestDay?.count).toBe(3);
   });
 
   it("returns the day with the most vu events", () => {
@@ -213,7 +217,7 @@ describe("computeBilan — bestDay", () => {
     ];
     const stats = computeBilan(events);
     expect(stats.bestDay).not.toBeNull();
-    expect(stats.bestDay!.count).toBe(3);
+    expect(stats.bestDay?.count).toBe(3);
   });
 
   it("ignores non-vu events when computing best day", () => {
@@ -224,18 +228,14 @@ describe("computeBilan — bestDay", () => {
     ];
     const stats = computeBilan(events);
     expect(stats.bestDay).not.toBeNull();
-    expect(stats.bestDay!.count).toBe(1);
+    expect(stats.bestDay?.count).toBe(1);
   });
 
   it("ignores vu events without startTime", () => {
-    const events = [
-      ev("vu"),
-      ev("vu"),
-      ev("vu", { startTime: "2025-07-19T10:00:00Z" }),
-    ];
+    const events = [ev("vu"), ev("vu"), ev("vu", { startTime: "2025-07-19T10:00:00Z" })];
     const stats = computeBilan(events);
     expect(stats.bestDay).not.toBeNull();
-    expect(stats.bestDay!.count).toBe(1);
+    expect(stats.bestDay?.count).toBe(1);
   });
 });
 
@@ -268,10 +268,7 @@ describe("formatAvgHour", () => {
 // topEventType / uniqueEventTypes
 // ---------------------------------------------------------------------------
 
-function evWithType(
-  status: string | null,
-  eventType: string | null,
-): BilantableEvent {
+function evWithType(status: string | null, eventType: string | null): BilantableEvent {
   return {
     title: "Event",
     durationMins: null,
@@ -297,10 +294,7 @@ describe("computeBilan — topEventType / uniqueEventTypes", () => {
   });
 
   it("returns the only event type when all seen events share one type", () => {
-    const events = [
-      evWithType("vu", "concert"),
-      evWithType("vu", "concert"),
-    ];
+    const events = [evWithType("vu", "concert"), evWithType("vu", "concert")];
     const stats = computeBilan(events);
     expect(stats.topEventType).toBe("concert");
     expect(stats.uniqueEventTypes).toBe(1);
@@ -376,11 +370,7 @@ describe("computeBilan — attendanceStreak", () => {
   });
 
   it("handles multiple events on the same day as a single day", () => {
-    const events = [
-      evOnDay("2025-07-19"),
-      evOnDay("2025-07-19"),
-      evOnDay("2025-07-20"),
-    ];
+    const events = [evOnDay("2025-07-19"), evOnDay("2025-07-19"), evOnDay("2025-07-20")];
     expect(computeBilan(events).attendanceStreak).toBe(2);
   });
 });
@@ -397,11 +387,15 @@ describe("computeAvgDurationMins", () => {
   });
 
   it("returns null when no seen events have duration", () => {
-    expect(computeAvgDurationMins([{ selection: { status: "vu" }, durationMins: null }])).toBeNull();
+    expect(
+      computeAvgDurationMins([{ selection: { status: "vu" }, durationMins: null }]),
+    ).toBeNull();
   });
 
   it("returns null for non-seen events even if they have duration", () => {
-    expect(computeAvgDurationMins([{ selection: { status: "must-see" }, durationMins: 60 }])).toBeNull();
+    expect(
+      computeAvgDurationMins([{ selection: { status: "must-see" }, durationMins: 60 }]),
+    ).toBeNull();
   });
 
   it("returns the duration when a single seen event has it", () => {
@@ -445,18 +439,12 @@ describe("computeBilan — uniqueTagCount", () => {
   });
 
   it("counts multiple distinct tags across events", () => {
-    const events = [
-      ev("vu", { tags: ["Rock", "Live"] }),
-      ev("vu", { tags: ["Électro"] }),
-    ];
+    const events = [ev("vu", { tags: ["Rock", "Live"] }), ev("vu", { tags: ["Électro"] })];
     expect(computeBilan(events).uniqueTagCount).toBe(3);
   });
 
   it("does not count tags from non-vu events", () => {
-    const events = [
-      ev("vu", { tags: ["Rock"] }),
-      ev("must-see", { tags: ["Jazz", "Funk"] }),
-    ];
+    const events = [ev("vu", { tags: ["Rock"] }), ev("must-see", { tags: ["Jazz", "Funk"] })];
     expect(computeBilan(events).uniqueTagCount).toBe(1);
   });
 

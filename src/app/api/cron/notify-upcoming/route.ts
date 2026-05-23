@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import webpush from "web-push";
 import { prisma } from "@/lib/prisma";
 
@@ -16,15 +16,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "VAPID keys non configurées." }, { status: 500 });
   }
 
-  webpush.setVapidDetails(
-    "mailto:contact@mycrewfest.app",
-    vapidPublicKey,
-    vapidPrivateKey,
-  );
+  webpush.setVapidDetails("mailto:contact@mycrewfest.app", vapidPublicKey, vapidPrivateKey);
 
   const now = new Date();
   const windowStart = new Date(now.getTime() + 15 * 60 * 1000); // +15 min
-  const windowEnd = new Date(now.getTime() + 25 * 60 * 1000);   // +25 min
+  const windowEnd = new Date(now.getTime() + 25 * 60 * 1000); // +25 min
 
   try {
     // Find events starting in 15–25 minutes with must-see selections
@@ -65,7 +61,7 @@ export async function GET(request: NextRequest) {
     for (const sel of mustSeeSelections) {
       const uid = sel.festEvent.userId;
       if (!byUser.has(uid)) byUser.set(uid, []);
-      byUser.get(uid)!.push(sel);
+      byUser.get(uid)?.push(sel);
     }
 
     let sent = 0;

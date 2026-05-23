@@ -1,12 +1,34 @@
-import { describe, it, expect } from "vitest";
-import { rankCoAfficheArtists, deduplicateByFestivalCount, type CoAfficheArtist } from "@/lib/artist-coaffiche";
+import { describe, expect, it } from "vitest";
+import {
+  type CoAfficheArtist,
+  deduplicateByFestivalCount,
+  rankCoAfficheArtists,
+} from "@/lib/artist-coaffiche";
 
 const base: CoAfficheArtist[] = [
   { id: "a", name: "Gojira", disciplines: ["Metal"], countryCode: "FR", sharedFestivalCount: 3 },
-  { id: "b", name: "Rammstein", disciplines: ["Industrial Metal"], countryCode: "DE", sharedFestivalCount: 5 },
-  { id: "c", name: "Amon Amarth", disciplines: ["Viking Metal"], countryCode: "SE", sharedFestivalCount: 2 },
+  {
+    id: "b",
+    name: "Rammstein",
+    disciplines: ["Industrial Metal"],
+    countryCode: "DE",
+    sharedFestivalCount: 5,
+  },
+  {
+    id: "c",
+    name: "Amon Amarth",
+    disciplines: ["Viking Metal"],
+    countryCode: "SE",
+    sharedFestivalCount: 2,
+  },
   { id: "d", name: "Tool", disciplines: ["Metal"], countryCode: "US", sharedFestivalCount: 5 },
-  { id: "e", name: "Slipknot", disciplines: ["Nu Metal"], countryCode: "US", sharedFestivalCount: 1 },
+  {
+    id: "e",
+    name: "Slipknot",
+    disciplines: ["Nu Metal"],
+    countryCode: "US",
+    sharedFestivalCount: 1,
+  },
 ];
 
 describe("rankCoAfficheArtists", () => {

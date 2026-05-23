@@ -68,9 +68,7 @@ export const db = new MyCrewFestDB();
 /**
  * Upsert an array of festivals into the local cache.
  */
-export async function cacheFestivals(
-  festivals: OfflineFestival[],
-): Promise<void> {
+export async function cacheFestivals(festivals: OfflineFestival[]): Promise<void> {
   await db.festivals.bulkPut(festivals);
 }
 
@@ -78,9 +76,7 @@ export async function cacheFestivals(
  * Full-text search over locally cached festivals.
  * Searches across name, city, and country (case-insensitive).
  */
-export async function searchFestivalsOffline(
-  query: string,
-): Promise<OfflineFestival[]> {
+export async function searchFestivalsOffline(query: string): Promise<OfflineFestival[]> {
   if (!query.trim()) {
     return db.festivals.toArray();
   }
@@ -105,10 +101,7 @@ export async function searchFestivalsOffline(
  * Cache the programme for a given FestEvent.
  * Existing events for this FestEvent are replaced entirely.
  */
-export async function cacheEvents(
-  festEventId: string,
-  events: OfflineEvent[],
-): Promise<void> {
+export async function cacheEvents(festEventId: string, events: OfflineEvent[]): Promise<void> {
   // Ensure each event carries the festEventId so we can filter later
   const enriched = events.map((e) => ({ ...e, festEventId }));
 
@@ -121,9 +114,7 @@ export async function cacheEvents(
 /**
  * Retrieve the cached programme for a given FestEvent.
  */
-export async function getEventsOffline(
-  festEventId: string,
-): Promise<OfflineEvent[]> {
+export async function getEventsOffline(festEventId: string): Promise<OfflineEvent[]> {
   return db.events.where("festEventId").equals(festEventId).toArray();
 }
 

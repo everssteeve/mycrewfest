@@ -73,9 +73,12 @@ export function getDayLoadLevel(score: DayScore): "light" | "moderate" | "heavy"
 
 export function getDayLoadColor(level: "light" | "moderate" | "heavy"): string {
   switch (level) {
-    case "heavy": return "var(--accent-pink)";
-    case "moderate": return "var(--warning-orange)";
-    case "light": return "var(--text-dim)";
+    case "heavy":
+      return "var(--accent-pink)";
+    case "moderate":
+      return "var(--warning-orange)";
+    case "light":
+      return "var(--text-dim)";
   }
 }
 

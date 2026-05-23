@@ -1,14 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  escapeCsvCell,
-  buildCsvRow,
   buildCsvContent,
-  festivalsToCsv,
-  usersToCsv,
-  submissionsToCsv,
+  buildCsvRow,
+  escapeCsvCell,
   type FestivalExportRow,
-  type UserExportRow,
+  festivalsToCsv,
   type SubmissionExportRow,
+  submissionsToCsv,
+  type UserExportRow,
+  usersToCsv,
 } from "@/lib/admin-export";
 
 describe("escapeCsvCell", () => {
@@ -45,7 +45,13 @@ describe("buildCsvRow", () => {
 
 describe("buildCsvContent", () => {
   it("puts header first, then rows", () => {
-    const csv = buildCsvContent(["Col1", "Col2"], [["A", "B"], ["C", "D"]]);
+    const csv = buildCsvContent(
+      ["Col1", "Col2"],
+      [
+        ["A", "B"],
+        ["C", "D"],
+      ],
+    );
     const lines = csv.split("\n");
     expect(lines[0]).toBe("Col1,Col2");
     expect(lines[1]).toBe("A,B");

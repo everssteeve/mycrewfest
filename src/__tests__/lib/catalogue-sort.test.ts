@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  sortFestivals,
+  getDefaultSortMode,
+  getSortModeAriaLabel,
   SORT_MODE_LABELS,
   SORT_MODES,
-  getSortModeAriaLabel,
-  getDefaultSortMode,
+  sortFestivals,
 } from "@/lib/catalogue-sort";
 
 type F = {
@@ -14,12 +14,7 @@ type F = {
   _count?: { followers: number } | null;
 };
 
-function makeFestival(
-  name: string,
-  startDate: string,
-  endDate: string,
-  followers = 0,
-): F {
+function makeFestival(name: string, startDate: string, endDate: string, followers = 0): F {
   return { name, startDate, endDate, _count: { followers } };
 }
 
@@ -120,7 +115,7 @@ describe("sortFestivals — popularity mode", () => {
 
 describe("sortFestivals — temporal mode", () => {
   it("sorts by temporal relevance (active before upcoming before past)", () => {
-    const now = new Date("2026-07-15T12:00:00Z");
+    const _now = new Date("2026-07-15T12:00:00Z");
     const past = makeFestival("Past Fest", "2026-01-01", "2026-01-05");
     const active = makeFestival("Active Fest", "2026-07-10", "2026-07-20");
     const upcoming = makeFestival("Upcoming Fest", "2026-10-01", "2026-10-05");

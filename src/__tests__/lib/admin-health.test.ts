@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  buildHealthMetrics,
   computeFestivalEnrichmentRate,
+  computeHealthScore,
   computeProfileCompletionRate,
   computeSignalDensity,
-  computeHealthScore,
-  getHealthScoreLabel,
   getHealthScoreColor,
-  buildHealthMetrics,
+  getHealthScoreLabel,
 } from "@/lib/admin-health";
 
 describe("computeFestivalEnrichmentRate", () => {

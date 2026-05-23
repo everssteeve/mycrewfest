@@ -1,16 +1,36 @@
 "use client";
 
-import { useCallback, useMemo, useState, useTransition } from "react";
-import { Edit3, LogOut, Trash2, Download, Bell } from "lucide-react";
-import { signOut } from "next-auth/react";
-import { useAppStore } from "@/store/use-app-store";
+import { Bell, Download, Edit3, LogOut, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { PushToggle } from "@/components/notifications/push-toggle";
+import {
+  formatTemporalBadge,
+  getDaysUntilStart,
+  getFestivalTemporalStatus,
+} from "@/lib/festival-temporal";
 import { computeFestivalierScore, computeScoreBreakdown } from "@/lib/festivalier-score";
-import { getFestivalTemporalStatus, getDaysUntilStart, formatTemporalBadge } from "@/lib/festival-temporal";
-import { countUpcomingFestEvents, countActiveFestEvents, countPastFestEvents } from "@/lib/profil-stats";
-import { findNextFestEvent, computeDaysUntilFestival, isFestivalActive, formatCountdownLabel, getCountdownUrgency, getCountdownColor } from "@/lib/profil-countdown";
-import { aggregateDisciplines, buildDisciplineRanking, getDisciplineColor, hasGenreData } from "@/lib/profil-genres";
+import {
+  computeDaysUntilFestival,
+  findNextFestEvent,
+  formatCountdownLabel,
+  getCountdownColor,
+  getCountdownUrgency,
+  isFestivalActive,
+} from "@/lib/profil-countdown";
+import {
+  aggregateDisciplines,
+  buildDisciplineRanking,
+  getDisciplineColor,
+  hasGenreData,
+} from "@/lib/profil-genres";
+import {
+  countActiveFestEvents,
+  countPastFestEvents,
+  countUpcomingFestEvents,
+} from "@/lib/profil-stats";
+import { useAppStore } from "@/store/use-app-store";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -120,7 +140,10 @@ function InlineEditForm({ initialName, initialPseudo, onSave, onCancel }: Inline
   );
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}
+    >
       <div>
         <label
           htmlFor="profile-name"
@@ -293,22 +316,12 @@ export function ProfilView({ data }: { data: ProfilData }) {
   const displayName = pseudo || name || data.email;
   const initiale = (pseudo || name || data.email).charAt(0).toUpperCase();
 
-  const upcomingFestEvents = data.festEvents.filter(
-    (fe) => !isPast(fe.festival.endDate),
-  );
-  const pastFestEvents = data.festEvents.filter((fe) =>
-    isPast(fe.festival.endDate),
-  );
+  const upcomingFestEvents = data.festEvents.filter((fe) => !isPast(fe.festival.endDate));
+  const pastFestEvents = data.festEvents.filter((fe) => isPast(fe.festival.endDate));
 
-  const festivalierScore = useMemo(
-    () => computeFestivalierScore(data.stats),
-    [data.stats],
-  );
+  const festivalierScore = useMemo(() => computeFestivalierScore(data.stats), [data.stats]);
 
-  const scoreBreakdown = useMemo(
-    () => computeScoreBreakdown(data.stats),
-    [data.stats],
-  );
+  const scoreBreakdown = useMemo(() => computeScoreBreakdown(data.stats), [data.stats]);
 
   const upcomingFestEventCount = useMemo(
     () => countUpcomingFestEvents(data.festEvents),
@@ -321,7 +334,10 @@ export function ProfilView({ data }: { data: ProfilData }) {
     [nextFestEvent],
   );
   const nextFestActive = useMemo(
-    () => (nextFestEvent ? isFestivalActive(nextFestEvent.festival.startDate, nextFestEvent.festival.endDate) : false),
+    () =>
+      nextFestEvent
+        ? isFestivalActive(nextFestEvent.festival.startDate, nextFestEvent.festival.endDate)
+        : false,
     [nextFestEvent],
   );
   const nextFestUrgency = useMemo(
@@ -334,16 +350,29 @@ export function ProfilView({ data }: { data: ProfilData }) {
     [data.festEvents],
   );
 
-  const pastFestEventCount = useMemo(
-    () => countPastFestEvents(data.festEvents),
-    [data.festEvents],
-  );
+  const pastFestEventCount = useMemo(() => countPastFestEvents(data.festEvents), [data.festEvents]);
 
   const RANK_COLORS: Record<string, { bg: string; color: string; border: string }> = {
-    rookie: { bg: "rgba(255,255,255,0.04)", color: "var(--text-dim)", border: "var(--border-color)" },
-    passionné: { bg: "rgba(0,229,255,0.08)", color: "var(--secondary-cyan)", border: "rgba(0,229,255,0.3)" },
-    expert: { bg: "rgba(0,255,102,0.08)", color: "var(--primary-neon)", border: "rgba(0,255,102,0.3)" },
-    légende: { bg: "rgba(255,0,122,0.08)", color: "var(--accent-pink)", border: "rgba(255,0,122,0.3)" },
+    rookie: {
+      bg: "rgba(255,255,255,0.04)",
+      color: "var(--text-dim)",
+      border: "var(--border-color)",
+    },
+    passionné: {
+      bg: "rgba(0,229,255,0.08)",
+      color: "var(--secondary-cyan)",
+      border: "rgba(0,229,255,0.3)",
+    },
+    expert: {
+      bg: "rgba(0,255,102,0.08)",
+      color: "var(--primary-neon)",
+      border: "rgba(0,255,102,0.3)",
+    },
+    légende: {
+      bg: "rgba(255,0,122,0.08)",
+      color: "var(--accent-pink)",
+      border: "rgba(255,0,122,0.3)",
+    },
   };
 
   const rankStyle = RANK_COLORS[festivalierScore.rank];
@@ -634,11 +663,17 @@ export function ProfilView({ data }: { data: ProfilData }) {
             color: rankStyle.color,
             flexShrink: 0,
           }}
+          role="img"
           aria-label={`${festivalierScore.score} points`}
         >
           {festivalierScore.score}
           <span
-            style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", marginLeft: 2 }}
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-dim)",
+              marginLeft: 2,
+            }}
           >
             pts
           </span>
@@ -659,7 +694,16 @@ export function ProfilView({ data }: { data: ProfilData }) {
             gap: 6,
           }}
         >
-          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", textTransform: "uppercase", letterSpacing: "0.06em", margin: 0 }}>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-dim)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              margin: 0,
+            }}
+          >
             Détail XP
           </p>
           {(
@@ -677,12 +721,23 @@ export function ProfilView({ data }: { data: ProfilData }) {
                 key={key}
                 style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}
               >
-                <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)" }}>
+                <span
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--text-muted)",
+                  }}
+                >
                   {emoji} {entry.count} {label} ×{entry.multiplier}
                 </span>
                 <span
                   data-testid={`profil-xp-${key}`}
-                  style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: rankStyle.color, fontWeight: "var(--fw-bold)" }}
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: rankStyle.color,
+                    fontWeight: "var(--fw-bold)",
+                  }}
                 >
                   +{entry.pts}
                 </span>
@@ -966,88 +1021,90 @@ export function ProfilView({ data }: { data: ProfilData }) {
               const temporalStatus = getFestivalTemporalStatus(fest.startDate, fest.endDate);
               const daysUntil = getDaysUntilStart(fest.startDate);
               const badge = formatTemporalBadge(temporalStatus, daysUntil);
-              const badgeColor = temporalStatus === "en_cours"
-                ? "var(--primary-neon)"
-                : temporalStatus === "imminent"
-                  ? "var(--secondary-cyan)"
-                  : "var(--text-muted)";
+              const badgeColor =
+                temporalStatus === "en_cours"
+                  ? "var(--primary-neon)"
+                  : temporalStatus === "imminent"
+                    ? "var(--secondary-cyan)"
+                    : "var(--text-muted)";
               return (
-              <div
-                key={fest.id}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  background: "var(--bg-surface)",
-                  border: temporalStatus === "en_cours"
-                    ? "1px solid rgba(0,255,102,0.3)"
-                    : "1px solid var(--border-color)",
-                  borderRadius: "var(--radius-md)",
-                  padding: "var(--space-sm) var(--space-md)",
-                  opacity: temporalStatus === "past" ? 0.6 : 1,
-                }}
-              >
-                <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "var(--space-xs)" }}>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "var(--fs-sm)",
-                      color: "var(--text-main)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.04em",
-                      margin: 0,
-                    }}
-                  >
-                    {fest.name}
-                  </p>
-                  {badge && (
-                    <span
-                      data-testid={`profil-festival-badge-${fest.id}`}
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "10px",
-                        fontWeight: "var(--fw-bold)",
-                        color: badgeColor,
-                        textTransform: "uppercase",
-                        letterSpacing: "0.06em",
-                        flexShrink: 0,
-                      }}
-                    >
-                      {badge}
-                    </span>
-                  )}
-                  </div>
-                  <p
-                    style={{
-                      fontFamily: "var(--font-body)",
-                      fontSize: "var(--fs-xs)",
-                      color: "var(--text-dim)",
-                      margin: "2px 0 0",
-                    }}
-                  >
-                    {fest.city} · {formatFestDate(fest.startDate, fest.endDate)}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleUnfollow(fest.slug)}
-                  disabled={isPending}
+                <div
+                  key={fest.id}
                   style={{
-                    background: "none",
-                    border: "1px solid var(--border-color)",
-                    borderRadius: "var(--radius-sm)",
-                    color: "var(--text-dim)",
-                    fontFamily: "var(--font-body)",
-                    fontSize: "var(--fs-xs)",
-                    cursor: "pointer",
-                    padding: "4px 10px",
-                    flexShrink: 0,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    background: "var(--bg-surface)",
+                    border:
+                      temporalStatus === "en_cours"
+                        ? "1px solid rgba(0,255,102,0.3)"
+                        : "1px solid var(--border-color)",
+                    borderRadius: "var(--radius-md)",
+                    padding: "var(--space-sm) var(--space-md)",
+                    opacity: temporalStatus === "past" ? 0.6 : 1,
                   }}
                 >
-                  Se désabonner
-                </button>
-              </div>
+                  <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "var(--space-xs)" }}>
+                      <p
+                        style={{
+                          fontFamily: "var(--font-display)",
+                          fontSize: "var(--fs-sm)",
+                          color: "var(--text-main)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.04em",
+                          margin: 0,
+                        }}
+                      >
+                        {fest.name}
+                      </p>
+                      {badge && (
+                        <span
+                          data-testid={`profil-festival-badge-${fest.id}`}
+                          style={{
+                            fontFamily: "var(--font-mono)",
+                            fontSize: "10px",
+                            fontWeight: "var(--fw-bold)",
+                            color: badgeColor,
+                            textTransform: "uppercase",
+                            letterSpacing: "0.06em",
+                            flexShrink: 0,
+                          }}
+                        >
+                          {badge}
+                        </span>
+                      )}
+                    </div>
+                    <p
+                      style={{
+                        fontFamily: "var(--font-body)",
+                        fontSize: "var(--fs-xs)",
+                        color: "var(--text-dim)",
+                        margin: "2px 0 0",
+                      }}
+                    >
+                      {fest.city} · {formatFestDate(fest.startDate, fest.endDate)}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleUnfollow(fest.slug)}
+                    disabled={isPending}
+                    style={{
+                      background: "none",
+                      border: "1px solid var(--border-color)",
+                      borderRadius: "var(--radius-sm)",
+                      color: "var(--text-dim)",
+                      fontFamily: "var(--font-body)",
+                      fontSize: "var(--fs-xs)",
+                      cursor: "pointer",
+                      padding: "4px 10px",
+                      flexShrink: 0,
+                    }}
+                  >
+                    Se désabonner
+                  </button>
+                </div>
               );
             })}
           </div>
@@ -1279,7 +1336,14 @@ export function ProfilView({ data }: { data: ProfilData }) {
       {/* Seen artists */}
       {data.seenArtists.length > 0 && (
         <section style={{ marginTop: "var(--space-md)" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-sm)" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "var(--space-sm)",
+            }}
+          >
             <h2
               style={{
                 fontFamily: "var(--font-display)",
@@ -1348,14 +1412,27 @@ export function ProfilView({ data }: { data: ProfilData }) {
                       {artist.name}
                     </p>
                     {artist.disciplines.length > 0 && (
-                      <p style={{ margin: "2px 0 0", fontSize: "var(--fs-xs)", color: "var(--text-muted)", fontFamily: "var(--font-body)" }}>
+                      <p
+                        style={{
+                          margin: "2px 0 0",
+                          fontSize: "var(--fs-xs)",
+                          color: "var(--text-muted)",
+                          fontFamily: "var(--font-body)",
+                        }}
+                      >
                         {artist.disciplines.join(", ")}
                       </p>
                     )}
                   </div>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
                     {artist.timesVu > 1 && (
-                      <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--accent-pink)" }}>
+                      <span
+                        style={{
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "var(--fs-xs)",
+                          color: "var(--accent-pink)",
+                        }}
+                      >
                         ×{artist.timesVu}
                       </span>
                     )}
@@ -1374,10 +1451,7 @@ export function ProfilView({ data }: { data: ProfilData }) {
         if (!hasGenreData(disciplineCounts)) return null;
         const genres = buildDisciplineRanking(disciplineCounts, 5);
         return (
-          <section
-            data-testid="profil-genres-section"
-            style={{ marginTop: "var(--space-lg)" }}
-          >
+          <section data-testid="profil-genres-section" style={{ marginTop: "var(--space-lg)" }}>
             <h2
               style={{
                 fontFamily: "var(--font-display)",
@@ -1393,7 +1467,11 @@ export function ProfilView({ data }: { data: ProfilData }) {
             </h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {genres.map((g, i) => (
-                <div key={g.discipline} data-testid={`profil-genre-${i}`} style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div
+                  key={g.discipline}
+                  data-testid={`profil-genre-${i}`}
+                  style={{ display: "flex", alignItems: "center", gap: 10 }}
+                >
                   <span
                     style={{
                       fontFamily: "var(--font-body)",

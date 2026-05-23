@@ -1,5 +1,5 @@
-import { type HTMLAttributes } from "react";
 import { clsx } from "clsx";
+import type { HTMLAttributes } from "react";
 
 interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   name?: string;
@@ -60,11 +60,7 @@ export function Avatar({
     >
       {src ? (
         // biome-ignore lint/a11y/useAltText: alt is passed via props or default
-        <img
-          src={src}
-          alt={name ?? "avatar"}
-          className="h-full w-full object-cover"
-        />
+        <img src={src} alt={name ?? "avatar"} className="h-full w-full object-cover" />
       ) : (
         <span>{name ? getInitial(name) : "?"}</span>
       )}
@@ -78,12 +74,7 @@ interface AvatarStackProps {
   size?: "sm" | "md" | "lg";
 }
 
-const stackColors: Array<"neon" | "cyan" | "pink" | "orange"> = [
-  "neon",
-  "cyan",
-  "pink",
-  "orange",
-];
+const stackColors: Array<"neon" | "cyan" | "pink" | "orange"> = ["neon", "cyan", "pink", "orange"];
 
 export function AvatarStack({ names, max = 4, size = "sm" }: AvatarStackProps) {
   const visible = names.slice(0, max);

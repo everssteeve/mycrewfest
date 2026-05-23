@@ -1,20 +1,18 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  buildGapAriaLabel,
   findSelectedEventGaps,
   findTightTransitionIds,
   formatGapDuration,
-  getGapSeverity,
-  buildGapAriaLabel,
   type GapCheckableEvent,
+  getGapSeverity,
 } from "@/lib/programme-gaps";
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeEvent(
-  overrides: Partial<GapCheckableEvent> & { id: string },
-): GapCheckableEvent {
+function makeEvent(overrides: Partial<GapCheckableEvent> & { id: string }): GapCheckableEvent {
   return {
     startTime: null,
     endTime: null,
@@ -24,11 +22,33 @@ function makeEvent(
   };
 }
 
-const mustSee = (id: string, startTime: string, endTime?: string, durationMins?: number): GapCheckableEvent =>
-  makeEvent({ id, startTime, endTime: endTime ?? null, durationMins: durationMins ?? null, selection: { status: "must-see" } });
+const mustSee = (
+  id: string,
+  startTime: string,
+  endTime?: string,
+  durationMins?: number,
+): GapCheckableEvent =>
+  makeEvent({
+    id,
+    startTime,
+    endTime: endTime ?? null,
+    durationMins: durationMins ?? null,
+    selection: { status: "must-see" },
+  });
 
-const interested = (id: string, startTime: string, endTime?: string, durationMins?: number): GapCheckableEvent =>
-  makeEvent({ id, startTime, endTime: endTime ?? null, durationMins: durationMins ?? null, selection: { status: "intéressé" } });
+const interested = (
+  id: string,
+  startTime: string,
+  endTime?: string,
+  durationMins?: number,
+): GapCheckableEvent =>
+  makeEvent({
+    id,
+    startTime,
+    endTime: endTime ?? null,
+    durationMins: durationMins ?? null,
+    selection: { status: "intéressé" },
+  });
 
 const noSelection = (id: string, startTime: string): GapCheckableEvent =>
   makeEvent({ id, startTime, selection: null });
@@ -65,10 +85,7 @@ describe("findSelectedEventGaps", () => {
   });
 
   it("falls back to startTime + 60 min when endTime and durationMins are missing", () => {
-    const events = [
-      mustSee("a", "2024-06-01T14:00:00Z"),
-      mustSee("b", "2024-06-01T15:30:00Z"),
-    ];
+    const events = [mustSee("a", "2024-06-01T14:00:00Z"), mustSee("b", "2024-06-01T15:30:00Z")];
     const gaps = findSelectedEventGaps(events);
     expect(gaps).toHaveLength(1);
     // 14:00 + 60 min = 15:00 → gap to 15:30 = 30 min
@@ -113,10 +130,7 @@ describe("findSelectedEventGaps", () => {
   });
 
   it("returns empty array when fewer than 2 selected events with startTime", () => {
-    const events = [
-      mustSee("a", "2024-06-01T14:00:00Z"),
-      noSelection("b", "2024-06-01T15:00:00Z"),
-    ];
+    const events = [mustSee("a", "2024-06-01T14:00:00Z"), noSelection("b", "2024-06-01T15:00:00Z")];
     expect(findSelectedEventGaps(events)).toHaveLength(0);
   });
 

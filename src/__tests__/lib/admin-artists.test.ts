@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  filterAdminArtists,
-  sortAdminArtistsByName,
-  sortAdminArtistsByEventCount,
+  type AdminArtistRow,
   countArtistsMissingCountry,
   countArtistsMissingDisciplines,
-  filterOrphanArtists,
   countOrphanArtists,
-  type AdminArtistRow,
+  filterAdminArtists,
+  filterOrphanArtists,
+  sortAdminArtistsByEventCount,
+  sortAdminArtistsByName,
 } from "@/lib/admin-artists";
 
 function makeArtist(overrides: Partial<AdminArtistRow> = {}): AdminArtistRow {
@@ -25,9 +25,27 @@ function makeArtist(overrides: Partial<AdminArtistRow> = {}): AdminArtistRow {
 
 const artists: AdminArtistRow[] = [
   makeArtist({ id: "a1", name: "Orelsan", disciplines: ["rap"], countryCode: "FR", eventCount: 5 }),
-  makeArtist({ id: "a2", name: "Amelie Lens", disciplines: ["techno"], countryCode: "BE", eventCount: 2 }),
-  makeArtist({ id: "a3", name: "Nina Kraviz", disciplines: ["techno", "electro"], countryCode: "RU", eventCount: 4 }),
-  makeArtist({ id: "a4", name: "Unknown Artist", disciplines: [], countryCode: null, eventCount: 0 }),
+  makeArtist({
+    id: "a2",
+    name: "Amelie Lens",
+    disciplines: ["techno"],
+    countryCode: "BE",
+    eventCount: 2,
+  }),
+  makeArtist({
+    id: "a3",
+    name: "Nina Kraviz",
+    disciplines: ["techno", "electro"],
+    countryCode: "RU",
+    eventCount: 4,
+  }),
+  makeArtist({
+    id: "a4",
+    name: "Unknown Artist",
+    disciplines: [],
+    countryCode: null,
+    eventCount: 0,
+  }),
 ];
 
 describe("filterAdminArtists", () => {

@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -14,16 +14,10 @@ const quickStatusSchema = z.object({
  * Broadcast a quick status to the crew.
  * For now: validate membership and return the status; in production store in Redis.
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function POST(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { crewId } = await params;
@@ -32,10 +26,7 @@ export async function POST(
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requête invalide." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
   }
 
   const parsed = quickStatusSchema.safeParse(body);
@@ -53,10 +44,7 @@ export async function POST(
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Vous n'êtes pas membre de ce crew." },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Vous n'êtes pas membre de ce crew." }, { status: 403 });
     }
 
     // TODO: store in Redis for ephemeral real-time. For now, just echo back.
@@ -67,9 +55,6 @@ export async function POST(
     });
   } catch (err) {
     console.error("[POST /api/crews/[crewId]/status]", err);
-    return NextResponse.json(
-      { error: "Erreur lors de l'envoi du statut." },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: "Erreur lors de l'envoi du statut." }, { status: 500 });
   }
 }

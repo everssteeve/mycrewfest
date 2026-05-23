@@ -1,13 +1,13 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  computeAvgFestivalDurationDays,
+  computeFestivalDurationDays,
+  countFollowedFestivals,
+  type FollowFilterable,
+  getAvailableMonths,
+  type MonthFilterable,
   matchesFollowFilter,
   matchesMonthFilter,
-  getAvailableMonths,
-  countFollowedFestivals,
-  computeFestivalDurationDays,
-  computeAvgFestivalDurationDays,
-  type FollowFilterable,
-  type MonthFilterable,
 } from "@/lib/catalogue-filter";
 
 const f = (isFollowed?: boolean): FollowFilterable => ({ isFollowed });
@@ -75,10 +75,7 @@ describe("getAvailableMonths", () => {
   });
 
   it("deduplicates months when multiple festivals share a month", () => {
-    const festivals = [
-      fest("2025-07-01", "2025-07-05"),
-      fest("2025-07-10", "2025-07-15"),
-    ];
+    const festivals = [fest("2025-07-01", "2025-07-05"), fest("2025-07-10", "2025-07-15")];
     expect(getAvailableMonths(festivals)).toEqual([7]);
   });
 
@@ -150,7 +147,11 @@ describe("countFollowedFestivals", () => {
 // countActiveFestivals
 // ---------------------------------------------------------------------------
 
-import { countActiveFestivals, countUpcomingFestivals, type ActiveFestFilterable } from "@/lib/catalogue-filter";
+import {
+  type ActiveFestFilterable,
+  countActiveFestivals,
+  countUpcomingFestivals,
+} from "@/lib/catalogue-filter";
 
 const af = (startDate: string, endDate: string): ActiveFestFilterable => ({ startDate, endDate });
 const TODAY_YMD = "2026-05-23";
@@ -187,7 +188,9 @@ describe("countActiveFestivals", () => {
   });
 
   it("handles ISO datetime strings with slicing correctly", () => {
-    expect(countActiveFestivals([af("2026-05-23T00:00:00.000Z", "2026-05-30T00:00:00.000Z")], NOW)).toBe(1);
+    expect(
+      countActiveFestivals([af("2026-05-23T00:00:00.000Z", "2026-05-30T00:00:00.000Z")], NOW),
+    ).toBe(1);
   });
 });
 
@@ -234,9 +237,16 @@ describe("countUpcomingFestivals", () => {
 // countFestivalsWithCompleteProgram
 // ---------------------------------------------------------------------------
 
-import { countFestivalsWithCompleteProgram, type ProgramStatusFilterable, countVerifiedFestivals, type ConfidenceLevelFilterable } from "@/lib/catalogue-filter";
+import {
+  type ConfidenceLevelFilterable,
+  countFestivalsWithCompleteProgram,
+  countVerifiedFestivals,
+  type ProgramStatusFilterable,
+} from "@/lib/catalogue-filter";
 
-const ps = (programStatus: string | null | undefined): ProgramStatusFilterable => ({ programStatus });
+const ps = (programStatus: string | null | undefined): ProgramStatusFilterable => ({
+  programStatus,
+});
 
 describe("countFestivalsWithCompleteProgram", () => {
   it("returns 0 for empty list", () => {
@@ -244,11 +254,15 @@ describe("countFestivalsWithCompleteProgram", () => {
   });
 
   it("returns 0 when no festival has complete program", () => {
-    expect(countFestivalsWithCompleteProgram([ps("partiel"), ps("bientôt_disponible"), ps(null)])).toBe(0);
+    expect(
+      countFestivalsWithCompleteProgram([ps("partiel"), ps("bientôt_disponible"), ps(null)]),
+    ).toBe(0);
   });
 
   it("counts festivals with programStatus complet", () => {
-    expect(countFestivalsWithCompleteProgram([ps("complet"), ps("partiel"), ps("complet")])).toBe(2);
+    expect(countFestivalsWithCompleteProgram([ps("complet"), ps("partiel"), ps("complet")])).toBe(
+      2,
+    );
   });
 
   it("ignores festivals with no programStatus", () => {
@@ -264,7 +278,9 @@ describe("countFestivalsWithCompleteProgram", () => {
 // countVerifiedFestivals
 // ---------------------------------------------------------------------------
 
-const cv = (confidenceLevel: string | null | undefined): ConfidenceLevelFilterable => ({ confidenceLevel });
+const cv = (confidenceLevel: string | null | undefined): ConfidenceLevelFilterable => ({
+  confidenceLevel,
+});
 
 describe("countVerifiedFestivals", () => {
   it("returns 0 for empty list", () => {
@@ -276,7 +292,9 @@ describe("countVerifiedFestivals", () => {
   });
 
   it("counts festivals with confidenceLevel vérifié_humain", () => {
-    expect(countVerifiedFestivals([cv("vérifié_humain"), cv("auto"), cv("vérifié_humain")])).toBe(2);
+    expect(countVerifiedFestivals([cv("vérifié_humain"), cv("auto"), cv("vérifié_humain")])).toBe(
+      2,
+    );
   });
 
   it("ignores festivals with no confidenceLevel", () => {
@@ -320,7 +338,9 @@ describe("computeAvgFestivalDurationDays", () => {
   });
 
   it("returns the single festival duration", () => {
-    expect(computeAvgFestivalDurationDays([{ startDate: "2024-07-20", endDate: "2024-07-22" }])).toBe(3);
+    expect(
+      computeAvgFestivalDurationDays([{ startDate: "2024-07-20", endDate: "2024-07-22" }]),
+    ).toBe(3);
   });
 
   it("averages durations across multiple festivals", () => {
@@ -399,7 +419,11 @@ describe("countFestivalsByType", () => {
 // getAvailableCountries / matchesCountryFilter
 // ---------------------------------------------------------------------------
 
-import { getAvailableCountries, matchesCountryFilter, type CountryFilterable } from "@/lib/catalogue-filter";
+import {
+  type CountryFilterable,
+  getAvailableCountries,
+  matchesCountryFilter,
+} from "@/lib/catalogue-filter";
 
 const mkCountry = (country: string): CountryFilterable => ({ country });
 

@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
+import { type AgendaIcsEvent, buildAgendaIcsEvents } from "@/lib/agenda-ics";
 import { generateIcs } from "@/lib/ics";
-import { buildAgendaIcsEvents, type AgendaIcsEvent } from "@/lib/agenda-ics";
+import { prisma } from "@/lib/prisma";
 
 export async function GET() {
   const session = await auth();

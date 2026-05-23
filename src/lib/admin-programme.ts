@@ -10,11 +10,7 @@ export interface AdminProgramRow {
   eventCount: number;
 }
 
-export const PROGRAM_STATUS_VALUES: ProgramStatus[] = [
-  "complet",
-  "partiel",
-  "bientôt_disponible",
-];
+export const PROGRAM_STATUS_VALUES: ProgramStatus[] = ["complet", "partiel", "bientôt_disponible"];
 
 export function getProgramStatusLabel(status: string): string {
   const labels: Record<string, string> = {

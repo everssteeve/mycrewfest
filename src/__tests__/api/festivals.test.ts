@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -145,9 +145,7 @@ describe("GET /api/festivals", () => {
     const prisma = await getPrismaMock();
     prisma.$transaction.mockResolvedValue([0, []]);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/festivals?type=musique",
-    );
+    const req = new NextRequest("http://localhost:3000/api/festivals?type=musique");
     const res = await getList(req);
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -181,9 +179,7 @@ describe("GET /api/festivals/[slug]", () => {
     const prisma = await getPrismaMock();
     prisma.festival.findUnique.mockResolvedValue(festivalDetailRow);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/festivals/greenfield-festival",
-    );
+    const req = new NextRequest("http://localhost:3000/api/festivals/greenfield-festival");
     const res = await getBySlug(req, {
       params: Promise.resolve({ slug: "greenfield-festival" }),
     });
@@ -197,9 +193,7 @@ describe("GET /api/festivals/[slug]", () => {
     const prisma = await getPrismaMock();
     prisma.festival.findUnique.mockResolvedValue(null);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/festivals/unknown-festival",
-    );
+    const req = new NextRequest("http://localhost:3000/api/festivals/unknown-festival");
     const res = await getBySlug(req, {
       params: Promise.resolve({ slug: "unknown-festival" }),
     });
@@ -212,9 +206,7 @@ describe("GET /api/festivals/[slug]", () => {
     const prisma = await getPrismaMock();
     prisma.festival.findUnique.mockResolvedValue(festivalDetailRow);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/festivals/greenfield-festival",
-    );
+    const req = new NextRequest("http://localhost:3000/api/festivals/greenfield-festival");
     const res = await getBySlug(req, {
       params: Promise.resolve({ slug: "greenfield-festival" }),
     });
@@ -226,9 +218,7 @@ describe("GET /api/festivals/[slug]", () => {
     const prisma = await getPrismaMock();
     prisma.festival.findUnique.mockRejectedValue(new Error("DB error"));
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/festivals/crash-festival",
-    );
+    const req = new NextRequest("http://localhost:3000/api/festivals/crash-festival");
     const res = await getBySlug(req, {
       params: Promise.resolve({ slug: "crash-festival" }),
     });

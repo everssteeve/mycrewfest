@@ -1,10 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Ticket, X, Users, User } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { Ticket, User, Users, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface ParticipateButtonProps {
   festivalId: string;
@@ -159,6 +159,9 @@ export function ParticipateButton({
         <div
           ref={overlayRef}
           onClick={handleOverlayClick}
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setOpen(false);
+          }}
           style={{
             position: "fixed",
             inset: 0,
@@ -193,10 +196,7 @@ export function ParticipateButton({
                 justifyContent: "space-between",
               }}
             >
-              <h2
-                className="t-h3"
-                style={{ color: "var(--text-main)", fontSize: "var(--fs-md)" }}
-              >
+              <h2 className="t-h3" style={{ color: "var(--text-main)", fontSize: "var(--fs-md)" }}>
                 Je participe à {festivalName}
               </h2>
               <button
@@ -217,10 +217,7 @@ export function ParticipateButton({
 
             {/* Days selector */}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
-              <p
-                className="t-meta"
-                style={{ color: "var(--text-muted)", marginBottom: 4 }}
-              >
+              <p className="t-meta" style={{ color: "var(--text-muted)", marginBottom: 4 }}>
                 Mes jours de présence
               </p>
               <div

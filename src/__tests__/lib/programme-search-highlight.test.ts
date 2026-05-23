@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  highlightTerms,
-  hasHighlightMatch,
   getHighlightStyle,
+  hasHighlightMatch,
+  highlightTerms,
 } from "@/lib/programme-search-highlight";
 
 describe("highlightTerms", () => {

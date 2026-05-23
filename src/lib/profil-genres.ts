@@ -27,10 +27,7 @@ export function aggregateDisciplines(
  * Converts the discipline count map to a sorted array with percentages.
  * The total is the sum of all counts (used for percentage calculation).
  */
-export function buildDisciplineRanking(
-  counts: Map<string, number>,
-  limit = 5,
-): DisciplineCount[] {
+export function buildDisciplineRanking(counts: Map<string, number>, limit = 5): DisciplineCount[] {
   const total = [...counts.values()].reduce((s, v) => s + v, 0);
   if (total === 0) return [];
 

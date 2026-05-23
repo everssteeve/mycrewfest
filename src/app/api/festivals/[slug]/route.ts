@@ -1,7 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
   _request: NextRequest,
@@ -19,7 +19,16 @@ export async function GET(
         events: {
           include: {
             artist: true,
-            venue: { select: { id: true, name: true, type: true, capacity: true, latitude: true, longitude: true } },
+            venue: {
+              select: {
+                id: true,
+                name: true,
+                type: true,
+                capacity: true,
+                latitude: true,
+                longitude: true,
+              },
+            },
           },
           orderBy: { startTime: "asc" },
         },
@@ -33,10 +42,7 @@ export async function GET(
     });
 
     if (!festival) {
-      return NextResponse.json(
-        { error: "Festival introuvable." },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Festival introuvable." }, { status: 404 });
     }
 
     let isFollowed = false;

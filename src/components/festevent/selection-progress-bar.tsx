@@ -21,6 +21,7 @@ export function SelectionProgressBar({ festEventId }: SelectionProgressBarProps)
 
   return (
     <div
+      role="group"
       aria-label="Progression du festival"
       data-testid="selection-progress-bar"
       style={{
@@ -74,18 +75,14 @@ export function SelectionProgressBar({ festEventId }: SelectionProgressBarProps)
         <span style={{ color: "var(--border-strong)" }}>·</span>
         {counts.mustSeePending > 0 && (
           <>
-            <span style={{ color: "var(--accent-pink)" }}>
-              {counts.mustSeePending} must-see
-            </span>
+            <span style={{ color: "var(--accent-pink)" }}>{counts.mustSeePending} must-see</span>
             <span style={{ color: "var(--border-strong)" }}>·</span>
           </>
         )}
         <span>
           {counts.total} sélectionné{counts.total !== 1 ? "s" : ""}
         </span>
-        <span style={{ marginLeft: "auto", color: "var(--text-dim)" }}>
-          {counts.progressPct}%
-        </span>
+        <span style={{ marginLeft: "auto", color: "var(--text-dim)" }}>{counts.progressPct}%</span>
       </div>
     </div>
   );

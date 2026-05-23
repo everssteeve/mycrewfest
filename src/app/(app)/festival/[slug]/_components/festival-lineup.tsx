@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import Link from "next/link";
 import { Search } from "lucide-react";
-import type { ArtistSummary } from "@/types/index";
+import Link from "next/link";
+import { useState } from "react";
 import { filterLineup } from "@/lib/festival-lineup-search";
+import type { ArtistSummary } from "@/types/index";
 
 interface FestivalLineupProps {
   artists: ArtistSummary[];
@@ -57,9 +57,15 @@ export function FestivalLineup({ artists, isDeambulatoire }: FestivalLineupProps
 
       <p
         data-testid="festival-lineup-count"
-        style={{ fontSize: "0.72rem", color: "var(--text-dim, #666)", margin: "0 0 8px", fontFamily: "var(--font-mono, monospace)" }}
+        style={{
+          fontSize: "0.72rem",
+          color: "var(--text-dim, #666)",
+          margin: "0 0 8px",
+          fontFamily: "var(--font-mono, monospace)",
+        }}
       >
-        {filtered.length} / {artists.length} {isDeambulatoire ? "compagnie" : "artiste"}{artists.length > 1 ? "s" : ""}
+        {filtered.length} / {artists.length} {isDeambulatoire ? "compagnie" : "artiste"}
+        {artists.length > 1 ? "s" : ""}
       </p>
 
       {filtered.length === 0 ? (
@@ -109,10 +115,7 @@ export function FestivalLineup({ artists, isDeambulatoire }: FestivalLineupProps
                 </div>
                 <div className="flex items-center gap-2">
                   {artist.countryCode && (
-                    <span
-                      className="t-meta"
-                      style={{ color: "var(--text-dim)", flexShrink: 0 }}
-                    >
+                    <span className="t-meta" style={{ color: "var(--text-dim)", flexShrink: 0 }}>
                       {artist.countryCode}
                     </span>
                   )}

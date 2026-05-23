@@ -1,6 +1,6 @@
+import { Search, Sparkles, Trophy } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
-import { Search, Sparkles, Trophy } from "lucide-react";
 import { TopHeader } from "@/components/ui";
 import { CatalogueContent } from "./_components/catalogue-content";
 import { CatalogueSkeleton } from "./_components/catalogue-skeleton";

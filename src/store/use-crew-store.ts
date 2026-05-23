@@ -24,9 +24,7 @@ interface CrewState {
 
   // Shared rally point set by the crew admin
   rallyPoint: { lat: number; lng: number; description?: string } | null;
-  setRallyPoint: (
-    point: { lat: number; lng: number; description?: string } | null,
-  ) => void;
+  setRallyPoint: (point: { lat: number; lng: number; description?: string } | null) => void;
 
   // User's current quick status visible to the crew
   quickStatus: QuickStatus | null;
@@ -51,10 +49,7 @@ export const useCrewStore = create<CrewState>()(
       activeSignals: [],
       addSignal: (signal) =>
         set((state) => ({
-          activeSignals: [
-            ...state.activeSignals.filter((s) => s.id !== signal.id),
-            signal,
-          ],
+          activeSignals: [...state.activeSignals.filter((s) => s.id !== signal.id), signal],
         })),
       removeSignal: (signalId) =>
         set((state) => ({

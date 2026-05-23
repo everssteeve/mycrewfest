@@ -1,10 +1,10 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import {
   addToSearchHistory,
-  removeFromSearchHistory,
-  loadSearchHistory,
-  saveSearchHistory,
   clearSearchHistory,
+  loadSearchHistory,
+  removeFromSearchHistory,
+  saveSearchHistory,
 } from "@/lib/search-history";
 
 // localStorage is available in vitest/jsdom environment

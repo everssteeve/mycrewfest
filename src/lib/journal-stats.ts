@@ -40,7 +40,7 @@ export function countDaysWithPhotos(entries: PhotoDayEntry[]): number {
   for (const e of entries) {
     if (!e.photos || e.photos.length === 0) continue;
     const d = new Date(e.timestamp);
-    if (!isNaN(d.getTime())) {
+    if (!Number.isNaN(d.getTime())) {
       days.add(d.toLocaleDateString("sv-SE"));
     }
   }
@@ -57,7 +57,7 @@ export function getMostActiveJournalDay(
   const counts = new Map<string, number>();
   for (const e of entries) {
     const d = new Date(e.timestamp);
-    if (isNaN(d.getTime())) continue;
+    if (Number.isNaN(d.getTime())) continue;
     const ymd = d.toLocaleDateString("sv-SE");
     counts.set(ymd, (counts.get(ymd) ?? 0) + 1);
   }
@@ -75,10 +75,7 @@ export function getMostActiveJournalDay(
  * Returns the average number of entries per active day, rounded to one decimal.
  * Returns null when there are no days (empty journal).
  */
-export function computeAvgEntriesPerDay(
-  totalEntries: number,
-  totalDays: number,
-): number | null {
+export function computeAvgEntriesPerDay(totalEntries: number, totalDays: number): number | null {
   if (totalDays === 0) return null;
   return Math.round((totalEntries / totalDays) * 10) / 10;
 }
@@ -99,7 +96,7 @@ export function getDaysSinceLastEntry(
   let latestMs = -Infinity;
   for (const e of entries) {
     const ms = new Date(e.timestamp).getTime();
-    if (!isNaN(ms) && ms > latestMs) latestMs = ms;
+    if (!Number.isNaN(ms) && ms > latestMs) latestMs = ms;
   }
   if (latestMs === -Infinity) return null;
   const todayStart = new Date(now.toLocaleDateString("sv-SE")).getTime();
@@ -113,7 +110,7 @@ export function computeJournalStats(entries: JournalStatsEntry[]): JournalStats 
 
   for (const e of entries) {
     const d = new Date(e.timestamp);
-    if (!isNaN(d.getTime())) {
+    if (!Number.isNaN(d.getTime())) {
       days.add(d.toLocaleDateString("sv-SE"));
     }
     if (e.photos && e.photos.length > 0) {

@@ -1,17 +1,18 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  validateEventNote,
+  buildStorageKey,
+  countNonEmptyNotes,
   formatNotePreview,
+  MAX_NOTE_LENGTH,
   parseNotesFromStorage,
   serializeNotesToStorage,
-  countNonEmptyNotes,
-  buildStorageKey,
-  MAX_NOTE_LENGTH,
+  validateEventNote,
 } from "@/lib/event-notes";
 
 describe("validateEventNote", () => {
   it("accepts empty string", () => expect(validateEventNote("").valid).toBe(true));
-  it("accepts normal note", () => expect(validateEventNote("Rejoindre Julie devant la scène").valid).toBe(true));
+  it("accepts normal note", () =>
+    expect(validateEventNote("Rejoindre Julie devant la scène").valid).toBe(true));
   it("rejects notes over MAX_NOTE_LENGTH", () => {
     const long = "a".repeat(MAX_NOTE_LENGTH + 1);
     const result = validateEventNote(long);

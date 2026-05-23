@@ -5,16 +5,12 @@ export interface ReasonContext {
   followedFestivals: Array<SimilarityCandidate & { name: string }>;
 }
 
-function daysBetween(a: string, b: string): number {
-  return Math.abs(
-    (new Date(a).getTime() - new Date(b).getTime()) / (1000 * 60 * 60 * 60 * 1000),
-  );
+function _daysBetween(a: string, b: string): number {
+  return Math.abs((new Date(a).getTime() - new Date(b).getTime()) / (1000 * 60 * 60 * 60 * 1000));
 }
 
 function daysApart(a: string, b: string): number {
-  return Math.abs(
-    (new Date(a).getTime() - new Date(b).getTime()) / (1000 * 60 * 60 * 24),
-  );
+  return Math.abs((new Date(a).getTime() - new Date(b).getTime()) / (1000 * 60 * 60 * 24));
 }
 
 /**
@@ -24,8 +20,19 @@ function daysApart(a: string, b: string): number {
 function bestMatch(
   candidate: SimilarityCandidate,
   followedFestivals: Array<SimilarityCandidate & { name: string }>,
-): { festival: SimilarityCandidate & { name: string }; typeMatch: boolean; countryMatch: boolean; proximityMatch: boolean } | null {
-  let best: { festival: SimilarityCandidate & { name: string }; typeMatch: boolean; countryMatch: boolean; proximityMatch: boolean; score: number } | null = null;
+): {
+  festival: SimilarityCandidate & { name: string };
+  typeMatch: boolean;
+  countryMatch: boolean;
+  proximityMatch: boolean;
+} | null {
+  let best: {
+    festival: SimilarityCandidate & { name: string };
+    typeMatch: boolean;
+    countryMatch: boolean;
+    proximityMatch: boolean;
+    score: number;
+  } | null = null;
 
   for (const ref of followedFestivals) {
     if (ref.id === candidate.id) continue;
@@ -39,7 +46,14 @@ function bestMatch(
     }
   }
 
-  return best ? { festival: best.festival, typeMatch: best.typeMatch, countryMatch: best.countryMatch, proximityMatch: best.proximityMatch } : null;
+  return best
+    ? {
+        festival: best.festival,
+        typeMatch: best.typeMatch,
+        countryMatch: best.countryMatch,
+        proximityMatch: best.proximityMatch,
+      }
+    : null;
 }
 
 const FESTIVAL_TYPE_LABELS: Record<string, string> = {

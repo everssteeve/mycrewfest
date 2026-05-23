@@ -1,5 +1,15 @@
-import { describe, it, expect } from "vitest";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins, computeAvgNewsAgeHours, getTopNewsSourceWithCount } from "@/lib/news-stats";
+import { describe, expect, it } from "vitest";
+import {
+  computeAvgNewsAgeHours,
+  computeNewsStats,
+  countPinnedNewsItems,
+  countRecentNewsItems,
+  countUniqueNewsCategories,
+  getMostRecentArticleAgoMins,
+  getTopNewsCategory,
+  getTopNewsSource,
+  getTopNewsSourceWithCount,
+} from "@/lib/news-stats";
 
 const item = (urgencyLevel: "normal" | "critique", isPinned = false) => ({
   urgencyLevel,
@@ -118,8 +128,7 @@ describe("countUniqueNewsCategories", () => {
 
 describe("countRecentNewsItems", () => {
   const now = new Date("2026-05-23T12:00:00Z");
-  const hoursAgo = (h: number) =>
-    new Date(now.getTime() - h * 60 * 60 * 1_000).toISOString();
+  const hoursAgo = (h: number) => new Date(now.getTime() - h * 60 * 60 * 1_000).toISOString();
 
   it("returns 0 for empty array", () => {
     expect(countRecentNewsItems([], 24, now)).toBe(0);
@@ -283,7 +292,10 @@ describe("getTopNewsSourceWithCount", () => {
   });
 
   it("returns the only source for a single item", () => {
-    expect(getTopNewsSourceWithCount([{ source: "Le Monde" }])).toEqual({ source: "Le Monde", count: 1 });
+    expect(getTopNewsSourceWithCount([{ source: "Le Monde" }])).toEqual({
+      source: "Le Monde",
+      count: 1,
+    });
   });
 
   it("returns the source with the most items", () => {
@@ -297,22 +309,12 @@ describe("getTopNewsSourceWithCount", () => {
   });
 
   it("breaks ties by first encountered", () => {
-    const items = [
-      { source: "A" },
-      { source: "B" },
-      { source: "A" },
-      { source: "B" },
-    ];
+    const items = [{ source: "A" }, { source: "B" }, { source: "A" }, { source: "B" }];
     expect(getTopNewsSourceWithCount(items)).toEqual({ source: "A", count: 2 });
   });
 
   it("counts each source correctly with multiple sources", () => {
-    const items = [
-      { source: "X" },
-      { source: "Y" },
-      { source: "Y" },
-      { source: "Z" },
-    ];
+    const items = [{ source: "X" }, { source: "Y" }, { source: "Y" }, { source: "Z" }];
     expect(getTopNewsSourceWithCount(items)).toEqual({ source: "Y", count: 2 });
   });
 });

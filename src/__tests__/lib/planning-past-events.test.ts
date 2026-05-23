@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { getEventTimeStatus } from "@/lib/event-status";
 
 const BASE = "2026-07-20T";

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import type { AdminSearchResult } from "@/lib/admin-search";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -148,10 +148,31 @@ export function AdminGlobalSearch() {
                 {TYPE_LABELS[result.type]}
               </span>
               <div style={{ minWidth: 0 }}>
-                <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-main)", margin: 0, fontWeight: "var(--fw-bold)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--fs-sm)",
+                    color: "var(--text-main)",
+                    margin: 0,
+                    fontWeight: "var(--fw-bold)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
                   {result.label}
                 </p>
-                <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <p
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--text-dim)",
+                    margin: 0,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
                   {result.sublabel}
                 </p>
               </div>
@@ -174,7 +195,15 @@ export function AdminGlobalSearch() {
             zIndex: 100,
           }}
         >
-          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-dim)", margin: 0, textAlign: "center" }}>
+          <p
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              color: "var(--text-dim)",
+              margin: 0,
+              textAlign: "center",
+            }}
+          >
             Aucun résultat pour &ldquo;{query}&rdquo;
           </p>
         </div>

@@ -15,9 +15,7 @@ interface RawArtistRef {
   countryCode: string | null;
 }
 
-export function extractSeenArtists(
-  artistRefs: (RawArtistRef | null | undefined)[],
-): SeenArtist[] {
+export function extractSeenArtists(artistRefs: (RawArtistRef | null | undefined)[]): SeenArtist[] {
   const map = new Map<string, SeenArtist>();
 
   for (const ref of artistRefs) {

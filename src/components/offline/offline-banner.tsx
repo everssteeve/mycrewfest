@@ -1,7 +1,7 @@
 "use client";
 
+import { RefreshCw, WifiOff } from "lucide-react";
 import { useEffect, useState } from "react";
-import { WifiOff, RefreshCw } from "lucide-react";
 import { useOffline } from "@/hooks/use-offline";
 import { useAppStore } from "@/store/use-app-store";
 
@@ -57,10 +57,7 @@ export function OfflineBanner() {
     >
       {isOffline ? (
         <>
-          <WifiOff
-            size={14}
-            style={{ color: "var(--warning-orange)", flexShrink: 0 }}
-          />
+          <WifiOff size={14} style={{ color: "var(--warning-orange)", flexShrink: 0 }} />
           <span
             style={{
               fontFamily: "var(--font-body)",

@@ -225,10 +225,7 @@ export function formatEventTime(
  * Format a festival date range.
  * e.g. "30 mai – 1er juin 2025"
  */
-export function formatFestivalDateRange(
-  startIso: string,
-  endIso: string,
-): string {
+export function formatFestivalDateRange(startIso: string, endIso: string): string {
   const start = new Date(startIso);
   const end = new Date(endIso);
 
@@ -298,10 +295,9 @@ export async function apiUpdateSelection(
   status: SelectionStatus | null,
 ): Promise<void> {
   if (status === null) {
-    const res = await fetch(
-      `/api/festevents/${festEventId}/selections/${eventId}`,
-      { method: "DELETE" },
-    );
+    const res = await fetch(`/api/festevents/${festEventId}/selections/${eventId}`, {
+      method: "DELETE",
+    });
     if (!res.ok) throw new Error(`DELETE selection failed: ${res.status}`);
     return;
   }
@@ -324,9 +320,7 @@ export function buildQueryString(
   const parts: string[] = [];
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== null && value !== "") {
-      parts.push(
-        `${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`,
-      );
+      parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
     }
   }
   return parts.length > 0 ? `?${parts.join("&")}` : "";

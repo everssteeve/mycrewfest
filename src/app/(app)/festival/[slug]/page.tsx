@@ -1,22 +1,26 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import { Suspense } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { ArrowLeft, Globe, MapPin, Users, ExternalLink } from "lucide-react";
-import { buildFestivalOgDescription } from "@/lib/og-metadata";
-import { getCountdownBadgeLabel, getCountdownBadgeColor, getCountdownBadgeState } from "@/lib/festival-countdown";
-import { formatFestivalStats } from "@/lib/format-count";
+import { ArrowLeft, ExternalLink, Globe, MapPin, Users } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { Badge } from "@/components/ui";
+import { ShareButton } from "@/components/ui/share-button";
+import {
+  getCountdownBadgeColor,
+  getCountdownBadgeLabel,
+  getCountdownBadgeState,
+} from "@/lib/festival-countdown";
+import { formatFestivalStats } from "@/lib/format-count";
+import { buildFestivalOgDescription } from "@/lib/og-metadata";
+import { buildFestivalSharePayload } from "@/lib/share";
 import type { FestivalDetail, NewsItem } from "@/lib/types";
+import { FestivalLineup } from "./_components/festival-lineup";
 import { FollowButton } from "./_components/follow-button";
 import { ParticipateButton } from "./_components/participate-button";
-import { ShareButton } from "@/components/ui/share-button";
-import { buildFestivalSharePayload } from "@/lib/share";
-import { SimilarFestivals } from "./_components/similar-festivals";
-import { FestivalLineup } from "./_components/festival-lineup";
 import { RecentlyViewedTracker } from "./_components/recently-viewed-tracker";
+import { SimilarFestivals } from "./_components/similar-festivals";
 
 async function fetchFestival(slug: string): Promise<FestivalDetail | null> {
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
@@ -79,7 +83,7 @@ const PROGRAM_STATUS_CONFIG = {
     label: "Programme partiel",
     variant: "urgent" as const,
   },
-  "bientôt_disponible": {
+  bientôt_disponible: {
     label: "Bientôt disponible",
     variant: "default" as const,
   },
@@ -94,23 +98,15 @@ const NEWS_CATEGORY_LABELS: Record<string, string> = {
   autre: "Info",
 };
 
-export default async function FestivalPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function FestivalPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [festival, newsItems] = await Promise.all([
-    fetchFestival(slug),
-    fetchNews(slug),
-  ]);
+  const [festival, newsItems] = await Promise.all([fetchFestival(slug), fetchNews(slug)]);
 
   if (!festival) notFound();
 
   const statusCfg =
-    PROGRAM_STATUS_CONFIG[
-      festival.programStatus as keyof typeof PROGRAM_STATUS_CONFIG
-    ] ?? PROGRAM_STATUS_CONFIG["bientôt_disponible"];
+    PROGRAM_STATUS_CONFIG[festival.programStatus as keyof typeof PROGRAM_STATUS_CONFIG] ??
+    PROGRAM_STATUS_CONFIG.bientôt_disponible;
 
   const startDate = new Date(festival.startDate);
   const endDate = new Date(festival.endDate);
@@ -124,8 +120,7 @@ export default async function FestivalPage({
     : `${format(startDate, "d MMM", { locale: fr })} – ${format(endDate, "d MMM yyyy", { locale: fr })}`;
 
   const isDeambulatoire =
-    festival.programType === "déambulatoire" ||
-    festival.programType === "hybride";
+    festival.programType === "déambulatoire" || festival.programType === "hybride";
 
   const countdownLabel = getCountdownBadgeLabel(festival.startDate, festival.endDate);
   const countdownState = getCountdownBadgeState(festival.startDate, festival.endDate);
@@ -166,9 +161,7 @@ export default async function FestivalPage({
         {/* Badges row */}
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={statusCfg.variant}>{statusCfg.label}</Badge>
-          {festival.confidenceLevel === "auto" && (
-            <Badge variant="ai">Données IA</Badge>
-          )}
+          {festival.confidenceLevel === "auto" && <Badge variant="ai">Données IA</Badge>}
         </div>
 
         {/* Name */}
@@ -217,10 +210,7 @@ export default async function FestivalPage({
         </div>
 
         {/* Location */}
-        <p
-          className="t-caption flex items-center gap-1"
-          style={{ color: "var(--text-muted)" }}
-        >
+        <p className="t-caption flex items-center gap-1" style={{ color: "var(--text-muted)" }}>
           <MapPin size={14} aria-hidden="true" />
           {festival.address
             ? `${festival.address}, ${festival.city}`
@@ -246,7 +236,6 @@ export default async function FestivalPage({
           <p
             className="t-caption"
             style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs, 11px)" }}
-            aria-label="Statistiques du festival"
           >
             {formatFestivalStats(festival._count)}
           </p>
@@ -302,28 +291,26 @@ export default async function FestivalPage({
               style={{ color: "var(--text-muted)", textDecoration: "none" }}
               aria-label={`X (Twitter) : ${festival.xHandle}`}
             >
-              <ExternalLink size={12} aria-hidden="true" />
-              X / Twitter
+              <ExternalLink size={12} aria-hidden="true" />X / Twitter
             </a>
           )}
         </div>
 
         {/* Actions */}
-        <div
-          className="flex items-center gap-3 pt-2"
-          style={{ marginTop: "var(--space-sm)" }}
-        >
+        <div className="flex items-center gap-3 pt-2" style={{ marginTop: "var(--space-sm)" }}>
           <ParticipateButton
-                festivalId={festival.id}
-                festivalSlug={festival.slug}
-                festivalName={festival.name}
-                startDate={festival.startDate}
-                endDate={festival.endDate}
-              />
-          <FollowButton festivalId={festival.id} initialFollowed={festival.isFollowed} festivalSlug={festival.slug} />
-          <ShareButton
-            payload={buildFestivalSharePayload(festival.name, festival.slug)}
+            festivalId={festival.id}
+            festivalSlug={festival.slug}
+            festivalName={festival.name}
+            startDate={festival.startDate}
+            endDate={festival.endDate}
           />
+          <FollowButton
+            festivalId={festival.id}
+            initialFollowed={festival.isFollowed}
+            festivalSlug={festival.slug}
+          />
+          <ShareButton payload={buildFestivalSharePayload(festival.name, festival.slug)} />
           <a
             href={`/api/festivals/${festival.slug}/ics`}
             download={`${festival.slug}.ics`}
@@ -371,9 +358,10 @@ export default async function FestivalPage({
                 style={{
                   backgroundColor: "var(--bg-surface)",
                   borderRadius: "var(--radius-md)",
-                  border: item.urgencyLevel === "critique"
-                    ? "1px solid var(--danger-red)"
-                    : "1px solid var(--border-color)",
+                  border:
+                    item.urgencyLevel === "critique"
+                      ? "1px solid var(--danger-red)"
+                      : "1px solid var(--border-color)",
                   padding: "var(--space-md)",
                   display: "flex",
                   flexDirection: "column",
@@ -384,9 +372,8 @@ export default async function FestivalPage({
                   <span
                     className="t-meta"
                     style={{
-                      color: item.urgencyLevel === "critique"
-                        ? "var(--danger-red)"
-                        : "var(--text-dim)",
+                      color:
+                        item.urgencyLevel === "critique" ? "var(--danger-red)" : "var(--text-dim)",
                     }}
                   >
                     {NEWS_CATEGORY_LABELS[item.category] ?? item.category}
@@ -395,7 +382,10 @@ export default async function FestivalPage({
                     {format(new Date(item.publishedAt), "d MMM", { locale: fr })}
                   </span>
                 </div>
-                <p className="t-body" style={{ color: "var(--text-main)", fontSize: "var(--fs-sm)" }}>
+                <p
+                  className="t-body"
+                  style={{ color: "var(--text-main)", fontSize: "var(--fs-sm)" }}
+                >
                   {item.summary}
                 </p>
                 {item.sourceUrl && (
@@ -443,10 +433,7 @@ export default async function FestivalPage({
             <Users size={16} aria-hidden="true" />
             {isDeambulatoire ? "Compagnies" : "Artistes"}
           </h2>
-          <FestivalLineup
-            artists={festival.artists ?? []}
-            isDeambulatoire={isDeambulatoire}
-          />
+          <FestivalLineup artists={festival.artists ?? []} isDeambulatoire={isDeambulatoire} />
         </section>
       )}
 

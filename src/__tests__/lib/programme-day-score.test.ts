@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   computeDayScores,
-  getMostLoadedDay,
-  getDayLoadLevel,
-  getDayLoadColor,
-  formatDayDuration,
   type DayScorableEvent,
+  formatDayDuration,
+  getDayLoadColor,
+  getDayLoadLevel,
+  getMostLoadedDay,
 } from "@/lib/programme-day-score";
 
 type E = DayScorableEvent;
@@ -43,10 +43,7 @@ describe("computeDayScores", () => {
   });
 
   it("ignores 'vu' and null-status events for counts", () => {
-    const events = [
-      ev("2026-07-15T10:00:00Z", "vu"),
-      ev("2026-07-15T12:00:00Z", null),
-    ];
+    const events = [ev("2026-07-15T10:00:00Z", "vu"), ev("2026-07-15T12:00:00Z", null)];
     const scores = computeDayScores(events, DAYS);
     const day1 = scores.find((s) => s.day === "2026-07-15")!;
     expect(day1.total).toBe(0);
@@ -116,16 +113,24 @@ describe("getMostLoadedDay", () => {
 
 describe("getDayLoadLevel", () => {
   it("returns light for 0 events", () => {
-    expect(getDayLoadLevel({ day: "d", mustSee: 0, interested: 0, total: 0, durationMins: 0 })).toBe("light");
+    expect(
+      getDayLoadLevel({ day: "d", mustSee: 0, interested: 0, total: 0, durationMins: 0 }),
+    ).toBe("light");
   });
   it("returns light for 1–3 events", () => {
-    expect(getDayLoadLevel({ day: "d", mustSee: 3, interested: 0, total: 3, durationMins: 0 })).toBe("light");
+    expect(
+      getDayLoadLevel({ day: "d", mustSee: 3, interested: 0, total: 3, durationMins: 0 }),
+    ).toBe("light");
   });
   it("returns moderate for 4–7 events", () => {
-    expect(getDayLoadLevel({ day: "d", mustSee: 5, interested: 0, total: 5, durationMins: 0 })).toBe("moderate");
+    expect(
+      getDayLoadLevel({ day: "d", mustSee: 5, interested: 0, total: 5, durationMins: 0 }),
+    ).toBe("moderate");
   });
   it("returns heavy for 8+ events", () => {
-    expect(getDayLoadLevel({ day: "d", mustSee: 8, interested: 0, total: 8, durationMins: 0 })).toBe("heavy");
+    expect(
+      getDayLoadLevel({ day: "d", mustSee: 8, interested: 0, total: 8, durationMins: 0 }),
+    ).toBe("heavy");
   });
 });
 

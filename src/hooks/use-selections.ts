@@ -40,9 +40,10 @@ export function useSelections(festEventId: string): UseSelectionsReturn {
         const op: SyncOperation = {
           id: `sel-${festEventId}-${eventId}-${Date.now()}`,
           type: "selection",
-          endpoint: status === null
-            ? `/api/festevents/${festEventId}/selections/${eventId}`
-            : `/api/festevents/${festEventId}/selections`,
+          endpoint:
+            status === null
+              ? `/api/festevents/${festEventId}/selections/${eventId}`
+              : `/api/festevents/${festEventId}/selections`,
           method: status === null ? "DELETE" : "POST",
           body: status === null ? null : { eventId, status },
           createdAt: new Date().toISOString(),
@@ -59,9 +60,10 @@ export function useSelections(festEventId: string): UseSelectionsReturn {
           const op: SyncOperation = {
             id: `sel-${festEventId}-${eventId}-${Date.now()}`,
             type: "selection",
-            endpoint: status === null
-              ? `/api/festevents/${festEventId}/selections/${eventId}`
-              : `/api/festevents/${festEventId}/selections`,
+            endpoint:
+              status === null
+                ? `/api/festevents/${festEventId}/selections/${eventId}`
+                : `/api/festevents/${festEventId}/selections`,
             method: status === null ? "DELETE" : "POST",
             body: status === null ? null : { eventId, status },
             createdAt: new Date().toISOString(),

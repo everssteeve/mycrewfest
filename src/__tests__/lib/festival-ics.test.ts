@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { buildFestivalIcs, festivalIcsFilename, type FestivalIcsInput } from "@/lib/festival-ics";
+import { describe, expect, it } from "vitest";
+import { buildFestivalIcs, type FestivalIcsInput, festivalIcsFilename } from "@/lib/festival-ics";
 
 const FESTIVAL: FestivalIcsInput = {
   name: "Hellfest Open Air 2026",

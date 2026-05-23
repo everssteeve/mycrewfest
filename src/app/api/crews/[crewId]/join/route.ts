@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -14,16 +14,10 @@ const joinSchema = z.object({
  * POST /api/crews/[crewId]/join
  * Join a crew using its invite code.
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function POST(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { crewId } = await params;
@@ -32,10 +26,7 @@ export async function POST(
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requête invalide." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
   }
 
   const parsed = joinSchema.safeParse(body);
@@ -65,10 +56,7 @@ export async function POST(
 
     const alreadyMember = crew.members.some((m) => m.userId === session.user?.id);
     if (alreadyMember) {
-      return NextResponse.json(
-        { error: "Vous êtes déjà membre de ce crew." },
-        { status: 409 },
-      );
+      return NextResponse.json({ error: "Vous êtes déjà membre de ce crew." }, { status: 409 });
     }
 
     await prisma.crewMember.create({

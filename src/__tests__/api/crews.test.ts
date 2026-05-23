@@ -3,8 +3,8 @@
  * and /api/crews/[crewId]/position route handlers.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -66,9 +66,7 @@ const crewRow = {
 
 const { GET: getCrews, POST: postCrew } = await import("@/app/api/crews/route");
 const { POST: postJoin } = await import("@/app/api/crews/join/route");
-const { PUT: putRally } = await import(
-  "@/app/api/crews/[crewId]/rally/route"
-);
+const { PUT: putRally } = await import("@/app/api/crews/[crewId]/rally/route");
 const { POST: postPosition, GET: getPositions } = await import(
   "@/app/api/crews/[crewId]/position/route"
 );
@@ -301,31 +299,25 @@ describe("PUT /api/crews/[crewId]/rally", () => {
     const authMock = await getAuthMock();
     authMock.mockResolvedValueOnce(null);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/crews/crew-1/rally",
-      {
-        method: "PUT",
-        body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/crews/crew-1/rally", {
+      method: "PUT",
+      body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await putRally(req, routeCtx);
     expect(res.status).toBe(401);
   });
 
   it("updates rally point and returns 200 with coords", async () => {
-    const req = new NextRequest(
-      "http://localhost:3000/api/crews/crew-1/rally",
-      {
-        method: "PUT",
-        body: JSON.stringify({
-          lat: 47.09,
-          lng: -1.28,
-          description: "Entrée principale",
-        }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/crews/crew-1/rally", {
+      method: "PUT",
+      body: JSON.stringify({
+        lat: 47.09,
+        lng: -1.28,
+        description: "Entrée principale",
+      }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await putRally(req, routeCtx);
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -337,14 +329,11 @@ describe("PUT /api/crews/[crewId]/rally", () => {
     const prisma = await getPrismaMock();
     prisma.crewMember.findFirst.mockResolvedValueOnce(null);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/crews/crew-1/rally",
-      {
-        method: "PUT",
-        body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/crews/crew-1/rally", {
+      method: "PUT",
+      body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await putRally(req, routeCtx);
     expect(res.status).toBe(403);
   });
@@ -358,27 +347,21 @@ describe("PUT /api/crews/[crewId]/rally", () => {
       role: "membre", // not admin
     });
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/crews/crew-1/rally",
-      {
-        method: "PUT",
-        body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/crews/crew-1/rally", {
+      method: "PUT",
+      body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await putRally(req, routeCtx);
     expect(res.status).toBe(403);
   });
 
   it("returns 422 when lat/lng are missing", async () => {
-    const req = new NextRequest(
-      "http://localhost:3000/api/crews/crew-1/rally",
-      {
-        method: "PUT",
-        body: JSON.stringify({ description: "Entrée" }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/crews/crew-1/rally", {
+      method: "PUT",
+      body: JSON.stringify({ description: "Entrée" }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await putRally(req, routeCtx);
     expect(res.status).toBe(422);
   });
@@ -406,27 +389,21 @@ describe("POST /api/crews/[crewId]/position", () => {
     const authMock = await getAuthMock();
     authMock.mockResolvedValueOnce(null);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/crews/crew-1/position",
-      {
-        method: "POST",
-        body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/crews/crew-1/position", {
+      method: "POST",
+      body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await postPosition(req, routeCtx);
     expect(res.status).toBe(401);
   });
 
   it("updates GPS position and returns updated:true", async () => {
-    const req = new NextRequest(
-      "http://localhost:3000/api/crews/crew-1/position",
-      {
-        method: "POST",
-        body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/crews/crew-1/position", {
+      method: "POST",
+      body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await postPosition(req, routeCtx);
     expect(res.status).toBe(200);
     const body = await res.json();
@@ -437,27 +414,21 @@ describe("POST /api/crews/[crewId]/position", () => {
     const prisma = await getPrismaMock();
     prisma.crewMember.findFirst.mockResolvedValueOnce(null);
 
-    const req = new NextRequest(
-      "http://localhost:3000/api/crews/crew-1/position",
-      {
-        method: "POST",
-        body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/crews/crew-1/position", {
+      method: "POST",
+      body: JSON.stringify({ lat: 47.09, lng: -1.28 }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await postPosition(req, routeCtx);
     expect(res.status).toBe(403);
   });
 
   it("returns 422 for invalid lat/lng (out of range)", async () => {
-    const req = new NextRequest(
-      "http://localhost:3000/api/crews/crew-1/position",
-      {
-        method: "POST",
-        body: JSON.stringify({ lat: 999, lng: -1.28 }),
-        headers: { "Content-Type": "application/json" },
-      },
-    );
+    const req = new NextRequest("http://localhost:3000/api/crews/crew-1/position", {
+      method: "POST",
+      body: JSON.stringify({ lat: 999, lng: -1.28 }),
+      headers: { "Content-Type": "application/json" },
+    });
     const res = await postPosition(req, routeCtx);
     expect(res.status).toBe(422);
   });

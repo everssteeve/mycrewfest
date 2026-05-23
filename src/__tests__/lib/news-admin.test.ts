@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { validateNewsInput, isValidUrl, type NewsInput } from "@/lib/news-admin";
+import { describe, expect, it } from "vitest";
+import { isValidUrl, type NewsInput, validateNewsInput } from "@/lib/news-admin";
 
 function validInput(overrides: Partial<NewsInput> = {}): Partial<NewsInput> {
   return {
@@ -42,7 +42,14 @@ describe("validateNewsInput", () => {
   });
 
   it("accepts all valid categories", () => {
-    for (const category of ["line-up", "logistique", "programme-change", "annulation", "urgence", "autre"]) {
+    for (const category of [
+      "line-up",
+      "logistique",
+      "programme-change",
+      "annulation",
+      "urgence",
+      "autre",
+    ]) {
       expect(validateNewsInput(validInput({ category }))).toHaveLength(0);
     }
   });

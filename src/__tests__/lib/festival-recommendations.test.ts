@@ -1,12 +1,14 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   buildRecommendationScores,
-  topRecommendations,
   hasEnoughData,
+  topRecommendations,
 } from "@/lib/festival-recommendations";
 import type { SimilarityCandidate } from "@/lib/festival-similarity";
 
-const makeCandidate = (overrides: Partial<SimilarityCandidate> & { id: string }): SimilarityCandidate => ({
+const makeCandidate = (
+  overrides: Partial<SimilarityCandidate> & { id: string },
+): SimilarityCandidate => ({
   slug: overrides.id,
   festivalType: "musique",
   country: "FR",
@@ -25,26 +27,72 @@ describe("buildRecommendationScores", () => {
 
   it("gives a higher total score when a candidate matches multiple followed festivals", () => {
     const followed = [
-      makeCandidate({ id: "f1", festivalType: "musique", country: "FR", startDate: "2026-07-01", endDate: "2026-07-03" }),
-      makeCandidate({ id: "f2", festivalType: "musique", country: "FR", startDate: "2026-07-10", endDate: "2026-07-12" }),
+      makeCandidate({
+        id: "f1",
+        festivalType: "musique",
+        country: "FR",
+        startDate: "2026-07-01",
+        endDate: "2026-07-03",
+      }),
+      makeCandidate({
+        id: "f2",
+        festivalType: "musique",
+        country: "FR",
+        startDate: "2026-07-10",
+        endDate: "2026-07-12",
+      }),
     ];
-    const candidate = makeCandidate({ id: "c1", festivalType: "musique", country: "FR", startDate: "2026-07-05", endDate: "2026-07-06" });
+    const candidate = makeCandidate({
+      id: "c1",
+      festivalType: "musique",
+      country: "FR",
+      startDate: "2026-07-05",
+      endDate: "2026-07-06",
+    });
     const scores = buildRecommendationScores(followed, [candidate]);
     expect(scores[0].matchCount).toBe(2);
     expect(scores[0].totalScore).toBeGreaterThan(0);
   });
 
   it("matchCount is 0 when no followed festival matches", () => {
-    const followed = [makeCandidate({ id: "f1", festivalType: "cirque", country: "DE", startDate: "2025-01-01", endDate: "2025-01-03" })];
-    const candidate = makeCandidate({ id: "c1", festivalType: "world", country: "JP", startDate: "2026-11-01", endDate: "2026-11-05" });
+    const followed = [
+      makeCandidate({
+        id: "f1",
+        festivalType: "cirque",
+        country: "DE",
+        startDate: "2025-01-01",
+        endDate: "2025-01-03",
+      }),
+    ];
+    const candidate = makeCandidate({
+      id: "c1",
+      festivalType: "world",
+      country: "JP",
+      startDate: "2026-11-01",
+      endDate: "2026-11-05",
+    });
     const scores = buildRecommendationScores(followed, [candidate]);
     expect(scores[0].matchCount).toBe(0);
     expect(scores[0].totalScore).toBe(0);
   });
 
   it("includes the candidate even if it scores 0", () => {
-    const followed = [makeCandidate({ id: "f1", festivalType: "cirque", country: "DE", startDate: "2025-01-01", endDate: "2025-01-03" })];
-    const candidate = makeCandidate({ id: "c1", festivalType: "world", country: "JP", startDate: "2026-11-01", endDate: "2026-11-05" });
+    const followed = [
+      makeCandidate({
+        id: "f1",
+        festivalType: "cirque",
+        country: "DE",
+        startDate: "2025-01-01",
+        endDate: "2025-01-03",
+      }),
+    ];
+    const candidate = makeCandidate({
+      id: "c1",
+      festivalType: "world",
+      country: "JP",
+      startDate: "2026-11-01",
+      endDate: "2026-11-05",
+    });
     const scores = buildRecommendationScores(followed, [candidate]);
     expect(scores).toHaveLength(1);
     expect(scores[0].id).toBe("c1");

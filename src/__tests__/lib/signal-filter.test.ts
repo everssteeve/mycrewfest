@@ -1,5 +1,9 @@
-import { describe, it, expect } from "vitest";
-import { filterSignalsByScope, countCrewSignals, countCommunautéSignals } from "@/lib/signal-filter";
+import { describe, expect, it } from "vitest";
+import {
+  countCommunautéSignals,
+  countCrewSignals,
+  filterSignalsByScope,
+} from "@/lib/signal-filter";
 
 const signals = [
   { id: "1", scope: "crew" as const },
@@ -45,10 +49,7 @@ describe("countCrewSignals", () => {
   });
 
   it("returns 0 when all signals are communauté", () => {
-    const comOnly = [
-      { scope: "communauté" as const },
-      { scope: "communauté" as const },
-    ];
+    const comOnly = [{ scope: "communauté" as const }, { scope: "communauté" as const }];
     expect(countCrewSignals(comOnly)).toBe(0);
   });
 

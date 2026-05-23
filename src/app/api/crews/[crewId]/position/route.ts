@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -15,16 +15,10 @@ const positionSchema = z.object({
  * Update the current user's GPS position (opt-in geoloc).
  * Stored in CrewMember lastLat / lastLng / lastSeenAt.
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function POST(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { crewId } = await params;
@@ -33,10 +27,7 @@ export async function POST(
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requête invalide." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
   }
 
   const parsed = positionSchema.safeParse(body);
@@ -53,10 +44,7 @@ export async function POST(
     });
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Vous n'êtes pas membre de ce crew." },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Vous n'êtes pas membre de ce crew." }, { status: 403 });
     }
 
     // Update geoloc fields — lastLat / lastLng / lastSeenAt added to schema
@@ -84,16 +72,10 @@ export async function POST(
  * GET /api/crews/[crewId]/position
  * Get all crew member positions (non-private, active geoloc).
  */
-export async function GET(
-  _request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function GET(_request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { crewId } = await params;
@@ -113,16 +95,10 @@ export async function GET(
 
     const isMember = members.some((m) => m.userId === session.user?.id);
     if (!isMember) {
-      return NextResponse.json(
-        { error: "Accès refusé." },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
     }
 
-    const positions: Record<
-      string,
-      { lat: number; lng: number; updatedAt: string }
-    > = {};
+    const positions: Record<string, { lat: number; lng: number; updatedAt: string }> = {};
 
     for (const m of members) {
       if (

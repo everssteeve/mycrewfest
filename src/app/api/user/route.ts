@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -16,10 +16,7 @@ const updateUserSchema = z.object({
 export async function GET(_request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   try {
@@ -78,10 +75,7 @@ export async function GET(_request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Utilisateur introuvable." },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Utilisateur introuvable." }, { status: 404 });
     }
 
     return NextResponse.json({
@@ -128,20 +122,14 @@ export async function GET(_request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requête invalide." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
   }
 
   const parsed = updateUserSchema.safeParse(body);
@@ -189,10 +177,7 @@ export async function PATCH(request: NextRequest) {
 export async function DELETE(_request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   try {

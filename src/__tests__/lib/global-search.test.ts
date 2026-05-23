@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  scoreFestival,
-  scoreArtist,
-  filterAndRankFestivals,
   filterAndRankArtists,
+  filterAndRankFestivals,
+  scoreArtist,
+  scoreFestival,
 } from "@/lib/global-search";
 
 const FESTIVALS = [
@@ -43,9 +43,27 @@ const FESTIVALS = [
 ];
 
 const ARTISTS = [
-  { id: "a1", name: "Orelsan", disciplines: ["rap", "hip-hop"], countryCode: "FR", festivalCount: 3 },
-  { id: "a2", name: "Amelie Lens", disciplines: ["techno", "dj"], countryCode: "BE", festivalCount: 2 },
-  { id: "a3", name: "Major Lazer", disciplines: ["électronique", "dancehall"], countryCode: "US", festivalCount: 5 },
+  {
+    id: "a1",
+    name: "Orelsan",
+    disciplines: ["rap", "hip-hop"],
+    countryCode: "FR",
+    festivalCount: 3,
+  },
+  {
+    id: "a2",
+    name: "Amelie Lens",
+    disciplines: ["techno", "dj"],
+    countryCode: "BE",
+    festivalCount: 2,
+  },
+  {
+    id: "a3",
+    name: "Major Lazer",
+    disciplines: ["électronique", "dancehall"],
+    countryCode: "US",
+    festivalCount: 5,
+  },
   { id: "a4", name: "Orelia", disciplines: ["jazz"], countryCode: "FR", festivalCount: 1 },
 ];
 
@@ -126,18 +144,18 @@ describe("filterAndRankFestivals", () => {
   it("finds festival by name prefix", () => {
     const results = filterAndRankFestivals(FESTIVALS, "hell");
     expect(results).toHaveLength(1);
-    expect(results[0]!.name).toBe("Hellfest Open Air");
+    expect(results[0]?.name).toBe("Hellfest Open Air");
   });
 
   it("result type is 'festival'", () => {
     const results = filterAndRankFestivals(FESTIVALS, "hell");
-    expect(results[0]!.type).toBe("festival");
+    expect(results[0]?.type).toBe("festival");
   });
 
   it("ranks by score descending", () => {
     // "Orel" hits name in a fictional scenario; use "solid" which matches name
     const results = filterAndRankFestivals(FESTIVALS, "sol");
-    expect(results[0]!.name).toBe("Solidays");
+    expect(results[0]?.name).toBe("Solidays");
   });
 
   it("respects limit", () => {
@@ -177,12 +195,12 @@ describe("filterAndRankArtists", () => {
   it("finds artist by exact name", () => {
     const results = filterAndRankArtists(ARTISTS, "Orelsan");
     expect(results).toHaveLength(1);
-    expect(results[0]!.name).toBe("Orelsan");
+    expect(results[0]?.name).toBe("Orelsan");
   });
 
   it("result type is 'artist'", () => {
     const results = filterAndRankArtists(ARTISTS, "Orelsan");
-    expect(results[0]!.type).toBe("artist");
+    expect(results[0]?.type).toBe("artist");
   });
 
   it("disambiguates startsWith over includes", () => {
@@ -207,7 +225,7 @@ describe("filterAndRankArtists", () => {
 
   it("finds by discipline", () => {
     const results = filterAndRankArtists(ARTISTS, "techno");
-    expect(results[0]!.name).toBe("Amelie Lens");
+    expect(results[0]?.name).toBe("Amelie Lens");
   });
 
   it("no results for unmatched query", () => {

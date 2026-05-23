@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   computeSimilarityScore,
   rankSimilarFestivals,
@@ -50,15 +50,24 @@ describe("computeSimilarityScore", () => {
     const sameCountry = candidate({ festivalType: "world", country: "France" });
     const diffCountry = candidate({ festivalType: "world", country: "Spain" });
     const diff =
-      computeSimilarityScore(BASE, sameCountry) -
-      computeSimilarityScore(BASE, diffCountry);
+      computeSimilarityScore(BASE, sameCountry) - computeSimilarityScore(BASE, diffCountry);
     expect(diff).toBe(3);
   });
 
   it("adds 4 pts when start dates are within 14 days", () => {
     // Same type/country for both candidates, only date proximity differs
-    const close = candidate({ id: "close", festivalType: "world", country: "Germany", startDate: "2026-07-20T00:00:00.000Z" }); // 5 days away
-    const far = candidate({ id: "far", festivalType: "world", country: "Germany", startDate: "2026-12-01T00:00:00.000Z" }); // >90 days away
+    const close = candidate({
+      id: "close",
+      festivalType: "world",
+      country: "Germany",
+      startDate: "2026-07-20T00:00:00.000Z",
+    }); // 5 days away
+    const far = candidate({
+      id: "far",
+      festivalType: "world",
+      country: "Germany",
+      startDate: "2026-12-01T00:00:00.000Z",
+    }); // >90 days away
     const ref = { ...BASE, festivalType: "world", country: "Germany" };
     const scoreClose = computeSimilarityScore(ref, close);
     const scoreFar = computeSimilarityScore(ref, far);

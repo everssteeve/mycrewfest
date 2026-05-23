@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  formatHourSeparator,
-  extractEventHour,
   buildTimelineSlots,
   countHourSeparators,
+  extractEventHour,
+  formatHourSeparator,
   type TimelineEvent,
 } from "@/lib/programme-timeline";
 
@@ -33,7 +33,10 @@ describe("extractEventHour", () => {
 
 describe("buildTimelineSlots", () => {
   it("inserts separator before first hour group", () => {
-    const events = [makeEvent("e1", "2026-06-20T20:00:00Z"), makeEvent("e2", "2026-06-20T20:30:00Z")];
+    const events = [
+      makeEvent("e1", "2026-06-20T20:00:00Z"),
+      makeEvent("e2", "2026-06-20T20:30:00Z"),
+    ];
     const slots = buildTimelineSlots(events);
     expect(slots[0].type).toBe("separator");
     expect(slots[1].type).toBe("event");

@@ -37,9 +37,7 @@ export function deriveEndIso(event: IcsConvertible): string {
 }
 
 export function toIcsEvent(event: IcsConvertible): IcsEvent {
-  const summary = event.artist
-    ? `${event.artist.name} — ${event.title}`
-    : event.title;
+  const summary = event.artist ? `${event.artist.name} — ${event.title}` : event.title;
 
   return {
     uid: event.id,
@@ -55,9 +53,7 @@ export function buildProgrammeIcs(
   festivalName: string,
   filter: IcsSelectionFilter = "selected",
 ): string {
-  const exportable = events
-    .filter((e) => isExportable(e, filter))
-    .map(toIcsEvent);
+  const exportable = events.filter((e) => isExportable(e, filter)).map(toIcsEvent);
 
   return generateIcs(exportable, `${festivalName} — MyCrewFest`);
 }

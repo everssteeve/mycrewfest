@@ -1,5 +1,10 @@
-import { describe, it, expect } from "vitest";
-import { computeChecklistBudget, computeCompletionRate, getOldestPendingItemAgeDays, computeAvgDaysToComplete } from "@/lib/checklist-budget";
+import { describe, expect, it } from "vitest";
+import {
+  computeAvgDaysToComplete,
+  computeChecklistBudget,
+  computeCompletionRate,
+  getOldestPendingItemAgeDays,
+} from "@/lib/checklist-budget";
 
 describe("computeChecklistBudget", () => {
   it("returns zeros for empty list", () => {
@@ -39,19 +44,24 @@ describe("computeChecklistBudget", () => {
   });
 
   it("treats undefined cost as 0", () => {
-    const items = [
-      { done: true },
-      { cost: 8, done: true },
-    ];
+    const items = [{ done: true }, { cost: 8, done: true }];
     expect(computeChecklistBudget(items)).toEqual({ total: 8, spent: 8, remaining: 0 });
   });
 
   it("works with a single item not done", () => {
-    expect(computeChecklistBudget([{ cost: 42, done: false }])).toEqual({ total: 42, spent: 0, remaining: 42 });
+    expect(computeChecklistBudget([{ cost: 42, done: false }])).toEqual({
+      total: 42,
+      spent: 0,
+      remaining: 42,
+    });
   });
 
   it("works with a single item done", () => {
-    expect(computeChecklistBudget([{ cost: 42, done: true }])).toEqual({ total: 42, spent: 42, remaining: 0 });
+    expect(computeChecklistBudget([{ cost: 42, done: true }])).toEqual({
+      total: 42,
+      spent: 42,
+      remaining: 0,
+    });
   });
 });
 
@@ -136,16 +146,24 @@ describe("getOldestPendingItemAgeDays", () => {
 });
 
 describe("computeAvgDaysToComplete", () => {
-  const makeItem = (done: boolean, createdDaysAgo: number, updatedDaysAgo: number) => ({
+  const _makeItem = (done: boolean, createdDaysAgo: number, updatedDaysAgo: number) => ({
     done,
-    createdAt: new Date("2026-07-15T12:00:00Z").toISOString().replace(
-      "2026-07-15",
-      new Date(new Date("2026-07-15").getTime() - createdDaysAgo * 86_400_000).toISOString().slice(0, 10),
-    ),
-    updatedAt: new Date("2026-07-15T12:00:00Z").toISOString().replace(
-      "2026-07-15",
-      new Date(new Date("2026-07-15").getTime() - updatedDaysAgo * 86_400_000).toISOString().slice(0, 10),
-    ),
+    createdAt: new Date("2026-07-15T12:00:00Z")
+      .toISOString()
+      .replace(
+        "2026-07-15",
+        new Date(new Date("2026-07-15").getTime() - createdDaysAgo * 86_400_000)
+          .toISOString()
+          .slice(0, 10),
+      ),
+    updatedAt: new Date("2026-07-15T12:00:00Z")
+      .toISOString()
+      .replace(
+        "2026-07-15",
+        new Date(new Date("2026-07-15").getTime() - updatedDaysAgo * 86_400_000)
+          .toISOString()
+          .slice(0, 10),
+      ),
   });
 
   it("returns null for empty list", () => {

@@ -6,10 +6,7 @@ export interface SortableEvent {
   venue?: { name: string } | null;
 }
 
-export function sortProgrammeEvents<T extends SortableEvent>(
-  events: T[],
-  mode: SortMode,
-): T[] {
+export function sortProgrammeEvents<T extends SortableEvent>(events: T[], mode: SortMode): T[] {
   const sorted = [...events];
   switch (mode) {
     case "time":
@@ -21,9 +18,7 @@ export function sortProgrammeEvents<T extends SortableEvent>(
       });
 
     case "alpha":
-      return sorted.sort((a, b) =>
-        a.title.localeCompare(b.title, "fr", { sensitivity: "base" }),
-      );
+      return sorted.sort((a, b) => a.title.localeCompare(b.title, "fr", { sensitivity: "base" }));
 
     case "venue":
       return sorted.sort((a, b) => {

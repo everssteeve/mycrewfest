@@ -18,10 +18,8 @@ export function filterArtists(
       !q ||
       a.name.toLowerCase().includes(q) ||
       a.disciplines.some((d) => d.toLowerCase().includes(q));
-    const matchesDiscipline =
-      !discipline || a.disciplines.includes(discipline);
-    const matchesCountry =
-      !countryCode || a.countryCode === countryCode;
+    const matchesDiscipline = !discipline || a.disciplines.includes(discipline);
+    const matchesCountry = !countryCode || a.countryCode === countryCode;
     return matchesQuery && matchesDiscipline && matchesCountry;
   });
 }

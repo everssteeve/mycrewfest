@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
+  type AdminSignalRow,
   filterSignalsByScope,
   getSignalScopeColor,
   SIGNAL_SCOPE_OPTIONS,
-  type AdminSignalRow,
   type SignalScopeFilter,
 } from "@/lib/admin-signals";
 import { SignalsTable } from "./signals-table";
@@ -17,10 +17,7 @@ interface Props {
 export function SignalsScopeFilter({ signals }: Props) {
   const [scope, setScope] = useState<SignalScopeFilter>("tous");
 
-  const filtered = useMemo(
-    () => filterSignalsByScope(signals, scope),
-    [signals, scope],
-  );
+  const filtered = useMemo(() => filterSignalsByScope(signals, scope), [signals, scope]);
 
   return (
     <div>
@@ -37,8 +34,7 @@ export function SignalsScopeFilter({ signals }: Props) {
       >
         {SIGNAL_SCOPE_OPTIONS.map((opt) => {
           const isActive = scope === opt.value;
-          const color =
-            opt.value === "tous" ? "var(--text-dim)" : getSignalScopeColor(opt.value);
+          const color = opt.value === "tous" ? "var(--text-dim)" : getSignalScopeColor(opt.value);
           return (
             <button
               key={opt.value}
@@ -50,7 +46,9 @@ export function SignalsScopeFilter({ signals }: Props) {
                 padding: "6px 14px",
                 border: isActive ? `1.5px solid ${color}` : "1px solid var(--border-color)",
                 borderRadius: "var(--radius-full)",
-                background: isActive ? `color-mix(in srgb, ${color} 10%, transparent)` : "transparent",
+                background: isActive
+                  ? `color-mix(in srgb, ${color} 10%, transparent)`
+                  : "transparent",
                 color: isActive ? color : "var(--text-dim)",
                 fontFamily: "var(--font-body)",
                 fontSize: "var(--fs-xs)",

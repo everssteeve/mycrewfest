@@ -1,8 +1,8 @@
-import Link from "next/link";
-import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import Link from "next/link";
+import { type AdminNewsRow, filterAdminNews, NEWS_CATEGORY_LABELS } from "@/lib/admin-news";
 import { computeNewsStats } from "@/lib/news-stats";
-import { filterAdminNews, NEWS_CATEGORY_LABELS, type AdminNewsRow } from "@/lib/admin-news";
+import { prisma } from "@/lib/prisma";
 import { CreateNewsForm } from "./_components/create-news-form";
 import { NewsToggleButtons } from "./_components/news-toggle-buttons";
 
@@ -197,7 +197,13 @@ export default async function AdminNewsPage({ searchParams }: PageProps) {
       <form
         method="GET"
         data-testid="admin-news-filter-bar"
-        style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap", marginBottom: "var(--space-lg)", alignItems: "center" }}
+        style={{
+          display: "flex",
+          gap: "var(--space-sm)",
+          flexWrap: "wrap",
+          marginBottom: "var(--space-lg)",
+          alignItems: "center",
+        }}
       >
         <input
           name="q"
@@ -234,7 +240,9 @@ export default async function AdminNewsPage({ searchParams }: PageProps) {
         >
           <option value="">Toutes catégories</option>
           {Object.entries(NEWS_CATEGORY_LABELS).map(([val, label]) => (
-            <option key={val} value={val}>{label}</option>
+            <option key={val} value={val}>
+              {label}
+            </option>
           ))}
         </select>
         <select
@@ -290,7 +298,12 @@ export default async function AdminNewsPage({ searchParams }: PageProps) {
         )}
         <span
           data-testid="admin-news-filtered-count"
-          style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", whiteSpace: "nowrap" }}
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-xs)",
+            color: "var(--text-dim)",
+            whiteSpace: "nowrap",
+          }}
         >
           {filteredItems.length} / {newsItems.length}
         </span>
@@ -344,14 +357,14 @@ export default async function AdminNewsPage({ searchParams }: PageProps) {
                     data-testid={`admin-news-row-${item.id}`}
                     style={{
                       borderBottom:
-                        i < filteredItems.length - 1
-                          ? "1px solid var(--border-color)"
-                          : "none",
+                        i < filteredItems.length - 1 ? "1px solid var(--border-color)" : "none",
                     }}
                   >
                     {/* Résumé */}
                     <td style={{ padding: "var(--space-sm) var(--space-md)", maxWidth: 300 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "var(--space-xs)" }}>
+                      <div
+                        style={{ display: "flex", alignItems: "center", gap: "var(--space-xs)" }}
+                      >
                         {item.isPinned && (
                           <span
                             title="Épinglée"

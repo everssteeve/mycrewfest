@@ -5,8 +5,8 @@
  * "online" and "offline" window events.
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useOffline } from "@/hooks/use-offline";
 import { useAppStore } from "@/store/use-app-store";
 
@@ -94,13 +94,7 @@ describe("useOffline", () => {
 
     unmount();
 
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      "online",
-      expect.any(Function),
-    );
-    expect(removeEventListenerSpy).toHaveBeenCalledWith(
-      "offline",
-      expect.any(Function),
-    );
+    expect(removeEventListenerSpy).toHaveBeenCalledWith("online", expect.any(Function));
+    expect(removeEventListenerSpy).toHaveBeenCalledWith("offline", expect.any(Function));
   });
 });

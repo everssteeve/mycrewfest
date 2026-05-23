@@ -1,13 +1,17 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import type { Metadata } from "next";
-import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { buildRecommendationScores, topRecommendations, hasEnoughData } from "@/lib/festival-recommendations";
-import { buildRecommendationReason } from "@/lib/recommendation-reason";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
-import { Sparkles, CalendarDays, ArrowLeft } from "lucide-react";
+import { ArrowLeft, CalendarDays, Sparkles } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
+import {
+  buildRecommendationScores,
+  hasEnoughData,
+  topRecommendations,
+} from "@/lib/festival-recommendations";
+import { prisma } from "@/lib/prisma";
+import { buildRecommendationReason } from "@/lib/recommendation-reason";
 
 export const metadata: Metadata = {
   title: "Recommandations — MyCrewFest",
@@ -26,7 +30,15 @@ async function fetchRecommendations(userId: string) {
     where: { userId },
     select: {
       festival: {
-        select: { id: true, name: true, slug: true, festivalType: true, country: true, startDate: true, endDate: true },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          festivalType: true,
+          country: true,
+          startDate: true,
+          endDate: true,
+        },
       },
     },
   });
@@ -41,7 +53,8 @@ async function fetchRecommendations(userId: string) {
     endDate: r.festival.endDate.toISOString(),
   }));
 
-  if (!hasEnoughData(followedFestivals.length)) return { recommendations: [], followedCount: 0, followedFestivals: [] };
+  if (!hasEnoughData(followedFestivals.length))
+    return { recommendations: [], followedCount: 0, followedFestivals: [] };
 
   const followedIds = new Set(followedFestivals.map((f) => f.id));
 
@@ -83,9 +96,9 @@ async function fetchRecommendations(userId: string) {
       festivalType: f.festivalType,
       startDate: f.startDate.toISOString(),
       endDate: f.endDate.toISOString(),
-      score: scoreById.get(f.id)!.totalScore,
+      score: scoreById.get(f.id)?.totalScore,
     }))
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
 
   return { recommendations, followedCount: followedFestivals.length, followedFestivals };
 }
@@ -94,7 +107,9 @@ export default async function RecommandationsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
 
-  const { recommendations, followedCount, followedFestivals } = await fetchRecommendations(session.user.id);
+  const { recommendations, followedCount, followedFestivals } = await fetchRecommendations(
+    session.user.id,
+  );
 
   return (
     <main
@@ -144,9 +159,7 @@ export default async function RecommandationsPage() {
           <Sparkles size={20} color="var(--primary-neon, #00FF66)" aria-hidden="true" />
           Pour toi
         </h1>
-        <p
-          style={{ margin: "6px 0 0", fontSize: "0.85rem", color: "var(--text-dim, #666)" }}
-        >
+        <p style={{ margin: "6px 0 0", fontSize: "0.85rem", color: "var(--text-dim, #666)" }}>
           {followedCount === 0
             ? "Suis des festivals pour recevoir des recommandations"
             : `Basé sur tes ${followedCount} festival${followedCount > 1 ? "s" : ""} suivi${followedCount > 1 ? "s" : ""}`}
@@ -159,9 +172,7 @@ export default async function RecommandationsPage() {
           data-testid="recommandations-empty-no-follows"
           style={{ textAlign: "center", padding: "60px 24px", color: "var(--text-dim, #666)" }}
         >
-          <p style={{ marginBottom: 16 }}>
-            Tu n&apos;as pas encore de festival suivi.
-          </p>
+          <p style={{ marginBottom: 16 }}>Tu n&apos;as pas encore de festival suivi.</p>
           <Link
             href="/catalogue"
             style={{
@@ -187,7 +198,8 @@ export default async function RecommandationsPage() {
         >
           <p>Aucune recommandation disponible pour le moment.</p>
           <p style={{ marginTop: 8, fontSize: "0.8rem" }}>
-            Les recommandations apparaissent quand de nouveaux festivals similaires aux tiens sont ajoutés.
+            Les recommandations apparaissent quand de nouveaux festivals similaires aux tiens sont
+            ajoutés.
           </p>
         </div>
       )}
@@ -196,7 +208,14 @@ export default async function RecommandationsPage() {
       {recommendations.length > 0 && (
         <ol
           data-testid="recommandations-list"
-          style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 10 }}
+          style={{
+            listStyle: "none",
+            padding: 0,
+            margin: 0,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
         >
           {recommendations.map((festival) => (
             <li key={festival.id}>

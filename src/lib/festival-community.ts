@@ -16,20 +16,30 @@ export function getFollowerTier(count: number): FollowerTier {
 
 export function getFollowerTierColor(tier: FollowerTier): string {
   switch (tier) {
-    case "Culte": return "var(--accent-pink)";
-    case "Populaire": return "var(--warning-orange)";
-    case "Établi": return "var(--primary-neon)";
-    case "Émergent": return "var(--secondary-cyan)";
-    case "Confidentiel": return "var(--text-dim)";
+    case "Culte":
+      return "var(--accent-pink)";
+    case "Populaire":
+      return "var(--warning-orange)";
+    case "Établi":
+      return "var(--primary-neon)";
+    case "Émergent":
+      return "var(--secondary-cyan)";
+    case "Confidentiel":
+      return "var(--text-dim)";
   }
 }
 
 export function getFollowerTierBg(tier: FollowerTier): string {
   switch (tier) {
-    case "Culte": return "rgba(255,0,122,0.1)";
-    case "Populaire": return "var(--orange-soft)";
-    case "Établi": return "var(--neon-soft)";
-    case "Émergent": return "var(--cyan-soft)";
-    case "Confidentiel": return "rgba(255,255,255,0.04)";
+    case "Culte":
+      return "rgba(255,0,122,0.1)";
+    case "Populaire":
+      return "var(--orange-soft)";
+    case "Établi":
+      return "var(--neon-soft)";
+    case "Émergent":
+      return "var(--cyan-soft)";
+    case "Confidentiel":
+      return "rgba(255,255,255,0.04)";
   }
 }

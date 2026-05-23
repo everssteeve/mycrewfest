@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  countFestivalsByProgramStatus,
-  filterIncompleteProgram,
-  sortByStartDate,
-  filterByStatus,
-  getProgramStatusLabel,
-  getProgramStatusColor,
   type AdminProgramRow,
+  countFestivalsByProgramStatus,
+  filterByStatus,
+  filterIncompleteProgram,
+  getProgramStatusColor,
+  getProgramStatusLabel,
+  sortByStartDate,
 } from "@/lib/admin-programme";
 
 function makeRow(overrides: Partial<AdminProgramRow> = {}): AdminProgramRow {
@@ -34,14 +34,14 @@ describe("countFestivalsByProgramStatus", () => {
     const counts = countFestivalsByProgramStatus(rows);
     expect(counts.complet).toBe(2);
     expect(counts.partiel).toBe(1);
-    expect(counts["bientôt_disponible"]).toBe(1);
+    expect(counts.bientôt_disponible).toBe(1);
   });
 
   it("returns zeros for empty array", () => {
     const counts = countFestivalsByProgramStatus([]);
     expect(counts.complet).toBe(0);
     expect(counts.partiel).toBe(0);
-    expect(counts["bientôt_disponible"]).toBe(0);
+    expect(counts.bientôt_disponible).toBe(0);
   });
 });
 

@@ -5,7 +5,7 @@
  * queueSouvenirOffline work correctly with a mocked Dexie instance.
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { OfflineFestival } from "@/types";
 
 // ---------------------------------------------------------------------------
@@ -13,7 +13,12 @@ import type { OfflineFestival } from "@/types";
 // ---------------------------------------------------------------------------
 
 const mockFestivalsStore = new Map<string, OfflineFestival>();
-const mockSouvenirsStore: Array<{ id?: number; festEventId: string; payload: unknown; createdAt: string }> = [];
+const mockSouvenirsStore: Array<{
+  id?: number;
+  festEventId: string;
+  payload: unknown;
+  createdAt: string;
+}> = [];
 
 vi.mock("dexie", () => {
   const mockTable = {
@@ -23,9 +28,7 @@ vi.mock("dexie", () => {
       }
     }),
     filter: vi.fn((predicate: (f: OfflineFestival) => boolean) => ({
-      toArray: vi.fn(async () =>
-        Array.from(mockFestivalsStore.values()).filter(predicate),
-      ),
+      toArray: vi.fn(async () => Array.from(mockFestivalsStore.values()).filter(predicate)),
     })),
     toArray: vi.fn(async () => Array.from(mockFestivalsStore.values())),
     add: vi.fn(async (item: { festEventId: string; payload: unknown; createdAt: string }) => {
@@ -54,8 +57,9 @@ vi.mock("dexie", () => {
 });
 
 // Import AFTER mocking
-const { cacheFestivals, searchFestivalsOffline, queueSouvenirOffline } =
-  await import("@/lib/offline");
+const { cacheFestivals, searchFestivalsOffline, queueSouvenirOffline } = await import(
+  "@/lib/offline"
+);
 
 // ---------------------------------------------------------------------------
 // Sample data
@@ -128,16 +132,12 @@ describe("searchFestivalsOffline", () => {
   it("filters by name (case-insensitive)", async () => {
     const results = await searchFestivalsOffline("hellfest");
     // In the real impl the filter predicate is applied — our mock honours it
-    expect(
-      results.every((f) => f.name.toLowerCase().includes("hellfest")),
-    ).toBe(true);
+    expect(results.every((f) => f.name.toLowerCase().includes("hellfest"))).toBe(true);
   });
 
   it("filters by city (case-insensitive)", async () => {
     const results = await searchFestivalsOffline("clisson");
-    expect(results.every((f) => f.city.toLowerCase().includes("clisson"))).toBe(
-      true,
-    );
+    expect(results.every((f) => f.city.toLowerCase().includes("clisson"))).toBe(true);
   });
 
   it("returns empty array when no match", async () => {
@@ -164,7 +164,8 @@ describe("queueSouvenirOffline", () => {
   it("does not throw when Dexie add fails (error swallowed)", async () => {
     // Force the mock to reject
     const mockDexie = await import("@/lib/offline");
-    const origAdd = (mockDexie.db as unknown as { souvenirs: { add: typeof vi.fn } }).souvenirs?.add;
+    const origAdd = (mockDexie.db as unknown as { souvenirs: { add: typeof vi.fn } }).souvenirs
+      ?.add;
     if (origAdd) {
       vi.spyOn(
         (mockDexie.db as unknown as { souvenirs: { add: typeof vi.fn } }).souvenirs,
@@ -172,8 +173,6 @@ describe("queueSouvenirOffline", () => {
       ).mockRejectedValueOnce(new Error("IndexedDB unavailable"));
     }
 
-    await expect(
-      queueSouvenirOffline("fe-1", { freeText: "Test" }),
-    ).resolves.toBeUndefined();
+    await expect(queueSouvenirOffline("fe-1", { freeText: "Test" })).resolves.toBeUndefined();
   });
 });

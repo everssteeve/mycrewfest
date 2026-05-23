@@ -2,8 +2,8 @@
  * Tests for POST/DELETE /api/festivals/[slug]/follow
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -31,9 +31,9 @@ vi.mock("@/auth", () => ({
 // Imports (after mocks)
 // ---------------------------------------------------------------------------
 
-import { prisma } from "@/lib/prisma";
+import { DELETE, POST } from "@/app/api/festivals/[slug]/follow/route";
 import { auth } from "@/auth";
-import { POST, DELETE } from "@/app/api/festivals/[slug]/follow/route";
+import { prisma } from "@/lib/prisma";
 
 const mockAuth = vi.mocked(auth);
 const mockFestivalFindUnique = vi.mocked(prisma.festival.findUnique);
@@ -77,7 +77,7 @@ describe("POST /api/festivals/[slug]/follow", () => {
       expect.objectContaining({
         where: { userId_festivalId: { userId: "user-1", festivalId: "festival-1" } },
         create: { userId: "user-1", festivalId: "festival-1" },
-      })
+      }),
     );
   });
 

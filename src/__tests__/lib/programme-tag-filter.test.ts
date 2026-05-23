@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   extractEventTags,
   filterEventsByTags,
@@ -17,12 +17,7 @@ describe("extractEventTags", () => {
       { tags: ["hip-hop", "rap"] },
       { tags: ["électronique"] },
     ];
-    expect(extractEventTags(events)).toEqual([
-      "électronique",
-      "hip-hop",
-      "rap",
-      "têtes_d_affiche",
-    ]);
+    expect(extractEventTags(events)).toEqual(["électronique", "hip-hop", "rap", "têtes_d_affiche"]);
   });
 
   it("returns [] when events have no tags", () => {
@@ -31,10 +26,7 @@ describe("extractEventTags", () => {
   });
 
   it("handles events with JSON string tags", () => {
-    const events = [
-      { tags: '["rap","jazz"]' },
-      { tags: '["jazz","soul"]' },
-    ];
+    const events = [{ tags: '["rap","jazz"]' }, { tags: '["jazz","soul"]' }];
     expect(extractEventTags(events)).toEqual(["jazz", "rap", "soul"]);
   });
 
@@ -50,7 +42,10 @@ describe("extractEventTags", () => {
 
 describe("filterEventsByTags", () => {
   it("returns all events when selectedTags is empty", () => {
-    const events = [{ id: "1", tags: ["rap"] }, { id: "2", tags: ["jazz"] }];
+    const events = [
+      { id: "1", tags: ["rap"] },
+      { id: "2", tags: ["jazz"] },
+    ];
     expect(filterEventsByTags(events, [])).toEqual(events);
   });
 
@@ -75,7 +70,10 @@ describe("filterEventsByTags", () => {
   });
 
   it("excludes events with no matching tags", () => {
-    const events = [{ id: "1", tags: ["rap"] }, { id: "2", tags: ["jazz"] }];
+    const events = [
+      { id: "1", tags: ["rap"] },
+      { id: "2", tags: ["jazz"] },
+    ];
     expect(filterEventsByTags(events, ["électronique"])).toEqual([]);
   });
 

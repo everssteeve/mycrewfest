@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   formatFollowerCount,
   getFollowerTier,
-  getFollowerTierColor,
   getFollowerTierBg,
+  getFollowerTierColor,
 } from "@/lib/festival-community";
 
 describe("formatFollowerCount", () => {

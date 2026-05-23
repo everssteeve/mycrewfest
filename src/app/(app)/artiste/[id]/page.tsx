@@ -1,24 +1,27 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
 import { ArrowLeft, Globe, Music } from "lucide-react";
 import type { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
-import { parseJsonArray } from "@/lib/api";
-import { auth } from "@/auth";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { FollowButton } from "@/app/(app)/festival/[slug]/_components/follow-button";
+import { auth } from "@/auth";
+import { ShareButton } from "@/components/ui/share-button";
+import { parseJsonArray } from "@/lib/api";
 import {
-  sortAppearancesByDate,
-  splitByTemporality,
-  formatDisciplines,
+  formatAppearanceCountdownLabel,
+  getAppearanceCountdownColor,
+} from "@/lib/appearance-countdown";
+import { type CoAfficheArtist, rankCoAfficheArtists } from "@/lib/artist-coaffiche";
+import {
+  type ArtistFestivalAppearance,
   buildInstagramUrl,
   buildSpotifyUrl,
-  type ArtistFestivalAppearance,
+  formatDisciplines,
+  sortAppearancesByDate,
+  splitByTemporality,
 } from "@/lib/artist-profile";
 import { buildArtistOgDescription } from "@/lib/og-metadata";
-import { ShareButton } from "@/components/ui/share-button";
+import { prisma } from "@/lib/prisma";
 import { buildArtistSharePayload } from "@/lib/share";
-import { rankCoAfficheArtists, type CoAfficheArtist } from "@/lib/artist-coaffiche";
-import { formatAppearanceCountdownLabel, getAppearanceCountdownColor } from "@/lib/appearance-countdown";
 
 type PageContext = { params: Promise<{ id: string }> };
 
@@ -101,7 +104,10 @@ async function fetchCoAfficheArtists(artistId: string): Promise<CoAfficheArtist[
   });
 
   // Count shared festivals per co-artist
-  const countMap = new Map<string, { artist: NonNullable<(typeof coEvents)[0]["artist"]>; festivalIds: Set<string> }>();
+  const countMap = new Map<
+    string,
+    { artist: NonNullable<(typeof coEvents)[0]["artist"]>; festivalIds: Set<string> }
+  >();
   for (const ev of coEvents) {
     if (!ev.artist) continue;
     const entry = countMap.get(ev.artist.id) ?? { artist: ev.artist, festivalIds: new Set() };
@@ -109,13 +115,15 @@ async function fetchCoAfficheArtists(artistId: string): Promise<CoAfficheArtist[
     countMap.set(ev.artist.id, entry);
   }
 
-  const candidates: CoAfficheArtist[] = [...countMap.values()].map(({ artist, festivalIds: fids }) => ({
-    id: artist.id,
-    name: artist.name,
-    disciplines: parseJsonArray(artist.disciplines) as string[],
-    countryCode: artist.countryCode,
-    sharedFestivalCount: fids.size,
-  }));
+  const candidates: CoAfficheArtist[] = [...countMap.values()].map(
+    ({ artist, festivalIds: fids }) => ({
+      id: artist.id,
+      name: artist.name,
+      disciplines: parseJsonArray(artist.disciplines) as string[],
+      countryCode: artist.countryCode,
+      sharedFestivalCount: fids.size,
+    }),
+  );
 
   return rankCoAfficheArtists(candidates, 4);
 }
@@ -165,7 +173,9 @@ export default async function ArtistePage({ params }: PageContext) {
           where: { userId: session.user.id },
           select: { festivalId: true },
         });
-        followed.forEach((f) => set.add(f.festivalId));
+        for (const f of followed) {
+          set.add(f.festivalId);
+        }
       }
       return set;
     })(),
@@ -426,10 +436,13 @@ export default async function ArtistePage({ params }: PageContext) {
                       {(() => {
                         const label = formatAppearanceCountdownLabel(app.startDate);
                         const color = getAppearanceCountdownColor(
-                          label === "Aujourd'hui" ? "today"
-                            : label === "Demain" ? "imminent"
-                            : label ? "upcoming"
-                            : null,
+                          label === "Aujourd'hui"
+                            ? "today"
+                            : label === "Demain"
+                              ? "imminent"
+                              : label
+                                ? "upcoming"
+                                : null,
                         );
                         return label ? (
                           <span
@@ -510,7 +523,13 @@ export default async function ArtistePage({ params }: PageContext) {
                     >
                       {app.festivalName}
                     </p>
-                    <p style={{ margin: "2px 0 0", fontSize: "0.72rem", color: "var(--text-dim, #666)" }}>
+                    <p
+                      style={{
+                        margin: "2px 0 0",
+                        fontSize: "0.72rem",
+                        color: "var(--text-dim, #666)",
+                      }}
+                    >
                       {app.city} · {new Date(app.startDate).getFullYear()}
                     </p>
                   </div>
@@ -581,7 +600,13 @@ export default async function ArtistePage({ params }: PageContext) {
                       {co.name}
                     </p>
                     {co.disciplines.length > 0 && (
-                      <p style={{ margin: "2px 0 0", fontSize: "0.72rem", color: "var(--text-dim, #666)" }}>
+                      <p
+                        style={{
+                          margin: "2px 0 0",
+                          fontSize: "0.72rem",
+                          color: "var(--text-dim, #666)",
+                        }}
+                      >
                         {co.disciplines.join(", ")}
                       </p>
                     )}
@@ -592,10 +617,18 @@ export default async function ArtistePage({ params }: PageContext) {
                         {co.countryCode}
                       </span>
                     )}
-                    <span style={{ fontSize: "0.68rem", color: "var(--secondary-cyan, #00E5FF)", fontFamily: "var(--font-mono, monospace)" }}>
+                    <span
+                      style={{
+                        fontSize: "0.68rem",
+                        color: "var(--secondary-cyan, #00E5FF)",
+                        fontFamily: "var(--font-mono, monospace)",
+                      }}
+                    >
                       ×{co.sharedFestivalCount}
                     </span>
-                    <span style={{ color: "var(--accent-pink, #FF007A)", fontSize: "0.75rem" }}>→</span>
+                    <span style={{ color: "var(--accent-pink, #FF007A)", fontSize: "0.75rem" }}>
+                      →
+                    </span>
                   </div>
                 </div>
               </Link>

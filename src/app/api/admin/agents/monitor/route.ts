@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -50,7 +50,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const randomTweet = MOCK_TWEETS[Math.floor(Math.random() * MOCK_TWEETS.length)] ?? MOCK_TWEETS[0];
+    const randomTweet =
+      MOCK_TWEETS[Math.floor(Math.random() * MOCK_TWEETS.length)] ?? MOCK_TWEETS[0];
 
     const newsItem = await prisma.newsItem.create({
       data: {

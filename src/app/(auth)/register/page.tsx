@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import Link from "next/link";
+import { useState } from "react";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -87,17 +87,9 @@ export default function RegisterPage() {
             gap: "var(--space-md)",
           }}
         >
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-4"
-            noValidate
-          >
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
             <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="name"
-                className="t-meta"
-                style={{ color: "var(--text-muted)" }}
-              >
+              <label htmlFor="name" className="t-meta" style={{ color: "var(--text-muted)" }}>
                 Pseudo
               </label>
               <input
@@ -113,11 +105,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="email"
-                className="t-meta"
-                style={{ color: "var(--text-muted)" }}
-              >
+              <label htmlFor="email" className="t-meta" style={{ color: "var(--text-muted)" }}>
                 Email
               </label>
               <input
@@ -133,11 +121,7 @@ export default function RegisterPage() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label
-                htmlFor="password"
-                className="t-meta"
-                style={{ color: "var(--text-muted)" }}
-              >
+              <label htmlFor="password" className="t-meta" style={{ color: "var(--text-muted)" }}>
                 Mot de passe
               </label>
               <input
@@ -154,11 +138,7 @@ export default function RegisterPage() {
             </div>
 
             {error && (
-              <p
-                className="t-caption"
-                role="alert"
-                style={{ color: "var(--danger-red)" }}
-              >
+              <p className="t-caption" role="alert" style={{ color: "var(--danger-red)" }}>
                 {error}
               </p>
             )}
@@ -174,17 +154,11 @@ export default function RegisterPage() {
           </form>
 
           <div className="flex items-center gap-3">
-            <div
-              className="h-px flex-1"
-              style={{ backgroundColor: "var(--border-color)" }}
-            />
+            <div className="h-px flex-1" style={{ backgroundColor: "var(--border-color)" }} />
             <span className="t-caption" style={{ color: "var(--text-dim)" }}>
               ou
             </span>
-            <div
-              className="h-px flex-1"
-              style={{ backgroundColor: "var(--border-color)" }}
-            />
+            <div className="h-px flex-1" style={{ backgroundColor: "var(--border-color)" }} />
           </div>
 
           <button
@@ -199,10 +173,7 @@ export default function RegisterPage() {
 
         <p className="t-caption text-center" style={{ color: "var(--text-muted)" }}>
           Déjà un compte ?{" "}
-          <Link
-            href="/login"
-            style={{ color: "var(--primary-neon)", textDecoration: "none" }}
-          >
+          <Link href="/login" style={{ color: "var(--primary-neon)", textDecoration: "none" }}>
             Se connecter
           </Link>
         </p>

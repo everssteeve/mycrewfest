@@ -1,11 +1,11 @@
-import { prisma } from "@/lib/prisma";
 import {
-  computeHealthScore,
-  getHealthScoreLabel,
-  getHealthScoreColor,
   buildHealthMetrics,
+  computeHealthScore,
+  getHealthScoreColor,
+  getHealthScoreLabel,
   type PlatformHealthInput,
 } from "@/lib/admin-health";
+import { prisma } from "@/lib/prisma";
 
 async function getPlatformHealthInput(): Promise<PlatformHealthInput> {
   const [

@@ -18,10 +18,7 @@ export default function CatalogueError({
     <>
       <TopHeader title="FESTIVALS" />
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <span
-          aria-hidden="true"
-          style={{ fontSize: 48, lineHeight: 1, marginBottom: 16 }}
-        >
+        <span aria-hidden="true" style={{ fontSize: 48, lineHeight: 1, marginBottom: 16 }}>
           ⚡
         </span>
         <p

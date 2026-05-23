@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 
 // Reset store state between tests
@@ -61,10 +61,7 @@ describe("useFestEventStore", () => {
 
   it("setPresenceDates stores the dates array", () => {
     useFestEventStore.getState().setPresenceDates(["2025-06-15", "2025-06-16"]);
-    expect(useFestEventStore.getState().presenceDates).toEqual([
-      "2025-06-15",
-      "2025-06-16",
-    ]);
+    expect(useFestEventStore.getState().presenceDates).toEqual(["2025-06-15", "2025-06-16"]);
   });
 
   it("setActiveFestEvent sets the active fest event", () => {

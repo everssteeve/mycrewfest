@@ -37,10 +37,7 @@ export function countCrewSharedEntries<T extends CrewFilterable>(entries: T[]): 
 /**
  * Returns entries shared with crew when crewOnly is true; otherwise returns all.
  */
-export function filterByCrew<T extends CrewFilterable>(
-  entries: T[],
-  crewOnly: boolean,
-): T[] {
+export function filterByCrew<T extends CrewFilterable>(entries: T[], crewOnly: boolean): T[] {
   if (!crewOnly) return entries;
   return entries.filter((e) => e.shareWithCrew);
 }

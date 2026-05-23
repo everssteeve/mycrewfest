@@ -1,11 +1,7 @@
 "use client";
 
+import { differenceInDays, isWithinInterval, parseISO } from "date-fns";
 import { useEffect, useState } from "react";
-import {
-  differenceInDays,
-  isWithinInterval,
-  parseISO,
-} from "date-fns";
 import type { EventSummary } from "@/types";
 
 interface EventCountdownProps {
@@ -95,14 +91,8 @@ function nextMustSeeTime(mustSeeEvents: EventSummary[]): Date | null {
   return null;
 }
 
-export function EventCountdown({
-  startDate,
-  endDate,
-  mustSeeEvents = [],
-}: EventCountdownProps) {
-  const [phase, setPhase] = useState<FestivalPhase>(() =>
-    getPhase(startDate, endDate),
-  );
+export function EventCountdown({ startDate, endDate, mustSeeEvents = [] }: EventCountdownProps) {
+  const [phase, setPhase] = useState<FestivalPhase>(() => getPhase(startDate, endDate));
   const [countdown, setCountdown] = useState<string | null>(null);
 
   useEffect(() => {
@@ -152,9 +142,7 @@ export function EventCountdown({
           padding: "2px 10px",
           whiteSpace: "nowrap",
           flexShrink: 0,
-          ...(phase.kind === "during"
-            ? { boxShadow: "var(--glow-neon)" }
-            : {}),
+          ...(phase.kind === "during" ? { boxShadow: "var(--glow-neon)" } : {}),
         }}
       >
         {badge.label}

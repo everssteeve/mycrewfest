@@ -1,15 +1,15 @@
-import Link from "next/link";
-import { prisma } from "@/lib/prisma";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import Link from "next/link";
 import {
-  countFestivalsByProgramStatus,
-  sortByStartDate,
-  getProgramStatusLabel,
-  getProgramStatusColor,
-  PROGRAM_STATUS_VALUES,
   type AdminProgramRow,
+  countFestivalsByProgramStatus,
+  getProgramStatusColor,
+  getProgramStatusLabel,
+  PROGRAM_STATUS_VALUES,
+  sortByStartDate,
 } from "@/lib/admin-programme";
+import { prisma } from "@/lib/prisma";
 import { updateProgramStatus } from "./actions";
 
 export const metadata = { title: "Admin — Statut programme" };
@@ -172,8 +172,7 @@ export default async function AdminProgrammePage() {
                   margin: "2px 0 0",
                 }}
               >
-                {f.city} ·{" "}
-                {format(new Date(f.startDate), "d MMM yyyy", { locale: fr })} ·{" "}
+                {f.city} · {format(new Date(f.startDate), "d MMM yyyy", { locale: fr })} ·{" "}
                 {f.eventCount} event{f.eventCount !== 1 ? "s" : ""}
               </p>
             </div>
@@ -216,8 +215,12 @@ export default async function AdminProgrammePage() {
                       opacity: 0.6,
                       transition: "opacity var(--transition-fast, 150ms)",
                     }}
-                    onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "1"; }}
-                    onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.opacity = "0.6"; }}
+                    onMouseEnter={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.opacity = "1";
+                    }}
+                    onMouseLeave={(e) => {
+                      (e.currentTarget as HTMLButtonElement).style.opacity = "0.6";
+                    }}
                   >
                     {getProgramStatusLabel(s)}
                   </button>

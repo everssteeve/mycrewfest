@@ -1,13 +1,35 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
-import { Search, Heart, MapPin } from "lucide-react";
-import type { FestivalSummary, FestivalType } from "@/lib/types";
+import { Heart, MapPin, Search } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
 import { FestivalCard } from "@/components/festival/festival-card";
-import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, countVerifiedFestivals, computeAvgFestivalDurationDays, countFestivalsByType, getAvailableCountries, matchesCountryFilter, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
-import { isEscapeKey } from "@/lib/keyboard-search";
-import { sortFestivals, SORT_MODES, SORT_MODE_LABELS, getSortModeAriaLabel, getDefaultSortMode, type CatalogueSortMode } from "@/lib/catalogue-sort";
+import {
+  computeAvgFestivalDurationDays,
+  countActiveFestivals,
+  countFestivalsByType,
+  countFestivalsWithCompleteProgram,
+  countFollowedFestivals,
+  countUpcomingFestivals,
+  countVerifiedFestivals,
+  getAvailableCountries,
+  getAvailableMonths,
+  MONTH_NAMES_FR,
+  matchesCountryFilter,
+  matchesFollowFilter,
+  matchesMonthFilter,
+  matchesTemporalFilter,
+} from "@/lib/catalogue-filter";
+import {
+  type CatalogueSortMode,
+  getDefaultSortMode,
+  getSortModeAriaLabel,
+  SORT_MODE_LABELS,
+  SORT_MODES,
+  sortFestivals,
+} from "@/lib/catalogue-sort";
 import { sortByDistance } from "@/lib/geo-festival";
+import { isEscapeKey } from "@/lib/keyboard-search";
+import type { FestivalSummary, FestivalType } from "@/lib/types";
 
 type FilterType = "tous" | FestivalType;
 
@@ -47,55 +69,36 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
         setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
         setGeoLoading(false);
       },
-      () => { setGeoLoading(false); },
+      () => {
+        setGeoLoading(false);
+      },
       { timeout: 8000 },
     );
   }, [userCoords]);
 
-  const hasFollowed = useMemo(
-    () => initialFestivals.some((f) => f.isFollowed),
-    [initialFestivals],
-  );
+  const hasFollowed = useMemo(() => initialFestivals.some((f) => f.isFollowed), [initialFestivals]);
 
-  const followedCount = useMemo(
-    () => countFollowedFestivals(initialFestivals),
-    [initialFestivals],
-  );
+  const followedCount = useMemo(() => countFollowedFestivals(initialFestivals), [initialFestivals]);
 
-  const activeCount = useMemo(
-    () => countActiveFestivals(initialFestivals),
-    [initialFestivals],
-  );
+  const activeCount = useMemo(() => countActiveFestivals(initialFestivals), [initialFestivals]);
 
-  const upcomingCount = useMemo(
-    () => countUpcomingFestivals(initialFestivals),
-    [initialFestivals],
-  );
+  const upcomingCount = useMemo(() => countUpcomingFestivals(initialFestivals), [initialFestivals]);
 
   const completeProgramCount = useMemo(
     () => countFestivalsWithCompleteProgram(initialFestivals),
     [initialFestivals],
   );
 
-  const verifiedCount = useMemo(
-    () => countVerifiedFestivals(initialFestivals),
-    [initialFestivals],
-  );
+  const verifiedCount = useMemo(() => countVerifiedFestivals(initialFestivals), [initialFestivals]);
 
-  const typeCounts = useMemo(
-    () => countFestivalsByType(initialFestivals),
-    [initialFestivals],
-  );
+  const typeCounts = useMemo(() => countFestivalsByType(initialFestivals), [initialFestivals]);
 
   const availableCountries = useMemo(
     () => getAvailableCountries(initialFestivals),
     [initialFestivals],
   );
 
-  const availableMonths = useMemo(
-    () => getAvailableMonths(initialFestivals),
-    [initialFestivals],
-  );
+  const availableMonths = useMemo(() => getAvailableMonths(initialFestivals), [initialFestivals]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -105,20 +108,33 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
         f.name.toLowerCase().includes(q) ||
         f.city.toLowerCase().includes(q) ||
         f.country.toLowerCase().includes(q);
-      const matchesType =
-        activeFilter === "tous" || f.festivalType === activeFilter;
-      return matchesQuery && matchesType && matchesFollowFilter(f, followedOnly) && matchesMonthFilter(f, activeMonth) && matchesTemporalFilter(f, hidePast) && matchesCountryFilter(f, activeCountry);
+      const matchesType = activeFilter === "tous" || f.festivalType === activeFilter;
+      return (
+        matchesQuery &&
+        matchesType &&
+        matchesFollowFilter(f, followedOnly) &&
+        matchesMonthFilter(f, activeMonth) &&
+        matchesTemporalFilter(f, hidePast) &&
+        matchesCountryFilter(f, activeCountry)
+      );
     });
     if (userCoords) {
       return sortByDistance(base, userCoords.lat, userCoords.lng) as unknown as FestivalSummary[];
     }
     return sortFestivals(base, sortMode);
-  }, [initialFestivals, query, activeFilter, followedOnly, activeMonth, hidePast, sortMode, userCoords, activeCountry]);
+  }, [
+    initialFestivals,
+    query,
+    activeFilter,
+    followedOnly,
+    activeMonth,
+    hidePast,
+    sortMode,
+    userCoords,
+    activeCountry,
+  ]);
 
-  const avgDurationDays = useMemo(
-    () => computeAvgFestivalDurationDays(filtered),
-    [filtered],
-  );
+  const avgDurationDays = useMemo(() => computeAvgFestivalDurationDays(filtered), [filtered]);
 
   return (
     <div className="flex flex-col gap-0 py-4">
@@ -207,9 +223,7 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
                 border: isActive
                   ? "1px solid var(--primary-neon)"
                   : "1px solid var(--border-color)",
-                backgroundColor: isActive
-                  ? "var(--primary-neon)"
-                  : "transparent",
+                backgroundColor: isActive ? "var(--primary-neon)" : "transparent",
                 color: isActive ? "var(--text-on-neon)" : "var(--text-muted)",
                 fontFamily: "var(--font-body)",
                 fontSize: 12,
@@ -252,9 +266,7 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
             paddingTop: 6,
             paddingBottom: 6,
             borderRadius: "var(--radius-full)",
-            border: hidePast
-              ? "1px solid var(--secondary-cyan)"
-              : "1px solid var(--border-color)",
+            border: hidePast ? "1px solid var(--secondary-cyan)" : "1px solid var(--border-color)",
             backgroundColor: hidePast ? "rgba(0,229,255,0.1)" : "transparent",
             color: hidePast ? "var(--secondary-cyan)" : "var(--text-muted)",
             fontFamily: "var(--font-body)",
@@ -284,9 +296,7 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
             paddingTop: 6,
             paddingBottom: 6,
             borderRadius: "var(--radius-full)",
-            border: userCoords
-              ? "1px solid var(--primary-neon)"
-              : "1px solid var(--border-color)",
+            border: userCoords ? "1px solid var(--primary-neon)" : "1px solid var(--border-color)",
             backgroundColor: userCoords ? "rgba(0,255,102,0.1)" : "transparent",
             color: userCoords ? "var(--primary-neon)" : "var(--text-muted)",
             fontFamily: "var(--font-body)",
@@ -379,9 +389,10 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
               flexShrink: 0,
               padding: "4px 12px",
               borderRadius: "var(--radius-full)",
-              border: activeMonth === null
-                ? "1px solid var(--warning-orange)"
-                : "1px solid var(--border-color)",
+              border:
+                activeMonth === null
+                  ? "1px solid var(--warning-orange)"
+                  : "1px solid var(--border-color)",
               backgroundColor: activeMonth === null ? "rgba(255,153,0,0.12)" : "transparent",
               color: activeMonth === null ? "var(--warning-orange)" : "var(--text-dim)",
               fontFamily: "var(--font-body)",
@@ -460,7 +471,9 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
           >
             <option value="">Tous les pays</option>
             {availableCountries.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
           </select>
         </div>
@@ -511,13 +524,20 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
       </div>
 
       {/* Stats strip */}
-      <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap", marginBottom: "var(--space-md)", alignItems: "center" }}>
-        <p
-          className="t-meta"
-          style={{ color: "var(--text-dim)", margin: 0 }}
-        >
+      <div
+        style={{
+          display: "flex",
+          gap: "var(--space-sm)",
+          flexWrap: "wrap",
+          marginBottom: "var(--space-md)",
+          alignItems: "center",
+        }}
+      >
+        <p className="t-meta" style={{ color: "var(--text-dim)", margin: 0 }}>
           {filtered.length} festival{filtered.length !== 1 ? "s" : ""}
-          {(query || activeFilter !== "tous" || followedOnly || activeMonth !== null || activeCountry) ? " trouvé" + (filtered.length !== 1 ? "s" : "") : ""}
+          {query || activeFilter !== "tous" || followedOnly || activeMonth !== null || activeCountry
+            ? ` trouvé${filtered.length !== 1 ? "s" : ""}`
+            : ""}
         </p>
         {activeCount > 0 && (
           <span
@@ -657,14 +677,8 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
 
 function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   return (
-    <div
-      className="flex flex-col items-center justify-center py-16 text-center"
-      role="status"
-    >
-      <span
-        aria-hidden="true"
-        style={{ fontSize: 48, lineHeight: 1, marginBottom: 16 }}
-      >
+    <div className="flex flex-col items-center justify-center py-16 text-center" role="status">
+      <span aria-hidden="true" style={{ fontSize: 48, lineHeight: 1, marginBottom: 16 }}>
         🎪
       </span>
       <p
@@ -677,10 +691,7 @@ function EmptyState({ hasFilters }: { hasFilters: boolean }) {
       >
         Aucun festival trouvé
       </p>
-      <p
-        className="t-caption"
-        style={{ color: "var(--text-muted)", maxWidth: 240 }}
-      >
+      <p className="t-caption" style={{ color: "var(--text-muted)", maxWidth: 240 }}>
         {hasFilters
           ? "Essaie de modifier ta recherche ou les filtres."
           : "Le catalogue est vide pour l'instant. Sois le premier à soumettre un festival !"}

@@ -11,7 +11,6 @@ export function filterChecklistByQuery<T extends ChecklistSearchable>(
   if (!q) return items;
   return items.filter(
     (i) =>
-      i.label.toLowerCase().includes(q) ||
-      (i.assigneeName?.toLowerCase().includes(q) ?? false),
+      i.label.toLowerCase().includes(q) || (i.assigneeName?.toLowerCase().includes(q) ?? false),
   );
 }

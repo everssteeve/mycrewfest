@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -15,16 +15,10 @@ const upsertSelectionSchema = z.object({
  * Add or update a selection (auth required).
  * Body: { eventId: string; status: "intéressé" | "must-see" | "vu" }
  */
-export async function POST(
-  request: NextRequest,
-  { params }: RouteContext,
-) {
+export async function POST(request: NextRequest, { params }: RouteContext) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   const { id } = await params;
@@ -36,20 +30,14 @@ export async function POST(
   });
 
   if (!festEvent) {
-    return NextResponse.json(
-      { error: "FestEvent introuvable." },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "FestEvent introuvable." }, { status: 404 });
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requête invalide." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
   }
 
   const parsed = upsertSelectionSchema.safeParse(body);
@@ -69,10 +57,7 @@ export async function POST(
   });
 
   if (!event) {
-    return NextResponse.json(
-      { error: "Événement introuvable dans ce festival." },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "Événement introuvable dans ce festival." }, { status: 404 });
   }
 
   try {
@@ -91,10 +76,7 @@ export async function POST(
       },
     });
 
-    return NextResponse.json(
-      { id: selection.id, status: selection.status },
-      { status: 200 },
-    );
+    return NextResponse.json({ id: selection.id, status: selection.status }, { status: 200 });
   } catch (err) {
     console.error("[POST /api/festevents/[id]/selections]", err);
     return NextResponse.json(

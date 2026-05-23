@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { TrendingUp } from "lucide-react";
-import { formatFestivalTypeLabel } from "@/lib/trending-festivals";
+import Link from "next/link";
 import type { TrendingFestivalItem } from "@/lib/trending-festivals";
+import { formatFestivalTypeLabel } from "@/lib/trending-festivals";
 
 async function fetchTrending(): Promise<TrendingFestivalItem[]> {
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
@@ -24,10 +24,7 @@ export async function TrendingFestivals() {
   if (festivals.length === 0) return null;
 
   return (
-    <section
-      data-testid="trending-festivals-section"
-      style={{ marginBottom: "var(--space-md)" }}
-    >
+    <section data-testid="trending-festivals-section" style={{ marginBottom: "var(--space-md)" }}>
       <h2
         className="t-mono"
         style={{

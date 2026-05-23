@@ -46,12 +46,12 @@ export function groupFeedByDay(items: FeedItem[]): FeedDay[] {
   for (const item of items) {
     const dateKey = item.publishedAt.slice(0, 10);
     if (!map.has(dateKey)) map.set(dateKey, []);
-    map.get(dateKey)!.push(item);
+    map.get(dateKey)?.push(item);
   }
 
   const days: FeedDay[] = [];
   for (const [dateKey, dayItems] of map) {
-    const date = new Date(dateKey + "T12:00:00Z");
+    const date = new Date(`${dateKey}T12:00:00Z`);
     const label = date.toLocaleDateString("fr-FR", {
       weekday: "long",
       day: "numeric",
@@ -67,7 +67,11 @@ export function countCriticalItems(items: FeedItem[]): number {
   return items.filter((i) => i.urgencyLevel === "critique").length;
 }
 
-export function getRecentItemCount(items: FeedItem[], withinDays: number, now = new Date()): number {
+export function getRecentItemCount(
+  items: FeedItem[],
+  withinDays: number,
+  now = new Date(),
+): number {
   const cutoff = new Date(now.getTime() - withinDays * 24 * 60 * 60 * 1000);
   return items.filter((i) => new Date(i.publishedAt) >= cutoff).length;
 }

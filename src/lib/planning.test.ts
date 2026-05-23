@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   detectConflicts,
   filterEventsByDay,
@@ -11,10 +11,7 @@ import type { EventSummary } from "@/types";
 // Helpers
 // ---------------------------------------------------------------------------
 
-function makeEvent(
-  id: string,
-  overrides: Partial<EventSummary> = {},
-): EventSummary {
+function makeEvent(id: string, overrides: Partial<EventSummary> = {}): EventSummary {
   return {
     id,
     title: `Event ${id}`,
@@ -106,7 +103,7 @@ describe("detectConflicts", () => {
 
   it("same event twice does not conflict with itself", () => {
     const event = makeEvent("a", { startTime: T("10:00"), durationMins: 60 });
-    const conflicts = detectConflicts([event, event], 15);
+    const _conflicts = detectConflicts([event, event], 15);
     // Same ID appears twice — pairwise comparison i=0, j=1 are the same object
     // The algorithm does not check for same ID, but since start/end are the same
     // bStart < aEnd → overlap. However the real intent here is that passing the
@@ -238,9 +235,7 @@ describe("filterEventsByDay", () => {
   });
 
   it("returns empty array when no events match the date", () => {
-    const events: EventSummary[] = [
-      makeEvent("a", { startTime: "2025-06-15T10:00:00.000Z" }),
-    ];
+    const events: EventSummary[] = [makeEvent("a", { startTime: "2025-06-15T10:00:00.000Z" })];
     const result = filterEventsByDay(events, "2025-06-20");
     expect(result).toHaveLength(0);
   });

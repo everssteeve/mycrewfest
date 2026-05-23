@@ -1,5 +1,10 @@
-import { describe, it, expect } from "vitest";
-import { getFestivalCountdown, getCountdownBadgeState, getCountdownBadgeLabel, getCountdownBadgeColor } from "@/lib/festival-countdown";
+import { describe, expect, it } from "vitest";
+import {
+  getCountdownBadgeColor,
+  getCountdownBadgeLabel,
+  getCountdownBadgeState,
+  getFestivalCountdown,
+} from "@/lib/festival-countdown";
 
 // Fixed reference point: 2026-05-23T12:00:00Z (current date in project)
 const NOW = new Date("2026-05-23T12:00:00Z");
@@ -124,64 +129,100 @@ const REF = new Date("2026-06-10T12:00:00.000Z");
 
 describe("getCountdownBadgeState", () => {
   it("returns 'past' when festival ended", () => {
-    expect(getCountdownBadgeState(addDays(REF, -10).toISOString(), addDays(REF, -5).toISOString(), REF)).toBe("past");
+    expect(
+      getCountdownBadgeState(addDays(REF, -10).toISOString(), addDays(REF, -5).toISOString(), REF),
+    ).toBe("past");
   });
 
   it("returns 'ongoing' between start and end", () => {
-    expect(getCountdownBadgeState(addDays(REF, -1).toISOString(), addDays(REF, 2).toISOString(), REF)).toBe("ongoing");
+    expect(
+      getCountdownBadgeState(addDays(REF, -1).toISOString(), addDays(REF, 2).toISOString(), REF),
+    ).toBe("ongoing");
   });
 
   it("returns 'ongoing' when today is exactly startDate", () => {
-    expect(getCountdownBadgeState(REF.toISOString(), addDays(REF, 3).toISOString(), REF)).toBe("ongoing");
+    expect(getCountdownBadgeState(REF.toISOString(), addDays(REF, 3).toISOString(), REF)).toBe(
+      "ongoing",
+    );
   });
 
   it("returns 'upcoming_urgent' for 1 day away", () => {
-    expect(getCountdownBadgeState(addDays(REF, 1).toISOString(), addDays(REF, 4).toISOString(), REF)).toBe("upcoming_urgent");
+    expect(
+      getCountdownBadgeState(addDays(REF, 1).toISOString(), addDays(REF, 4).toISOString(), REF),
+    ).toBe("upcoming_urgent");
   });
 
   it("returns 'upcoming_urgent' for 3 days away", () => {
-    expect(getCountdownBadgeState(addDays(REF, 3).toISOString(), addDays(REF, 6).toISOString(), REF)).toBe("upcoming_urgent");
+    expect(
+      getCountdownBadgeState(addDays(REF, 3).toISOString(), addDays(REF, 6).toISOString(), REF),
+    ).toBe("upcoming_urgent");
   });
 
   it("returns 'upcoming_soon' for 4 days away", () => {
-    expect(getCountdownBadgeState(addDays(REF, 4).toISOString(), addDays(REF, 7).toISOString(), REF)).toBe("upcoming_soon");
+    expect(
+      getCountdownBadgeState(addDays(REF, 4).toISOString(), addDays(REF, 7).toISOString(), REF),
+    ).toBe("upcoming_soon");
   });
 
   it("returns 'upcoming_soon' for 14 days away", () => {
-    expect(getCountdownBadgeState(addDays(REF, 14).toISOString(), addDays(REF, 17).toISOString(), REF)).toBe("upcoming_soon");
+    expect(
+      getCountdownBadgeState(addDays(REF, 14).toISOString(), addDays(REF, 17).toISOString(), REF),
+    ).toBe("upcoming_soon");
   });
 
   it("returns 'upcoming' for 15 days away", () => {
-    expect(getCountdownBadgeState(addDays(REF, 15).toISOString(), addDays(REF, 18).toISOString(), REF)).toBe("upcoming");
+    expect(
+      getCountdownBadgeState(addDays(REF, 15).toISOString(), addDays(REF, 18).toISOString(), REF),
+    ).toBe("upcoming");
   });
 });
 
 describe("getCountdownBadgeLabel", () => {
   it("returns 'EN COURS' for ongoing", () => {
-    expect(getCountdownBadgeLabel(addDays(REF, -1).toISOString(), addDays(REF, 2).toISOString(), REF)).toBe("EN COURS");
+    expect(
+      getCountdownBadgeLabel(addDays(REF, -1).toISOString(), addDays(REF, 2).toISOString(), REF),
+    ).toBe("EN COURS");
   });
 
   it("returns 'J-2' for 2 days away", () => {
-    expect(getCountdownBadgeLabel(addDays(REF, 2).toISOString(), addDays(REF, 5).toISOString(), REF)).toBe("J-2");
+    expect(
+      getCountdownBadgeLabel(addDays(REF, 2).toISOString(), addDays(REF, 5).toISOString(), REF),
+    ).toBe("J-2");
   });
 
   it("returns 'DANS 7 JOURS' for 7 days away", () => {
-    expect(getCountdownBadgeLabel(addDays(REF, 7).toISOString(), addDays(REF, 10).toISOString(), REF)).toBe("DANS 7 JOURS");
+    expect(
+      getCountdownBadgeLabel(addDays(REF, 7).toISOString(), addDays(REF, 10).toISOString(), REF),
+    ).toBe("DANS 7 JOURS");
   });
 
   it("returns '' for past", () => {
-    expect(getCountdownBadgeLabel(addDays(REF, -10).toISOString(), addDays(REF, -5).toISOString(), REF)).toBe("");
+    expect(
+      getCountdownBadgeLabel(addDays(REF, -10).toISOString(), addDays(REF, -5).toISOString(), REF),
+    ).toBe("");
   });
 
   it("returns '' for far upcoming (> 14 days)", () => {
-    expect(getCountdownBadgeLabel(addDays(REF, 30).toISOString(), addDays(REF, 33).toISOString(), REF)).toBe("");
+    expect(
+      getCountdownBadgeLabel(addDays(REF, 30).toISOString(), addDays(REF, 33).toISOString(), REF),
+    ).toBe("");
   });
 });
 
 describe("getCountdownBadgeColor", () => {
-  it("returns red for urgent", () => { expect(getCountdownBadgeColor("upcoming_urgent")).toBe("#FF3355"); });
-  it("returns orange for soon", () => { expect(getCountdownBadgeColor("upcoming_soon")).toBe("#FF9900"); });
-  it("returns neon green for ongoing", () => { expect(getCountdownBadgeColor("ongoing")).toBe("#00FF66"); });
-  it("returns '' for past", () => { expect(getCountdownBadgeColor("past")).toBe(""); });
-  it("returns '' for upcoming", () => { expect(getCountdownBadgeColor("upcoming")).toBe(""); });
+  it("returns red for urgent", () => {
+    expect(getCountdownBadgeColor("upcoming_urgent")).toBe("#FF3355");
+  });
+  it("returns orange for soon", () => {
+    expect(getCountdownBadgeColor("upcoming_soon")).toBe("#FF9900");
+  });
+  it("returns neon green for ongoing", () => {
+    expect(getCountdownBadgeColor("ongoing")).toBe("#00FF66");
+  });
+  it("returns '' for past", () => {
+    expect(getCountdownBadgeColor("past")).toBe("");
+  });
+  it("returns '' for upcoming", () => {
+    expect(getCountdownBadgeColor("upcoming")).toBe("");
+  });
 });

@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { haversineDistanceKm, computeTravelTimeMins } from "@/lib/travel-time";
+import { describe, expect, it } from "vitest";
+import { computeTravelTimeMins, haversineDistanceKm } from "@/lib/travel-time";
 
 describe("haversineDistanceKm", () => {
   it("returns 0 for identical coordinates", () => {

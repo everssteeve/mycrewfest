@@ -1,8 +1,11 @@
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import {
+  JournalView,
+  type SouvenirEntry,
+} from "@/app/(app)/festevent/[id]/journal/_components/journal-view";
 import { parseJsonArray } from "@/lib/api";
-import { JournalView, type SouvenirEntry } from "@/app/(app)/festevent/[id]/journal/_components/journal-view";
+import { prisma } from "@/lib/prisma";
 
 type PageContext = { params: Promise<{ token: string }> };
 
@@ -65,9 +68,7 @@ async function fetchPublicJournal(token: string) {
   };
 }
 
-export async function generateMetadata({
-  params,
-}: PageContext): Promise<Metadata> {
+export async function generateMetadata({ params }: PageContext): Promise<Metadata> {
   const { token } = await params;
   const data = await fetchPublicJournal(token);
   if (!data) return { title: "Journal introuvable" };

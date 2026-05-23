@@ -1,10 +1,20 @@
 "use client";
 
+import { Filter, Newspaper, Pin, RefreshCw, Search, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Newspaper, Pin, RefreshCw, Filter, Search, X } from "lucide-react";
-import { matchesNewsQuery } from "@/lib/news-search";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins, computeAvgNewsAgeHours, getTopNewsSourceWithCount } from "@/lib/news-stats";
 import { isEscapeKey } from "@/lib/keyboard-search";
+import { matchesNewsQuery } from "@/lib/news-search";
+import {
+  computeAvgNewsAgeHours,
+  computeNewsStats,
+  countPinnedNewsItems,
+  countRecentNewsItems,
+  countUniqueNewsCategories,
+  getMostRecentArticleAgoMins,
+  getTopNewsCategory,
+  getTopNewsSource,
+  getTopNewsSourceWithCount,
+} from "@/lib/news-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -33,14 +43,21 @@ interface NewsViewProps {
 
 const CATEGORY_LABELS: Record<string, string> = {
   "line-up": "Line-up",
-  "logistique": "Logistique",
+  logistique: "Logistique",
   "programme-change": "Programme",
-  "annulation": "Annulation",
-  "urgence": "Urgence",
-  "autre": "Autre",
+  annulation: "Annulation",
+  urgence: "Urgence",
+  autre: "Autre",
 };
 
-const ALL_CATEGORIES = ["line-up", "logistique", "programme-change", "annulation", "urgence", "autre"];
+const ALL_CATEGORIES = [
+  "line-up",
+  "logistique",
+  "programme-change",
+  "annulation",
+  "urgence",
+  "autre",
+];
 const LOCAL_STORAGE_KEY_PREFIX = "mycrewfest-news-lastread-";
 
 // ---------------------------------------------------------------------------
@@ -50,12 +67,18 @@ const LOCAL_STORAGE_KEY_PREFIX = "mycrewfest-news-lastread-";
 function getCategoryColor(category: string, urgencyLevel: string): string {
   if (urgencyLevel === "critique") return "var(--accent-red)";
   switch (category) {
-    case "urgence": return "var(--accent-red)";
-    case "annulation": return "var(--accent-red)";
-    case "logistique": return "var(--accent-orange)";
-    case "programme-change": return "var(--accent-pink)";
-    case "line-up": return "var(--accent-pink)";
-    default: return "var(--text-dim)";
+    case "urgence":
+      return "var(--accent-red)";
+    case "annulation":
+      return "var(--accent-red)";
+    case "logistique":
+      return "var(--accent-orange)";
+    case "programme-change":
+      return "var(--accent-pink)";
+    case "line-up":
+      return "var(--accent-pink)";
+    default:
+      return "var(--text-dim)";
   }
 }
 
@@ -63,11 +86,15 @@ function getCategoryBg(category: string, urgencyLevel: string): string {
   if (urgencyLevel === "critique") return "rgba(255,51,85,0.10)";
   switch (category) {
     case "urgence":
-    case "annulation": return "rgba(255,51,85,0.08)";
-    case "logistique": return "rgba(255,153,0,0.08)";
+    case "annulation":
+      return "rgba(255,51,85,0.08)";
+    case "logistique":
+      return "rgba(255,153,0,0.08)";
     case "programme-change":
-    case "line-up": return "rgba(255,0,122,0.08)";
-    default: return "rgba(255,255,255,0.04)";
+    case "line-up":
+      return "rgba(255,0,122,0.08)";
+    default:
+      return "rgba(255,255,255,0.04)";
   }
 }
 
@@ -135,8 +162,22 @@ function NewsCard({ item }: { item: NewsItemData }) {
       }}
     >
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-sm)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-xs)", flexWrap: "wrap" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "space-between",
+          gap: "var(--space-sm)",
+        }}
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-xs)",
+            flexWrap: "wrap",
+          }}
+        >
           {item.isPinned && (
             <Pin
               size={12}
@@ -177,7 +218,14 @@ function NewsCard({ item }: { item: NewsItemData }) {
             </span>
           )}
         </div>
-        <span style={{ fontSize: "var(--fs-xs)", color: "var(--text-dim)", whiteSpace: "nowrap", flexShrink: 0 }}>
+        <span
+          style={{
+            fontSize: "var(--fs-xs)",
+            color: "var(--text-dim)",
+            whiteSpace: "nowrap",
+            flexShrink: 0,
+          }}
+        >
           {formatTimeShort(item.publishedAt)}
         </span>
       </div>
@@ -254,7 +302,7 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
         if (selectedCategory) params.set("category", selectedCategory);
         const res = await fetch(`/api/festevents/${festEventId}/news?${params}`);
         if (res.ok) {
-          const fresh = await res.json() as NewsItemData[];
+          const fresh = (await res.json()) as NewsItemData[];
           setNews(fresh);
           setLastRefreshed(new Date());
 
@@ -262,9 +310,7 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
           const lastReadAt = lastReadAtRef.current;
           if (lastReadAt) {
             const urgentNew = fresh.filter(
-              (item) =>
-                item.urgencyLevel === "critique" &&
-                new Date(item.publishedAt) > lastReadAt,
+              (item) => item.urgencyLevel === "critique" && new Date(item.publishedAt) > lastReadAt,
             ).length;
             setNewUrgentCount(urgentNew);
           }
@@ -284,7 +330,7 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
       if (selectedCategory) params.set("category", selectedCategory);
       const res = await fetch(`/api/festevents/${festEventId}/news?${params}`);
       if (res.ok) {
-        const fresh = await res.json() as NewsItemData[];
+        const fresh = (await res.json()) as NewsItemData[];
         setNews(fresh);
         setLastRefreshed(new Date());
         setNewUrgentCount(0);
@@ -307,7 +353,7 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
         if (category) params.set("category", category);
         const res = await fetch(`/api/festevents/${festEventId}/news?${params}`);
         if (res.ok) {
-          const fresh = await res.json() as NewsItemData[];
+          const fresh = (await res.json()) as NewsItemData[];
           setNews(fresh);
           setLastRefreshed(new Date());
         }
@@ -340,7 +386,14 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
   const sortedDates = Array.from(grouped.keys()).sort((a, b) => b.localeCompare(a)); // most recent first
 
   return (
-    <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+    <div
+      style={{
+        paddingTop: "var(--space-lg)",
+        display: "flex",
+        flexDirection: "column",
+        gap: "var(--space-md)",
+      }}
+    >
       {/* Search bar */}
       {news.length > 3 && (
         <div style={{ position: "relative" }}>
@@ -420,8 +473,15 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
             justifyContent: "space-between",
           }}
         >
-          <span style={{ color: "var(--accent-red)", fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
-            {newUrgentCount} nouvelle{newUrgentCount !== 1 ? "s" : ""} urgence{newUrgentCount !== 1 ? "s" : ""}
+          <span
+            style={{
+              color: "var(--accent-red)",
+              fontWeight: "var(--fw-bold)",
+              fontSize: "var(--fs-sm)",
+            }}
+          >
+            {newUrgentCount} nouvelle{newUrgentCount !== 1 ? "s" : ""} urgence
+            {newUrgentCount !== 1 ? "s" : ""}
           </span>
           <button
             type="button"
@@ -441,10 +501,23 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
       )}
 
       {/* Toolbar */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-sm)" }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "var(--space-sm)",
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: "var(--space-xs)" }}>
           <Newspaper size={16} style={{ color: "var(--accent-pink)" }} />
-          <span style={{ color: "var(--text-main)", fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
+          <span
+            style={{
+              color: "var(--text-main)",
+              fontWeight: "var(--fw-bold)",
+              fontSize: "var(--fs-sm)",
+            }}
+          >
             Actualités
           </span>
           {newsStats.total > 0 && (
@@ -560,7 +633,8 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
               }}
               title="Temps écoulé depuis la publication de la dernière actualité"
             >
-              · il y a {freshnessMins < 60 ? `${freshnessMins}min` : `${Math.floor(freshnessMins / 60)}h`}
+              · il y a{" "}
+              {freshnessMins < 60 ? `${freshnessMins}min` : `${Math.floor(freshnessMins / 60)}h`}
             </span>
           )}
           {avgAgeHours !== null && filteredNews.length > 1 && (
@@ -701,7 +775,19 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
       {/* Pinned items */}
       {pinnedItems.length > 0 && (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-          <p style={{ fontSize: "var(--fs-xs)", color: "var(--primary-neon)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: "var(--fw-bold)", margin: 0, display: "flex", alignItems: "center", gap: 4 }}>
+          <p
+            style={{
+              fontSize: "var(--fs-xs)",
+              color: "var(--primary-neon)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              fontWeight: "var(--fw-bold)",
+              margin: 0,
+              display: "flex",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
             <Pin size={11} style={{ transform: "rotate(45deg)" }} />
             Épinglé
           </p>
@@ -728,8 +814,19 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
         sortedDates.map((dateKey) => {
           const items = grouped.get(dateKey) ?? [];
           return (
-            <div key={dateKey} style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-              <p style={{ fontSize: "var(--fs-xs)", color: "var(--text-dim)", textTransform: "capitalize", fontWeight: "var(--fw-bold)", margin: 0 }}>
+            <div
+              key={dateKey}
+              style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}
+            >
+              <p
+                style={{
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--text-dim)",
+                  textTransform: "capitalize",
+                  fontWeight: "var(--fw-bold)",
+                  margin: 0,
+                }}
+              >
                 {formatDate(items[0].publishedAt)}
               </p>
               {items.map((item) => (
@@ -741,8 +838,17 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
       )}
 
       {/* Last refresh time */}
-      <p style={{ fontSize: "var(--fs-xs)", color: "var(--text-muted)", textAlign: "center", margin: "var(--space-xs) 0 0" }}>
-        Mise à jour à {lastRefreshed.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })} · Auto-actualisation toutes les 5 min
+      <p
+        style={{
+          fontSize: "var(--fs-xs)",
+          color: "var(--text-muted)",
+          textAlign: "center",
+          margin: "var(--space-xs) 0 0",
+        }}
+      >
+        Mise à jour à{" "}
+        {lastRefreshed.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })} ·
+        Auto-actualisation toutes les 5 min
       </p>
     </div>
   );

@@ -22,13 +22,15 @@ export function groupEventsByVenue<T extends GroupableEvent>(events: T[]): Venue
         events: [],
       });
     }
-    map.get(key)!.events.push(event);
+    map.get(key)?.events.push(event);
   }
 
   return Array.from(map.values());
 }
 
-export function sortVenueGroups<T extends GroupableEvent>(groups: VenueGroup<T>[]): VenueGroup<T>[] {
+export function sortVenueGroups<T extends GroupableEvent>(
+  groups: VenueGroup<T>[],
+): VenueGroup<T>[] {
   return [...groups].sort((a, b) => {
     // Groups with a real venue come before "unknown"
     if (a.venueId === null && b.venueId !== null) return 1;

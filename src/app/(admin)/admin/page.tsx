@@ -1,13 +1,17 @@
 import Link from "next/link";
-import { prisma } from "@/lib/prisma";
-import { buildAdminKpis, hasPendingAlert, formatKpiValue } from "@/lib/admin-stats";
 import {
   buildHealthMetrics,
   computeHealthScore,
-  getHealthScoreLabel,
   getHealthScoreColor,
+  getHealthScoreLabel,
 } from "@/lib/admin-health";
-import { computeDataQualityScore, getQualityGrade, getQualityGradeColor } from "@/lib/festival-data-quality";
+import { buildAdminKpis, formatKpiValue, hasPendingAlert } from "@/lib/admin-stats";
+import {
+  computeDataQualityScore,
+  getQualityGrade,
+  getQualityGradeColor,
+} from "@/lib/festival-data-quality";
+import { prisma } from "@/lib/prisma";
 
 async function getDashboardData() {
   const todayStart = new Date();
@@ -49,21 +53,29 @@ async function getDashboardData() {
     }),
   ]);
 
-  const avgQualityScore = festivalQualityRows.length === 0 ? 0 : Math.round(
-    festivalQualityRows.reduce((sum, f) => sum + computeDataQualityScore({
-      name: f.name,
-      description: f.description,
-      city: f.city,
-      latitude: f.latitude,
-      longitude: f.longitude,
-      capacity: f.capacity,
-      siteUrl: f.siteUrl,
-      instagramHandle: f.instagramHandle,
-      programStatus: f.programStatus,
-      ingestionStatus: f.ingestionStatus,
-      eventCount: f._count.events,
-    }), 0) / festivalQualityRows.length
-  );
+  const avgQualityScore =
+    festivalQualityRows.length === 0
+      ? 0
+      : Math.round(
+          festivalQualityRows.reduce(
+            (sum, f) =>
+              sum +
+              computeDataQualityScore({
+                name: f.name,
+                description: f.description,
+                city: f.city,
+                latitude: f.latitude,
+                longitude: f.longitude,
+                capacity: f.capacity,
+                siteUrl: f.siteUrl,
+                instagramHandle: f.instagramHandle,
+                programStatus: f.programStatus,
+                ingestionStatus: f.ingestionStatus,
+                eventCount: f._count.events,
+              }),
+            0,
+          ) / festivalQualityRows.length,
+        );
 
   return {
     totalUsers,
@@ -109,7 +121,11 @@ async function getRecentActivity() {
 }
 
 export default async function AdminDashboardPage() {
-  const [raw, activity, urgentProgramme] = await Promise.all([getDashboardData(), getRecentActivity(), getUrgentProgramme()]);
+  const [raw, activity, urgentProgramme] = await Promise.all([
+    getDashboardData(),
+    getRecentActivity(),
+    getUrgentProgramme(),
+  ]);
   const kpis = buildAdminKpis(raw);
   const alertPending = hasPendingAlert(raw.pendingSubmissions);
 
@@ -228,7 +244,10 @@ export default async function AdminDashboardPage() {
               fontWeight: "var(--fw-bold)",
             }}
           >
-            {qualityGrade} <span style={{ fontSize: "var(--fs-sm)", opacity: 0.7 }}>{raw.avgQualityScore}/100</span>
+            {qualityGrade}{" "}
+            <span style={{ fontSize: "var(--fs-sm)", opacity: 0.7 }}>
+              {raw.avgQualityScore}/100
+            </span>
           </p>
           <p
             style={{
@@ -280,7 +299,8 @@ export default async function AdminDashboardPage() {
                 margin: 0,
               }}
             >
-              {raw.pendingSubmissions} soumission{raw.pendingSubmissions > 1 ? "s" : ""} en attente de validation
+              {raw.pendingSubmissions} soumission{raw.pendingSubmissions > 1 ? "s" : ""} en attente
+              de validation
             </p>
             <Link
               href="/admin/submissions"
@@ -308,7 +328,14 @@ export default async function AdminDashboardPage() {
           marginBottom: "var(--space-xl)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--space-md)", marginBottom: "var(--space-md)" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-md)",
+            marginBottom: "var(--space-md)",
+          }}
+        >
           <div>
             <h2
               style={{
@@ -385,7 +412,8 @@ export default async function AdminDashboardPage() {
                   fontWeight: "var(--fw-bold)",
                 }}
               >
-                {m.value}{m.unit}
+                {m.value}
+                {m.unit}
               </p>
               <p
                 style={{
@@ -492,9 +520,24 @@ export default async function AdminDashboardPage() {
         }}
       >
         {[
-          { href: "/admin/festivals", label: "Gérer les festivals", color: "var(--primary-neon)", desc: "Créer, éditer, vérifier" },
-          { href: "/admin/submissions", label: "Soumissions", color: "var(--warning-orange)", desc: "Valider les propositions" },
-          { href: "/admin/users", label: "Utilisateurs", color: "var(--secondary-cyan)", desc: "Gérer les comptes" },
+          {
+            href: "/admin/festivals",
+            label: "Gérer les festivals",
+            color: "var(--primary-neon)",
+            desc: "Créer, éditer, vérifier",
+          },
+          {
+            href: "/admin/submissions",
+            label: "Soumissions",
+            color: "var(--warning-orange)",
+            desc: "Valider les propositions",
+          },
+          {
+            href: "/admin/users",
+            label: "Utilisateurs",
+            color: "var(--secondary-cyan)",
+            desc: "Gérer les comptes",
+          },
         ].map((link) => (
           <Link
             key={link.href}
@@ -559,7 +602,10 @@ export default async function AdminDashboardPage() {
           >
             Derniers festivals
           </h2>
-          <div data-testid="admin-recent-festivals" style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+          <div
+            data-testid="admin-recent-festivals"
+            style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}
+          >
             {activity.recentFestivals.map((f) => (
               <div
                 key={f.id}
@@ -609,7 +655,14 @@ export default async function AdminDashboardPage() {
               </div>
             ))}
             {activity.recentFestivals.length === 0 && (
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-dim)", margin: 0 }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-sm)",
+                  color: "var(--text-dim)",
+                  margin: 0,
+                }}
+              >
                 Aucun festival.
               </p>
             )}
@@ -637,7 +690,10 @@ export default async function AdminDashboardPage() {
           >
             Derniers utilisateurs
           </h2>
-          <div data-testid="admin-recent-users" style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}>
+          <div
+            data-testid="admin-recent-users"
+            style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}
+          >
             {activity.recentUsers.map((u) => (
               <div
                 key={u.id}
@@ -689,7 +745,14 @@ export default async function AdminDashboardPage() {
               </div>
             ))}
             {activity.recentUsers.length === 0 && (
-              <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-dim)", margin: 0 }}>
+              <p
+                style={{
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-sm)",
+                  color: "var(--text-dim)",
+                  margin: 0,
+                }}
+              >
                 Aucun utilisateur.
               </p>
             )}

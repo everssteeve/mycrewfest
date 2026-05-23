@@ -17,27 +17,21 @@ export interface SouvenirTimestamped {
 /**
  * Returns the number of souvenirs that have at least one photo attached.
  */
-export function countSouvenirPhotos<T extends SouvenirPhotoable>(
-  souvenirs: T[],
-): number {
+export function countSouvenirPhotos<T extends SouvenirPhotoable>(souvenirs: T[]): number {
   return souvenirs.filter((s) => s.photos.length > 0).length;
 }
 
 /**
  * Returns the number of souvenirs linked to a specific event (eventId non-null).
  */
-export function countLinkedEventSouvenirs<T extends SouvenirEventLinkable>(
-  souvenirs: T[],
-): number {
+export function countLinkedEventSouvenirs<T extends SouvenirEventLinkable>(souvenirs: T[]): number {
   return souvenirs.filter((s) => s.eventId !== null).length;
 }
 
 /**
  * Returns the number of souvenirs shared with the crew.
  */
-export function countCrewSharedSouvenirs<T extends SouvenirCrewShareable>(
-  souvenirs: T[],
-): number {
+export function countCrewSharedSouvenirs<T extends SouvenirCrewShareable>(souvenirs: T[]): number {
   return souvenirs.filter((s) => s.shareWithCrew).length;
 }
 

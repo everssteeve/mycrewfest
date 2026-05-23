@@ -23,8 +23,6 @@ export function formatAgeRestriction(
 }
 
 /** Returns a label for the access type, or null if "inclus" (default, no badge needed). */
-export function getAccessLabel(
-  access: "inclus" | "réservation_séparée",
-): string | null {
+export function getAccessLabel(access: "inclus" | "réservation_séparée"): string | null {
   return access === "réservation_séparée" ? "Réservation" : null;
 }

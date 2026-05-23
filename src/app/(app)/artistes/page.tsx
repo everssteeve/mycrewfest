@@ -1,9 +1,9 @@
-import Link from "next/link";
-import type { Metadata } from "next";
 import { Music2 } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
 import { TopHeader } from "@/components/ui";
-import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import { ArtistList } from "./_components/artist-list";
 
 export const metadata: Metadata = {

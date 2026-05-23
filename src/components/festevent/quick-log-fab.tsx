@@ -61,9 +61,7 @@ function Toast({ visible, message }: { visible: boolean; message: string }) {
         position: "fixed",
         bottom: "calc(var(--nav-height) + 80px)",
         left: "50%",
-        transform: visible
-          ? "translateX(-50%) translateY(0)"
-          : "translateX(-50%) translateY(20px)",
+        transform: visible ? "translateX(-50%) translateY(0)" : "translateX(-50%) translateY(20px)",
         opacity: visible ? 1 : 0,
         transition: "opacity 0.2s ease, transform 0.2s ease",
         backgroundColor: "var(--bg-surface-elevated)",
@@ -109,7 +107,7 @@ function BottomSheet({ open, onClose, festEventId }: BottomSheetProps) {
     return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
   });
   const [saving, setSaving] = useState(false);
-  const [showToast, setShowToast] = useState(false);
+  const [_showToast, setShowToast] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -194,8 +192,7 @@ function BottomSheet({ open, onClose, festEventId }: BottomSheetProps) {
     }
   };
 
-  const canSave =
-    (freeTextMode ? freeText.trim().length > 0 : selectedEvent !== null) && !saving;
+  const canSave = (freeTextMode ? freeText.trim().length > 0 : selectedEvent !== null) && !saving;
 
   if (!open) return null;
 
@@ -519,7 +516,7 @@ function BottomSheet({ open, onClose, festEventId }: BottomSheetProps) {
                   {/* biome-ignore lint/performance/noImgElement: base64 thumbnail */}
                   <img
                     src={src}
-                    alt={`Photo ${i + 1}`}
+                    alt={`Souvenir ${i + 1}`}
                     style={{
                       width: 64,
                       height: 64,
@@ -661,11 +658,7 @@ export function QuickLogFab({ festEventId }: QuickLogFabProps) {
         👁
       </button>
 
-      <BottomSheet
-        open={sheetOpen}
-        onClose={handleClose}
-        festEventId={festEventId}
-      />
+      <BottomSheet open={sheetOpen} onClose={handleClose} festEventId={festEventId} />
 
       <Toast visible={toastVisible} message="Souvenir enregistré ✓" />
     </>

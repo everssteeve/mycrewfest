@@ -29,12 +29,9 @@ export function computeFestivalEngagementScore(entry: TopFestivalEntry): number 
  * Sorts festival entries by engagement score descending.
  * Ties broken by name alphabetically.
  */
-export function sortFestivalsByEngagement(
-  entries: TopFestivalEntry[],
-): TopFestivalEntry[] {
+export function sortFestivalsByEngagement(entries: TopFestivalEntry[]): TopFestivalEntry[] {
   return [...entries].sort((a, b) => {
-    const diff =
-      computeFestivalEngagementScore(b) - computeFestivalEngagementScore(a);
+    const diff = computeFestivalEngagementScore(b) - computeFestivalEngagementScore(a);
     if (diff !== 0) return diff;
     return a.name.localeCompare(b.name, "fr");
   });
@@ -56,10 +53,14 @@ export function getEngagementTier(score: number): string {
  */
 export function getEngagementTierColor(tier: string): string {
   switch (tier) {
-    case "Viral": return "var(--accent-pink)";
-    case "Populaire": return "var(--primary-neon)";
-    case "En vue": return "var(--secondary-cyan)";
-    default: return "var(--text-dim)";
+    case "Viral":
+      return "var(--accent-pink)";
+    case "Populaire":
+      return "var(--primary-neon)";
+    case "En vue":
+      return "var(--secondary-cyan)";
+    default:
+      return "var(--text-dim)";
   }
 }
 

@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
 import {
-  sortFeedItems,
-  groupFeedByDay,
-  getFeedCategoryLabel,
-  filterFeedByFestival,
-  filterFeedByCategory,
-  getFollowedFestivalsFromFeed,
-  getAvailableCategoriesFromFeed,
   type FeedItem,
+  filterFeedByCategory,
+  filterFeedByFestival,
+  getAvailableCategoriesFromFeed,
+  getFeedCategoryLabel,
+  getFollowedFestivalsFromFeed,
+  groupFeedByDay,
+  sortFeedItems,
 } from "@/lib/news-feed";
 
 interface FeedViewProps {
@@ -47,11 +47,13 @@ export function FeedView({ items }: FeedViewProps) {
             style={{
               padding: "4px 12px",
               borderRadius: 20,
-              border: activeFestival === null
-                ? "1px solid var(--accent-pink, #FF007A)"
-                : "1px solid var(--border-subtle, #1E1F26)",
+              border:
+                activeFestival === null
+                  ? "1px solid var(--accent-pink, #FF007A)"
+                  : "1px solid var(--border-subtle, #1E1F26)",
               background: activeFestival === null ? "rgba(255,0,122,0.1)" : "transparent",
-              color: activeFestival === null ? "var(--accent-pink, #FF007A)" : "var(--text-dim, #666)",
+              color:
+                activeFestival === null ? "var(--accent-pink, #FF007A)" : "var(--text-dim, #666)",
               fontSize: "0.72rem",
               fontWeight: 700,
               textTransform: "uppercase",
@@ -71,11 +73,13 @@ export function FeedView({ items }: FeedViewProps) {
               style={{
                 padding: "4px 12px",
                 borderRadius: 20,
-                border: activeFestival === f.id
-                  ? "1px solid var(--accent-pink, #FF007A)"
-                  : "1px solid var(--border-subtle, #1E1F26)",
+                border:
+                  activeFestival === f.id
+                    ? "1px solid var(--accent-pink, #FF007A)"
+                    : "1px solid var(--border-subtle, #1E1F26)",
                 background: activeFestival === f.id ? "rgba(255,0,122,0.1)" : "transparent",
-                color: activeFestival === f.id ? "var(--accent-pink, #FF007A)" : "var(--text-dim, #666)",
+                color:
+                  activeFestival === f.id ? "var(--accent-pink, #FF007A)" : "var(--text-dim, #666)",
                 fontSize: "0.72rem",
                 fontWeight: 700,
                 textTransform: "uppercase",
@@ -103,11 +107,15 @@ export function FeedView({ items }: FeedViewProps) {
             style={{
               padding: "3px 10px",
               borderRadius: 20,
-              border: activeCategory === null
-                ? "1px solid var(--secondary-cyan, #00E5FF)"
-                : "1px solid var(--border-subtle, #1E1F26)",
+              border:
+                activeCategory === null
+                  ? "1px solid var(--secondary-cyan, #00E5FF)"
+                  : "1px solid var(--border-subtle, #1E1F26)",
               background: activeCategory === null ? "rgba(0,229,255,0.08)" : "transparent",
-              color: activeCategory === null ? "var(--secondary-cyan, #00E5FF)" : "var(--text-dim, #666)",
+              color:
+                activeCategory === null
+                  ? "var(--secondary-cyan, #00E5FF)"
+                  : "var(--text-dim, #666)",
               fontSize: "0.68rem",
               fontWeight: 700,
               textTransform: "uppercase",
@@ -127,11 +135,15 @@ export function FeedView({ items }: FeedViewProps) {
               style={{
                 padding: "3px 10px",
                 borderRadius: 20,
-                border: activeCategory === cat
-                  ? "1px solid var(--secondary-cyan, #00E5FF)"
-                  : "1px solid var(--border-subtle, #1E1F26)",
+                border:
+                  activeCategory === cat
+                    ? "1px solid var(--secondary-cyan, #00E5FF)"
+                    : "1px solid var(--border-subtle, #1E1F26)",
                 background: activeCategory === cat ? "rgba(0,229,255,0.08)" : "transparent",
-                color: activeCategory === cat ? "var(--secondary-cyan, #00E5FF)" : "var(--text-dim, #666)",
+                color:
+                  activeCategory === cat
+                    ? "var(--secondary-cyan, #00E5FF)"
+                    : "var(--text-dim, #666)",
                 fontSize: "0.68rem",
                 fontWeight: 700,
                 textTransform: "uppercase",
@@ -149,7 +161,12 @@ export function FeedView({ items }: FeedViewProps) {
       {filtered.length > 0 && (
         <p
           data-testid="feed-filtered-count"
-          style={{ fontSize: "0.72rem", color: "var(--text-dim, #666)", margin: "0 0 16px", fontFamily: "var(--font-mono, monospace)" }}
+          style={{
+            fontSize: "0.72rem",
+            color: "var(--text-dim, #666)",
+            margin: "0 0 16px",
+            fontFamily: "var(--font-mono, monospace)",
+          }}
         >
           {filtered.length} actualité{filtered.length > 1 ? "s" : ""}
           {activeFestival ? ` · ${festivals.find((f) => f.id === activeFestival)?.name}` : ""}
@@ -190,19 +207,29 @@ export function FeedView({ items }: FeedViewProps) {
                   data-testid={`feed-item-${item.id}`}
                   style={{
                     background: "var(--bg-card, #141519)",
-                    border: item.urgencyLevel === "critique"
-                      ? "1px solid rgba(255,51,85,0.4)"
-                      : "1px solid var(--border-subtle, #1E1F26)",
-                    borderLeft: item.urgencyLevel === "critique"
-                      ? "3px solid var(--danger-red, #FF3355)"
-                      : item.isPinned
-                        ? "3px solid var(--warning-orange, #FF9900)"
-                        : "3px solid transparent",
+                    border:
+                      item.urgencyLevel === "critique"
+                        ? "1px solid rgba(255,51,85,0.4)"
+                        : "1px solid var(--border-subtle, #1E1F26)",
+                    borderLeft:
+                      item.urgencyLevel === "critique"
+                        ? "3px solid var(--danger-red, #FF3355)"
+                        : item.isPinned
+                          ? "3px solid var(--warning-orange, #FF9900)"
+                          : "3px solid transparent",
                     borderRadius: 10,
                     padding: "10px 14px",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, marginBottom: 6 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      gap: 8,
+                      marginBottom: 6,
+                    }}
+                  >
                     <Link
                       href={`/festival/${item.festivalSlug}`}
                       style={{
@@ -219,9 +246,10 @@ export function FeedView({ items }: FeedViewProps) {
                     <span
                       style={{
                         fontSize: "0.68rem",
-                        color: item.urgencyLevel === "critique"
-                          ? "var(--danger-red, #FF3355)"
-                          : "var(--text-dim, #666)",
+                        color:
+                          item.urgencyLevel === "critique"
+                            ? "var(--danger-red, #FF3355)"
+                            : "var(--text-dim, #666)",
                         fontWeight: 600,
                         flexShrink: 0,
                       }}
@@ -242,7 +270,11 @@ export function FeedView({ items }: FeedViewProps) {
                         href={item.sourceUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: "inherit", textDecoration: "underline", textDecorationColor: "var(--text-dim)" }}
+                        style={{
+                          color: "inherit",
+                          textDecoration: "underline",
+                          textDecorationColor: "var(--text-dim)",
+                        }}
                       >
                         {item.summary}
                       </a>

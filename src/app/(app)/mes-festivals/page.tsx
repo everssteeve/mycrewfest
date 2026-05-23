@@ -1,10 +1,15 @@
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { TopHeader } from "@/components/ui";
+import { redirect } from "next/navigation";
 import { FollowButton } from "@/app/(app)/festival/[slug]/_components/follow-button";
-import { sortFollowedByDate, formatDaysUntilLabel, getDaysUntilColor, getDaysUntil } from "@/lib/mes-festivals";
+import { auth } from "@/auth";
+import { TopHeader } from "@/components/ui";
+import {
+  formatDaysUntilLabel,
+  getDaysUntil,
+  getDaysUntilColor,
+  sortFollowedByDate,
+} from "@/lib/mes-festivals";
+import { prisma } from "@/lib/prisma";
 import type { FestivalSummary } from "@/types";
 
 export const metadata = { title: "Mes Festivals" };
@@ -115,7 +120,14 @@ export default async function MesFestivalsPage() {
         ) : (
           <ul
             data-testid="mes-festivals-list"
-            style={{ listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 8 }}
+            style={{
+              listStyle: "none",
+              margin: 0,
+              padding: 0,
+              display: "flex",
+              flexDirection: "column",
+              gap: 8,
+            }}
           >
             {festivals.map((festival) => {
               const days = getDaysUntil(festival.startDate);
@@ -149,7 +161,14 @@ export default async function MesFestivalsPage() {
                     }}
                   >
                     {/* Header row: name + days badge */}
-                    <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "flex-start",
+                        justifyContent: "space-between",
+                        gap: 8,
+                      }}
+                    >
                       <Link
                         href={`/festival/${festival.slug}`}
                         style={{ textDecoration: "none", minWidth: 0, flex: 1 }}
@@ -199,7 +218,14 @@ export default async function MesFestivalsPage() {
                     </p>
 
                     {/* Stats + follow button row */}
-                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: 8,
+                      }}
+                    >
                       <div style={{ display: "flex", gap: 12 }}>
                         {(festival._count?.events ?? 0) > 0 && (
                           <span
@@ -209,7 +235,7 @@ export default async function MesFestivalsPage() {
                               color: "var(--secondary-cyan)",
                             }}
                           >
-                            {festival._count!.events} événements
+                            {festival._count?.events} événements
                           </span>
                         )}
                       </div>

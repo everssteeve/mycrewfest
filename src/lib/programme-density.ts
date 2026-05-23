@@ -26,10 +26,7 @@ export function computeSelectedDurationMins(events: DensityEvent[]): number {
     .reduce((sum, e) => sum + resolveEventDuration(e), 0);
 }
 
-export function computeTimeCoveragePercent(
-  selectedMins: number,
-  totalMins: number,
-): number {
+export function computeTimeCoveragePercent(selectedMins: number, totalMins: number): number {
   if (totalMins === 0) return 0;
   return Math.min(100, Math.round((selectedMins / totalMins) * 100));
 }

@@ -1,9 +1,5 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import {
-  extractEventDays,
-  getDefaultProgrammeDay,
-  formatDayLabel,
-} from "@/lib/programme-days";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { extractEventDays, formatDayLabel, getDefaultProgrammeDay } from "@/lib/programme-days";
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -38,10 +34,7 @@ describe("extractEventDays", () => {
   });
 
   it("returns single day for single-day festival", () => {
-    const events = [
-      { startTime: "2026-07-15T12:00:00" },
-      { startTime: "2026-07-15T18:00:00" },
-    ];
+    const events = [{ startTime: "2026-07-15T12:00:00" }, { startTime: "2026-07-15T18:00:00" }];
     expect(extractEventDays(events)).toEqual(["2026-07-15"]);
   });
 });

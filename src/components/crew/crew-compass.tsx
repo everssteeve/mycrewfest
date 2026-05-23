@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { CrewMemberData, GeoPosition } from "@/types";
 import { useCrewStore } from "@/store/use-crew-store";
+import type { CrewMemberData, GeoPosition } from "@/types";
 
 interface CrewCompassProps {
   crewId: string;
@@ -26,13 +26,8 @@ function getMemberColor(index: number): string {
  * Uses a <canvas>-free SVG approach for simplicity and CSS variable support.
  */
 export function CrewCompass({ crewId, members, myUserId }: CrewCompassProps) {
-  const {
-    memberPositions,
-    updateMemberPosition,
-    myGeolocEnabled,
-    setMyGeolocEnabled,
-    rallyPoint,
-  } = useCrewStore();
+  const { memberPositions, updateMemberPosition, myGeolocEnabled, setMyGeolocEnabled, rallyPoint } =
+    useCrewStore();
 
   const [polling, setPolling] = useState(false);
   const watchIdRef = useRef<number | null>(null);
@@ -147,9 +142,7 @@ export function CrewCompass({ crewId, members, myUserId }: CrewCompassProps) {
   const allPoints = [
     ...positionedMembers.map((m) => memberPositions[m.userId]),
     ...(myPos ? [myPos] : []),
-    ...(rallyPoint
-      ? [{ lat: rallyPoint.lat, lng: rallyPoint.lng, updatedAt: "" }]
-      : []),
+    ...(rallyPoint ? [{ lat: rallyPoint.lat, lng: rallyPoint.lng, updatedAt: "" }] : []),
   ];
 
   // Compute bounding box for SVG projection
@@ -235,6 +228,7 @@ export function CrewCompass({ crewId, members, myUserId }: CrewCompassProps) {
             {/* Grid lines */}
             {[...Array(5)].map((_, i) => (
               <line
+                // biome-ignore lint/suspicious/noArrayIndexKey: fixed-size grid, position is the key
                 key={`h${i}`}
                 x1={PADDING}
                 y1={PADDING + (i * usable) / 4}
@@ -246,6 +240,7 @@ export function CrewCompass({ crewId, members, myUserId }: CrewCompassProps) {
             ))}
             {[...Array(5)].map((_, i) => (
               <line
+                // biome-ignore lint/suspicious/noArrayIndexKey: fixed-size grid, position is the key
                 key={`v${i}`}
                 x1={PADDING + (i * usable) / 4}
                 y1={PADDING}
@@ -257,24 +252,25 @@ export function CrewCompass({ crewId, members, myUserId }: CrewCompassProps) {
             ))}
 
             {/* Rally point */}
-            {rallyPoint && (() => {
-              const [rx, ry] = project(rallyPoint.lat, rallyPoint.lng);
-              return (
-                <g key="rally">
-                  <circle cx={rx} cy={ry} r={10} fill="var(--neon-soft)" />
-                  <circle cx={rx} cy={ry} r={5} fill="var(--primary-neon)" />
-                  <text
-                    x={rx + 12}
-                    y={ry + 4}
-                    fill="var(--primary-neon)"
-                    fontSize={8}
-                    fontFamily="var(--font-mono)"
-                  >
-                    RDV
-                  </text>
-                </g>
-              );
-            })()}
+            {rallyPoint &&
+              (() => {
+                const [rx, ry] = project(rallyPoint.lat, rallyPoint.lng);
+                return (
+                  <g key="rally">
+                    <circle cx={rx} cy={ry} r={10} fill="var(--neon-soft)" />
+                    <circle cx={rx} cy={ry} r={5} fill="var(--primary-neon)" />
+                    <text
+                      x={rx + 12}
+                      y={ry + 4}
+                      fill="var(--primary-neon)"
+                      fontSize={8}
+                      fontFamily="var(--font-mono)"
+                    >
+                      RDV
+                    </text>
+                  </g>
+                );
+              })()}
 
             {/* Other members */}
             {positionedMembers.map((member, i) => {
@@ -303,24 +299,25 @@ export function CrewCompass({ crewId, members, myUserId }: CrewCompassProps) {
             })}
 
             {/* My position */}
-            {myPos && (() => {
-              const [mx, my] = project(myPos.lat, myPos.lng);
-              return (
-                <g key="me">
-                  <circle cx={mx} cy={my} r={14} fill="rgba(255,255,255,0.1)" />
-                  <circle cx={mx} cy={my} r={7} fill="white" />
-                  <text
-                    x={mx + 10}
-                    y={my + 4}
-                    fill="var(--text-muted)"
-                    fontSize={7}
-                    fontFamily="var(--font-mono)"
-                  >
-                    Moi
-                  </text>
-                </g>
-              );
-            })()}
+            {myPos &&
+              (() => {
+                const [mx, my] = project(myPos.lat, myPos.lng);
+                return (
+                  <g key="me">
+                    <circle cx={mx} cy={my} r={14} fill="rgba(255,255,255,0.1)" />
+                    <circle cx={mx} cy={my} r={7} fill="white" />
+                    <text
+                      x={mx + 10}
+                      y={my + 4}
+                      fill="var(--text-muted)"
+                      fontSize={7}
+                      fontFamily="var(--font-mono)"
+                    >
+                      Moi
+                    </text>
+                  </g>
+                );
+              })()}
           </svg>
         ) : (
           <div

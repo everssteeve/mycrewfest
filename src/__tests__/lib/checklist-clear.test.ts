@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
+import { describe, expect, it } from "vitest";
+import { filterPendingItems, getDoneItemIds } from "@/lib/checklist-clear";
 
 type Item = { id: string; done: boolean };
 

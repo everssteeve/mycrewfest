@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
-import { parseJsonArray } from "@/lib/api";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
+import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import { BilanView } from "./_components/bilan-view";
 
 type PageContext = { params: Promise<{ id: string }> };
@@ -33,7 +33,16 @@ async function fetchBilanData(
       },
       orderBy: { startTime: "asc" },
       include: {
-        venue: { select: { id: true, name: true, type: true, capacity: true, latitude: true, longitude: true } },
+        venue: {
+          select: {
+            id: true,
+            name: true,
+            type: true,
+            capacity: true,
+            latitude: true,
+            longitude: true,
+          },
+        },
         artist: true,
       },
     }),
@@ -44,7 +53,10 @@ async function fetchBilanData(
   ]);
 
   const selectionMap = new Map(
-    userSelections.map((s) => [s.eventId, { id: s.id, status: s.status as "intéressé" | "must-see" | "vu" }]),
+    userSelections.map((s) => [
+      s.eventId,
+      { id: s.id, status: s.status as "intéressé" | "must-see" | "vu" },
+    ]),
   );
 
   const events: EventWithSelectionAndConfidence[] = selectedEvents.map((e) => ({
@@ -59,10 +71,25 @@ async function fetchBilanData(
     confidence: (e.confidence ?? "auto") as "auto" | "vérifié_humain",
     tags: parseJsonArray(e.tags),
     venue: e.venue
-      ? { id: e.venue.id, name: e.venue.name, type: e.venue.type, capacity: e.venue.capacity, latitude: e.venue.latitude, longitude: e.venue.longitude }
+      ? {
+          id: e.venue.id,
+          name: e.venue.name,
+          type: e.venue.type,
+          capacity: e.venue.capacity,
+          latitude: e.venue.latitude,
+          longitude: e.venue.longitude,
+        }
       : null,
     artist: e.artist
-      ? { id: e.artist.id, name: e.artist.name, description: e.artist.description, disciplines: parseJsonArray(e.artist.disciplines), countryCode: e.artist.countryCode, siteUrl: e.artist.siteUrl, instagram: e.artist.instagram }
+      ? {
+          id: e.artist.id,
+          name: e.artist.name,
+          description: e.artist.description,
+          disciplines: parseJsonArray(e.artist.disciplines),
+          countryCode: e.artist.countryCode,
+          siteUrl: e.artist.siteUrl,
+          instagram: e.artist.instagram,
+        }
       : null,
     selection: selectionMap.get(e.id) ?? null,
   }));
@@ -84,10 +111,6 @@ export default async function BilanPage({ params }: PageContext) {
   }
 
   return (
-    <BilanView
-      festEventId={id}
-      festivalName={data.festivalName}
-      initialEvents={data.events}
-    />
+    <BilanView festEventId={id} festivalName={data.festivalName} initialEvents={data.events} />
   );
 }

@@ -1,12 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  computeTotalProgrammeDurationMins,
   computeSelectedDurationMins,
   computeTimeCoveragePercent,
-  getDensityLabel,
-  getDensityColor,
-  formatDensityBadge,
+  computeTotalProgrammeDurationMins,
   type DensityEvent,
+  formatDensityBadge,
+  getDensityColor,
+  getDensityLabel,
 } from "@/lib/programme-density";
 
 const makeEvent = (overrides: Partial<DensityEvent> = {}): DensityEvent => ({
@@ -23,7 +23,11 @@ describe("computeTotalProgrammeDurationMins", () => {
     expect(computeTotalProgrammeDurationMins(events)).toBe(150);
   });
   it("falls back to start/end diff when durationMins is null", () => {
-    const e = makeEvent({ durationMins: null, startTime: "2026-06-19T20:00:00Z", endTime: "2026-06-19T21:30:00Z" });
+    const e = makeEvent({
+      durationMins: null,
+      startTime: "2026-06-19T20:00:00Z",
+      endTime: "2026-06-19T21:30:00Z",
+    });
     expect(computeTotalProgrammeDurationMins([e])).toBe(90);
   });
   it("defaults to 60 min when no duration info", () => {

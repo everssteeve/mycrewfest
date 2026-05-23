@@ -1,5 +1,5 @@
-import { type HTMLAttributes } from "react";
 import { clsx } from "clsx";
+import type { HTMLAttributes } from "react";
 
 type BadgeVariant = "ai" | "urgent" | "critical" | "info" | "success" | "default";
 
@@ -37,12 +37,7 @@ const variantStyles: Record<BadgeVariant, { bg: string; text: string; border?: s
   },
 };
 
-export function Badge({
-  variant = "default",
-  className,
-  children,
-  ...props
-}: BadgeProps) {
+export function Badge({ variant = "default", className, children, ...props }: BadgeProps) {
   const styles = variantStyles[variant];
 
   return (

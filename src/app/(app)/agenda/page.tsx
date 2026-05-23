@@ -1,15 +1,15 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
 import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import {
-  buildAgendaFestival,
-  sortFestivalsByStartDate,
-  getTotalEventCount,
   type AgendaEvent,
   type AgendaFestival,
+  buildAgendaFestival,
+  getTotalEventCount,
+  sortFestivalsByStartDate,
 } from "@/lib/agenda-view";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Mon agenda",
@@ -64,7 +64,7 @@ async function fetchAgendaData(userId: string): Promise<AgendaFestival[]> {
         fe.festival.slug,
         fe.festival.startDate.toISOString(),
         fe.festival.endDate.toISOString(),
-        events
+        events,
       );
     });
 
@@ -92,7 +92,14 @@ export default async function AgendaPage() {
     >
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+          }}
+        >
           <h1
             data-testid="agenda-title"
             style={{
@@ -141,7 +148,9 @@ export default async function AgendaPage() {
             data-testid="agenda-total-count"
             style={{ margin: "6px 0 0", fontSize: "0.85rem", color: "var(--text-dim, #666)" }}
           >
-            {totalEvents} événement{totalEvents > 1 ? "s" : ""} sélectionné{totalEvents > 1 ? "s" : ""} sur {festivals.length} festival{festivals.length > 1 ? "s" : ""}
+            {totalEvents} événement{totalEvents > 1 ? "s" : ""} sélectionné
+            {totalEvents > 1 ? "s" : ""} sur {festivals.length} festival
+            {festivals.length > 1 ? "s" : ""}
           </p>
         )}
       </div>
@@ -156,9 +165,7 @@ export default async function AgendaPage() {
             color: "var(--text-dim)",
           }}
         >
-          <p style={{ fontSize: "1rem", marginBottom: 16 }}>
-            Aucune sélection pour le moment.
-          </p>
+          <p style={{ fontSize: "1rem", marginBottom: 16 }}>Aucune sélection pour le moment.</p>
           <Link
             href="/catalogue"
             style={{
@@ -178,7 +185,10 @@ export default async function AgendaPage() {
       )}
 
       {/* Festival list */}
-      <div data-testid="agenda-festivals" style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+      <div
+        data-testid="agenda-festivals"
+        style={{ display: "flex", flexDirection: "column", gap: 32 }}
+      >
         {festivals.map((fest) => (
           <section key={fest.festEventId} data-testid={`agenda-festival-${fest.festivalSlug}`}>
             {/* Festival header */}

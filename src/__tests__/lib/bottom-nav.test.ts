@@ -1,9 +1,5 @@
-import { describe, it, expect } from "vitest";
-import {
-  extractFestEventId,
-  buildContextualHref,
-  isTabActive,
-} from "@/lib/bottom-nav";
+import { describe, expect, it } from "vitest";
+import { buildContextualHref, extractFestEventId, isTabActive } from "@/lib/bottom-nav";
 
 // ---------------------------------------------------------------------------
 // extractFestEventId
@@ -59,15 +55,11 @@ describe("buildContextualHref", () => {
   });
 
   it("builds carte href correctly", () => {
-    expect(buildContextualHref("carte", "fest-42", "/catalogue")).toBe(
-      "/festevent/fest-42/carte",
-    );
+    expect(buildContextualHref("carte", "fest-42", "/catalogue")).toBe("/festevent/fest-42/carte");
   });
 
   it("builds crew href correctly", () => {
-    expect(buildContextualHref("crew", "xyz", "/profil")).toBe(
-      "/festevent/xyz/crew",
-    );
+    expect(buildContextualHref("crew", "xyz", "/profil")).toBe("/festevent/xyz/crew");
   });
 
   it("returns fallback for crew when outside fest event", () => {
@@ -93,7 +85,9 @@ describe("isTabActive", () => {
   });
 
   it("matches contextually when inside a fest event with matching section", () => {
-    expect(isTabActive("/festevent/abc123/programme", "/festevent/abc123/programme", "programme")).toBe(true);
+    expect(
+      isTabActive("/festevent/abc123/programme", "/festevent/abc123/programme", "programme"),
+    ).toBe(true);
   });
 
   it("matches contextually for any fest event with the same section", () => {
@@ -101,7 +95,9 @@ describe("isTabActive", () => {
   });
 
   it("does not match wrong section in same fest event", () => {
-    expect(isTabActive("/festevent/abc123/planning", "/festevent/abc123/programme", "programme")).toBe(false);
+    expect(
+      isTabActive("/festevent/abc123/planning", "/festevent/abc123/programme", "programme"),
+    ).toBe(false);
   });
 
   it("home tab is active on catalogue", () => {

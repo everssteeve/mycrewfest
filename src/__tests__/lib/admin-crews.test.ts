@@ -1,11 +1,11 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  resolveCrewDisplayName,
+  type AdminCrewRow,
+  computeCrewStats,
   getCrewSizeTier,
   getCrewSizeTierColor,
+  resolveCrewDisplayName,
   sortCrewsBySize,
-  computeCrewStats,
-  type AdminCrewRow,
 } from "@/lib/admin-crews";
 
 const makeCrew = (
@@ -77,11 +77,7 @@ describe("sortCrewsBySize", () => {
 
 describe("computeCrewStats", () => {
   it("computes total, totalMembers, avgSize, withFestEvent", () => {
-    const crews = [
-      makeCrew("a", "A", 4, 2),
-      makeCrew("b", "B", 6, 0),
-      makeCrew("c", "C", 2, 1),
-    ];
+    const crews = [makeCrew("a", "A", 4, 2), makeCrew("b", "B", 6, 0), makeCrew("c", "C", 2, 1)];
     const stats = computeCrewStats(crews);
     expect(stats.total).toBe(3);
     expect(stats.totalMembers).toBe(12);

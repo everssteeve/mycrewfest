@@ -1,16 +1,16 @@
-import Link from "next/link";
-import type { Metadata } from "next";
-import { prisma } from "@/lib/prisma";
-import { ArrowLeft, Trophy, Calendar, Music2 } from "lucide-react";
-import {
-  rankByFollowers,
-  rankByUpcoming,
-  rankByProgramme,
-  getRankMedal,
-  type RankableFestival,
-} from "@/lib/festival-rankings";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { ArrowLeft, Calendar, Music2, Trophy } from "lucide-react";
+import type { Metadata } from "next";
+import Link from "next/link";
+import {
+  getRankMedal,
+  type RankableFestival,
+  rankByFollowers,
+  rankByProgramme,
+  rankByUpcoming,
+} from "@/lib/festival-rankings";
+import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
   title: "Palmarès — MyCrewFest",
@@ -124,7 +124,15 @@ function RankingRow({
             {city} · {format(new Date(startDate), "d MMM yyyy", { locale: fr })}
           </p>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", flexShrink: 0, gap: 2 }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "flex-end",
+            flexShrink: 0,
+            gap: 2,
+          }}
+        >
           <span
             style={{
               fontFamily: "var(--font-mono, monospace)",
@@ -135,7 +143,14 @@ function RankingRow({
           >
             {metaValue}
           </span>
-          <span style={{ fontSize: "0.65rem", color: "var(--text-dim, #666)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <span
+            style={{
+              fontSize: "0.65rem",
+              color: "var(--text-dim, #666)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+            }}
+          >
             {metaLabel}
           </span>
         </div>
@@ -276,8 +291,7 @@ export default async function PalmaresPage() {
               gap: 6,
             }}
           >
-            <Calendar size={14} aria-hidden="true" />
-            À venir ce mois-ci
+            <Calendar size={14} aria-hidden="true" />À venir ce mois-ci
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {topUpcoming.map((f) => (
@@ -345,7 +359,14 @@ export default async function PalmaresPage() {
           style={{ textAlign: "center", padding: "60px 0", color: "var(--text-dim, #666)" }}
         >
           <p>Aucun festival dans la base pour le moment.</p>
-          <Link href="/catalogue" style={{ color: "var(--primary-neon, #00FF66)", textDecoration: "none", fontWeight: 600 }}>
+          <Link
+            href="/catalogue"
+            style={{
+              color: "var(--primary-neon, #00FF66)",
+              textDecoration: "none",
+              fontWeight: 600,
+            }}
+          >
             Voir le catalogue
           </Link>
         </div>

@@ -36,10 +36,5 @@ export default async function ModeDeambuloirePage({ params }: PageContext) {
     redirect(`/festevent/${id}/programme`);
   }
 
-  return (
-    <DeambuloireView
-      festEventId={fe.id}
-      festivalId={fe.festivalId}
-    />
-  );
+  return <DeambuloireView festEventId={fe.id} festivalId={fe.festivalId} />;
 }

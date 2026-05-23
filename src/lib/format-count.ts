@@ -5,10 +5,7 @@ export function formatCount(n: number): string {
   return `${(n / 1_000_000).toFixed(1).replace(".0", "")}M`;
 }
 
-export function formatFestivalStats(count: {
-  events: number;
-  followers: number;
-}): string {
+export function formatFestivalStats(count: { events: number; followers: number }): string {
   const parts: string[] = [];
   if (count.events > 0) {
     parts.push(`${formatCount(count.events)} événement${count.events > 1 ? "s" : ""}`);

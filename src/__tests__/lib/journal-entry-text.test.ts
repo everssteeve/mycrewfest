@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { formatJournalEntryText } from "@/lib/journal-entry-text";
+import { describe, expect, it } from "vitest";
 import type { SouvenirEntry } from "@/app/(app)/festevent/[id]/journal/_components/journal-view";
+import { formatJournalEntryText } from "@/lib/journal-entry-text";
 
 type EntryInput = Pick<SouvenirEntry, "freeText" | "note" | "timestamp" | "event">;
 

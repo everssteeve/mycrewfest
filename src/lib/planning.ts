@@ -51,9 +51,7 @@ export function detectConflicts(
   );
 
   // Sort by start time for efficient pairwise comparison
-  const sorted = [...active].sort(
-    (a, b) => toMs(a.startTime) - toMs(b.startTime),
-  );
+  const sorted = [...active].sort((a, b) => toMs(a.startTime) - toMs(b.startTime));
 
   const conflicts: ConflictInfo[] = [];
 
@@ -147,10 +145,7 @@ export function sortEventsByTime(events: EventSummary[]): EventSummary[] {
  * Return events whose startTime falls on the given date (yyyy-MM-dd).
  * Events without a startTime are excluded.
  */
-export function filterEventsByDay(
-  events: EventSummary[],
-  date: string,
-): EventSummary[] {
+export function filterEventsByDay(events: EventSummary[], date: string): EventSummary[] {
   return events.filter((e) => {
     if (!e.startTime) return false;
     // Compare the date portion of the ISO string in local time
@@ -204,14 +199,9 @@ export function optimizePlanning(
   selected: string[],
   config: OptimizeConfig,
 ): OptimizeResult {
-  const {
-    startHour = 0,
-    endHour = 24,
-    preferEvenings = false,
-    comfortMarginMins,
-  } = config;
+  const { startHour = 0, endHour = 24, preferEvenings = false, comfortMarginMins } = config;
 
-  const margin = comfortMarginMins * 60_000;
+  const _margin = comfortMarginMins * 60_000;
   const mustSeeSet = new Set(selected);
 
   const cancelled: EventSummary[] = [];
@@ -258,24 +248,17 @@ export function optimizePlanning(
   const toArbitrate: EventSummary[] = [];
 
   for (const candidate of sorted) {
-    const conflicts = detectConflicts(
-      [...kept, candidate],
-      comfortMarginMins,
-    ).filter(
+    const conflicts = detectConflicts([...kept, candidate], comfortMarginMins).filter(
       (c) => c.eventA.id === candidate.id || c.eventB.id === candidate.id,
     );
 
-    const hasHardConflict = conflicts.some(
-      (c) => c.level === "overlap" || c.level === "tight",
-    );
+    const hasHardConflict = conflicts.some((c) => c.level === "overlap" || c.level === "tight");
 
     if (!hasHardConflict) {
       kept.push(candidate);
     } else if (mustSeeSet.has(candidate.id)) {
       // Must-see: force-keep it and flag the conflicting kept events instead
-      const conflictingKeptIds = new Set(
-        conflicts.flatMap((c) => [c.eventA.id, c.eventB.id]),
-      );
+      const conflictingKeptIds = new Set(conflicts.flatMap((c) => [c.eventA.id, c.eventB.id]));
       conflictingKeptIds.delete(candidate.id);
 
       for (const id of conflictingKeptIds) {

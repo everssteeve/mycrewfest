@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -16,10 +16,7 @@ export async function GET(request: NextRequest) {
   const festivalId = searchParams.get("festivalId");
 
   if (!festivalId) {
-    return NextResponse.json(
-      { error: "festivalId est requis." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "festivalId est requis." }, { status: 400 });
   }
 
   const now = new Date();

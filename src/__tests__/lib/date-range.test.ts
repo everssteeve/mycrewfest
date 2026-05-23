@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { getDatesInRange, toYMD } from "@/lib/date-range";
 
 describe("getDatesInRange", () => {
@@ -31,10 +31,7 @@ describe("getDatesInRange", () => {
 
   it("handles date strings with trailing time (normalises to local midnight)", () => {
     // Both start and end are noon on their respective dates — unambiguous in any timezone
-    const result = getDatesInRange(
-      "2026-07-10T12:00:00",
-      "2026-07-12T12:00:00",
-    );
+    const result = getDatesInRange("2026-07-10T12:00:00", "2026-07-12T12:00:00");
     expect(result).toHaveLength(3);
   });
 });

@@ -34,9 +34,13 @@ export function formatAppearanceCountdownLabel(
 
 export function getAppearanceCountdownColor(status: AppearanceCountdownStatus): string {
   switch (status) {
-    case "today": return "var(--danger-red, #FF3355)";
-    case "imminent": return "var(--warning-orange, #FF9900)";
-    case "upcoming": return "var(--secondary-cyan, #00E5FF)";
-    default: return "var(--text-dim, #666)";
+    case "today":
+      return "var(--danger-red, #FF3355)";
+    case "imminent":
+      return "var(--warning-orange, #FF9900)";
+    case "upcoming":
+      return "var(--secondary-cyan, #00E5FF)";
+    default:
+      return "var(--text-dim, #666)";
   }
 }

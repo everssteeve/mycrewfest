@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 import { JournalView, type SouvenirEntry } from "./_components/journal-view";
 
 type PageContext = { params: Promise<{ id: string }> };

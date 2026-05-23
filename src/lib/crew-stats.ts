@@ -18,7 +18,8 @@ export function countCrewAdmins<T extends CrewRoleable>(members: T[]): number {
  * (i.e. they are sharing their location in some form).
  */
 export function countCrewMembersWithGeoloc<T extends CrewGeolocable>(members: T[]): number {
-  return members.filter((m) => m.geolocStatus === "active" || m.geolocStatus === "background").length;
+  return members.filter((m) => m.geolocStatus === "active" || m.geolocStatus === "background")
+    .length;
 }
 
 /**

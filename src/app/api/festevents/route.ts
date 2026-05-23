@@ -1,22 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma";
 import { parseJsonArray } from "@/lib/api";
+import { prisma } from "@/lib/prisma";
 
 const createFestEventSchema = z.object({
   festivalSlug: z.string().min(1, "Le slug du festival est requis."),
   mode: z.enum(["solo", "crew"]).default("solo"),
-  programTypeOverride: z
-    .enum(["structuré", "déambulatoire", "hybride"])
-    .optional(),
+  programTypeOverride: z.enum(["structuré", "déambulatoire", "hybride"]).optional(),
   presenceDates: z.array(z.string()).optional(),
   arrivalConstraint: z.string().datetime({ offset: true }).optional().nullable(),
-  departureConstraint: z
-    .string()
-    .datetime({ offset: true })
-    .optional()
-    .nullable(),
+  departureConstraint: z.string().datetime({ offset: true }).optional().nullable(),
   comfortMarginMins: z.number().int().min(0).max(120).default(15),
 });
 
@@ -27,10 +21,7 @@ const createFestEventSchema = z.object({
 export async function GET(_request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   try {
@@ -100,20 +91,14 @@ export async function GET(_request: NextRequest) {
 export async function POST(request: NextRequest) {
   const session = await auth();
   if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Vous devez être connecté." },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: "Vous devez être connecté." }, { status: 401 });
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json(
-      { error: "Corps de requête invalide." },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Corps de requête invalide." }, { status: 400 });
   }
 
   const parsed = createFestEventSchema.safeParse(body);
@@ -140,10 +125,7 @@ export async function POST(request: NextRequest) {
   });
 
   if (!festival) {
-    return NextResponse.json(
-      { error: "Festival introuvable." },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "Festival introuvable." }, { status: 404 });
   }
 
   // Check if a FestEvent already exists for this user+festival
@@ -166,13 +148,9 @@ export async function POST(request: NextRequest) {
         festivalId: festival.id,
         mode,
         programTypeOverride: programTypeOverride ?? null,
-        presenceDates: presenceDates
-          ? JSON.stringify(presenceDates)
-          : null,
+        presenceDates: presenceDates ? JSON.stringify(presenceDates) : null,
         arrivalConstraint: arrivalConstraint ? new Date(arrivalConstraint) : null,
-        departureConstraint: departureConstraint
-          ? new Date(departureConstraint)
-          : null,
+        departureConstraint: departureConstraint ? new Date(departureConstraint) : null,
         comfortMarginMins,
       },
     });

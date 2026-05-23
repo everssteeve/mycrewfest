@@ -11,7 +11,10 @@ export function buildCsvRow(cells: (string | number | null | undefined)[]): stri
   return cells.map(escapeCsvCell).join(",");
 }
 
-export function buildCsvContent(headers: string[], rows: (string | number | null | undefined)[][]): string {
+export function buildCsvContent(
+  headers: string[],
+  rows: (string | number | null | undefined)[][],
+): string {
   const headerRow = buildCsvRow(headers);
   const dataRows = rows.map(buildCsvRow);
   return [headerRow, ...dataRows].join("\n");
@@ -31,7 +34,18 @@ export interface FestivalExportRow {
 }
 
 export function festivalsToCsv(festivals: FestivalExportRow[]): string {
-  const headers = ["ID", "Nom", "Slug", "Type", "Date début", "Date fin", "Ville", "Pays", "Statut", "Confidence"];
+  const headers = [
+    "ID",
+    "Nom",
+    "Slug",
+    "Type",
+    "Date début",
+    "Date fin",
+    "Ville",
+    "Pays",
+    "Statut",
+    "Confidence",
+  ];
   const rows = festivals.map((f) => [
     f.id,
     f.name,

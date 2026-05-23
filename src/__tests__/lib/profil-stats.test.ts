@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  countUpcomingFestEvents,
   countActiveFestEvents,
   countPastFestEvents,
+  countUpcomingFestEvents,
 } from "@/lib/profil-stats";
 
 const NOW = new Date("2026-05-23T12:00:00");

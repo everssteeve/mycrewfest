@@ -35,7 +35,11 @@ export function computeScoreBreakdown(stats: FestivalierStats): ScoreBreakdown {
     festivals: { count: stats.festEventsCount, pts: stats.festEventsCount * 10, multiplier: 10 },
     vus: { count: stats.vuCount, pts: stats.vuCount * 1, multiplier: 1 },
     souvenirs: { count: stats.souvenirsCount, pts: stats.souvenirsCount * 2, multiplier: 2 },
-    suivis: { count: stats.followedFestivalsCount, pts: stats.followedFestivalsCount * 3, multiplier: 3 },
+    suivis: {
+      count: stats.followedFestivalsCount,
+      pts: stats.followedFestivalsCount * 3,
+      multiplier: 3,
+    },
   };
 }
 
@@ -46,7 +50,8 @@ export function computeFestivalierScore(stats: FestivalierStats): FestivalierSco
     stats.souvenirsCount * 2 +
     stats.followedFestivalsCount * 3;
 
-  const current = RANK_THRESHOLDS.find((t) => score >= t.min) ?? RANK_THRESHOLDS[RANK_THRESHOLDS.length - 1];
+  const current =
+    RANK_THRESHOLDS.find((t) => score >= t.min) ?? RANK_THRESHOLDS[RANK_THRESHOLDS.length - 1];
   const currentIdx = RANK_THRESHOLDS.indexOf(current);
   const next = currentIdx > 0 ? RANK_THRESHOLDS[currentIdx - 1] : null;
 

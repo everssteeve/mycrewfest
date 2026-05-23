@@ -1,23 +1,21 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
+  type AdminSignalRow,
+  countActiveSignals,
+  countSignalsByScope,
+  filterSignalsByScope,
+  formatSignalExpiry,
   formatSignalScope,
   getSignalScopeColor,
   isSignalExpired,
-  formatSignalExpiry,
-  resolveSignalLabel,
   resolveSignalAuthorName,
-  countSignalsByScope,
-  countActiveSignals,
+  resolveSignalLabel,
   sortSignalsByRecency,
-  filterSignalsByScope,
-  type AdminSignalRow,
 } from "@/lib/admin-signals";
 
 const now = new Date("2024-06-15T12:00:00Z");
 
-const makeSignal = (
-  overrides: Partial<AdminSignalRow> = {},
-): AdminSignalRow => ({
+const makeSignal = (overrides: Partial<AdminSignalRow> = {}): AdminSignalRow => ({
   id: "sig-1",
   scope: "communauté",
   description: null,
@@ -86,25 +84,37 @@ describe("formatSignalExpiry", () => {
 
 describe("resolveSignalLabel", () => {
   it("prefers predefinedPhrase", () => {
-    expect(resolveSignalLabel({ predefinedPhrase: "Bouchon entrée", description: "desc" })).toBe("Bouchon entrée");
+    expect(resolveSignalLabel({ predefinedPhrase: "Bouchon entrée", description: "desc" })).toBe(
+      "Bouchon entrée",
+    );
   });
   it("falls back to description", () => {
-    expect(resolveSignalLabel({ predefinedPhrase: null, description: "File d'attente" })).toBe("File d'attente");
+    expect(resolveSignalLabel({ predefinedPhrase: null, description: "File d'attente" })).toBe(
+      "File d'attente",
+    );
   });
   it("falls back to default label", () => {
-    expect(resolveSignalLabel({ predefinedPhrase: null, description: null })).toBe("Signal sans description");
+    expect(resolveSignalLabel({ predefinedPhrase: null, description: null })).toBe(
+      "Signal sans description",
+    );
   });
 });
 
 describe("resolveSignalAuthorName", () => {
   it("prefers pseudo", () => {
-    expect(resolveSignalAuthorName({ name: "Jean", pseudo: "JDup", email: "j@test.dev" })).toBe("JDup");
+    expect(resolveSignalAuthorName({ name: "Jean", pseudo: "JDup", email: "j@test.dev" })).toBe(
+      "JDup",
+    );
   });
   it("falls back to name", () => {
-    expect(resolveSignalAuthorName({ name: "Jean", pseudo: null, email: "j@test.dev" })).toBe("Jean");
+    expect(resolveSignalAuthorName({ name: "Jean", pseudo: null, email: "j@test.dev" })).toBe(
+      "Jean",
+    );
   });
   it("falls back to email", () => {
-    expect(resolveSignalAuthorName({ name: null, pseudo: null, email: "j@test.dev" })).toBe("j@test.dev");
+    expect(resolveSignalAuthorName({ name: null, pseudo: null, email: "j@test.dev" })).toBe(
+      "j@test.dev",
+    );
   });
 });
 
@@ -116,8 +126,8 @@ describe("countSignalsByScope", () => {
       makeSignal({ scope: "communauté" }),
     ];
     const counts = countSignalsByScope(signals);
-    expect(counts["communauté"]).toBe(2);
-    expect(counts["crew"]).toBe(1);
+    expect(counts.communauté).toBe(2);
+    expect(counts.crew).toBe(1);
   });
   it("returns empty object for no signals", () => {
     expect(countSignalsByScope([])).toEqual({});
