@@ -227,3 +227,33 @@ describe("countUpcomingFestivals", () => {
     expect(countUpcomingFestivals(festivals, NOW, 30)).toBe(2);
   });
 });
+
+// ---------------------------------------------------------------------------
+// countFestivalsWithCompleteProgram
+// ---------------------------------------------------------------------------
+
+import { countFestivalsWithCompleteProgram, type ProgramStatusFilterable } from "@/lib/catalogue-filter";
+
+const ps = (programStatus: string | null | undefined): ProgramStatusFilterable => ({ programStatus });
+
+describe("countFestivalsWithCompleteProgram", () => {
+  it("returns 0 for empty list", () => {
+    expect(countFestivalsWithCompleteProgram([])).toBe(0);
+  });
+
+  it("returns 0 when no festival has complete program", () => {
+    expect(countFestivalsWithCompleteProgram([ps("partiel"), ps("bientôt_disponible"), ps(null)])).toBe(0);
+  });
+
+  it("counts festivals with programStatus complet", () => {
+    expect(countFestivalsWithCompleteProgram([ps("complet"), ps("partiel"), ps("complet")])).toBe(2);
+  });
+
+  it("ignores festivals with no programStatus", () => {
+    expect(countFestivalsWithCompleteProgram([ps(undefined), ps("complet")])).toBe(1);
+  });
+
+  it("returns total when all have complete program", () => {
+    expect(countFestivalsWithCompleteProgram([ps("complet"), ps("complet")])).toBe(2);
+  });
+});

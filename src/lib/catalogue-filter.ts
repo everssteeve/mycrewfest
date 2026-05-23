@@ -119,6 +119,20 @@ export function countUpcomingFestivals<T extends ActiveFestFilterable>(
   }).length;
 }
 
+export interface ProgramStatusFilterable {
+  programStatus?: string | null;
+}
+
+/**
+ * Returns the number of festivals whose programStatus is "complet".
+ * Festivals with no programStatus are ignored.
+ */
+export function countFestivalsWithCompleteProgram<T extends ProgramStatusFilterable>(
+  festivals: T[],
+): number {
+  return festivals.filter((f) => f.programStatus === "complet").length;
+}
+
 export const MONTH_NAMES_FR: Record<number, string> = {
   1: "Janv.",
   2: "Févr.",

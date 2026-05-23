@@ -5,7 +5,7 @@ import { Search, Heart } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
 import { compareByTemporalRelevance } from "@/lib/festival-temporal";
-import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
+import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 type FilterType = "tous" | FestivalType;
@@ -47,6 +47,11 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
 
   const upcomingCount = useMemo(
     () => countUpcomingFestivals(initialFestivals),
+    [initialFestivals],
+  );
+
+  const completeProgramCount = useMemo(
+    () => countFestivalsWithCompleteProgram(initialFestivals),
     [initialFestivals],
   );
 
@@ -366,6 +371,24 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
             }}
           >
             ▷ {upcomingCount} dans 30j
+          </span>
+        )}
+        {completeProgramCount > 0 && (
+          <span
+            data-testid="catalogue-complete-programme-count"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              fontWeight: 700,
+              color: "var(--secondary-cyan)",
+              background: "rgba(0,229,255,0.08)",
+              border: "1px solid rgba(0,229,255,0.25)",
+              borderRadius: "var(--radius-full)",
+              padding: "2px 8px",
+            }}
+            title={`${completeProgramCount} festival${completeProgramCount !== 1 ? "s" : ""} avec programme complet`}
+          >
+            ✓ {completeProgramCount} complet{completeProgramCount !== 1 ? "s" : ""}
           </span>
         )}
       </div>
