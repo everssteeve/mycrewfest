@@ -5,7 +5,7 @@ import { MapPin, Eye, Clock, Star, Copy, Check, Tag } from "lucide-react";
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
-import { computeBilan, formatBilanDuration } from "@/lib/bilan";
+import { computeBilan, formatBilanDuration, formatAvgHour } from "@/lib/bilan";
 import { generateBilanText } from "@/lib/bilan-text";
 import { computeSelectionCompletionPercent, computeTotalSelected } from "@/lib/bilan-progress";
 
@@ -545,6 +545,49 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
               }}
             >
               {stats.topTag}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Avg start hour */}
+      {stats.avgStartHour !== null && (
+        <div
+          data-testid="bilan-avg-hour"
+          style={{
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-md)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-sm)",
+          }}
+        >
+          <Clock size={16} style={{ color: "var(--warning-orange)", flexShrink: 0 }} aria-hidden="true" />
+          <div>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                margin: 0,
+              }}
+            >
+              Heure moyenne de début
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-base)",
+                fontWeight: "var(--fw-medium)",
+                color: "var(--text-main)",
+                margin: 0,
+              }}
+            >
+              {formatAvgHour(stats.avgStartHour)}
             </p>
           </div>
         </div>

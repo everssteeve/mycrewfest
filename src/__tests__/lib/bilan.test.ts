@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { computeBilan, formatBilanDuration, type BilantableEvent } from "@/lib/bilan";
+import { computeBilan, formatBilanDuration, formatAvgHour, type BilantableEvent } from "@/lib/bilan";
 
 function ev(
   status: string | null,
-  opts: { durationMins?: number; venueName?: string; title?: string; tags?: string[] } = {},
+  opts: { durationMins?: number; venueName?: string; title?: string; tags?: string[]; startTime?: string } = {},
 ): BilantableEvent {
   return {
     title: opts.title ?? "Event",
@@ -11,6 +11,7 @@ function ev(
     selection: status ? { status } : null,
     venue: opts.venueName ? { name: opts.venueName } : null,
     tags: opts.tags ?? null,
+    startTime: opts.startTime ?? null,
   };
 }
 
@@ -142,5 +143,53 @@ describe("formatBilanDuration", () => {
     expect(formatBilanDuration(90)).toBe("1h30");
     expect(formatBilanDuration(75)).toBe("1h15");
     expect(formatBilanDuration(150)).toBe("2h30");
+  });
+});
+
+describe("computeBilan — avgStartHour", () => {
+  it("returns null when no seen events have startTime", () => {
+    const events = [ev("vu"), ev("vu")];
+    expect(computeBilan(events).avgStartHour).toBeNull();
+  });
+
+  it("returns average hour in minutes for events at a fixed time", () => {
+    const events = [
+      ev("vu", { startTime: "2025-07-15T21:00:00Z" }),
+      ev("vu", { startTime: "2025-07-15T21:00:00Z" }),
+    ];
+    const stats = computeBilan(events);
+    expect(stats.avgStartHour).not.toBeNull();
+  });
+
+  it("ignores non-vu events when computing average", () => {
+    const events = [
+      ev("vu", { startTime: "2025-07-15T21:00:00Z" }),
+      ev("must-see", { startTime: "2025-07-15T10:00:00Z" }),
+    ];
+    const statsAll = computeBilan(events);
+    const statsVuOnly = computeBilan([ev("vu", { startTime: "2025-07-15T21:00:00Z" })]);
+    expect(statsAll.avgStartHour).toBe(statsVuOnly.avgStartHour);
+  });
+
+  it("ignores vu events without startTime in average", () => {
+    const events = [
+      ev("vu", { startTime: "2025-07-15T20:00:00Z" }),
+      ev("vu"),
+    ];
+    const stats = computeBilan(events);
+    const singleStats = computeBilan([ev("vu", { startTime: "2025-07-15T20:00:00Z" })]);
+    expect(stats.avgStartHour).toBe(singleStats.avgStartHour);
+  });
+});
+
+describe("formatAvgHour", () => {
+  it("formats whole hours (0 minutes)", () => {
+    expect(formatAvgHour(21 * 60)).toBe("21h");
+    expect(formatAvgHour(20 * 60)).toBe("20h");
+  });
+
+  it("formats hours with minutes", () => {
+    expect(formatAvgHour(21 * 60 + 30)).toBe("21h30");
+    expect(formatAvgHour(14 * 60 + 5)).toBe("14h05");
   });
 });

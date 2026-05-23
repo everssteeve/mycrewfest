@@ -4,6 +4,7 @@ export interface BilantableEvent {
   selection?: { status: string } | null;
   venue?: { name: string } | null;
   tags?: string[] | null;
+  startTime?: string | null;
 }
 
 export interface BilanStats {
@@ -14,6 +15,7 @@ export interface BilanStats {
   topVenue: string | null;
   uniqueVenues: number;
   topTag: string | null;
+  avgStartHour: number | null;
 }
 
 export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats {
@@ -54,6 +56,17 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     }
   }
 
+  const seenWithTime = seen.filter((e) => e.startTime);
+  let avgStartHour: number | null = null;
+  if (seenWithTime.length > 0) {
+    const totalMins = seenWithTime.reduce((acc, e) => {
+      const d = new Date(e.startTime as string);
+      return acc + d.getHours() * 60 + d.getMinutes();
+    }, 0);
+    const avgMins = totalMins / seenWithTime.length;
+    avgStartHour = Math.round(avgMins * 10) / 10;
+  }
+
   return {
     totalSeen: seen.length,
     totalDurationMins,
@@ -62,7 +75,19 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     topVenue,
     uniqueVenues: venueCounts.size,
     topTag,
+    avgStartHour,
   };
+}
+
+/**
+ * Formats a fractional hour value (e.g. 21.5) as "21h30".
+ * avgStartHour is stored in minutes-since-midnight / 1 (0..1440 range as float minutes).
+ * Actually stored as fractional hours, so 21.5 = 21h30.
+ */
+export function formatAvgHour(avgMins: number): string {
+  const h = Math.floor(avgMins / 60);
+  const m = Math.round(avgMins % 60);
+  return m === 0 ? `${h}h` : `${h}h${m.toString().padStart(2, "0")}`;
 }
 
 export function formatBilanDuration(mins: number): string {
