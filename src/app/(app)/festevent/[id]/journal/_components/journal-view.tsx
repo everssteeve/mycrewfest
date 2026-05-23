@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { BookOpen, Share2, Download, Trash2, Clock, Search, X, Copy, Check } from "lucide-react";
-import { filterAndGroupByDay, countCrewSharedEntries, type JournalEntryTypeFilter } from "@/lib/journal-filter";
+import { filterAndGroupByDay, countCrewSharedEntries, countEventLinkedEntries, type JournalEntryTypeFilter } from "@/lib/journal-filter";
 import { Users } from "lucide-react";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
 import { isEscapeKey } from "@/lib/keyboard-search";
@@ -639,6 +639,8 @@ export function JournalView({
 
   const daysWithPhotos = useMemo(() => countDaysWithPhotos(souvenirs), [souvenirs]);
 
+  const eventLinkedCount = useMemo(() => countEventLinkedEntries(souvenirs), [souvenirs]);
+
   const hasCrewEntries = useMemo(() => souvenirs.some((s) => s.shareWithCrew), [souvenirs]);
   const hasEventEntries = useMemo(() => souvenirs.some((s) => s.eventId !== null), [souvenirs]);
 
@@ -841,6 +843,19 @@ export function JournalView({
             title={`Jour le plus actif : ${mostActiveDay.date}`}
           >
             ★ {new Date(mostActiveDay.date).toLocaleDateString("fr-FR", { weekday: "short" })} ({mostActiveDay.count})
+          </span>
+        )}
+        {eventLinkedCount > 0 && eventLinkedCount < souvenirs.length && (
+          <span
+            data-testid="journal-stats-event-linked"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--accent-pink)",
+            }}
+            title="Entrées liées à un événement du programme"
+          >
+            {eventLinkedCount} liés
           </span>
         )}
       </div>

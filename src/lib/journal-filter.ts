@@ -52,6 +52,13 @@ export interface EntryTypeFilterable {
 }
 
 /**
+ * Returns the count of entries linked to a specific event (eventId is not null).
+ */
+export function countEventLinkedEntries<T extends EntryTypeFilterable>(entries: T[]): number {
+  return entries.filter((e) => e.eventId !== null).length;
+}
+
+/**
  * Filters journal entries by their type:
  * - "event"  : entries linked to a specific event (eventId is set)
  * - "libre"  : free-form entries not linked to any event

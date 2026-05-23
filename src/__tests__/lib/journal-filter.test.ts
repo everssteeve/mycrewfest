@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { matchesJournalQuery, filterAndGroupByDay, filterByCrew, filterByEntryType, countCrewSharedEntries } from "@/lib/journal-filter";
+import { matchesJournalQuery, filterAndGroupByDay, filterByCrew, filterByEntryType, countCrewSharedEntries, countEventLinkedEntries } from "@/lib/journal-filter";
 import type { SouvenirEntry } from "@/app/(app)/festevent/[id]/journal/_components/journal-view";
 
 function entry(
@@ -223,5 +223,27 @@ describe("countCrewSharedEntries", () => {
 
   it("returns total when all entries are shared", () => {
     expect(countCrewSharedEntries([shared(true), shared(true), shared(true)])).toBe(3);
+  });
+});
+
+describe("countEventLinkedEntries", () => {
+  const linked = (eventId: string | null) => ({ eventId });
+
+  it("returns 0 for empty list", () => {
+    expect(countEventLinkedEntries([])).toBe(0);
+  });
+
+  it("counts only entries with a non-null eventId", () => {
+    const entries = [linked("evt-1"), linked(null), linked("evt-2"), linked(null)];
+    expect(countEventLinkedEntries(entries)).toBe(2);
+  });
+
+  it("returns 0 when all entries are libre (null eventId)", () => {
+    expect(countEventLinkedEntries([linked(null), linked(null)])).toBe(0);
+  });
+
+  it("returns total when all entries are linked", () => {
+    const entries = [linked("a"), linked("b"), linked("c")];
+    expect(countEventLinkedEntries(entries)).toBe(3);
   });
 });
