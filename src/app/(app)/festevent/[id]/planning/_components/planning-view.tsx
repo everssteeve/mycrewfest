@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ChevronDown, CalendarArrowDown, Copy, Check } from "lucide-react";
-import { detectConflicts, filterEventsByDay, sortEventsByTime } from "@/lib/planning";
+import { detectConflicts, filterEventsByDay, sortEventsByTime, computeDayFreeTime } from "@/lib/planning";
 import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 import { toggleVuStatus } from "@/lib/selection";
@@ -410,6 +410,8 @@ export function PlanningView({
     return Math.round(mins);
   }, [dayEvents]);
 
+  const freeTimeMins = useMemo(() => computeDayFreeTime(dayEvents), [dayEvents]);
+
   // Apply must-see-only filter for display (conflicts/totalMins use full dayEvents)
   const displayedEvents = useMemo(
     () => applyPlanningMustSeeFilter(dayEvents, mustSeeOnly),
@@ -528,6 +530,22 @@ export function PlanningView({
         >
           {formatBilanDuration(totalMins)}
         </span>
+        {freeTimeMins > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)" }}>·</span>
+            <span
+              data-testid="planning-free-time"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-sm)",
+                color: "var(--primary-neon)",
+              }}
+              title="Temps libre entre tes concerts"
+            >
+              {formatBilanDuration(freeTimeMins)} libre{freeTimeMins > 60 ? "s" : ""}
+            </span>
+          </>
+        )}
         <button
           type="button"
           onClick={() => setMustSeeOnly((v) => !v)}

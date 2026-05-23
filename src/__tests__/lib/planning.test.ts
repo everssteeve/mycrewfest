@@ -9,6 +9,8 @@ import {
   detectConflicts,
   filterEventsByDay,
   sortEventsByTime,
+  computeDayFreeTime,
+  type FreeTimeEvent,
 } from "@/lib/planning";
 import type { EventSummary } from "@/types";
 
@@ -220,5 +222,69 @@ describe("sortEventsByTime", () => {
 
   it("handles empty input", () => {
     expect(sortEventsByTime([])).toEqual([]);
+  });
+});
+
+describe("computeDayFreeTime", () => {
+  const ev = (startTime: string | null, endTime?: string | null, durationMins?: number | null): FreeTimeEvent =>
+    ({ startTime, endTime: endTime ?? null, durationMins: durationMins ?? null });
+
+  it("returns 0 for empty array", () => {
+    expect(computeDayFreeTime([])).toBe(0);
+  });
+
+  it("returns 0 for a single event", () => {
+    expect(computeDayFreeTime([ev("2025-07-19T14:00:00Z", "2025-07-19T15:00:00Z")])).toBe(0);
+  });
+
+  it("computes gap between two events (using endTime)", () => {
+    const events = [
+      ev("2025-07-19T14:00:00Z", "2025-07-19T15:00:00Z"),
+      ev("2025-07-19T16:00:00Z", "2025-07-19T17:00:00Z"),
+    ];
+    expect(computeDayFreeTime(events)).toBe(60);
+  });
+
+  it("computes gap using durationMins when endTime is absent", () => {
+    const events = [
+      ev("2025-07-19T14:00:00Z", null, 60), // ends at 15:00
+      ev("2025-07-19T16:00:00Z"),             // starts at 16:00
+    ];
+    expect(computeDayFreeTime(events)).toBe(60);
+  });
+
+  it("counts 0 for overlapping events (no negative gaps)", () => {
+    const events = [
+      ev("2025-07-19T14:00:00Z", "2025-07-19T16:00:00Z"),
+      ev("2025-07-19T15:00:00Z", "2025-07-19T17:00:00Z"),
+    ];
+    expect(computeDayFreeTime(events)).toBe(0);
+  });
+
+  it("sums gaps across multiple events", () => {
+    const events = [
+      ev("2025-07-19T12:00:00Z", "2025-07-19T13:00:00Z"),
+      ev("2025-07-19T14:00:00Z", "2025-07-19T15:00:00Z"),
+      ev("2025-07-19T17:00:00Z", "2025-07-19T18:00:00Z"),
+    ];
+    // Gap 1: 13h→14h = 60min, Gap 2: 15h→17h = 120min
+    expect(computeDayFreeTime(events)).toBe(180);
+  });
+
+  it("ignores events without startTime", () => {
+    const events = [
+      ev(null, null, 60),
+      ev("2025-07-19T14:00:00Z", "2025-07-19T15:00:00Z"),
+      ev("2025-07-19T16:00:00Z", "2025-07-19T17:00:00Z"),
+    ];
+    expect(computeDayFreeTime(events)).toBe(60);
+  });
+
+  it("sorts events by startTime before computing gaps", () => {
+    const events = [
+      ev("2025-07-19T16:00:00Z", "2025-07-19T17:00:00Z"),
+      ev("2025-07-19T14:00:00Z", "2025-07-19T15:00:00Z"),
+    ];
+    expect(computeDayFreeTime(events)).toBe(60);
   });
 });

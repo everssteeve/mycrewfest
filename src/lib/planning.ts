@@ -293,3 +293,48 @@ export function optimizePlanning(
 
   return { kept, toArbitrate, dropped, cancelled };
 }
+
+// ---------------------------------------------------------------------------
+// computeDayFreeTime
+// ---------------------------------------------------------------------------
+
+export interface FreeTimeEvent {
+  startTime?: string | null;
+  endTime?: string | null;
+  durationMins?: number | null;
+}
+
+/**
+ * Computes the total gap time (in minutes) between consecutive events in a day.
+ * Only positive gaps are counted — overlapping events contribute 0.
+ * Returns 0 if fewer than 2 events have a startTime.
+ */
+export function computeDayFreeTime(events: FreeTimeEvent[]): number {
+  const withTime = events
+    .filter((e) => !!e.startTime)
+    .sort((a, b) => new Date(a.startTime!).getTime() - new Date(b.startTime!).getTime());
+
+  if (withTime.length < 2) return 0;
+
+  let freeTime = 0;
+  for (let i = 0; i < withTime.length - 1; i++) {
+    const current = withTime[i];
+    const next = withTime[i + 1];
+
+    const currentStart = new Date(current.startTime!).getTime();
+    let currentEnd: number;
+    if (current.endTime) {
+      currentEnd = new Date(current.endTime).getTime();
+    } else if (current.durationMins) {
+      currentEnd = currentStart + current.durationMins * 60_000;
+    } else {
+      currentEnd = currentStart + 60 * 60_000;
+    }
+
+    const nextStart = new Date(next.startTime!).getTime();
+    const gapMins = (nextStart - currentEnd) / 60_000;
+    if (gapMins > 0) freeTime += gapMins;
+  }
+
+  return Math.round(freeTime);
+}
