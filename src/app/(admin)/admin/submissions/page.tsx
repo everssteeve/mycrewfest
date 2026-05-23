@@ -1,5 +1,12 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import {
+  getSubmissionStatusColor,
+  getSubmissionStatusLabel,
+  countSubmissionsByStatus,
+  isSubmissionActionable,
+  buildSubmissionSlug,
+} from "@/lib/admin-submissions";
 
 async function getSubmissions() {
   return prisma.festivalSubmission.findMany({
@@ -10,30 +17,64 @@ async function getSubmissions() {
   });
 }
 
-const statusColors: Record<string, string> = {
-  en_attente: "var(--warning-orange)",
-  en_traitement: "var(--primary-cyan)",
-  ajouté: "var(--primary-neon)",
-  rejeté: "var(--danger-red)",
-};
-
 export default async function AdminSubmissionsPage() {
   const submissions = await getSubmissions();
+  const counts = countSubmissionsByStatus(
+    submissions.map((s) => ({ id: s.id, nameProposed: s.nameProposed, status: s.status, submittedAt: s.submittedAt })),
+  );
 
   return (
     <div>
       <h1
+        data-testid="admin-submissions-title"
         style={{
           fontFamily: "var(--font-display)",
           fontSize: "var(--fs-2xl)",
           color: "var(--text-main)",
           textTransform: "uppercase",
           letterSpacing: "0.05em",
-          margin: "0 0 var(--space-xl)",
+          margin: "0 0 var(--space-lg)",
         }}
       >
         Soumissions
       </h1>
+
+      {/* KPIs */}
+      <div
+        data-testid="admin-submissions-kpis"
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: "var(--space-sm)",
+          marginBottom: "var(--space-xl)",
+        }}
+      >
+        {[
+          { label: "En attente", value: counts.en_attente, color: "var(--warning-orange)", testid: "admin-submissions-kpi-pending" },
+          { label: "En traitement", value: counts.en_traitement, color: "var(--secondary-cyan)", testid: "admin-submissions-kpi-processing" },
+          { label: "Ajoutés", value: counts.ajouté, color: "var(--primary-neon)", testid: "admin-submissions-kpi-accepted" },
+          { label: "Rejetés", value: counts.rejeté, color: "var(--danger-red)", testid: "admin-submissions-kpi-rejected" },
+        ].map((kpi) => (
+          <div
+            key={kpi.label}
+            data-testid={kpi.testid}
+            style={{
+              background: "var(--bg-surface)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "var(--radius-md)",
+              padding: "var(--space-md)",
+              textAlign: "center",
+            }}
+          >
+            <p style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-2xl)", color: kpi.color, margin: 0, fontWeight: "var(--fw-bold)" }}>
+              {kpi.value}
+            </p>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", margin: "4px 0 0" }}>
+              {kpi.label}
+            </p>
+          </div>
+        ))}
+      </div>
 
       <div
         style={{
@@ -69,35 +110,24 @@ export default async function AdminSubmissionsPage() {
             {submissions.map((sub, i) => {
               const author = sub.author;
               const authorName = author.pseudo ?? author.name ?? author.email;
+              const statusColor = getSubmissionStatusColor(sub.status);
 
               return (
                 <tr
                   key={sub.id}
+                  data-testid={`admin-submission-row-${sub.id}`}
                   style={{
                     borderBottom:
                       i < submissions.length - 1 ? "1px solid var(--border-color)" : "none",
                   }}
                 >
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                    <span
-                      style={{
-                        fontFamily: "var(--font-body)",
-                        fontSize: "var(--fs-sm)",
-                        color: "var(--text-main)",
-                      }}
-                    >
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-main)" }}>
                       {authorName}
                     </span>
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                    <span
-                      style={{
-                        fontFamily: "var(--font-body)",
-                        fontSize: "var(--fs-sm)",
-                        color: "var(--text-main)",
-                        fontWeight: "var(--fw-bold)",
-                      }}
-                    >
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-main)", fontWeight: "var(--fw-bold)" }}>
                       {sub.nameProposed}
                     </span>
                   </td>
@@ -106,15 +136,9 @@ export default async function AdminSubmissionsPage() {
                       href={sub.officialUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "var(--fs-xs)",
-                        color: "var(--primary-cyan)",
-                        textDecoration: "none",
-                      }}
+                      style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--secondary-cyan)", textDecoration: "none" }}
                     >
-                      {sub.officialUrl.slice(0, 40)}
-                      {sub.officialUrl.length > 40 ? "…" : ""}
+                      {sub.officialUrl.slice(0, 40)}{sub.officialUrl.length > 40 ? "…" : ""}
                     </a>
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
@@ -122,44 +146,30 @@ export default async function AdminSubmissionsPage() {
                       style={{
                         padding: "2px 8px",
                         borderRadius: "var(--radius-sm)",
-                        border: `1px solid ${statusColors[sub.status] ?? "var(--border-color)"}`,
+                        border: `1px solid ${statusColor}`,
                         fontFamily: "var(--font-body)",
                         fontSize: "var(--fs-xs)",
-                        color: statusColors[sub.status] ?? "var(--text-dim)",
+                        color: statusColor,
                         textTransform: "uppercase",
                         letterSpacing: "0.04em",
                       }}
                     >
-                      {sub.status}
+                      {getSubmissionStatusLabel(sub.status)}
                     </span>
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                    <span
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "var(--fs-xs)",
-                        color: "var(--text-dim)",
-                      }}
-                    >
+                    <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)" }}>
                       {new Date(sub.submittedAt).toLocaleDateString("fr-FR")}
                     </span>
                   </td>
                   <td style={{ padding: "var(--space-sm) var(--space-md)" }}>
-                    {sub.status === "en_attente" || sub.status === "en_traitement" ? (
+                    {isSubmissionActionable(sub.status) ? (
                       <div style={{ display: "flex", gap: "var(--space-xs)" }}>
                         <AcceptButton id={sub.id} name={sub.nameProposed} url={sub.officialUrl} />
                         <RejectButton id={sub.id} />
                       </div>
                     ) : (
-                      <span
-                        style={{
-                          fontFamily: "var(--font-body)",
-                          fontSize: "var(--fs-xs)",
-                          color: "var(--text-dim)",
-                        }}
-                      >
-                        —
-                      </span>
+                      <span style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-xs)", color: "var(--text-dim)" }}>—</span>
                     )}
                   </td>
                 </tr>
@@ -190,11 +200,7 @@ function AcceptButton({ id, name, url }: { id: string; name: string; url: string
   async function accept() {
     "use server";
 
-    // Create a festival from the submission
-    const slug = name
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
+    const slug = buildSubmissionSlug(name);
 
     const newFestival = await prisma.festival.create({
       data: {
