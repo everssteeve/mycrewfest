@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -234,6 +234,11 @@ export function ProgrammeView({
 
   const avgEventDurationMins = useMemo(
     () => computeAvgEventDurationMins(filteredEvents),
+    [filteredEvents],
+  );
+
+  const maxEventDurationMins = useMemo(
+    () => getMaxEventDurationMins(filteredEvents),
     [filteredEvents],
   );
 
@@ -837,6 +842,22 @@ export function ProgrammeView({
               title="Durée moyenne par événement"
             >
               moy. {formatBilanDuration(avgEventDurationMins)}
+            </span>
+          </>
+        )}
+        {maxEventDurationMins !== null && avgEventDurationMins !== null && maxEventDurationMins > avgEventDurationMins && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-max-duration"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--warning-orange)",
+              }}
+              title="Durée du plus long événement"
+            >
+              max {formatBilanDuration(maxEventDurationMins)}
             </span>
           </>
         )}

@@ -79,6 +79,28 @@ export function computeAvgEventDurationMins<T extends DurationSummable>(
   return count === 0 ? null : Math.round(total / count);
 }
 
+/**
+ * Returns the maximum event duration in minutes across all events, or null when
+ * no events have duration data. Uses durationMins when available, otherwise derives
+ * from startTime/endTime. Only positive durations are considered.
+ */
+export function getMaxEventDurationMins<T extends DurationSummable>(
+  events: T[],
+): number | null {
+  let max: number | null = null;
+  for (const e of events) {
+    let mins: number | null = null;
+    if (e.durationMins && e.durationMins > 0) {
+      mins = e.durationMins;
+    } else if (e.startTime && e.endTime) {
+      const diff = (new Date(e.endTime).getTime() - new Date(e.startTime).getTime()) / 60_000;
+      if (diff > 0) mins = diff;
+    }
+    if (mins !== null && (max === null || mins > max)) max = mins;
+  }
+  return max === null ? null : Math.round(max);
+}
+
 export interface VuCountFilterable {
   startTime?: string | null;
   selection?: { status: string } | null;

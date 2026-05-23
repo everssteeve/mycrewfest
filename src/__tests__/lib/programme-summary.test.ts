@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -559,5 +559,44 @@ describe("computeAvgEventDurationMins", () => {
   it("rounds to nearest minute", () => {
     const events = [{ durationMins: 60 }, { durationMins: 61 }, { durationMins: 62 }];
     expect(computeAvgEventDurationMins(events)).toBe(61);
+  });
+});
+
+describe("getMaxEventDurationMins", () => {
+  it("returns null for empty list", () => {
+    expect(getMaxEventDurationMins([])).toBeNull();
+  });
+
+  it("returns null when no events have duration data", () => {
+    const events = [{ durationMins: null }, { startTime: null, endTime: null }];
+    expect(getMaxEventDurationMins(events)).toBeNull();
+  });
+
+  it("returns the longest durationMins", () => {
+    const events = [{ durationMins: 60 }, { durationMins: 180 }, { durationMins: 45 }];
+    expect(getMaxEventDurationMins(events)).toBe(180);
+  });
+
+  it("derives max from startTime/endTime when durationMins is absent", () => {
+    const events = [
+      { startTime: "2026-07-01T10:00:00Z", endTime: "2026-07-01T12:00:00Z" },
+      { startTime: "2026-07-01T14:00:00Z", endTime: "2026-07-01T15:00:00Z" },
+    ];
+    expect(getMaxEventDurationMins(events)).toBe(120);
+  });
+
+  it("ignores zero or negative derived durations", () => {
+    const events = [
+      { durationMins: 90 },
+      { startTime: "2026-07-01T11:00:00Z", endTime: "2026-07-01T10:00:00Z" },
+    ];
+    expect(getMaxEventDurationMins(events)).toBe(90);
+  });
+
+  it("rounds to nearest minute", () => {
+    const events = [
+      { startTime: "2026-07-01T10:00:00Z", endTime: "2026-07-01T10:59:30Z" },
+    ];
+    expect(getMaxEventDurationMins(events)).toBe(60);
   });
 });
