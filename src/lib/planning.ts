@@ -410,3 +410,11 @@ export function computeDayFreeTime(events: FreeTimeEvent[]): number {
 export function countMustSeeEvents(events: EventSummary[]): number {
   return events.filter((e) => e.selectionStatus === "must-see").length;
 }
+
+/**
+ * Returns the number of events with selectionStatus === "intéressé".
+ * Events without a selectionStatus are ignored.
+ */
+export function countIntéresséPlanningEvents(events: EventSummary[]): number {
+  return events.filter((e) => e.selectionStatus === "intéressé").length;
+}

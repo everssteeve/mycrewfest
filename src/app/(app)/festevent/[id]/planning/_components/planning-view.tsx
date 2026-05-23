@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ChevronDown, CalendarArrowDown, Copy, Check, Sparkles, X } from "lucide-react";
-import { detectConflicts, filterEventsByDay, sortEventsByTime, computeDayFreeTime, computeDayCoverage, optimizePlanning, countMustSeeEvents, type OptimizeResult } from "@/lib/planning";
+import { detectConflicts, filterEventsByDay, sortEventsByTime, computeDayFreeTime, computeDayCoverage, optimizePlanning, countMustSeeEvents, countIntéresséPlanningEvents, type OptimizeResult } from "@/lib/planning";
 import { useSelections } from "@/hooks/use-selections";
 import { useFestEventStore } from "@/store/use-fest-event-store";
 import { toggleVuStatus } from "@/lib/selection";
@@ -417,6 +417,7 @@ export function PlanningView({
   const dayCoverage = useMemo(() => computeDayCoverage(dayEvents), [dayEvents]);
 
   const mustSeeCount = useMemo(() => countMustSeeEvents(dayEvents), [dayEvents]);
+  const intéresséCount = useMemo(() => countIntéresséPlanningEvents(dayEvents), [dayEvents]);
 
   const uniqueVenueCount = useMemo(() => countUniqueVenues(dayEvents), [dayEvents]);
 
@@ -542,6 +543,21 @@ export function PlanningView({
               }}
             >
               ★ {mustSeeCount}
+            </span>
+          </>
+        )}
+        {intéresséCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)" }}>·</span>
+            <span
+              data-testid="planning-intéressé-count"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-sm)",
+                color: "var(--secondary-cyan)",
+              }}
+            >
+              ◎ {intéresséCount}
             </span>
           </>
         )}

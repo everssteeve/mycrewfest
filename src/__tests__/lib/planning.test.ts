@@ -12,6 +12,7 @@ import {
   computeDayFreeTime,
   optimizePlanning,
   countMustSeeEvents,
+  countIntéresséPlanningEvents,
   type FreeTimeEvent,
 } from "@/lib/planning";
 import type { EventSummary } from "@/types";
@@ -453,5 +454,47 @@ describe("countMustSeeEvents", () => {
       makeEvent("b", "2025-07-19T16:00:00Z", 60, { selectionStatus: "must-see" }),
     ];
     expect(countMustSeeEvents(events)).toBe(1);
+  });
+});
+
+describe("countIntéresséPlanningEvents", () => {
+  it("returns 0 for empty array", () => {
+    expect(countIntéresséPlanningEvents([])).toBe(0);
+  });
+
+  it("returns 0 when no events are intéressé", () => {
+    const events = [
+      makeEvent("a", "2025-07-19T14:00:00Z", 60, { selectionStatus: "must-see" }),
+      makeEvent("b", "2025-07-19T16:00:00Z", 60, { selectionStatus: "vu" }),
+    ];
+    expect(countIntéresséPlanningEvents(events)).toBe(0);
+  });
+
+  it("counts intéressé events correctly", () => {
+    const events = [
+      makeEvent("a", "2025-07-19T14:00:00Z", 60, { selectionStatus: "intéressé" }),
+      makeEvent("b", "2025-07-19T16:00:00Z", 60, { selectionStatus: "must-see" }),
+      makeEvent("c", "2025-07-19T18:00:00Z", 60, { selectionStatus: "intéressé" }),
+    ];
+    expect(countIntéresséPlanningEvents(events)).toBe(2);
+  });
+
+  it("ignores events without a selectionStatus", () => {
+    const events = [
+      makeEvent("a", "2025-07-19T14:00:00Z", 60),
+      makeEvent("b", "2025-07-19T16:00:00Z", 60, { selectionStatus: "intéressé" }),
+    ];
+    expect(countIntéresséPlanningEvents(events)).toBe(1);
+  });
+
+  it("counts mixed selection statuses correctly", () => {
+    const events = [
+      makeEvent("a", "2025-07-19T14:00:00Z", 60, { selectionStatus: "intéressé" }),
+      makeEvent("b", "2025-07-19T15:00:00Z", 60, { selectionStatus: "must-see" }),
+      makeEvent("c", "2025-07-19T16:00:00Z", 60, { selectionStatus: "vu" }),
+      makeEvent("d", "2025-07-19T17:00:00Z", 60, { selectionStatus: "intéressé" }),
+      makeEvent("e", "2025-07-19T18:00:00Z", 60),
+    ];
+    expect(countIntéresséPlanningEvents(events)).toBe(2);
   });
 });
