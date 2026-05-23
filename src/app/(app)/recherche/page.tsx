@@ -1,10 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
-import { Search, X, Music2, CalendarDays } from "lucide-react";
+import { Search, X, Music2, CalendarDays, Clock } from "lucide-react";
 import type { GlobalSearchResponse } from "@/lib/global-search";
+import {
+  loadSearchHistory,
+  addToSearchHistory,
+  removeFromSearchHistory,
+  saveSearchHistory,
+  clearSearchHistory,
+} from "@/lib/search-history";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -29,12 +35,35 @@ export default function RecherchePage() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<GlobalSearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [history, setHistory] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
-  const router = useRouter();
   const debouncedQuery = useDebounce(query, 300);
 
   useEffect(() => {
     inputRef.current?.focus();
+    setHistory(loadSearchHistory());
+  }, []);
+
+  const commitSearch = useCallback((q: string) => {
+    const trimmed = q.trim();
+    if (trimmed.length < 2) return;
+    setHistory((prev) => {
+      const next = addToSearchHistory(trimmed, prev);
+      saveSearchHistory(next);
+      return next;
+    });
+  }, []);
+
+  const handleRemoveHistory = useCallback((q: string) => {
+    setHistory((prev) => {
+      const next = removeFromSearchHistory(q, prev);
+      saveSearchHistory(next);
+      return next;
+    });
+  }, []);
+
+  const handleClearHistory = useCallback(() => {
+    setHistory(clearSearchHistory());
   }, []);
 
   useEffect(() => {
@@ -49,9 +78,10 @@ export default function RecherchePage() {
       .then((data: GlobalSearchResponse) => {
         setResults(data);
         setLoading(false);
+        if (data.total > 0) commitSearch(debouncedQuery);
       })
       .catch(() => setLoading(false));
-  }, [debouncedQuery]);
+  }, [debouncedQuery, commitSearch]);
 
   const isEmpty =
     results && results.total === 0 && debouncedQuery.length >= 2 && !loading;
@@ -284,8 +314,103 @@ export default function RecherchePage() {
         </div>
       )}
 
-      {/* Hint when idle */}
-      {!results && !loading && (
+      {/* Search history */}
+      {!results && !loading && history.length > 0 && (
+        <section data-testid="search-history-section">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginBottom: "var(--space-xs)",
+            }}
+          >
+            <h2
+              className="t-caption"
+              style={{
+                color: "var(--text-dim)",
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                fontSize: "var(--fs-xs, 11px)",
+                fontWeight: 700,
+                display: "flex",
+                alignItems: "center",
+                gap: 5,
+              }}
+            >
+              <Clock size={11} aria-hidden="true" />
+              Récentes
+            </h2>
+            <button
+              onClick={handleClearHistory}
+              data-testid="search-history-clear"
+              style={{
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: "var(--text-dim)",
+                fontSize: "var(--fs-xs, 10px)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                fontFamily: "var(--font-body)",
+              }}
+            >
+              Effacer
+            </button>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {history.map((q) => (
+              <div
+                key={q}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  backgroundColor: "var(--bg-surface)",
+                  border: "1px solid var(--border-color)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "8px 12px",
+                }}
+              >
+                <button
+                  data-testid={`search-history-item`}
+                  onClick={() => setQuery(q)}
+                  style={{
+                    flex: 1,
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    color: "var(--text-muted)",
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--fs-sm)",
+                    padding: 0,
+                  }}
+                >
+                  {q}
+                </button>
+                <button
+                  onClick={() => handleRemoveHistory(q)}
+                  aria-label={`Supprimer "${q}" de l'historique`}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--text-dim)",
+                    display: "flex",
+                    padding: 2,
+                  }}
+                >
+                  <X size={13} />
+                </button>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Hint when idle and no history */}
+      {!results && !loading && history.length === 0 && (
         <p
           className="t-caption"
           style={{
