@@ -8,6 +8,18 @@ export interface BilantableEvent {
   eventType?: string | null;
 }
 
+/** Returns the average duration of seen events that have a durationMins, or null. */
+export function computeAvgDurationMins(
+  events: Pick<BilantableEvent, "selection" | "durationMins">[],
+): number | null {
+  const seenWithDuration = events.filter(
+    (e) => e.selection?.status === "vu" && e.durationMins != null && e.durationMins > 0,
+  );
+  if (seenWithDuration.length === 0) return null;
+  const total = seenWithDuration.reduce((acc, e) => acc + (e.durationMins ?? 0), 0);
+  return Math.round(total / seenWithDuration.length);
+}
+
 export interface BilanStats {
   totalSeen: number;
   totalDurationMins: number;
@@ -21,6 +33,7 @@ export interface BilanStats {
   topEventType: string | null;
   uniqueEventTypes: number;
   attendanceStreak: number;
+  avgDurationMins: number | null;
 }
 
 export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats {
@@ -130,6 +143,7 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     topEventType,
     uniqueEventTypes: eventTypeCounts.size,
     attendanceStreak: maxStreak,
+    avgDurationMins: computeAvgDurationMins(events),
   };
 }
 

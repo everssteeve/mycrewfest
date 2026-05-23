@@ -593,6 +593,49 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
         </div>
       )}
 
+      {/* Avg duration per event */}
+      {stats.avgDurationMins !== null && (
+        <div
+          data-testid="bilan-avg-duration"
+          style={{
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-md)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-sm)",
+          }}
+        >
+          <Clock size={16} style={{ color: "var(--secondary-cyan)", flexShrink: 0 }} aria-hidden="true" />
+          <div>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                margin: 0,
+              }}
+            >
+              Durée moyenne par événement
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-base)",
+                fontWeight: "var(--fw-medium)",
+                color: "var(--text-main)",
+                margin: 0,
+              }}
+            >
+              {formatBilanDuration(stats.avgDurationMins)}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Best day */}
       {stats.bestDay !== null && (
         <div

@@ -384,3 +384,51 @@ describe("computeBilan — attendanceStreak", () => {
     expect(computeBilan(events).attendanceStreak).toBe(2);
   });
 });
+
+// ---------------------------------------------------------------------------
+// computeAvgDurationMins (standalone)
+// ---------------------------------------------------------------------------
+
+import { computeAvgDurationMins } from "@/lib/bilan";
+
+describe("computeAvgDurationMins", () => {
+  it("returns null for empty array", () => {
+    expect(computeAvgDurationMins([])).toBeNull();
+  });
+
+  it("returns null when no seen events have duration", () => {
+    expect(computeAvgDurationMins([{ selection: { status: "vu" }, durationMins: null }])).toBeNull();
+  });
+
+  it("returns null for non-seen events even if they have duration", () => {
+    expect(computeAvgDurationMins([{ selection: { status: "must-see" }, durationMins: 60 }])).toBeNull();
+  });
+
+  it("returns the duration when a single seen event has it", () => {
+    expect(computeAvgDurationMins([{ selection: { status: "vu" }, durationMins: 60 }])).toBe(60);
+  });
+
+  it("returns the average of seen events with duration", () => {
+    const events = [
+      { selection: { status: "vu" }, durationMins: 60 },
+      { selection: { status: "vu" }, durationMins: 90 },
+    ];
+    expect(computeAvgDurationMins(events)).toBe(75);
+  });
+
+  it("ignores seen events without duration in the average", () => {
+    const events = [
+      { selection: { status: "vu" }, durationMins: 60 },
+      { selection: { status: "vu" }, durationMins: null },
+    ];
+    expect(computeAvgDurationMins(events)).toBe(60);
+  });
+
+  it("rounds to nearest integer", () => {
+    const events = [
+      { selection: { status: "vu" }, durationMins: 60 },
+      { selection: { status: "vu" }, durationMins: 61 },
+    ];
+    expect(computeAvgDurationMins(events)).toBe(61);
+  });
+});
