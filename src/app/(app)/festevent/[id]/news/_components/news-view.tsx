@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Newspaper, Pin, RefreshCw, Filter, Search, X } from "lucide-react";
 import { matchesNewsQuery } from "@/lib/news-search";
+import { computeNewsStats } from "@/lib/news-stats";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 // ---------------------------------------------------------------------------
@@ -322,6 +323,8 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
     [news, searchQuery],
   );
 
+  const newsStats = useMemo(() => computeNewsStats(filteredNews), [filteredNews]);
+
   // Separate pinned from the rest
   const pinnedItems = filteredNews.filter((item) => item.isPinned);
   const nonPinnedItems = filteredNews.filter((item) => !item.isPinned);
@@ -436,6 +439,31 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
           <span style={{ color: "var(--text-main)", fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
             Actualités
           </span>
+          {newsStats.total > 0 && (
+            <span
+              data-testid="news-stats-total"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-muted)",
+              }}
+            >
+              {newsStats.total}
+            </span>
+          )}
+          {newsStats.critiques > 0 && (
+            <span
+              data-testid="news-stats-critiques"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--accent-red)",
+                fontWeight: "var(--fw-bold)",
+              }}
+            >
+              · {newsStats.critiques} critique{newsStats.critiques > 1 ? "s" : ""}
+            </span>
+          )}
           {selectedCategory && (
             <span
               style={{
