@@ -5,7 +5,7 @@ import { MapPin, Eye, Clock, Star, Copy, Check, Tag, Trophy, Flame } from "lucid
 import type { EventWithSelectionAndConfidence } from "@/components/festevent/event-card";
 import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
-import { computeBilan, formatBilanDuration, formatAvgHour, formatBestDay } from "@/lib/bilan";
+import { computeBilan, formatBilanDuration, formatAvgHour, formatBestDay, computeMissedMustSeeDurationMins } from "@/lib/bilan";
 import { generateBilanText } from "@/lib/bilan-text";
 import { computeSelectionCompletionPercent, computeTotalSelected } from "@/lib/bilan-progress";
 
@@ -28,11 +28,13 @@ interface StatCardProps {
   label: string;
   color?: string;
   icon?: React.ReactNode;
+  "data-testid"?: string;
 }
 
-function StatCard({ value, label, color = "var(--primary-neon)", icon }: StatCardProps) {
+function StatCard({ value, label, color = "var(--primary-neon)", icon, "data-testid": testId }: StatCardProps) {
   return (
     <div
+      data-testid={testId}
       style={{
         flex: 1,
         minWidth: 0,
@@ -305,6 +307,11 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
     [events],
   );
 
+  const missedMustSeeDurationMins = useMemo(
+    () => computeMissedMustSeeDurationMins(events),
+    [events],
+  );
+
   return (
     <div
       style={{
@@ -449,6 +456,15 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
             label="must-see ratés"
             color="var(--warning-orange)"
             icon={<Star size={16} />}
+          />
+        )}
+        {missedMustSeeDurationMins > 0 && (
+          <StatCard
+            data-testid="bilan-missed-duration"
+            value={formatBilanDuration(missedMustSeeDurationMins)}
+            label="ratées"
+            color="var(--danger-red)"
+            icon={<Clock size={16} />}
           />
         )}
       </div>

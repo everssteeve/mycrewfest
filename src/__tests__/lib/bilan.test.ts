@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeBilan, formatBilanDuration, formatAvgHour, formatBestDay, type BilantableEvent } from "@/lib/bilan";
+import { computeBilan, formatBilanDuration, formatAvgHour, formatBestDay, computeMissedMustSeeDurationMins, type BilantableEvent } from "@/lib/bilan";
 
 function ev(
   status: string | null,
@@ -462,5 +462,50 @@ describe("computeBilan — uniqueTagCount", () => {
 
   it("returns 0 when all seen events have null tags", () => {
     expect(computeBilan([ev("vu", { tags: undefined })]).uniqueTagCount).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// computeMissedMustSeeDurationMins
+// ---------------------------------------------------------------------------
+
+describe("computeMissedMustSeeDurationMins", () => {
+  it("returns 0 for empty list", () => {
+    expect(computeMissedMustSeeDurationMins([])).toBe(0);
+  });
+
+  it("returns 0 when no events are must-see", () => {
+    const events = [ev("vu", { durationMins: 60 }), ev("intéressé", { durationMins: 30 })];
+    expect(computeMissedMustSeeDurationMins(events)).toBe(0);
+  });
+
+  it("sums duration of must-see events", () => {
+    const events = [
+      ev("must-see", { durationMins: 45 }),
+      ev("must-see", { durationMins: 90 }),
+      ev("vu", { durationMins: 60 }),
+    ];
+    expect(computeMissedMustSeeDurationMins(events)).toBe(135);
+  });
+
+  it("treats null durationMins as 0", () => {
+    const events = [
+      ev("must-see", { durationMins: undefined }),
+      ev("must-see", { durationMins: 30 }),
+    ];
+    expect(computeMissedMustSeeDurationMins(events)).toBe(30);
+  });
+
+  it("returns 0 when all must-see events have no duration", () => {
+    expect(computeMissedMustSeeDurationMins([ev("must-see")])).toBe(0);
+  });
+
+  it("ignores intéressé and vu events", () => {
+    const events = [
+      ev("must-see", { durationMins: 60 }),
+      ev("intéressé", { durationMins: 120 }),
+      ev("vu", { durationMins: 30 }),
+    ];
+    expect(computeMissedMustSeeDurationMins(events)).toBe(60);
   });
 });

@@ -177,3 +177,20 @@ export function formatBilanDuration(mins: number): string {
   if (m === 0) return `${h}h`;
   return `${h}h${m}`;
 }
+
+export interface MissedEventFilterable {
+  selection?: { status: string } | null;
+  durationMins?: number | null;
+}
+
+/**
+ * Returns the total duration in minutes of events still marked as "must-see"
+ * (i.e. selected but not yet seen). Events without a durationMins contribute 0.
+ */
+export function computeMissedMustSeeDurationMins<T extends MissedEventFilterable>(
+  events: T[],
+): number {
+  return events
+    .filter((e) => e.selection?.status === "must-see")
+    .reduce((sum, e) => sum + (e.durationMins ?? 0), 0);
+}
