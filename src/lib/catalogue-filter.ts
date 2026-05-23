@@ -133,6 +133,20 @@ export function countFestivalsWithCompleteProgram<T extends ProgramStatusFiltera
   return festivals.filter((f) => f.programStatus === "complet").length;
 }
 
+export interface ConfidenceLevelFilterable {
+  confidenceLevel?: string | null;
+}
+
+/**
+ * Returns the number of festivals with confidenceLevel === "vérifié_humain".
+ * Festivals with no confidenceLevel are ignored.
+ */
+export function countVerifiedFestivals<T extends ConfidenceLevelFilterable>(
+  festivals: T[],
+): number {
+  return festivals.filter((f) => f.confidenceLevel === "vérifié_humain").length;
+}
+
 export const MONTH_NAMES_FR: Record<number, string> = {
   1: "Janv.",
   2: "Févr.",

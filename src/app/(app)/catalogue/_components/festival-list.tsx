@@ -5,7 +5,7 @@ import { Search, Heart } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
 import { compareByTemporalRelevance } from "@/lib/festival-temporal";
-import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
+import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, countVerifiedFestivals, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 type FilterType = "tous" | FestivalType;
@@ -52,6 +52,11 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
 
   const completeProgramCount = useMemo(
     () => countFestivalsWithCompleteProgram(initialFestivals),
+    [initialFestivals],
+  );
+
+  const verifiedCount = useMemo(
+    () => countVerifiedFestivals(initialFestivals),
     [initialFestivals],
   );
 
@@ -389,6 +394,24 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
             title={`${completeProgramCount} festival${completeProgramCount !== 1 ? "s" : ""} avec programme complet`}
           >
             ✓ {completeProgramCount} complet{completeProgramCount !== 1 ? "s" : ""}
+          </span>
+        )}
+        {verifiedCount > 0 && (
+          <span
+            data-testid="catalogue-verified-count"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              fontWeight: 700,
+              color: "var(--primary-neon)",
+              background: "rgba(0,255,102,0.06)",
+              border: "1px solid rgba(0,255,102,0.2)",
+              borderRadius: "var(--radius-full)",
+              padding: "2px 8px",
+            }}
+            title={`${verifiedCount} festival${verifiedCount !== 1 ? "s" : ""} vérifiés par l'équipe`}
+          >
+            ◈ {verifiedCount} vérifié{verifiedCount !== 1 ? "s" : ""}
           </span>
         )}
       </div>

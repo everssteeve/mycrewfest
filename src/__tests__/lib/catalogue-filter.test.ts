@@ -232,7 +232,7 @@ describe("countUpcomingFestivals", () => {
 // countFestivalsWithCompleteProgram
 // ---------------------------------------------------------------------------
 
-import { countFestivalsWithCompleteProgram, type ProgramStatusFilterable } from "@/lib/catalogue-filter";
+import { countFestivalsWithCompleteProgram, type ProgramStatusFilterable, countVerifiedFestivals, type ConfidenceLevelFilterable } from "@/lib/catalogue-filter";
 
 const ps = (programStatus: string | null | undefined): ProgramStatusFilterable => ({ programStatus });
 
@@ -255,5 +255,33 @@ describe("countFestivalsWithCompleteProgram", () => {
 
   it("returns total when all have complete program", () => {
     expect(countFestivalsWithCompleteProgram([ps("complet"), ps("complet")])).toBe(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// countVerifiedFestivals
+// ---------------------------------------------------------------------------
+
+const cv = (confidenceLevel: string | null | undefined): ConfidenceLevelFilterable => ({ confidenceLevel });
+
+describe("countVerifiedFestivals", () => {
+  it("returns 0 for empty list", () => {
+    expect(countVerifiedFestivals([])).toBe(0);
+  });
+
+  it("returns 0 when no festival is verified", () => {
+    expect(countVerifiedFestivals([cv("auto"), cv(null), cv(undefined)])).toBe(0);
+  });
+
+  it("counts festivals with confidenceLevel vérifié_humain", () => {
+    expect(countVerifiedFestivals([cv("vérifié_humain"), cv("auto"), cv("vérifié_humain")])).toBe(2);
+  });
+
+  it("ignores festivals with no confidenceLevel", () => {
+    expect(countVerifiedFestivals([cv(undefined), cv("vérifié_humain")])).toBe(1);
+  });
+
+  it("returns total when all are verified", () => {
+    expect(countVerifiedFestivals([cv("vérifié_humain"), cv("vérifié_humain")])).toBe(2);
   });
 });
