@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { computeNewsStats } from "@/lib/news-stats";
+import { filterAdminNews, NEWS_CATEGORY_LABELS, type AdminNewsRow } from "@/lib/admin-news";
 import { CreateNewsForm } from "./_components/create-news-form";
 import { NewsToggleButtons } from "./_components/news-toggle-buttons";
 
@@ -52,8 +54,29 @@ function getCategoryColor(category: string): string {
   }
 }
 
-export default async function AdminNewsPage() {
+type PageProps = { searchParams: Promise<{ q?: string; category?: string; urgency?: string }> };
+
+export default async function AdminNewsPage({ searchParams }: PageProps) {
+  const { q = "", category = "", urgency = "" } = await searchParams;
   const [newsItems, festivals] = await Promise.all([getNewsItems(), getFestivals()]);
+
+  const newsRows: AdminNewsRow[] = newsItems.map((item) => ({
+    id: item.id,
+    festivalId: item.festivalId,
+    festivalName: item.festival.name,
+    festivalSlug: item.festival.slug,
+    source: item.source,
+    sourceUrl: item.sourceUrl,
+    publishedAt: item.publishedAt.toISOString(),
+    category: item.category,
+    summary: item.summary,
+    urgencyLevel: item.urgencyLevel,
+    isPinned: item.isPinned,
+  }));
+
+  const filteredRows = filterAdminNews(newsRows, q, urgency, category);
+  const filteredIds = new Set(filteredRows.map((r) => r.id));
+  const filteredItems = newsItems.filter((item) => filteredIds.has(item.id));
 
   // computeNewsStats expects urgencyLevel typed as "normal" | "critique"
   const statsInput = newsItems.map((item) => ({
@@ -170,6 +193,109 @@ export default async function AdminNewsPage() {
         ))}
       </div>
 
+      {/* Filter bar */}
+      <form
+        method="GET"
+        data-testid="admin-news-filter-bar"
+        style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap", marginBottom: "var(--space-lg)", alignItems: "center" }}
+      >
+        <input
+          name="q"
+          defaultValue={q}
+          placeholder="Rechercher…"
+          data-testid="admin-news-search"
+          style={{
+            flex: 1,
+            minWidth: 180,
+            padding: "6px 12px",
+            background: "var(--bg-surface)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--text-main)",
+            outline: "none",
+          }}
+        />
+        <select
+          name="category"
+          defaultValue={category}
+          data-testid="admin-news-category-filter"
+          style={{
+            padding: "6px 10px",
+            background: "var(--bg-surface)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--text-main)",
+            outline: "none",
+          }}
+        >
+          <option value="">Toutes catégories</option>
+          {Object.entries(NEWS_CATEGORY_LABELS).map(([val, label]) => (
+            <option key={val} value={val}>{label}</option>
+          ))}
+        </select>
+        <select
+          name="urgency"
+          defaultValue={urgency}
+          data-testid="admin-news-urgency-filter"
+          style={{
+            padding: "6px 10px",
+            background: "var(--bg-surface)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--text-main)",
+            outline: "none",
+          }}
+        >
+          <option value="">Toutes urgences</option>
+          <option value="normal">Normale</option>
+          <option value="critique">Critique</option>
+        </select>
+        <button
+          type="submit"
+          style={{
+            padding: "6px 14px",
+            background: "transparent",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--text-muted)",
+            cursor: "pointer",
+          }}
+        >
+          Filtrer
+        </button>
+        {(q || category || urgency) && (
+          <Link
+            href="/admin/news"
+            data-testid="admin-news-filter-reset"
+            style={{
+              padding: "6px 14px",
+              border: "1px solid var(--border-color)",
+              borderRadius: "var(--radius-md)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-dim)",
+              textDecoration: "none",
+            }}
+          >
+            Réinitialiser
+          </Link>
+        )}
+        <span
+          data-testid="admin-news-filtered-count"
+          style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--text-dim)", whiteSpace: "nowrap" }}
+        >
+          {filteredItems.length} / {newsItems.length}
+        </span>
+      </form>
+
       {/* Table */}
       <div
         style={{
@@ -179,7 +305,7 @@ export default async function AdminNewsPage() {
           overflow: "hidden",
         }}
       >
-        {newsItems.length > 0 ? (
+        {filteredItems.length > 0 ? (
           <table
             data-testid="admin-news-table"
             style={{ width: "100%", borderCollapse: "collapse" }}
@@ -208,7 +334,7 @@ export default async function AdminNewsPage() {
               </tr>
             </thead>
             <tbody>
-              {newsItems.map((item, i) => {
+              {filteredItems.map((item, i) => {
                 const categoryColor = getCategoryColor(item.category);
                 const isUrgent = item.urgencyLevel === "critique";
 
@@ -218,7 +344,7 @@ export default async function AdminNewsPage() {
                     data-testid={`admin-news-row-${item.id}`}
                     style={{
                       borderBottom:
-                        i < newsItems.length - 1
+                        i < filteredItems.length - 1
                           ? "1px solid var(--border-color)"
                           : "none",
                     }}
@@ -389,7 +515,7 @@ export default async function AdminNewsPage() {
               fontSize: "var(--fs-sm)",
             }}
           >
-            Aucune news enregistrée.
+            {q || category || urgency ? "Aucune news correspondante." : "Aucune news enregistrée."}
           </div>
         )}
       </div>
