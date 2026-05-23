@@ -1,11 +1,38 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { shareOrCopy, buildFestivalSharePayload, type SharePayload } from "@/lib/share";
+import { shareOrCopy, buildFestivalSharePayload, buildArtistSharePayload, type SharePayload } from "@/lib/share";
 
 const PAYLOAD: SharePayload = {
   title: "Hellfest 2026",
   text: "Découvre Hellfest 2026 sur MyCrewFest",
   url: "https://app.mycrewfest.com/festival/hellfest-2026",
 };
+
+// ---------------------------------------------------------------------------
+// buildFestivalSharePayload
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// buildArtistSharePayload
+// ---------------------------------------------------------------------------
+
+describe("buildArtistSharePayload", () => {
+  it("builds correct payload with baseUrl", () => {
+    const p = buildArtistSharePayload("Orelsan", "artist-orelsan", "https://app.mycrewfest.com");
+    expect(p.title).toBe("Orelsan");
+    expect(p.url).toBe("https://app.mycrewfest.com/artiste/artist-orelsan");
+    expect(p.text).toContain("Orelsan");
+  });
+
+  it("builds relative payload without baseUrl", () => {
+    const p = buildArtistSharePayload("Orelsan", "artist-orelsan");
+    expect(p.url).toBe("/artiste/artist-orelsan");
+  });
+
+  it("includes artist name in text", () => {
+    const p = buildArtistSharePayload("Aya Nakamura", "artist-aya");
+    expect(p.text).toContain("Aya Nakamura");
+  });
+});
 
 // ---------------------------------------------------------------------------
 // buildFestivalSharePayload

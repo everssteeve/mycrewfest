@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { MapPin, CalendarDays, Heart, Users } from "lucide-react";
+import { MapPin, CalendarDays, Heart, Users, Share2 } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useState, useTransition } from "react";
@@ -13,6 +13,7 @@ import { formatFollowerCount, getFollowerTier, getFollowerTierColor, getFollower
 import { buildFollowApiUrl, getFollowToggleAriaLabel, getFollowToggleMethod } from "@/lib/catalogue-quick-follow";
 import { getCapacityTier, getCapacityTierColor, getCapacityTierBg, formatCapacityLabel, buildCapacityAriaLabel } from "@/lib/festival-capacity";
 import { computeNewsStatus, getNewsBadgeLabel, getNewsBadgeColor } from "@/lib/news-badge";
+import { shareOrCopy, buildFestivalSharePayload } from "@/lib/share";
 
 interface FestivalCardProps {
   festival: FestivalSummary;
@@ -54,6 +55,18 @@ const PROGRAM_STATUS_CONFIG: Record<
 export function FestivalCard({ festival }: FestivalCardProps) {
   const [followed, setFollowed] = useState(festival.isFollowed ?? false);
   const [isPending, startTransition] = useTransition();
+  const [shareFeedback, setShareFeedback] = useState(false);
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    shareOrCopy(buildFestivalSharePayload(festival.name, festival.slug)).then((result) => {
+      if (result === "copied") {
+        setShareFeedback(true);
+        setTimeout(() => setShareFeedback(false), 1500);
+      }
+    });
+  };
 
   const toggleFollow = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -204,6 +217,23 @@ export function FestivalCard({ festival }: FestivalCardProps) {
               }}
             >
               <Heart size={10} aria-hidden="true" fill={followed ? "currentColor" : "none"} />
+            </button>
+            <button
+              type="button"
+              data-testid={`festival-share-${festival.slug}`}
+              aria-label={`Partager ${festival.name}`}
+              onClick={handleShare}
+              className="inline-flex shrink-0 items-center gap-0.5 rounded-full px-1.5 py-0.5"
+              style={{
+                backgroundColor: shareFeedback ? "rgba(0,229,255,0.1)" : "transparent",
+                color: shareFeedback ? "var(--secondary-cyan)" : "var(--text-dim)",
+                border: shareFeedback ? "1px solid rgba(0,229,255,0.3)" : "1px solid transparent",
+                cursor: "pointer",
+                transition: "var(--transition-fast)",
+              }}
+              title={shareFeedback ? "Lien copié !" : "Partager ce festival"}
+            >
+              <Share2 size={10} aria-hidden="true" />
             </button>
             {festival.confidenceLevel === "auto" && (
               <span
