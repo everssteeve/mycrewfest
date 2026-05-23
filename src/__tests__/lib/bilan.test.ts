@@ -432,3 +432,35 @@ describe("computeAvgDurationMins", () => {
     expect(computeAvgDurationMins(events)).toBe(61);
   });
 });
+
+describe("computeBilan — uniqueTagCount", () => {
+  it("returns 0 when no seen events have tags", () => {
+    const events = [ev("vu", {}), ev("vu", {})];
+    expect(computeBilan(events).uniqueTagCount).toBe(0);
+  });
+
+  it("counts a single unique tag", () => {
+    const events = [ev("vu", { tags: ["Rock"] }), ev("vu", { tags: ["Rock"] })];
+    expect(computeBilan(events).uniqueTagCount).toBe(1);
+  });
+
+  it("counts multiple distinct tags across events", () => {
+    const events = [
+      ev("vu", { tags: ["Rock", "Live"] }),
+      ev("vu", { tags: ["Électro"] }),
+    ];
+    expect(computeBilan(events).uniqueTagCount).toBe(3);
+  });
+
+  it("does not count tags from non-vu events", () => {
+    const events = [
+      ev("vu", { tags: ["Rock"] }),
+      ev("must-see", { tags: ["Jazz", "Funk"] }),
+    ];
+    expect(computeBilan(events).uniqueTagCount).toBe(1);
+  });
+
+  it("returns 0 when all seen events have null tags", () => {
+    expect(computeBilan([ev("vu", { tags: undefined })]).uniqueTagCount).toBe(0);
+  });
+});

@@ -28,6 +28,7 @@ export interface BilanStats {
   topVenue: string | null;
   uniqueVenues: number;
   topTag: string | null;
+  uniqueTagCount: number;
   avgStartHour: number | null;
   bestDay: { date: string; count: number } | null;
   topEventType: string | null;
@@ -138,6 +139,7 @@ export function computeBilan<T extends BilantableEvent>(events: T[]): BilanStats
     topVenue,
     uniqueVenues: venueCounts.size,
     topTag,
+    uniqueTagCount: tagCounts.size,
     avgStartHour,
     bestDay,
     topEventType,

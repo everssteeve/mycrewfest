@@ -550,6 +550,49 @@ export function BilanView({ festEventId, festivalName, initialEvents }: BilanVie
         </div>
       )}
 
+      {/* Unique tag count */}
+      {stats.uniqueTagCount > 1 && (
+        <div
+          data-testid="bilan-unique-tags"
+          style={{
+            backgroundColor: "var(--bg-surface)",
+            border: "1px solid var(--border-color)",
+            borderRadius: "var(--radius-md)",
+            padding: "var(--space-md)",
+            display: "flex",
+            alignItems: "center",
+            gap: "var(--space-sm)",
+          }}
+        >
+          <span style={{ fontSize: 18, lineHeight: 1 }} aria-hidden="true">🎨</span>
+          <div>
+            <p
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                margin: 0,
+              }}
+            >
+              Diversité musicale
+            </p>
+            <p
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-base)",
+                fontWeight: "var(--fw-medium)",
+                color: "var(--secondary-cyan)",
+                margin: 0,
+              }}
+            >
+              {stats.uniqueTagCount} styles explorés
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Avg start hour */}
       {stats.avgStartHour !== null && (
         <div
