@@ -359,45 +359,54 @@ export default async function FestivalPage({
           </h2>
           <div className="flex flex-col gap-2">
             {festival.artists?.map((artist) => (
-              <div
+              <Link
                 key={artist.id}
-                style={{
-                  backgroundColor: "var(--bg-surface)",
-                  borderRadius: "var(--radius-md)",
-                  border: "1px solid var(--border-color)",
-                  padding: "12px var(--space-md)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: 8,
-                }}
+                href={`/artiste/${artist.id}`}
+                data-testid={`festival-artist-${artist.id}`}
+                style={{ textDecoration: "none" }}
               >
-                <div className="flex flex-col gap-0.5">
-                  <span
-                    className="t-body"
-                    style={{
-                      color: "var(--text-main)",
-                      fontWeight: "var(--fw-medium)",
-                      fontSize: "var(--fs-sm)",
-                    }}
-                  >
-                    {artist.name}
-                  </span>
-                  {artist.disciplines && artist.disciplines.length > 0 && (
-                    <span className="t-caption" style={{ color: "var(--text-muted)" }}>
-                      {artist.disciplines.join(", ")}
+                <div
+                  style={{
+                    backgroundColor: "var(--bg-surface)",
+                    borderRadius: "var(--radius-md)",
+                    border: "1px solid var(--border-color)",
+                    padding: "12px var(--space-md)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 8,
+                  }}
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span
+                      className="t-body"
+                      style={{
+                        color: "var(--text-main)",
+                        fontWeight: "var(--fw-medium)",
+                        fontSize: "var(--fs-sm)",
+                      }}
+                    >
+                      {artist.name}
                     </span>
-                  )}
+                    {artist.disciplines && artist.disciplines.length > 0 && (
+                      <span className="t-caption" style={{ color: "var(--text-muted)" }}>
+                        {artist.disciplines.join(", ")}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {artist.countryCode && (
+                      <span
+                        className="t-meta"
+                        style={{ color: "var(--text-dim)", flexShrink: 0 }}
+                      >
+                        {artist.countryCode}
+                      </span>
+                    )}
+                    <span style={{ color: "var(--accent-pink)", fontSize: "0.75rem" }}>→</span>
+                  </div>
                 </div>
-                {artist.countryCode && (
-                  <span
-                    className="t-meta"
-                    style={{ color: "var(--text-dim)", flexShrink: 0 }}
-                  >
-                    {artist.countryCode}
-                  </span>
-                )}
-              </div>
+              </Link>
             ))}
           </div>
         </section>
