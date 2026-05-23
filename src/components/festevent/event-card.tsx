@@ -1,6 +1,6 @@
 "use client";
 
-import { MapPin, Clock, Ticket, ChevronDown, ChevronUp, Globe, ExternalLink } from "lucide-react";
+import { MapPin, Clock, Ticket, ChevronDown, ChevronUp, Globe, ExternalLink, PenLine } from "lucide-react";
 import { useState } from "react";
 import type { EventWithSelection } from "@/lib/api";
 import type { SelectionStatus } from "@/types";
@@ -122,15 +122,20 @@ function formatTime(iso: string | null): string {
 // EventCard
 // ---------------------------------------------------------------------------
 
+import { formatNotePreview, MAX_NOTE_LENGTH } from "@/lib/event-notes";
+
 interface EventCardProps {
   event: EventWithSelectionAndConfidence;
   onSelectionCycle: (eventId: string, next: SelectionStatus | null) => void;
   hasConflict?: boolean;
   isOngoing?: boolean;
+  note?: string;
+  onNoteChange?: (text: string) => void;
 }
 
-export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngoing = false }: EventCardProps) {
+export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngoing = false, note, onNoteChange }: EventCardProps) {
   const [expanded, setExpanded] = useState(false);
+  const [noteOpen, setNoteOpen] = useState(false);
   const selectionStatus = event.selection?.status ?? null;
   const typeConfig = EVENT_TYPE_COLORS[event.eventType] ?? EVENT_TYPE_COLORS.autre;
   const hasArtistDetails = Boolean(
@@ -400,6 +405,84 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
       {/* Row 4: tags */}
       {event.tags && event.tags.length > 0 && (
         <EventTagChips tags={event.tags} />
+      )}
+
+      {/* Row 4b: personal note */}
+      {onNoteChange && (
+        <div data-testid={`event-note-section-${event.id}`}>
+          {!noteOpen ? (
+            <button
+              type="button"
+              data-testid={`event-note-toggle-${event.id}`}
+              onClick={(e) => { e.stopPropagation(); setNoteOpen(true); }}
+              aria-label={note ? `Note : ${note}` : "Ajouter une note personnelle"}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+                padding: "2px 0",
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+                color: note ? "var(--secondary-cyan)" : "var(--text-dim)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+              }}
+            >
+              <PenLine size={11} aria-hidden="true" />
+              {note
+                ? <span data-testid={`event-note-preview-${event.id}`}>{formatNotePreview(note)}</span>
+                : <span style={{ opacity: 0.5 }}>Note…</span>
+              }
+            </button>
+          ) : (
+            <div onClick={(e) => e.stopPropagation()} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <textarea
+                autoFocus
+                data-testid={`event-note-input-${event.id}`}
+                value={note ?? ""}
+                onChange={(e) => onNoteChange(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Escape") setNoteOpen(false); }}
+                maxLength={MAX_NOTE_LENGTH}
+                placeholder="Ta note personnelle…"
+                rows={2}
+                style={{
+                  width: "100%",
+                  padding: "6px 8px",
+                  backgroundColor: "rgba(0,229,255,0.05)",
+                  border: "1px solid rgba(0,229,255,0.3)",
+                  borderRadius: "var(--radius-sm)",
+                  color: "var(--text-main)",
+                  fontFamily: "var(--font-body)",
+                  fontSize: "var(--fs-xs)",
+                  resize: "none",
+                  outline: "none",
+                }}
+              />
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs)", fontFamily: "var(--font-mono)" }}>
+                  {(note?.length ?? 0)}/{MAX_NOTE_LENGTH}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setNoteOpen(false)}
+                  style={{
+                    padding: "2px 8px",
+                    background: "none",
+                    border: "1px solid rgba(0,229,255,0.3)",
+                    borderRadius: "var(--radius-sm)",
+                    color: "var(--secondary-cyan)",
+                    fontFamily: "var(--font-body)",
+                    fontSize: "var(--fs-xs)",
+                    cursor: "pointer",
+                  }}
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Row 5: expand toggle */}

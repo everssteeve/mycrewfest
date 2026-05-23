@@ -20,6 +20,7 @@ import { generateProgrammeShareText } from "@/lib/programme-share";
 import { buildProgrammeIcs, countExportableEvents } from "@/lib/programme-ics";
 import { computeTotalProgrammeDurationMins, computeSelectedDurationMins, computeTimeCoveragePercent, getDensityLabel, getDensityColor, formatDensityBadge } from "@/lib/programme-density";
 import { groupEventsByVenue, sortVenueGroups, sortEventsWithinGroup } from "@/lib/programme-group";
+import { useEventNotes } from "@/hooks/use-event-notes";
 import { Copy, Check, CalendarArrowDown } from "lucide-react";
 import { ChevronUp } from "lucide-react";
 
@@ -69,6 +70,7 @@ export function ProgrammeView({
   festivalName,
 }: ProgrammeViewProps) {
   const { selections, updateSelection } = useSelections(festEventId);
+  const { notes, setNote } = useEventNotes(festEventId);
 
   // Merge store selections into events
   const events = useMemo(() => {
@@ -1689,6 +1691,8 @@ export function ProgrammeView({
                     onSelectionCycle={handleSelectionCycle}
                     hasConflict={conflictingIds.has(e.id)}
                     isOngoing={ongoingIds.has(e.id)}
+                    note={notes[e.id]}
+                    onNoteChange={(text) => setNote(e.id, text)}
                   />
                 ))}
               </div>
@@ -1706,6 +1710,8 @@ export function ProgrammeView({
               onSelectionCycle={handleSelectionCycle}
               hasConflict={conflictingIds.has(e.id)}
               isOngoing={ongoingIds.has(e.id)}
+              note={notes[e.id]}
+              onNoteChange={(text) => setNote(e.id, text)}
             />
           ))}
         </div>
