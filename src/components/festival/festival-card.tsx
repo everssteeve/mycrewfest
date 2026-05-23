@@ -7,6 +7,7 @@ import { fr } from "date-fns/locale";
 import { useState, useTransition } from "react";
 import type { FestivalSummary, FestivalType, ProgramStatus } from "@/lib/types";
 import { getFestivalTemporalStatus, getDaysUntilStart } from "@/lib/festival-temporal";
+import { getFestivalCountdown } from "@/lib/festival-countdown";
 import { formatFestivalStats } from "@/lib/format-count";
 import { formatFollowerCount, getFollowerTier, getFollowerTierColor, getFollowerTierBg } from "@/lib/festival-community";
 import { buildFollowApiUrl, getFollowToggleAriaLabel, getFollowToggleMethod } from "@/lib/catalogue-quick-follow";
@@ -89,6 +90,7 @@ export function FestivalCard({ festival }: FestivalCardProps) {
   const typeLabel = TYPE_LABELS[festival.festivalType] ?? "Autre";
   const temporalStatus = getFestivalTemporalStatus(festival.startDate, festival.endDate);
   const daysUntil = temporalStatus === "imminent" ? getDaysUntilStart(festival.startDate) : null;
+  const countdown = getFestivalCountdown(startDate, endDate);
 
   return (
     <Link
@@ -297,6 +299,36 @@ export function FestivalCard({ festival }: FestivalCardProps) {
               </span>
             );
           })()}
+
+          {/* Countdown badge */}
+          <span
+            data-testid="festival-countdown"
+            aria-label={countdown.ariaLabel}
+            className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+            style={{
+              fontFamily: "var(--font-mono)",
+              color:
+                countdown.state === "upcoming"
+                  ? "var(--primary-neon)"
+                  : countdown.state === "ongoing"
+                    ? "var(--secondary-cyan)"
+                    : "var(--text-dim)",
+              backgroundColor:
+                countdown.state === "upcoming"
+                  ? "rgba(0,255,102,0.08)"
+                  : countdown.state === "ongoing"
+                    ? "rgba(0,229,255,0.08)"
+                    : "rgba(255,255,255,0.04)",
+              border:
+                countdown.state === "upcoming"
+                  ? "1px solid rgba(0,255,102,0.25)"
+                  : countdown.state === "ongoing"
+                    ? "1px solid rgba(0,229,255,0.25)"
+                    : "1px solid rgba(255,255,255,0.08)",
+            }}
+          >
+            {countdown.label}
+          </span>
         </div>
       </article>
     </Link>
