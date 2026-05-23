@@ -21,6 +21,7 @@ import { buildProgrammeIcs, countExportableEvents } from "@/lib/programme-ics";
 import { computeTotalProgrammeDurationMins, computeSelectedDurationMins, computeTimeCoveragePercent, getDensityLabel, getDensityColor, formatDensityBadge } from "@/lib/programme-density";
 import { groupEventsByVenue, sortVenueGroups, sortEventsWithinGroup } from "@/lib/programme-group";
 import { useEventNotes } from "@/hooks/use-event-notes";
+import { buildTimelineSlots } from "@/lib/programme-timeline";
 import { Copy, Check, CalendarArrowDown } from "lucide-react";
 import { ChevronUp } from "lucide-react";
 
@@ -1703,17 +1704,63 @@ export function ProgrammeView({
         <div
           style={{ display: "flex", flexDirection: "column", gap: "var(--space-sm)" }}
         >
-          {sortedFilteredEvents.map((e) => (
-            <EventCard
-              key={e.id}
-              event={e}
-              onSelectionCycle={handleSelectionCycle}
-              hasConflict={conflictingIds.has(e.id)}
-              isOngoing={ongoingIds.has(e.id)}
-              note={notes[e.id]}
-              onNoteChange={(text) => setNote(e.id, text)}
-            />
-          ))}
+          {sortMode === "time"
+            ? buildTimelineSlots(sortedFilteredEvents).map((slot, i) =>
+                slot.type === "separator" ? (
+                  <div
+                    key={`sep-${slot.hour}-${i}`}
+                    data-testid={`timeline-hour-${slot.hour}`}
+                    aria-hidden="true"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "var(--space-sm)",
+                      paddingTop: i === 0 ? 0 : "var(--space-xs)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--fs-xs)",
+                        fontWeight: 700,
+                        color: "var(--accent-pink)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {slot.label}
+                    </span>
+                    <div
+                      style={{
+                        flex: 1,
+                        height: 1,
+                        backgroundColor: "rgba(255,0,122,0.2)",
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <EventCard
+                    key={slot.event.id}
+                    event={slot.event}
+                    onSelectionCycle={handleSelectionCycle}
+                    hasConflict={conflictingIds.has(slot.event.id)}
+                    isOngoing={ongoingIds.has(slot.event.id)}
+                    note={notes[slot.event.id]}
+                    onNoteChange={(text) => setNote(slot.event.id, text)}
+                  />
+                )
+              )
+            : sortedFilteredEvents.map((e) => (
+                <EventCard
+                  key={e.id}
+                  event={e}
+                  onSelectionCycle={handleSelectionCycle}
+                  hasConflict={conflictingIds.has(e.id)}
+                  isOngoing={ongoingIds.has(e.id)}
+                  note={notes[e.id]}
+                  onNoteChange={(text) => setNote(e.id, text)}
+                />
+              ))
+          }
         </div>
       )}
 
