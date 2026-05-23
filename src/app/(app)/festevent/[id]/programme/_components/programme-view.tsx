@@ -7,6 +7,7 @@ import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
 import type { EventType } from "@/lib/api";
 import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, matchesVenueFilter, matchesDurationFilter, matchesAgeRestrictionFilter, type SelectionFilter, type DurationFilter, DURATION_FILTER_LABELS } from "@/lib/programme-search";
+import { formatTagLabel } from "@/lib/programme-tag-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
 import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
@@ -823,6 +824,7 @@ export function ProgrammeView({
       {/* Tag filter — only rendered when events have tags */}
       {allTags.length > 0 && (
         <div
+          data-testid="programme-tag-filter"
           style={{
             display: "flex",
             gap: "var(--space-xs)",
@@ -834,12 +836,41 @@ export function ProgrammeView({
           role="group"
           aria-label="Filtrer par tag"
         >
+          {/* "Tous" reset chip — visible only when at least one tag is active */}
+          {activeTags.size > 0 && (
+            <button
+              type="button"
+              onClick={() => setActiveTags(new Set())}
+              aria-label="Réinitialiser le filtre tags"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                padding: "3px 10px",
+                borderRadius: "var(--radius-full)",
+                border: "1.5px solid var(--accent-pink)",
+                backgroundColor: "var(--pink-soft)",
+                color: "var(--accent-pink)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                fontWeight: "var(--fw-bold)",
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                flexShrink: 0,
+                transition: "var(--transition-fast)",
+              }}
+            >
+              Tous
+            </button>
+          )}
           {allTags.map((tag) => {
             const isActive = activeTags.has(tag);
             return (
               <button
                 key={tag}
                 type="button"
+                data-testid={`programme-tag-chip-${tag}`}
                 onClick={() => toggleTag(tag)}
                 aria-pressed={isActive}
                 style={{
@@ -848,14 +879,13 @@ export function ProgrammeView({
                   padding: "3px 10px",
                   borderRadius: "var(--radius-full)",
                   border: isActive
-                    ? "1.5px solid var(--warning-orange)"
+                    ? "1.5px solid var(--accent-pink)"
                     : "1.5px solid rgba(255,255,255,0.1)",
-                  backgroundColor: isActive ? "var(--orange-soft)" : "transparent",
-                  color: isActive ? "var(--warning-orange)" : "var(--text-dim)",
+                  backgroundColor: isActive ? "var(--accent-pink)" : "transparent",
+                  color: isActive ? "#000" : "var(--text-dim)",
                   fontFamily: "var(--font-body)",
                   fontSize: "var(--fs-xs)",
                   fontWeight: "var(--fw-medium)",
-                  textTransform: "lowercase",
                   letterSpacing: "0.02em",
                   cursor: "pointer",
                   whiteSpace: "nowrap",
@@ -863,7 +893,7 @@ export function ProgrammeView({
                   transition: "var(--transition-fast)",
                 }}
               >
-                #{tag}
+                {formatTagLabel(tag)}
               </button>
             );
           })}
