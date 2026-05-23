@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ProfilView, type ProfilData } from "./_components/profil-view";
+import { extractSeenArtists, topSeenArtists } from "@/lib/seen-artists";
 
 export const metadata: Metadata = {
   title: "Mon profil",
@@ -65,9 +66,24 @@ async function fetchProfilData(userId: string): Promise<ProfilData | null> {
 
   if (!user) return null;
 
-  const vuCount = await prisma.selection.count({
-    where: { status: "vu", festEvent: { userId } },
-  });
+  const [vuCount, vuSelections] = await Promise.all([
+    prisma.selection.count({ where: { status: "vu", festEvent: { userId } } }),
+    prisma.selection.findMany({
+      where: { status: "vu", festEvent: { userId } },
+      select: {
+        event: {
+          select: {
+            artist: {
+              select: { id: true, name: true, disciplines: true, countryCode: true },
+            },
+          },
+        },
+      },
+    }),
+  ]);
+  const seenArtists = topSeenArtists(
+    extractSeenArtists(vuSelections.map((s) => s.event?.artist ?? null)),
+  );
 
   return {
     id: user.id,
@@ -105,6 +121,7 @@ async function fetchProfilData(userId: string): Promise<ProfilData | null> {
       city: uf.festival.city,
       country: uf.festival.country,
     })),
+    seenArtists,
   };
 }
 

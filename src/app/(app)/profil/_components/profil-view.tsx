@@ -32,6 +32,14 @@ interface FestEventRef {
   festival: FestivalRef;
 }
 
+export interface SeenArtistRef {
+  id: string;
+  name: string;
+  disciplines: string[];
+  countryCode: string | null;
+  timesVu: number;
+}
+
 export interface ProfilData {
   id: string;
   email: string;
@@ -47,6 +55,7 @@ export interface ProfilData {
   };
   festEvents: FestEventRef[];
   followedFestivals: FestivalRef[];
+  seenArtists: SeenArtistRef[];
 }
 
 // ---------------------------------------------------------------------------
@@ -1265,6 +1274,131 @@ export function ProfilView({ data }: { data: ProfilData }) {
           </div>
         </div>
       </section>
+
+      {/* Seen artists */}
+      {data.seenArtists.length > 0 && (
+        <section style={{ marginTop: "var(--space-md)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "var(--space-sm)" }}>
+            <h2
+              style={{
+                fontFamily: "var(--font-display)",
+                fontSize: "var(--fs-sm)",
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "var(--accent-pink)",
+                margin: 0,
+              }}
+            >
+              Artistes vus
+            </h2>
+            <Link
+              href="/artistes"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+                textDecoration: "none",
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
+              }}
+            >
+              Tous →
+            </Link>
+          </div>
+          <div
+            data-testid="profil-seen-artists"
+            style={{ display: "flex", flexDirection: "column", gap: 6 }}
+          >
+            {data.seenArtists.map((artist) => (
+              <Link
+                key={artist.id}
+                href={`/artiste/${artist.id}`}
+                data-testid={`profil-seen-artist-${artist.id}`}
+                style={{ textDecoration: "none" }}
+              >
+                <div
+                  style={{
+                    background: "var(--bg-surface)",
+                    border: "1px solid var(--border-color)",
+                    borderLeft: "3px solid var(--accent-pink)",
+                    borderRadius: "var(--radius-md)",
+                    padding: "10px var(--space-md)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 8,
+                  }}
+                >
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <p
+                      style={{
+                        fontFamily: "var(--font-display)",
+                        fontSize: "var(--fs-sm)",
+                        fontWeight: 900,
+                        textTransform: "uppercase",
+                        color: "var(--text-main)",
+                        margin: 0,
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {artist.name}
+                    </p>
+                    {artist.disciplines.length > 0 && (
+                      <p style={{ margin: "2px 0 0", fontSize: "var(--fs-xs)", color: "var(--text-muted)", fontFamily: "var(--font-body)" }}>
+                        {artist.disciplines.join(", ")}
+                      </p>
+                    )}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+                    {artist.timesVu > 1 && (
+                      <span style={{ fontFamily: "var(--font-mono)", fontSize: "var(--fs-xs)", color: "var(--accent-pink)" }}>
+                        ×{artist.timesVu}
+                      </span>
+                    )}
+                    <span style={{ color: "var(--accent-pink)", fontSize: "0.75rem" }}>→</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Quick link to artistes catalogue */}
+      <Link
+        href="/artistes"
+        data-testid="profil-artistes-link"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: "var(--bg-surface)",
+          border: "1px solid var(--border-color)",
+          borderRadius: "var(--radius-md)",
+          padding: "var(--space-sm) var(--space-md)",
+          textDecoration: "none",
+          marginTop: "var(--space-sm)",
+        }}
+      >
+        <span
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "var(--fs-sm)",
+            color: "var(--accent-pink)",
+            textTransform: "uppercase",
+            letterSpacing: "0.04em",
+            fontWeight: 900,
+          }}
+        >
+          Artistes
+        </span>
+        <span style={{ color: "var(--text-dim)", fontSize: "var(--fs-xs)" }}>
+          Catalogue artistes →
+        </span>
+      </Link>
 
       {/* Quick link to agenda */}
       <Link
