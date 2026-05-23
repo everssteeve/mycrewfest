@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Newspaper, Pin, RefreshCw, Filter, Search, X } from "lucide-react";
 import { matchesNewsQuery } from "@/lib/news-search";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins } from "@/lib/news-stats";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 // ---------------------------------------------------------------------------
@@ -329,6 +329,7 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
   const categoryCount = useMemo(() => countUniqueNewsCategories(filteredNews), [filteredNews]);
   const recentCount = useMemo(() => countRecentNewsItems(filteredNews, 24), [filteredNews]);
   const topCategory = useMemo(() => getTopNewsCategory(filteredNews), [filteredNews]);
+  const freshnessMins = useMemo(() => getMostRecentArticleAgoMins(filteredNews), [filteredNews]);
 
   // Separate pinned from the rest
   const pinnedItems = filteredNews.filter((item) => item.isPinned);
@@ -532,6 +533,19 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
               title="Actualités publiées dans les dernières 24h"
             >
               · {recentCount} récent{recentCount > 1 ? "s" : ""}
+            </span>
+          )}
+          {freshnessMins !== null && filteredNews.length > 0 && freshnessMins < 60 * 24 && (
+            <span
+              data-testid="news-stats-freshness"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: freshnessMins < 60 ? "var(--primary-neon)" : "var(--text-muted)",
+              }}
+              title="Temps écoulé depuis la publication de la dernière actualité"
+            >
+              · il y a {freshnessMins < 60 ? `${freshnessMins}min` : `${Math.floor(freshnessMins / 60)}h`}
             </span>
           )}
           {selectedCategory && (

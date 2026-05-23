@@ -109,3 +109,22 @@ export function getTopNewsSource<T extends SourceCountable>(items: T[]): string 
   }
   return topSource;
 }
+
+/**
+ * Returns how many minutes ago the most recently published item was published,
+ * relative to `now`. Returns null when the list is empty or all dates are unparseable.
+ * Negative values (future-dated items) are clamped to 0.
+ */
+export function getMostRecentArticleAgoMins<T extends TimestampedNewsItem>(
+  items: T[],
+  now: Date = new Date(),
+): number | null {
+  let newest: number | null = null;
+  for (const item of items) {
+    const t = new Date(item.publishedAt).getTime();
+    if (Number.isNaN(t)) continue;
+    if (newest === null || t > newest) newest = t;
+  }
+  if (newest === null) return null;
+  return Math.max(0, Math.floor((now.getTime() - newest) / 60_000));
+}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins } from "@/lib/news-stats";
 
 const item = (urgencyLevel: "normal" | "critique", isPinned = false) => ({
   urgencyLevel,
@@ -180,5 +180,39 @@ describe("getTopNewsCategory", () => {
   it("handles three-way tie alphabetically", () => {
     const items = [cat("Zéro"), cat("Artiste"), cat("Programme")];
     expect(getTopNewsCategory(items)).toBe("Artiste");
+  });
+});
+
+describe("getMostRecentArticleAgoMins", () => {
+  const now = new Date("2026-07-15T12:00:00Z");
+  const minsAgo = (m: number) => new Date(now.getTime() - m * 60_000).toISOString();
+
+  it("returns null for empty list", () => {
+    expect(getMostRecentArticleAgoMins([], now)).toBeNull();
+  });
+
+  it("returns null when all dates are unparseable", () => {
+    const items = [{ publishedAt: "bad" }, { publishedAt: "also-bad" }];
+    expect(getMostRecentArticleAgoMins(items, now)).toBeNull();
+  });
+
+  it("returns minutes since the most recent item", () => {
+    const items = [{ publishedAt: minsAgo(30) }, { publishedAt: minsAgo(120) }];
+    expect(getMostRecentArticleAgoMins(items, now)).toBe(30);
+  });
+
+  it("clamps negative values to 0 for future-dated items", () => {
+    const items = [{ publishedAt: minsAgo(-10) }];
+    expect(getMostRecentArticleAgoMins(items, now)).toBe(0);
+  });
+
+  it("ignores unparseable dates and uses the best valid date", () => {
+    const items = [{ publishedAt: "invalid" }, { publishedAt: minsAgo(45) }];
+    expect(getMostRecentArticleAgoMins(items, now)).toBe(45);
+  });
+
+  it("returns 0 for an item published exactly now", () => {
+    const items = [{ publishedAt: now.toISOString() }];
+    expect(getMostRecentArticleAgoMins(items, now)).toBe(0);
   });
 });
