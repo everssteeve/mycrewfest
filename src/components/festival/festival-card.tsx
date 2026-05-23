@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import type { FestivalSummary, FestivalType, ProgramStatus } from "@/lib/types";
 import { getFestivalTemporalStatus, getDaysUntilStart } from "@/lib/festival-temporal";
+import { formatFestivalStats } from "@/lib/format-count";
 
 interface FestivalCardProps {
   festival: FestivalSummary;
@@ -187,6 +188,17 @@ export function FestivalCard({ festival }: FestivalCardProps) {
           <MapPin size={12} aria-hidden="true" />
           {festival.city}, {festival.country}
         </p>
+
+        {/* Stats */}
+        {festival._count && (festival._count.events > 0 || festival._count.followers > 0) && (
+          <p
+            className="t-caption"
+            style={{ color: "var(--text-muted)", fontSize: "var(--fs-xs)" }}
+            data-testid="festival-event-count"
+          >
+            {formatFestivalStats(festival._count)}
+          </p>
+        )}
 
         {/* Chips row */}
         <div className="flex flex-wrap items-center gap-2 pt-1">
