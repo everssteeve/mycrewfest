@@ -342,3 +342,17 @@ export function countUniqueProgrammeTags<T extends TaggableEvent>(events: T[]): 
   }
   return tags.size;
 }
+
+export interface EvaluatedEvent {
+  selection?: { status: string } | null;
+}
+
+/**
+ * Returns the percentage (0–100, integer) of events that have any selection status.
+ * Returns 0 for an empty list.
+ */
+export function computeSelectionCoveragePercent<T extends EvaluatedEvent>(events: T[]): number {
+  if (events.length === 0) return 0;
+  const evaluated = events.filter((e) => e.selection?.status != null).length;
+  return Math.round((evaluated / events.length) * 100);
+}

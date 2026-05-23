@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -633,5 +633,50 @@ describe("countUniqueProgrammeTags", () => {
   it("is case-sensitive (jazz ≠ Jazz)", () => {
     const events = [{ tags: ["jazz"] }, { tags: ["Jazz"] }];
     expect(countUniqueProgrammeTags(events)).toBe(2);
+  });
+});
+
+describe("computeSelectionCoveragePercent", () => {
+  it("returns 0 for empty list", () => {
+    expect(computeSelectionCoveragePercent([])).toBe(0);
+  });
+
+  it("returns 0 when no events have a selection", () => {
+    const events = [{ selection: null }, { selection: null }];
+    expect(computeSelectionCoveragePercent(events)).toBe(0);
+  });
+
+  it("returns 100 when all events have a selection", () => {
+    const events = [
+      { selection: { status: "must-see" } },
+      { selection: { status: "vu" } },
+    ];
+    expect(computeSelectionCoveragePercent(events)).toBe(100);
+  });
+
+  it("computes correct percentage for mixed events", () => {
+    const events = [
+      { selection: { status: "must-see" } },
+      { selection: null },
+      { selection: { status: "vu" } },
+      { selection: null },
+    ];
+    // 2 out of 4 = 50%
+    expect(computeSelectionCoveragePercent(events)).toBe(50);
+  });
+
+  it("rounds to nearest integer", () => {
+    const events = [
+      { selection: { status: "vu" } },
+      { selection: null },
+      { selection: null },
+    ];
+    // 1/3 = 33.3% → 33
+    expect(computeSelectionCoveragePercent(events)).toBe(33);
+  });
+
+  it("treats undefined selection as not evaluated", () => {
+    const events = [{ selection: undefined }, { selection: { status: "vu" } }];
+    expect(computeSelectionCoveragePercent(events)).toBe(50);
   });
 });

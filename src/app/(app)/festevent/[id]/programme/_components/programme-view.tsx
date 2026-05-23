@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing, countUpcomingEvents } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -316,6 +316,11 @@ export function ProgrammeView({
 
   const uniqueTagCount = useMemo(
     () => countUniqueProgrammeTags(filteredEvents),
+    [filteredEvents],
+  );
+
+  const coveragePct = useMemo(
+    () => computeSelectionCoveragePercent(filteredEvents),
     [filteredEvents],
   );
 
@@ -1167,6 +1172,22 @@ export function ProgrammeView({
               title={`${uniqueTagCount} catégories distinctes dans ce programme`}
             >
               {uniqueTagCount} catégories
+            </span>
+          </>
+        )}
+        {coveragePct > 0 && coveragePct < 100 && filteredEvents.length >= 5 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-coverage-pct"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: coveragePct >= 50 ? "var(--secondary-cyan)" : "var(--text-dim)",
+              }}
+              title={`${coveragePct}% des événements ont été évalués`}
+            >
+              {coveragePct}% évalués
             </span>
           </>
         )}
