@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { Search } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { TopHeader } from "@/components/ui";
 import { CatalogueContent } from "./_components/catalogue-content";
 import { CatalogueSkeleton } from "./_components/catalogue-skeleton";
@@ -16,6 +16,24 @@ export default function CataloguePage() {
         title="FESTIVALS"
         right={
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Link
+              href="/recommandations"
+              aria-label="Recommandations pour toi"
+              data-testid="catalogue-recommendations-link"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 36,
+                height: 36,
+                borderRadius: "var(--radius-full)",
+                border: "1px solid var(--border-strong)",
+                color: "var(--primary-neon)",
+                textDecoration: "none",
+              }}
+            >
+              <Sparkles size={16} aria-hidden="true" />
+            </Link>
             <Link
               href="/recherche"
               aria-label="Recherche globale"
