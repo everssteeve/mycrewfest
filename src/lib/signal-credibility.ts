@@ -108,3 +108,14 @@ export function countRecentSignals(
     return !Number.isNaN(t) && t >= cutoff;
   }).length;
 }
+
+export interface AuthorableSignal {
+  authorId: string;
+}
+
+/**
+ * Returns the number of distinct authorIds across the given signals.
+ */
+export function countUniqueSignalAuthors<T extends AuthorableSignal>(signals: T[]): number {
+  return new Set(signals.map((s) => s.authorId)).size;
+}

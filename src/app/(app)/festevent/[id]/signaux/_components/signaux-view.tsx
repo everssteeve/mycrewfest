@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
 import { filterSignalsByScope, type SignalScope } from "@/lib/signal-filter";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors } from "@/lib/signal-credibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -604,6 +604,11 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
     [displayedSignals],
   );
 
+  const uniqueAuthors = useMemo(
+    () => countUniqueSignalAuthors(displayedSignals),
+    [displayedSignals],
+  );
+
   return (
     <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
       {/* Header */}
@@ -675,6 +680,19 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
               title={`${credibilityRate}% des signaux sont jugés fiables`}
             >
               · {credibilityRate}% crédibles
+            </span>
+          )}
+          {uniqueAuthors > 1 && (
+            <span
+              data-testid="signal-unique-authors"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-muted)",
+              }}
+              title={`${uniqueAuthors} contributeurs distincts`}
+            >
+              · {uniqueAuthors} participants
             </span>
           )}
         </div>

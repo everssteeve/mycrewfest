@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors } from "@/lib/signal-credibility";
 
 describe("computeSignalCredibility", () => {
   it("returns 0.5 neutre when no votes", () => {
@@ -220,5 +220,28 @@ describe("computeSignalCredibilityRate", () => {
       { confirmations: 0, infirmations: 1 },
     ];
     expect(computeSignalCredibilityRate(signals)).toBe(50);
+  });
+});
+
+describe("countUniqueSignalAuthors", () => {
+  const signal = (authorId: string) => ({ authorId });
+
+  it("returns 0 for empty list", () => {
+    expect(countUniqueSignalAuthors([])).toBe(0);
+  });
+
+  it("counts each unique authorId once", () => {
+    const signals = [signal("a"), signal("b"), signal("a"), signal("c")];
+    expect(countUniqueSignalAuthors(signals)).toBe(3);
+  });
+
+  it("returns 1 when all signals share the same author", () => {
+    const signals = [signal("user-1"), signal("user-1"), signal("user-1")];
+    expect(countUniqueSignalAuthors(signals)).toBe(1);
+  });
+
+  it("treats each distinct authorId as unique", () => {
+    const signals = [signal("alice"), signal("bob")];
+    expect(countUniqueSignalAuthors(signals)).toBe(2);
   });
 });
