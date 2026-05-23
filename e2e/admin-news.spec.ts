@@ -1,0 +1,48 @@
+/**
+ * E2E tests for the admin news management page.
+ */
+
+import { test, expect } from "@playwright/test";
+
+async function loginAsAdmin(page: import("@playwright/test").Page) {
+  await page.goto("/login");
+  await page.fill('input[type="email"]', "test@mycrewfest.dev");
+  await page.fill('input[type="password"]', "password123");
+  await page.click('button[type="submit"]');
+  await page.waitForURL("/catalogue", { timeout: 10_000 });
+}
+
+test.describe("Admin — News management page", () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsAdmin(page);
+    await page.goto("/admin/news");
+    await page.waitForLoadState("networkidle");
+  });
+
+  test("news page loads without error", async ({ page }) => {
+    await expect(page).not.toHaveURL("/login");
+  });
+
+  test("news title is visible", async ({ page }) => {
+    await expect(page.getByTestId("admin-news-title")).toBeVisible();
+  });
+
+  test("news KPIs are visible", async ({ page }) => {
+    await expect(page.getByTestId("admin-news-kpis")).toBeVisible();
+    await expect(page.getByTestId("admin-news-kpi-total")).toBeVisible();
+    await expect(page.getByTestId("admin-news-kpi-festivals")).toBeVisible();
+    await expect(page.getByTestId("admin-news-kpi-critiques")).toBeVisible();
+    await expect(page.getByTestId("admin-news-kpi-pinned")).toBeVisible();
+  });
+
+  test("news table or empty state is visible", async ({ page }) => {
+    await expect(page.getByTestId("admin-news-table")).toBeVisible();
+  });
+
+  test("news link appears in sidebar", async ({ page }) => {
+    await page.goto("/admin");
+    await page.waitForLoadState("networkidle");
+    const newsLink = page.locator('a[href="/admin/news"]');
+    await expect(newsLink).toBeVisible();
+  });
+});
