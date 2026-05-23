@@ -64,7 +64,25 @@ export default async function AdminUsersPage() {
         >
           Utilisateurs
         </h1>
-        <div style={{ display: "flex", gap: "var(--space-md)" }}>
+        <div style={{ display: "flex", gap: "var(--space-md)", alignItems: "center" }}>
+          <a
+            href="/api/admin/export/users"
+            download
+            data-testid="admin-users-export-csv"
+            style={{
+              padding: "6px 14px",
+              border: "1px solid var(--border-color)",
+              color: "var(--text-muted)",
+              borderRadius: "var(--radius-md)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              textDecoration: "none",
+            }}
+          >
+            ↓ CSV
+          </a>
           <span
             data-testid="admin-users-admin-count"
             style={{

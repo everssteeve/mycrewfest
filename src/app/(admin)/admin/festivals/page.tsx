@@ -63,23 +63,43 @@ export default async function AdminFestivalsPage() {
         >
           Festivals
         </h1>
-        <Link
-          href="/admin/festivals/new"
-          style={{
-            padding: "10px 20px",
-            background: "var(--primary-neon)",
-            color: "var(--text-on-neon)",
-            borderRadius: "var(--radius-md)",
-            fontFamily: "var(--font-body)",
-            fontSize: "var(--fs-sm)",
-            fontWeight: "var(--fw-bold)",
-            textTransform: "uppercase",
-            letterSpacing: "0.06em",
-            textDecoration: "none",
-          }}
-        >
-          + Nouveau
-        </Link>
+        <div style={{ display: "flex", gap: "var(--space-sm)", alignItems: "center" }}>
+          <a
+            href="/api/admin/export/festivals"
+            download
+            data-testid="admin-festivals-export-csv"
+            style={{
+              padding: "10px 20px",
+              border: "1px solid var(--border-color)",
+              color: "var(--text-muted)",
+              borderRadius: "var(--radius-md)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              textDecoration: "none",
+            }}
+          >
+            ↓ CSV
+          </a>
+          <Link
+            href="/admin/festivals/new"
+            style={{
+              padding: "10px 20px",
+              background: "var(--primary-neon)",
+              color: "var(--text-on-neon)",
+              borderRadius: "var(--radius-md)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              fontWeight: "var(--fw-bold)",
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              textDecoration: "none",
+            }}
+          >
+            + Nouveau
+          </Link>
+        </div>
       </div>
 
       {/* Stats */}
