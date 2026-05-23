@@ -2421,6 +2421,343 @@ async function main() {
 
   console.log(`  ✓ Festival: ${eurocks.name} (${eurocksEvents.length} events, ${eurocksNews.length} news)`);
 
+  // ── 8. Musilac 2026 — Aix-les-Bains ─────────────────────────────────────
+  const musilac = await prisma.festival.upsert({
+    where: { slug: "musilac-2026" },
+    update: {},
+    create: {
+      slug: "musilac-2026",
+      name: "Musilac 2026",
+      description:
+        "Festival de musique sur l'Esplanade du Lac du Bourget, entre lac et montagnes. 4 jours de concerts pop, rock, électro et rap sur la Riviera des Alpes.",
+      startDate: dt("2026-07-09T13:30:00Z"),
+      endDate: dt("2026-07-12T23:59:00Z"),
+      city: "Aix-les-Bains",
+      country: "France",
+      latitude: 45.6882,
+      longitude: 5.8924,
+      address: "Esplanade du Lac, Boulevard Robert Barrier, 73100 Aix-les-Bains",
+      festivalType: "musique",
+      programType: "structuré",
+      capacity: 25000,
+      siteUrl: "https://www.musilac.com",
+      instagramHandle: "musilacfestival",
+      ingestionStatus: "enrichi",
+      confidenceLevel: "vérifié_humain",
+      programStatus: "complet",
+    },
+  });
+
+  // New artists — Musilac 2026
+  const artistJamiroquai = await prisma.artist.upsert({
+    where: { id: "artist-jamiroquai" },
+    update: {},
+    create: {
+      id: "artist-jamiroquai",
+      name: "Jamiroquai",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "GB",
+    },
+  });
+
+  const artistBigfloEtOli = await prisma.artist.upsert({
+    where: { id: "artist-bigflo-et-oli" },
+    update: {},
+    create: {
+      id: "artist-bigflo-et-oli",
+      name: "Bigflo & Oli",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+    },
+  });
+
+  const artistCharlotteCardin = await prisma.artist.upsert({
+    where: { id: "artist-charlotte-cardin" },
+    update: {},
+    create: {
+      id: "artist-charlotte-cardin",
+      name: "Charlotte Cardin",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "CA",
+    },
+  });
+
+  const artistCassius = await prisma.artist.upsert({
+    where: { id: "artist-cassius" },
+    update: {},
+    create: {
+      id: "artist-cassius",
+      name: "Cassius",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+    },
+  });
+
+  const artistLastTrain = await prisma.artist.upsert({
+    where: { id: "artist-last-train" },
+    update: {},
+    create: {
+      id: "artist-last-train",
+      name: "Last Train",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+    },
+  });
+
+  const artistPomme = await prisma.artist.upsert({
+    where: { id: "artist-pomme" },
+    update: {},
+    create: {
+      id: "artist-pomme",
+      name: "Pomme",
+      disciplines: jsonArr(["musique"]),
+      countryCode: "FR",
+    },
+  });
+
+  // Venues — Musilac 2026
+  const musilacSceneLac = await prisma.venue.upsert({
+    where: { id: "venue-musilac-lac" },
+    update: {},
+    create: {
+      id: "venue-musilac-lac",
+      festivalId: musilac.id,
+      name: "Scène Lac",
+      type: "scène",
+      capacity: 25000,
+      latitude: 45.6882,
+      longitude: 5.8924,
+    },
+  });
+
+  const musilacSceneVillage = await prisma.venue.upsert({
+    where: { id: "venue-musilac-village" },
+    update: {},
+    create: {
+      id: "venue-musilac-village",
+      festivalId: musilac.id,
+      name: "Scène Village",
+      type: "scène",
+      capacity: 8000,
+      latitude: 45.6876,
+      longitude: 5.8916,
+    },
+  });
+
+  const musilacSceneDecouverte = await prisma.venue.upsert({
+    where: { id: "venue-musilac-decouverte" },
+    update: {},
+    create: {
+      id: "venue-musilac-decouverte",
+      festivalId: musilac.id,
+      name: "Scène Découverte",
+      type: "espace",
+      capacity: 2000,
+      latitude: 45.6871,
+      longitude: 5.8930,
+    },
+  });
+
+  // Events — Musilac 2026 (all CEST = UTC+2)
+  const musilacEvents = [
+    // Jeudi 9 juillet
+    {
+      id: "evt-musilac-feu-chatterton",
+      festivalId: musilac.id,
+      venueId: musilacSceneVillage.id,
+      artistId: vcArtistFeuChatterton.id,
+      title: "Feu! Chatterton",
+      eventType: "concert",
+      startTime: dt("2026-07-09T16:00:00Z"), // 18h00 CEST
+      endTime: dt("2026-07-09T17:15:00Z"),   // 19h15 CEST
+      durationMins: 75,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rock", "pop-rock"]),
+    },
+    {
+      id: "evt-musilac-last-train",
+      festivalId: musilac.id,
+      venueId: musilacSceneLac.id,
+      artistId: artistLastTrain.id,
+      title: "Last Train",
+      eventType: "concert",
+      startTime: dt("2026-07-09T17:30:00Z"), // 19h30 CEST
+      endTime: dt("2026-07-09T18:45:00Z"),   // 20h45 CEST
+      durationMins: 75,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rock", "indie-rock"]),
+    },
+    {
+      id: "evt-musilac-katy-perry",
+      festivalId: musilac.id,
+      venueId: musilacSceneLac.id,
+      artistId: vcArtistKatyPerry.id,
+      title: "Katy Perry",
+      eventType: "concert",
+      startTime: dt("2026-07-09T19:30:00Z"), // 21h30 CEST
+      endTime: dt("2026-07-09T21:00:00Z"),   // 23h00 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["pop", "têtes_d_affiche"]),
+    },
+    // Vendredi 10 juillet
+    {
+      id: "evt-musilac-orelsan",
+      festivalId: musilac.id,
+      venueId: musilacSceneLac.id,
+      artistId: vcArtistOrelsan.id,
+      title: "Orelsan",
+      eventType: "concert",
+      startTime: dt("2026-07-10T19:45:00Z"), // 21h45 CEST
+      endTime: dt("2026-07-10T21:30:00Z"),   // 23h30 CEST
+      durationMins: 105,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rap", "têtes_d_affiche"]),
+    },
+    // Samedi 11 juillet
+    {
+      id: "evt-musilac-pomme",
+      festivalId: musilac.id,
+      venueId: musilacSceneVillage.id,
+      artistId: artistPomme.id,
+      title: "Pomme",
+      eventType: "concert",
+      startTime: dt("2026-07-11T16:30:00Z"), // 18h30 CEST
+      endTime: dt("2026-07-11T17:30:00Z"),   // 19h30 CEST
+      durationMins: 60,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["folk", "pop"]),
+    },
+    {
+      id: "evt-musilac-jamiroquai",
+      festivalId: musilac.id,
+      venueId: musilacSceneLac.id,
+      artistId: artistJamiroquai.id,
+      title: "Jamiroquai",
+      eventType: "concert",
+      startTime: dt("2026-07-11T17:30:00Z"), // 19h30 CEST
+      endTime: dt("2026-07-11T19:15:00Z"),   // 21h15 CEST
+      durationMins: 105,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["funk", "acid-jazz"]),
+    },
+    {
+      id: "evt-musilac-gorillaz",
+      festivalId: musilac.id,
+      venueId: musilacSceneLac.id,
+      artistId: artistGorillaz.id,
+      title: "Gorillaz",
+      eventType: "concert",
+      startTime: dt("2026-07-11T20:00:00Z"), // 22h00 CEST
+      endTime: dt("2026-07-11T22:00:00Z"),   // 00h00 CEST
+      durationMins: 120,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["alternative", "électronique", "têtes_d_affiche"]),
+    },
+    // Dimanche 12 juillet
+    {
+      id: "evt-musilac-charlotte-cardin",
+      festivalId: musilac.id,
+      venueId: musilacSceneLac.id,
+      artistId: artistCharlotteCardin.id,
+      title: "Charlotte Cardin",
+      eventType: "concert",
+      startTime: dt("2026-07-12T17:00:00Z"), // 19h00 CEST
+      endTime: dt("2026-07-12T18:15:00Z"),   // 20h15 CEST
+      durationMins: 75,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["pop", "indie"]),
+    },
+    {
+      id: "evt-musilac-bigflo-et-oli",
+      festivalId: musilac.id,
+      venueId: musilacSceneLac.id,
+      artistId: artistBigfloEtOli.id,
+      title: "Bigflo & Oli",
+      eventType: "concert",
+      startTime: dt("2026-07-12T19:45:00Z"), // 21h45 CEST
+      endTime: dt("2026-07-12T21:30:00Z"),   // 23h30 CEST
+      durationMins: 105,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["rap", "têtes_d_affiche"]),
+    },
+    {
+      id: "evt-musilac-cassius",
+      festivalId: musilac.id,
+      venueId: musilacSceneVillage.id,
+      artistId: artistCassius.id,
+      title: "Cassius",
+      eventType: "concert",
+      startTime: dt("2026-07-12T21:30:00Z"), // 23h30 CEST
+      endTime: dt("2026-07-12T23:00:00Z"),   // 01h00 CEST
+      durationMins: 90,
+      access: "inclus",
+      status: "confirmé",
+      tags: jsonArr(["électronique", "house"]),
+    },
+  ];
+
+  for (const ev of musilacEvents) {
+    await prisma.event.upsert({
+      where: { id: ev.id },
+      update: {},
+      create: ev,
+    });
+  }
+
+  // News — Musilac 2026
+  const musilacNews = [
+    {
+      id: "news-musilac-2026-lineup",
+      festivalId: musilac.id,
+      summary: "Programmation complète dévoilée — Katy Perry, Gorillaz, Jamiroquai, Orelsan et Bigflo & Oli en têtes d'affiche de Musilac 2026 à Aix-les-Bains.",
+      urgencyLevel: "normal" as const,
+      isPinned: true,
+      publishedAt: dt("2026-02-10T10:00:00Z"),
+      category: "programmation",
+      source: "site_officiel",
+    },
+    {
+      id: "news-musilac-2026-billets",
+      festivalId: musilac.id,
+      summary: "Pass 4 jours disponibles en prévente. Billets à la journée en vente sur musilac.com. Camping au bord du lac du Bourget inclus avec le pass.",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-01-15T09:00:00Z"),
+      category: "billetterie",
+      source: "site_officiel",
+    },
+    {
+      id: "news-musilac-2026-vague2",
+      festivalId: musilac.id,
+      summary: "2ème vague de programmation : 16 nouveaux artistes confirmés dont Charlotte Cardin, Pomme, Cassius et Last Train. Programmation complète disponible sur musilac.com.",
+      urgencyLevel: "normal" as const,
+      isPinned: false,
+      publishedAt: dt("2026-04-05T12:00:00Z"),
+      category: "programmation",
+      source: "instagram",
+    },
+  ];
+
+  for (const news of musilacNews) {
+    await prisma.newsItem.upsert({
+      where: { id: news.id },
+      update: {},
+      create: news,
+    });
+  }
+
+  console.log(`  ✓ Festival: ${musilac.name} (${musilacEvents.length} events, ${musilacNews.length} news)`);
+
   console.log("\n✅ Seed terminé avec succès !");
   console.log("   Utilisateur test : test@mycrewfest.dev / password123");
 }
