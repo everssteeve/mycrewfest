@@ -1804,6 +1804,7 @@ export function ProgrammeView({
                     note={notes[e.id]}
                     onNoteChange={(text) => setNote(e.id, text)}
                     onArtistClick={setActiveArtist}
+                    searchQuery={searchQuery}
                   />
                 ))}
               </div>
@@ -1885,6 +1886,7 @@ export function ProgrammeView({
                       note={notes[slot.event.id]}
                       onNoteChange={(text) => setNote(slot.event.id, text)}
                       onArtistClick={setActiveArtist}
+                    searchQuery={searchQuery}
                     />
                   </div>
                 )
@@ -1927,6 +1929,7 @@ export function ProgrammeView({
                     note={notes[e.id]}
                     onNoteChange={(text) => setNote(e.id, text)}
                     onArtistClick={setActiveArtist}
+                    searchQuery={searchQuery}
                   />
                 </div>
               ))

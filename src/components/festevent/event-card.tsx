@@ -123,6 +123,7 @@ function formatTime(iso: string | null): string {
 // ---------------------------------------------------------------------------
 
 import { formatNotePreview, MAX_NOTE_LENGTH } from "@/lib/event-notes";
+import { highlightTerms, getHighlightStyle } from "@/lib/programme-search-highlight";
 
 interface EventCardProps {
   event: EventWithSelectionAndConfidence;
@@ -132,9 +133,10 @@ interface EventCardProps {
   note?: string;
   onNoteChange?: (text: string) => void;
   onArtistClick?: (artistName: string) => void;
+  searchQuery?: string;
 }
 
-export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngoing = false, note, onNoteChange, onArtistClick }: EventCardProps) {
+export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngoing = false, note, onNoteChange, onArtistClick, searchQuery = "" }: EventCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [noteOpen, setNoteOpen] = useState(false);
   const selectionStatus = event.selection?.status ?? null;
@@ -362,7 +364,15 @@ export function EventCard({ event, onSelectionCycle, hasConflict = false, isOngo
               lineHeight: "var(--lh-snug)",
             }}
           >
-            {event.title}
+            {searchQuery ? (
+              highlightTerms(event.title, searchQuery).map((seg, i) =>
+                seg.highlighted ? (
+                  <mark key={i} style={{ ...getHighlightStyle(), padding: "0 1px" }}>{seg.text}</mark>
+                ) : (
+                  <span key={i}>{seg.text}</span>
+                )
+              )
+            ) : event.title}
           </span>
           {event.artist && (
             onArtistClick ? (
