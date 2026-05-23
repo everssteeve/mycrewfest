@@ -3,6 +3,7 @@ import {
   getFestivalTemporalStatus,
   getDaysUntilStart,
   compareByTemporalRelevance,
+  formatTemporalBadge,
 } from "@/lib/festival-temporal";
 
 const d = (offsetDays: number, base = new Date("2026-06-15T12:00:00Z")): string => {
@@ -122,5 +123,28 @@ describe("compareByTemporalRelevance", () => {
       compareByTemporalRelevance(a, b, NOW)
     );
     expect(list).toEqual([ongoing, imminent, upcoming, past]);
+  });
+});
+
+describe("formatTemporalBadge", () => {
+  it("returns 'En cours' for en_cours status", () => {
+    expect(formatTemporalBadge("en_cours", 0)).toBe("En cours");
+  });
+
+  it("returns 'Demain' when imminent and daysUntil is 0", () => {
+    expect(formatTemporalBadge("imminent", 0)).toBe("Demain");
+  });
+
+  it("returns 'Dans N j' when imminent and daysUntil > 0", () => {
+    expect(formatTemporalBadge("imminent", 3)).toBe("Dans 3 j");
+    expect(formatTemporalBadge("imminent", 7)).toBe("Dans 7 j");
+  });
+
+  it("returns 'Passé' for past status", () => {
+    expect(formatTemporalBadge("past", -5)).toBe("Passé");
+  });
+
+  it("returns null for upcoming status", () => {
+    expect(formatTemporalBadge("upcoming", 30)).toBeNull();
   });
 });

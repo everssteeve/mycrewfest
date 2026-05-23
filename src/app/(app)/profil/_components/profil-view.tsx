@@ -7,6 +7,7 @@ import { useAppStore } from "@/store/use-app-store";
 import Link from "next/link";
 import { PushToggle } from "@/components/notifications/push-toggle";
 import { computeFestivalierScore, computeScoreBreakdown } from "@/lib/festivalier-score";
+import { getFestivalTemporalStatus, getDaysUntilStart, formatTemporalBadge } from "@/lib/festival-temporal";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -782,7 +783,16 @@ export function ProfilView({ data }: { data: ProfilData }) {
             Festivals suivis
           </h2>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-xs)" }}>
-            {data.followedFestivals.map((fest) => (
+            {data.followedFestivals.map((fest) => {
+              const temporalStatus = getFestivalTemporalStatus(fest.startDate, fest.endDate);
+              const daysUntil = getDaysUntilStart(fest.startDate);
+              const badge = formatTemporalBadge(temporalStatus, daysUntil);
+              const badgeColor = temporalStatus === "en_cours"
+                ? "var(--primary-neon)"
+                : temporalStatus === "imminent"
+                  ? "var(--secondary-cyan)"
+                  : "var(--text-muted)";
+              return (
               <div
                 key={fest.id}
                 style={{
@@ -790,12 +800,16 @@ export function ProfilView({ data }: { data: ProfilData }) {
                   alignItems: "center",
                   justifyContent: "space-between",
                   background: "var(--bg-surface)",
-                  border: "1px solid var(--border-color)",
+                  border: temporalStatus === "en_cours"
+                    ? "1px solid rgba(0,255,102,0.3)"
+                    : "1px solid var(--border-color)",
                   borderRadius: "var(--radius-md)",
                   padding: "var(--space-sm) var(--space-md)",
+                  opacity: temporalStatus === "past" ? 0.6 : 1,
                 }}
               >
                 <div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "var(--space-xs)" }}>
                   <p
                     style={{
                       fontFamily: "var(--font-display)",
@@ -808,6 +822,23 @@ export function ProfilView({ data }: { data: ProfilData }) {
                   >
                     {fest.name}
                   </p>
+                  {badge && (
+                    <span
+                      data-testid={`profil-festival-badge-${fest.id}`}
+                      style={{
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "10px",
+                        fontWeight: "var(--fw-bold)",
+                        color: badgeColor,
+                        textTransform: "uppercase",
+                        letterSpacing: "0.06em",
+                        flexShrink: 0,
+                      }}
+                    >
+                      {badge}
+                    </span>
+                  )}
+                  </div>
                   <p
                     style={{
                       fontFamily: "var(--font-body)",
@@ -838,7 +869,8 @@ export function ProfilView({ data }: { data: ProfilData }) {
                   Se désabonner
                 </button>
               </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}

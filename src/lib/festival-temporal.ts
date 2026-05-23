@@ -36,6 +36,26 @@ export function getDaysUntilStart(
   return Math.round((startDay.getTime() - today.getTime()) / msPerDay);
 }
 
+/**
+ * Returns a short display label for a festival temporal badge, or null for "upcoming" (no badge).
+ * - en_cours → "En cours"
+ * - imminent + daysUntil=0 → "Demain"
+ * - imminent + daysUntil>0 → "Dans N j"
+ * - past → "Passé"
+ * - upcoming → null (no badge needed)
+ */
+export function formatTemporalBadge(
+  status: TemporalStatus,
+  daysUntil: number,
+): string | null {
+  switch (status) {
+    case "en_cours": return "En cours";
+    case "imminent": return daysUntil <= 0 ? "Demain" : `Dans ${daysUntil} j`;
+    case "past": return "Passé";
+    case "upcoming": return null;
+  }
+}
+
 const STATUS_ORDER: Record<TemporalStatus, number> = {
   en_cours: 0,
   imminent: 1,
