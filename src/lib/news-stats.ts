@@ -44,6 +44,26 @@ export function countUniqueNewsCategories<T extends CategorizableNewsItem>(items
   return new Set(items.map((i) => i.category)).size;
 }
 
+export interface TimestampedNewsItem {
+  publishedAt: string;
+}
+
+/**
+ * Returns the count of news items published within the last `windowHours` hours
+ * relative to `now`. Items with unparseable dates are excluded.
+ */
+export function countRecentNewsItems<T extends TimestampedNewsItem>(
+  items: T[],
+  windowHours: number,
+  now: Date = new Date(),
+): number {
+  const cutoff = now.getTime() - windowHours * 60 * 60 * 1_000;
+  return items.filter((i) => {
+    const t = new Date(i.publishedAt).getTime();
+    return !Number.isNaN(t) && t >= cutoff;
+  }).length;
+}
+
 export interface SourceCountable {
   source: string;
 }

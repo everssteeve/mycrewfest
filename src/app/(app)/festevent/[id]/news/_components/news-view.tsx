@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Newspaper, Pin, RefreshCw, Filter, Search, X } from "lucide-react";
 import { matchesNewsQuery } from "@/lib/news-search";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems } from "@/lib/news-stats";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 // ---------------------------------------------------------------------------
@@ -327,6 +327,7 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
   const topSource = useMemo(() => getTopNewsSource(filteredNews), [filteredNews]);
   const pinnedCount = useMemo(() => countPinnedNewsItems(filteredNews), [filteredNews]);
   const categoryCount = useMemo(() => countUniqueNewsCategories(filteredNews), [filteredNews]);
+  const recentCount = useMemo(() => countRecentNewsItems(filteredNews, 24), [filteredNews]);
 
   // Separate pinned from the rest
   const pinnedItems = filteredNews.filter((item) => item.isPinned);
@@ -503,6 +504,20 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
               title="Nombre de catégories d'actualités"
             >
               · {categoryCount} catégories
+            </span>
+          )}
+          {recentCount > 0 && recentCount < newsStats.total && (
+            <span
+              data-testid="news-stats-recent"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--primary-neon)",
+                fontWeight: "var(--fw-bold)",
+              }}
+              title="Actualités publiées dans les dernières 24h"
+            >
+              · {recentCount} récent{recentCount > 1 ? "s" : ""}
             </span>
           )}
           {selectedCategory && (

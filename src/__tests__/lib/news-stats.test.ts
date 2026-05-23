@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems } from "@/lib/news-stats";
 
 const item = (urgencyLevel: "normal" | "critique", isPinned = false) => ({
   urgencyLevel,
@@ -113,5 +113,44 @@ describe("countUniqueNewsCategories", () => {
 
   it("returns total count when all items have distinct categories", () => {
     expect(countUniqueNewsCategories([cat("a"), cat("b"), cat("c")])).toBe(3);
+  });
+});
+
+describe("countRecentNewsItems", () => {
+  const now = new Date("2026-05-23T12:00:00Z");
+  const hoursAgo = (h: number) =>
+    new Date(now.getTime() - h * 60 * 60 * 1_000).toISOString();
+
+  it("returns 0 for empty array", () => {
+    expect(countRecentNewsItems([], 24, now)).toBe(0);
+  });
+
+  it("counts items within the window", () => {
+    const items = [
+      { publishedAt: hoursAgo(1) },
+      { publishedAt: hoursAgo(12) },
+      { publishedAt: hoursAgo(25) },
+    ];
+    expect(countRecentNewsItems(items, 24, now)).toBe(2);
+  });
+
+  it("returns 0 when all items are older than the window", () => {
+    const items = [{ publishedAt: hoursAgo(48) }, { publishedAt: hoursAgo(100) }];
+    expect(countRecentNewsItems(items, 24, now)).toBe(0);
+  });
+
+  it("includes item exactly at the boundary", () => {
+    const items = [{ publishedAt: hoursAgo(24) }];
+    expect(countRecentNewsItems(items, 24, now)).toBe(1);
+  });
+
+  it("excludes items with invalid publishedAt", () => {
+    const items = [{ publishedAt: "bad-date" }, { publishedAt: hoursAgo(2) }];
+    expect(countRecentNewsItems(items, 24, now)).toBe(1);
+  });
+
+  it("uses 24h window by default when no custom window is specified", () => {
+    const items = [{ publishedAt: hoursAgo(2) }, { publishedAt: hoursAgo(30) }];
+    expect(countRecentNewsItems(items, 24, now)).toBe(1);
   });
 });
