@@ -11,6 +11,13 @@ import {
   saveSearchHistory,
   clearSearchHistory,
 } from "@/lib/search-history";
+import {
+  applySearchTypeFilter,
+  countSearchResults,
+  buildTabLabel,
+  isTabDisabled,
+  type SearchTypeFilter,
+} from "@/lib/search-filter";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -36,6 +43,7 @@ export default function RecherchePage() {
   const [results, setResults] = useState<GlobalSearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
+  const [typeFilter, setTypeFilter] = useState<SearchTypeFilter>("all");
   const inputRef = useRef<HTMLInputElement>(null);
   const debouncedQuery = useDebounce(query, 300);
 
@@ -70,6 +78,7 @@ export default function RecherchePage() {
     if (debouncedQuery.length < 2) {
       setResults(null);
       setLoading(false);
+      setTypeFilter("all");
       return;
     }
     setLoading(true);
@@ -166,12 +175,65 @@ export default function RecherchePage() {
         </p>
       )}
 
+      {/* Type filter tabs */}
+      {results && results.total > 0 && (() => {
+        const counts = countSearchResults(results);
+        const tabs: SearchTypeFilter[] = ["all", "festivals", "artists"];
+        return (
+          <div
+            data-testid="search-type-filter"
+            style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 2 }}
+            role="tablist"
+            aria-label="Filtrer les résultats"
+          >
+            {tabs.map((tab) => {
+              const active = typeFilter === tab;
+              const disabled = isTabDisabled(tab, counts);
+              return (
+                <button
+                  key={tab}
+                  role="tab"
+                  aria-selected={active}
+                  data-testid={`search-type-tab-${tab}`}
+                  onClick={() => !disabled && setTypeFilter(tab)}
+                  disabled={disabled}
+                  style={{
+                    flexShrink: 0,
+                    padding: "5px 12px",
+                    borderRadius: 20,
+                    border: active
+                      ? "1px solid var(--primary-neon)"
+                      : "1px solid var(--border-strong)",
+                    background: active ? "rgba(0,255,102,0.1)" : "transparent",
+                    color: active
+                      ? "var(--primary-neon)"
+                      : disabled
+                      ? "var(--text-dim)"
+                      : "var(--text-muted)",
+                    fontSize: "var(--fs-xs, 11px)",
+                    fontWeight: active ? 700 : 500,
+                    fontFamily: "var(--font-body)",
+                    cursor: disabled ? "not-allowed" : "pointer",
+                    opacity: disabled ? 0.5 : 1,
+                    transition: "var(--transition-fast)",
+                  }}
+                >
+                  {buildTabLabel(tab, counts)}
+                </button>
+              );
+            })}
+          </div>
+        );
+      })()}
+
       {/* Results */}
-      {results && results.total > 0 && (
+      {results && results.total > 0 && (() => {
+        const filtered = applySearchTypeFilter(results, typeFilter);
+        return (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
 
           {/* Festivals section */}
-          {results.festivals.length > 0 && (
+          {filtered.festivals.length > 0 && (
             <section data-testid="search-festivals-section">
               <h2
                 className="t-caption"
@@ -187,7 +249,7 @@ export default function RecherchePage() {
                 Festivals
               </h2>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {results.festivals.map((f) => (
+                {filtered.festivals.map((f) => (
                   <Link
                     key={f.id}
                     href={`/festival/${f.slug}`}
@@ -248,7 +310,7 @@ export default function RecherchePage() {
           )}
 
           {/* Artists section */}
-          {results.artists.length > 0 && (
+          {filtered.artists.length > 0 && (
             <section data-testid="search-artists-section">
               <h2
                 className="t-caption"
@@ -264,7 +326,7 @@ export default function RecherchePage() {
                 Artistes
               </h2>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {results.artists.map((a) => (
+                {filtered.artists.map((a) => (
                   <Link
                     key={a.id}
                     href={`/artiste/${a.id}`}
@@ -312,7 +374,8 @@ export default function RecherchePage() {
             </section>
           )}
         </div>
-      )}
+        );
+      })()}
 
       {/* Search history */}
       {!results && !loading && history.length > 0 && (

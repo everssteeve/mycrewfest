@@ -95,6 +95,7 @@ export default async function AdminLayout({
             { href: "/admin/signals", label: "Signaux" },
             { href: "/admin/health", label: "Santé" },
             { href: "/admin/news", label: "News" },
+            { href: "/admin/souvenirs", label: "Souvenirs" },
             { href: "/admin/export", label: "Export" },
           ].map(({ href, label }) => (
             <Link
