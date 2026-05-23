@@ -19,6 +19,26 @@ export interface MostActiveDay {
   count: number;
 }
 
+export interface PhotoDayEntry {
+  timestamp: string;
+  photos?: string[];
+}
+
+/**
+ * Returns the number of distinct days that have at least one photo entry.
+ */
+export function countDaysWithPhotos(entries: PhotoDayEntry[]): number {
+  const days = new Set<string>();
+  for (const e of entries) {
+    if (!e.photos || e.photos.length === 0) continue;
+    const d = new Date(e.timestamp);
+    if (!isNaN(d.getTime())) {
+      days.add(d.toLocaleDateString("sv-SE"));
+    }
+  }
+  return days.size;
+}
+
 /**
  * Returns the date (YYYY-MM-DD) with the most journal entries, or null for empty input.
  * Ties are broken by earliest date.

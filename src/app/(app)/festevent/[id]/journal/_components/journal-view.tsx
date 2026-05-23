@@ -6,7 +6,7 @@ import { filterAndGroupByDay, countCrewSharedEntries, type JournalEntryTypeFilte
 import { Users } from "lucide-react";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
 import { isEscapeKey } from "@/lib/keyboard-search";
-import { computeJournalStats, getMostActiveJournalDay } from "@/lib/journal-stats";
+import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos } from "@/lib/journal-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -637,6 +637,8 @@ export function JournalView({
 
   const mostActiveDay = useMemo(() => getMostActiveJournalDay(souvenirs), [souvenirs]);
 
+  const daysWithPhotos = useMemo(() => countDaysWithPhotos(souvenirs), [souvenirs]);
+
   const hasCrewEntries = useMemo(() => souvenirs.some((s) => s.shareWithCrew), [souvenirs]);
   const hasEventEntries = useMemo(() => souvenirs.some((s) => s.eventId !== null), [souvenirs]);
 
@@ -747,6 +749,19 @@ export function JournalView({
             }}
           >
             {stats.entriesWithPhotos} photo{stats.entriesWithPhotos !== 1 ? "s" : ""}
+          </span>
+        )}
+        {daysWithPhotos > 0 && daysWithPhotos < stats.totalDays && (
+          <span
+            data-testid="journal-stats-photo-days"
+            style={{
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-muted)",
+            }}
+            title="Nombre de jours avec au moins une photo"
+          >
+            📷 {daysWithPhotos}j
           </span>
         )}
         {stats.totalWords > 0 && (

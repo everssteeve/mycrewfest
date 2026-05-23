@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeJournalStats, getMostActiveJournalDay, type JournalStatsEntry } from "@/lib/journal-stats";
+import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, type JournalStatsEntry } from "@/lib/journal-stats";
 
 const entry = (overrides: Partial<JournalStatsEntry> = {}): JournalStatsEntry => ({
   timestamp: "2025-07-15T14:30:00Z",
@@ -259,5 +259,52 @@ describe("getMostActiveJournalDay", () => {
     ];
     const result = getMostActiveJournalDay(entries);
     expect(result?.count).toBe(2);
+  });
+});
+
+describe("countDaysWithPhotos", () => {
+  it("returns 0 for empty array", () => {
+    expect(countDaysWithPhotos([])).toBe(0);
+  });
+
+  it("returns 0 when no entries have photos", () => {
+    const entries = [
+      { timestamp: "2025-07-15T10:00:00Z", photos: [] },
+      { timestamp: "2025-07-16T10:00:00Z" },
+    ];
+    expect(countDaysWithPhotos(entries)).toBe(0);
+  });
+
+  it("counts a single day with photos", () => {
+    const entries = [
+      { timestamp: "2025-07-15T10:00:00Z", photos: ["a.jpg"] },
+      { timestamp: "2025-07-15T14:00:00Z", photos: ["b.jpg"] },
+    ];
+    expect(countDaysWithPhotos(entries)).toBe(1);
+  });
+
+  it("counts multiple distinct days with photos", () => {
+    const entries = [
+      { timestamp: "2025-07-15T10:00:00Z", photos: ["a.jpg"] },
+      { timestamp: "2025-07-16T10:00:00Z", photos: ["b.jpg"] },
+      { timestamp: "2025-07-17T10:00:00Z", photos: [] },
+    ];
+    expect(countDaysWithPhotos(entries)).toBe(2);
+  });
+
+  it("ignores entries without photos from the count", () => {
+    const entries = [
+      { timestamp: "2025-07-15T10:00:00Z" },
+      { timestamp: "2025-07-15T14:00:00Z", photos: ["c.jpg"] },
+    ];
+    expect(countDaysWithPhotos(entries)).toBe(1);
+  });
+
+  it("ignores invalid timestamps", () => {
+    const entries = [
+      { timestamp: "bad-date", photos: ["a.jpg"] },
+      { timestamp: "2025-07-15T10:00:00Z", photos: ["b.jpg"] },
+    ];
+    expect(countDaysWithPhotos(entries)).toBe(1);
   });
 });
