@@ -35,3 +35,22 @@ export function isUpcomingOrOngoing<T extends UpcomingFilterable>(
   const windowMs = windowMins * 60_000;
   return start > now && start.getTime() - now.getTime() <= windowMs;
 }
+
+/**
+ * Returns the count of events that have NOT yet started but will start within
+ * `windowMins` minutes from `now`. Events already started are excluded.
+ * Events without a startTime are excluded.
+ */
+export function countUpcomingEvents<T extends UpcomingFilterable>(
+  events: T[],
+  now: Date,
+  windowMins = 120,
+): number {
+  return events.filter((e) => {
+    if (!e.startTime) return false;
+    const start = new Date(e.startTime);
+    if (now >= start) return false; // already started (ongoing or past)
+    const windowMs = windowMins * 60_000;
+    return start.getTime() - now.getTime() <= windowMs;
+  }).length;
+}

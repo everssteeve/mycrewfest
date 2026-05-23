@@ -10,7 +10,7 @@ import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, matche
 import { isEscapeKey } from "@/lib/keyboard-search";
 import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
 import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
-import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
+import { isUpcomingOrOngoing, countUpcomingEvents } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
 import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags } from "@/lib/programme-summary";
@@ -218,6 +218,7 @@ export function ProgrammeView({
   // Live "ongoing" event detection — refreshes every minute
   const ongoingIds = useMemo(() => findOngoingEventIds(events, now), [events, now]);
   const ongoingCount = useMemo(() => countOngoingEvents(events, now), [events, now]);
+  const upcomingSoonCount = useMemo(() => countUpcomingEvents(events, now, 120), [events, now]);
 
   // Event counts per day (across ALL events, not filtered)
   const eventDayCounts = useMemo(() => countEventsByDay(initialEvents), [initialEvents]);
@@ -958,6 +959,22 @@ export function ProgrammeView({
               title="Événements en cours maintenant"
             >
               ● {ongoingCount} en cours
+            </span>
+          </>
+        )}
+        {upcomingSoonCount > 0 && ongoingCount === 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-upcoming-soon"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--secondary-cyan)",
+              }}
+              title={`${upcomingSoonCount} événement${upcomingSoonCount !== 1 ? "s" : ""} dans les 2h`}
+            >
+              ▷ {upcomingSoonCount} bientôt
             </span>
           </>
         )}

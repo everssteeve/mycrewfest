@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
+import { isUpcomingOrOngoing, countUpcomingEvents } from "@/lib/programme-upcoming";
 
 const NOW = new Date("2026-07-15T18:00:00");
 const WINDOW = 120; // 2 hours
@@ -83,5 +83,58 @@ describe("isUpcomingOrOngoing — edge cases", () => {
     const event = { startTime: isoFrom(NOW) };
     // now >= start, now <= assumed end (+1h) → ongoing = true
     expect(isUpcomingOrOngoing(event, NOW, WINDOW)).toBe(true);
+  });
+});
+
+describe("countUpcomingEvents", () => {
+  function isoFrom(d: Date): string {
+    return d.toISOString();
+  }
+
+  it("returns 0 for empty list", () => {
+    expect(countUpcomingEvents([], NOW, WINDOW)).toBe(0);
+  });
+
+  it("returns 0 when all events have no startTime", () => {
+    const events = [{ startTime: null }, { startTime: undefined }];
+    expect(countUpcomingEvents(events, NOW, WINDOW)).toBe(0);
+  });
+
+  it("returns 0 when all events are already ongoing", () => {
+    const events = [{ startTime: isoFrom(mins(-60)) }]; // started 1h ago
+    expect(countUpcomingEvents(events, NOW, WINDOW)).toBe(0);
+  });
+
+  it("counts events starting within the window", () => {
+    const events = [
+      { startTime: isoFrom(mins(30)) },  // 30min from now — within 2h
+      { startTime: isoFrom(mins(90)) },  // 90min from now — within 2h
+    ];
+    expect(countUpcomingEvents(events, NOW, WINDOW)).toBe(2);
+  });
+
+  it("excludes events starting beyond the window", () => {
+    const events = [
+      { startTime: isoFrom(mins(30)) },   // within 2h
+      { startTime: isoFrom(mins(150)) },  // 2h30 away — beyond window
+    ];
+    expect(countUpcomingEvents(events, NOW, WINDOW)).toBe(1);
+  });
+
+  it("excludes events that already started (ongoing)", () => {
+    const events = [
+      { startTime: isoFrom(NOW) },         // started exactly now → ongoing, not upcoming
+      { startTime: isoFrom(mins(-10)) },   // started 10min ago
+      { startTime: isoFrom(mins(10)) },    // starts in 10min → upcoming
+    ];
+    expect(countUpcomingEvents(events, NOW, WINDOW)).toBe(1);
+  });
+
+  it("respects custom windowMins", () => {
+    const events = [
+      { startTime: isoFrom(mins(30)) },  // 30min away
+      { startTime: isoFrom(mins(90)) },  // 90min away
+    ];
+    expect(countUpcomingEvents(events, NOW, 60)).toBe(1); // only 30min event fits in 1h window
   });
 });
