@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeSignalCredibility, countForteSignals, countRecentSignals } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals } from "@/lib/signal-credibility";
 
 describe("computeSignalCredibility", () => {
   it("returns 0.5 neutre when no votes", () => {
@@ -114,5 +114,29 @@ describe("countRecentSignals", () => {
   it("excludes signals with invalid createdAt", () => {
     const signals = [{ createdAt: "not-a-date" }, { createdAt: daysAgo(2) }];
     expect(countRecentSignals(signals, 7, now)).toBe(1);
+  });
+});
+
+describe("countContestedSignals", () => {
+  const sig = (confirmations: number, infirmations: number) => ({ confirmations, infirmations });
+
+  it("returns 0 for empty array", () => {
+    expect(countContestedSignals([])).toBe(0);
+  });
+
+  it("returns 0 when no signals have infirmations", () => {
+    expect(countContestedSignals([sig(5, 0), sig(3, 0)])).toBe(0);
+  });
+
+  it("counts a single contested signal", () => {
+    expect(countContestedSignals([sig(5, 1), sig(3, 0)])).toBe(1);
+  });
+
+  it("counts multiple contested signals", () => {
+    expect(countContestedSignals([sig(5, 2), sig(1, 1), sig(3, 0)])).toBe(2);
+  });
+
+  it("counts signals with zero confirmations as contested if they have infirmations", () => {
+    expect(countContestedSignals([sig(0, 1)])).toBe(1);
   });
 });

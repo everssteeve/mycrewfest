@@ -39,6 +39,14 @@ export function countForteSignals(signals: CredibilityInput[]): number {
   return signals.filter((s) => computeSignalCredibility(s).label === "forte").length;
 }
 
+/**
+ * Returns the number of signals that have at least one infirmation vote,
+ * indicating contested or disputed information.
+ */
+export function countContestedSignals(signals: CredibilityInput[]): number {
+  return signals.filter((s) => s.infirmations >= 1).length;
+}
+
 export interface RecentSignalInput {
   createdAt: string;
 }

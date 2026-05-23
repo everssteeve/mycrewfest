@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
 import { filterSignalsByScope, type SignalScope } from "@/lib/signal-filter";
-import { computeSignalCredibility, countForteSignals, countRecentSignals } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals } from "@/lib/signal-credibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -589,6 +589,11 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
     [displayedSignals],
   );
 
+  const contestedCount = useMemo(
+    () => countContestedSignals(displayedSignals.map((s) => ({ confirmations: s.confirmations, infirmations: s.infirmations }))),
+    [displayedSignals],
+  );
+
   return (
     <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
       {/* Header */}
@@ -621,6 +626,19 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
               }}
             >
               · {recentCount} récent{recentCount > 1 ? "s" : ""}
+            </span>
+          )}
+          {contestedCount > 0 && (
+            <span
+              data-testid="signal-contested-count"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--warning-orange)",
+              }}
+              title="Signaux contestés (au moins 1 infirmation)"
+            >
+              · {contestedCount} contesté{contestedCount > 1 ? "s" : ""}
             </span>
           )}
         </div>
