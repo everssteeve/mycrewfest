@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState, useTransition } from "react";
 import { BookOpen, Share2, Download, Trash2, Clock, Search, X, Copy, Check } from "lucide-react";
 import { filterAndGroupByDay } from "@/lib/journal-filter";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
+import { isEscapeKey } from "@/lib/keyboard-search";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -673,6 +674,9 @@ export function JournalView({
             placeholder="Chercher dans le journal…"
             aria-label="Rechercher dans le journal"
             data-testid="journal-search-input"
+            onKeyDown={(e) => {
+              if (isEscapeKey(e)) setSearchQuery("");
+            }}
             style={{
               width: "100%",
               paddingLeft: 32,

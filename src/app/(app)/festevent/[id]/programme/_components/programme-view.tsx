@@ -7,6 +7,7 @@ import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
 import type { EventType } from "@/lib/api";
 import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, matchesVenueFilter, type SelectionFilter } from "@/lib/programme-search";
+import { isEscapeKey } from "@/lib/keyboard-search";
 import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
 import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
@@ -290,6 +291,9 @@ export function ProgrammeView({
           onBlur={(e) => {
             e.currentTarget.style.borderColor = "var(--border-color)";
             e.currentTarget.style.boxShadow = "none";
+          }}
+          onKeyDown={(e) => {
+            if (isEscapeKey(e)) setSearchQuery("");
           }}
         />
         {searchQuery && (
