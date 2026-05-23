@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   filterArtists,
   getAvailableDisciplines,
+  getAvailableCountries,
   sortArtistsByName,
   sortArtistsByFestivalCount,
   sortArtists,
@@ -21,9 +22,9 @@ function makeArtist(overrides: Partial<ArtistListItem> = {}): ArtistListItem {
 
 describe("filterArtists", () => {
   const artists = [
-    makeArtist({ id: "a1", name: "Iron Maiden", disciplines: ["Heavy Metal"] }),
-    makeArtist({ id: "a2", name: "Deep Purple", disciplines: ["Hard Rock"] }),
-    makeArtist({ id: "a3", name: "Alice Cooper", disciplines: ["Heavy Metal", "Rock"] }),
+    makeArtist({ id: "a1", name: "Iron Maiden", disciplines: ["Heavy Metal"], countryCode: "GB" }),
+    makeArtist({ id: "a2", name: "Deep Purple", disciplines: ["Hard Rock"], countryCode: "GB" }),
+    makeArtist({ id: "a3", name: "Alice Cooper", disciplines: ["Heavy Metal", "Rock"], countryCode: "US" }),
   ];
 
   it("returns all artists when query and discipline are empty", () => {
@@ -61,6 +62,44 @@ describe("filterArtists", () => {
 
   it("returns empty array for empty input", () => {
     expect(filterArtists([], "iron", "")).toHaveLength(0);
+  });
+
+  it("filters by countryCode", () => {
+    const result = filterArtists(artists, "", "", "GB");
+    expect(result).toHaveLength(2);
+    expect(result.every((a) => a.countryCode === "GB")).toBe(true);
+  });
+
+  it("combines country and discipline filters", () => {
+    const result = filterArtists(artists, "", "Heavy Metal", "US");
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("a3");
+  });
+
+  it("returns empty when no country match", () => {
+    expect(filterArtists(artists, "", "", "FR")).toHaveLength(0);
+  });
+});
+
+describe("getAvailableCountries", () => {
+  it("returns unique country codes sorted", () => {
+    const artists = [
+      makeArtist({ countryCode: "FR" }),
+      makeArtist({ countryCode: "DE" }),
+      makeArtist({ countryCode: "FR" }),
+      makeArtist({ countryCode: null }),
+    ];
+    const result = getAvailableCountries(artists);
+    expect(result).toEqual(["DE", "FR"]);
+  });
+
+  it("ignores null country codes", () => {
+    const artists = [makeArtist({ countryCode: null })];
+    expect(getAvailableCountries(artists)).toHaveLength(0);
+  });
+
+  it("returns empty for empty input", () => {
+    expect(getAvailableCountries([])).toHaveLength(0);
   });
 });
 

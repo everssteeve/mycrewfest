@@ -10,6 +10,7 @@ export function filterArtists(
   artists: ArtistListItem[],
   query: string,
   discipline: string,
+  countryCode = "",
 ): ArtistListItem[] {
   const q = query.trim().toLowerCase();
   return artists.filter((a) => {
@@ -19,8 +20,18 @@ export function filterArtists(
       a.disciplines.some((d) => d.toLowerCase().includes(q));
     const matchesDiscipline =
       !discipline || a.disciplines.includes(discipline);
-    return matchesQuery && matchesDiscipline;
+    const matchesCountry =
+      !countryCode || a.countryCode === countryCode;
+    return matchesQuery && matchesDiscipline && matchesCountry;
   });
+}
+
+export function getAvailableCountries(artists: ArtistListItem[]): string[] {
+  const set = new Set<string>();
+  for (const a of artists) {
+    if (a.countryCode) set.add(a.countryCode);
+  }
+  return [...set].sort();
 }
 
 export function getAvailableDisciplines(artists: ArtistListItem[]): string[] {

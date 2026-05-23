@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import {
   filterArtists,
   getAvailableDisciplines,
+  getAvailableCountries,
   sortArtists,
   type ArtistListItem,
   type ArtistSortMode,
@@ -18,14 +19,16 @@ interface Props {
 export function ArtistList({ initialArtists }: Props) {
   const [query, setQuery] = useState("");
   const [discipline, setDiscipline] = useState("");
+  const [countryCode, setCountryCode] = useState("");
   const [sortMode, setSortMode] = useState<ArtistSortMode>("name");
 
   const sorted = useMemo(() => sortArtists(initialArtists, sortMode), [initialArtists, sortMode]);
   const disciplines = useMemo(() => getAvailableDisciplines(initialArtists), [initialArtists]);
+  const countries = useMemo(() => getAvailableCountries(initialArtists), [initialArtists]);
 
   const filtered = useMemo(
-    () => filterArtists(sorted, query, discipline),
-    [sorted, query, discipline],
+    () => filterArtists(sorted, query, discipline, countryCode),
+    [sorted, query, discipline, countryCode],
   );
 
   return (
@@ -115,6 +118,33 @@ export function ArtistList({ initialArtists }: Props) {
             </button>
           ))}
         </div>
+      )}
+
+      {/* Country filter */}
+      {countries.length > 1 && (
+        <select
+          data-testid="artistes-country-filter"
+          value={countryCode}
+          onChange={(e) => setCountryCode(e.target.value)}
+          aria-label="Filtrer par pays"
+          style={{
+            padding: "8px 12px",
+            background: "var(--bg-surface)",
+            border: `1px solid ${countryCode ? "var(--secondary-cyan)" : "var(--border-color)"}`,
+            borderRadius: "var(--radius-md)",
+            fontFamily: "var(--font-body)",
+            fontSize: "var(--fs-sm)",
+            color: countryCode ? "var(--secondary-cyan)" : "var(--text-muted)",
+            cursor: "pointer",
+            outline: "none",
+            alignSelf: "flex-start",
+          }}
+        >
+          <option value="">Tous les pays</option>
+          {countries.map((c) => (
+            <option key={c} value={c}>{c}</option>
+          ))}
+        </select>
       )}
 
       {/* Sort toggle + count */}
