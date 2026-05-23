@@ -23,6 +23,7 @@ import { groupEventsByVenue, sortVenueGroups, sortEventsWithinGroup } from "@/li
 import { useEventNotes } from "@/hooks/use-event-notes";
 import { buildTimelineSlots } from "@/lib/programme-timeline";
 import { matchesArtistFilter, countArtistAppearances } from "@/lib/programme-artist";
+import { findTightTransitionIds, findSelectedEventGaps, formatGapDuration } from "@/lib/programme-gaps";
 import { Copy, Check, CalendarArrowDown } from "lucide-react";
 import { ChevronUp } from "lucide-react";
 
@@ -230,6 +231,21 @@ export function ProgrammeView({
   // Conflict detection across ALL selected events (not just filtered)
   const conflictingIds = useMemo(() => findConflictingEventIds(events), [events]);
   const conflictPairCount = useMemo(() => countConflictPairs(events), [events]);
+
+  // Tight gap transition detection — based on filtered events (so day/filter-aware)
+  const tightTransitionIds = useMemo(
+    () => findTightTransitionIds(filteredEvents),
+    [filteredEvents],
+  );
+
+  // Map nextId → gapMins for badge display
+  const gapMinsByNextId = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const { nextId, gapMins } of findSelectedEventGaps(filteredEvents)) {
+      if (gapMins < 15) map.set(nextId, gapMins);
+    }
+    return map;
+  }, [filteredEvents]);
 
   // Live "ongoing" event detection — refreshes every minute
   const ongoingIds = useMemo(() => findOngoingEventIds(events, now), [events, now]);
@@ -1773,29 +1789,87 @@ export function ProgrammeView({
                     />
                   </div>
                 ) : (
-                  <EventCard
-                    key={slot.event.id}
-                    event={slot.event}
-                    onSelectionCycle={handleSelectionCycle}
-                    hasConflict={conflictingIds.has(slot.event.id)}
-                    isOngoing={ongoingIds.has(slot.event.id)}
-                    note={notes[slot.event.id]}
-                    onNoteChange={(text) => setNote(slot.event.id, text)}
-                    onArtistClick={setActiveArtist}
-                  />
+                  <div key={slot.event.id}>
+                    {tightTransitionIds.has(slot.event.id) && (
+                      <div
+                        data-testid={`gap-warning-${slot.event.id}`}
+                        aria-label={`Transition de ${Math.round(gapMinsByNextId.get(slot.event.id) ?? 0)} minutes — attention !`}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: 4,
+                          padding: "3px 10px",
+                          marginBottom: "var(--space-xs)",
+                          borderRadius: "var(--radius-full)",
+                          border: "1px solid rgba(255,153,0,0.4)",
+                          backgroundColor: "rgba(255,153,0,0.08)",
+                          color: "var(--warning-orange)",
+                          fontFamily: "var(--font-mono)",
+                          fontSize: "var(--fs-xs)",
+                          fontWeight: 600,
+                          whiteSpace: "nowrap",
+                          alignSelf: "center",
+                          width: "fit-content",
+                          marginLeft: "auto",
+                          marginRight: "auto",
+                        }}
+                      >
+                        ⚡ {formatGapDuration(gapMinsByNextId.get(slot.event.id) ?? 0)} — transition serrée
+                      </div>
+                    )}
+                    <EventCard
+                      event={slot.event}
+                      onSelectionCycle={handleSelectionCycle}
+                      hasConflict={conflictingIds.has(slot.event.id)}
+                      isOngoing={ongoingIds.has(slot.event.id)}
+                      note={notes[slot.event.id]}
+                      onNoteChange={(text) => setNote(slot.event.id, text)}
+                      onArtistClick={setActiveArtist}
+                    />
+                  </div>
                 )
               )
             : sortedFilteredEvents.map((e) => (
-                <EventCard
-                  key={e.id}
-                  event={e}
-                  onSelectionCycle={handleSelectionCycle}
-                  hasConflict={conflictingIds.has(e.id)}
-                  isOngoing={ongoingIds.has(e.id)}
-                  note={notes[e.id]}
-                  onNoteChange={(text) => setNote(e.id, text)}
-                  onArtistClick={setActiveArtist}
-                />
+                <div key={e.id}>
+                  {tightTransitionIds.has(e.id) && (
+                    <div
+                      data-testid={`gap-warning-${e.id}`}
+                      aria-label={`Transition de ${Math.round(gapMinsByNextId.get(e.id) ?? 0)} minutes — attention !`}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: 4,
+                        padding: "3px 10px",
+                        marginBottom: "var(--space-xs)",
+                        borderRadius: "var(--radius-full)",
+                        border: "1px solid rgba(255,153,0,0.4)",
+                        backgroundColor: "rgba(255,153,0,0.08)",
+                        color: "var(--warning-orange)",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "var(--fs-xs)",
+                        fontWeight: 600,
+                        whiteSpace: "nowrap",
+                        alignSelf: "center",
+                        width: "fit-content",
+                        marginLeft: "auto",
+                        marginRight: "auto",
+                      }}
+                    >
+                      ⚡ {formatGapDuration(gapMinsByNextId.get(e.id) ?? 0)} — transition serrée
+                    </div>
+                  )}
+                  <EventCard
+                    event={e}
+                    onSelectionCycle={handleSelectionCycle}
+                    hasConflict={conflictingIds.has(e.id)}
+                    isOngoing={ongoingIds.has(e.id)}
+                    note={notes[e.id]}
+                    onNoteChange={(text) => setNote(e.id, text)}
+                    onArtistClick={setActiveArtist}
+                  />
+                </div>
               ))
           }
         </div>
