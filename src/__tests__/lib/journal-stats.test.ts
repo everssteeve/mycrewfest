@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, type JournalStatsEntry } from "@/lib/journal-stats";
+import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos, type JournalStatsEntry } from "@/lib/journal-stats";
 
 const entry = (overrides: Partial<JournalStatsEntry> = {}): JournalStatsEntry => ({
   timestamp: "2025-07-15T14:30:00Z",
@@ -306,5 +306,41 @@ describe("countDaysWithPhotos", () => {
       { timestamp: "2025-07-15T10:00:00Z", photos: ["b.jpg"] },
     ];
     expect(countDaysWithPhotos(entries)).toBe(1);
+  });
+});
+
+describe("countTotalJournalPhotos", () => {
+  it("returns 0 for empty list", () => {
+    expect(countTotalJournalPhotos([])).toBe(0);
+  });
+
+  it("returns 0 when no entries have photos", () => {
+    const entries = [
+      { timestamp: "2025-07-15T10:00:00Z" },
+      { timestamp: "2025-07-15T12:00:00Z", photos: [] },
+    ];
+    expect(countTotalJournalPhotos(entries)).toBe(0);
+  });
+
+  it("counts photos from a single entry", () => {
+    const entries = [{ timestamp: "2025-07-15T10:00:00Z", photos: ["a.jpg", "b.jpg", "c.jpg"] }];
+    expect(countTotalJournalPhotos(entries)).toBe(3);
+  });
+
+  it("sums photos across multiple entries", () => {
+    const entries = [
+      { timestamp: "2025-07-15T10:00:00Z", photos: ["a.jpg", "b.jpg"] },
+      { timestamp: "2025-07-15T12:00:00Z", photos: ["c.jpg"] },
+      { timestamp: "2025-07-15T14:00:00Z", photos: ["d.jpg", "e.jpg", "f.jpg"] },
+    ];
+    expect(countTotalJournalPhotos(entries)).toBe(6);
+  });
+
+  it("ignores entries with undefined photos", () => {
+    const entries = [
+      { timestamp: "2025-07-15T10:00:00Z" },
+      { timestamp: "2025-07-15T12:00:00Z", photos: ["a.jpg"] },
+    ];
+    expect(countTotalJournalPhotos(entries)).toBe(1);
   });
 });

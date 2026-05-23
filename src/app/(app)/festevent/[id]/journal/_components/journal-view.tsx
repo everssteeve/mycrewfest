@@ -6,7 +6,7 @@ import { filterAndGroupByDay, countCrewSharedEntries, countEventLinkedEntries, t
 import { Users } from "lucide-react";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
 import { isEscapeKey } from "@/lib/keyboard-search";
-import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos } from "@/lib/journal-stats";
+import { computeJournalStats, getMostActiveJournalDay, countDaysWithPhotos, countTotalJournalPhotos } from "@/lib/journal-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -638,6 +638,7 @@ export function JournalView({
   const mostActiveDay = useMemo(() => getMostActiveJournalDay(souvenirs), [souvenirs]);
 
   const daysWithPhotos = useMemo(() => countDaysWithPhotos(souvenirs), [souvenirs]);
+  const totalPhotos = useMemo(() => countTotalJournalPhotos(souvenirs), [souvenirs]);
 
   const eventLinkedCount = useMemo(() => countEventLinkedEntries(souvenirs), [souvenirs]);
 
@@ -751,6 +752,19 @@ export function JournalView({
             }}
           >
             {stats.entriesWithPhotos} photo{stats.entriesWithPhotos !== 1 ? "s" : ""}
+          </span>
+        )}
+        {totalPhotos > stats.entriesWithPhotos && (
+          <span
+            data-testid="journal-stats-total-photos"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-muted)",
+            }}
+            title={`${totalPhotos} photos au total`}
+          >
+            {totalPhotos} imgs
           </span>
         )}
         {daysWithPhotos > 0 && daysWithPhotos < stats.totalDays && (

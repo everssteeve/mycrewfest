@@ -25,6 +25,14 @@ export interface PhotoDayEntry {
 }
 
 /**
+ * Returns the total count of photos across all entries.
+ * Entries with no photos array or an empty array contribute 0.
+ */
+export function countTotalJournalPhotos(entries: PhotoDayEntry[]): number {
+  return entries.reduce((sum, e) => sum + (e.photos?.length ?? 0), 0);
+}
+
+/**
  * Returns the number of distinct days that have at least one photo entry.
  */
 export function countDaysWithPhotos(entries: PhotoDayEntry[]): number {
