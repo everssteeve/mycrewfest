@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
 import { filterSignalsByScope, type SignalScope } from "@/lib/signal-filter";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate } from "@/lib/signal-credibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -599,6 +599,11 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
     [displayedSignals],
   );
 
+  const credibilityRate = useMemo(
+    () => computeSignalCredibilityRate(displayedSignals.map((s) => ({ confirmations: s.confirmations, infirmations: s.infirmations }))),
+    [displayedSignals],
+  );
+
   return (
     <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
       {/* Header */}
@@ -657,6 +662,19 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
               title={`Type de signal le plus signalé (${topSignalType.count}×)`}
             >
               · {topSignalType.phrase}
+            </span>
+          )}
+          {displayedSignals.length > 1 && credibilityRate > 0 && (
+            <span
+              data-testid="signal-credibility-rate"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: credibilityRate >= 50 ? "var(--secondary-cyan)" : "var(--text-muted)",
+              }}
+              title={`${credibilityRate}% des signaux sont jugés fiables`}
+            >
+              · {credibilityRate}% crédibles
             </span>
           )}
         </div>

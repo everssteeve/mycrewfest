@@ -47,6 +47,16 @@ export function countContestedSignals(signals: CredibilityInput[]): number {
   return signals.filter((s) => s.infirmations >= 1).length;
 }
 
+/**
+ * Returns the percentage (0–100, rounded) of signals with "forte" credibility.
+ * Returns 0 for an empty list.
+ */
+export function computeSignalCredibilityRate(signals: CredibilityInput[]): number {
+  if (signals.length === 0) return 0;
+  const forte = signals.filter((s) => computeSignalCredibility(s).label === "forte").length;
+  return Math.round((forte / signals.length) * 100);
+}
+
 export interface TopSignalTypeInput {
   predefinedPhrase?: string | null;
 }

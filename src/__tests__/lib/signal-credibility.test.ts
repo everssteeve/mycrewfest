@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate } from "@/lib/signal-credibility";
 
 describe("computeSignalCredibility", () => {
   it("returns 0.5 neutre when no votes", () => {
@@ -180,5 +180,45 @@ describe("getTopSignalType", () => {
       { predefinedPhrase: "Foule dense" },
     ];
     expect(getTopSignalType(signals)).toEqual({ phrase: "Foule dense", count: 2 });
+  });
+});
+
+describe("computeSignalCredibilityRate", () => {
+  it("returns 0 for empty list", () => {
+    expect(computeSignalCredibilityRate([])).toBe(0);
+  });
+
+  it("returns 100 when all signals are forte", () => {
+    const signals = [
+      { confirmations: 3, infirmations: 0 },
+      { confirmations: 5, infirmations: 1 },
+    ];
+    expect(computeSignalCredibilityRate(signals)).toBe(100);
+  });
+
+  it("returns 0 when no signals are forte", () => {
+    const signals = [
+      { confirmations: 0, infirmations: 0 },
+      { confirmations: 1, infirmations: 3 },
+    ];
+    expect(computeSignalCredibilityRate(signals)).toBe(0);
+  });
+
+  it("returns rounded percentage for mixed credibility", () => {
+    // 2 forte out of 3 → 67%
+    const signals = [
+      { confirmations: 4, infirmations: 0 },
+      { confirmations: 3, infirmations: 0 },
+      { confirmations: 0, infirmations: 2 },
+    ];
+    expect(computeSignalCredibilityRate(signals)).toBe(67);
+  });
+
+  it("rounds correctly for single forte signal", () => {
+    const signals = [
+      { confirmations: 4, infirmations: 0 },
+      { confirmations: 0, infirmations: 1 },
+    ];
+    expect(computeSignalCredibilityRate(signals)).toBe(50);
   });
 });
