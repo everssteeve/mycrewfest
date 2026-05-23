@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { ChevronUp } from "lucide-react";
 
@@ -207,6 +207,7 @@ export function ProgrammeView({
 
   // Event counts per day (across ALL events, not filtered)
   const eventDayCounts = useMemo(() => countEventsByDay(initialEvents), [initialEvents]);
+  const vuDayCounts = useMemo(() => countVuEventsByDay(events), [events]);
 
   const selectedCount = useMemo(
     () => filteredEvents.filter((e) => e.selection?.status != null).length,
@@ -403,6 +404,19 @@ export function ProgrammeView({
                     }}
                   >
                     · {eventDayCounts.get(d)}
+                  </span>
+                )}
+                {(vuDayCounts.get(d) ?? 0) > 0 && (
+                  <span
+                    style={{
+                      marginLeft: 4,
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "10px",
+                      color: isActive ? "var(--primary-neon)" : "rgba(0,255,102,0.7)",
+                    }}
+                    aria-label={`${vuDayCounts.get(d)} vus`}
+                  >
+                    ✓{vuDayCounts.get(d)}
                   </span>
                 )}
               </button>

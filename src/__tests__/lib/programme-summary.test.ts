@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -70,5 +70,47 @@ describe("countItinerantEvents", () => {
       { startTime: "2026-07-15T14:00:00" },
     ];
     expect(countItinerantEvents(events)).toBe(2);
+  });
+});
+
+describe("countVuEventsByDay", () => {
+  const ev = (startTime: string | null, status: string | null = null) => ({
+    startTime,
+    selection: status ? { status } : null,
+  });
+
+  it("returns empty map for no events", () => {
+    expect(countVuEventsByDay([])).toEqual(new Map());
+  });
+
+  it("ignores events without selection", () => {
+    const events = [ev("2026-07-15T14:00:00", null)];
+    expect(countVuEventsByDay(events)).toEqual(new Map());
+  });
+
+  it("ignores non-vu selections", () => {
+    const events = [
+      ev("2026-07-15T14:00:00", "must-see"),
+      ev("2026-07-15T16:00:00", "intéressé"),
+    ];
+    expect(countVuEventsByDay(events)).toEqual(new Map());
+  });
+
+  it("counts vu events per day", () => {
+    const events = [
+      ev("2026-07-15T10:00:00", "vu"),
+      ev("2026-07-15T14:00:00", "vu"),
+      ev("2026-07-15T20:00:00", "must-see"),
+      ev("2026-07-16T10:00:00", "vu"),
+    ];
+    const result = countVuEventsByDay(events);
+    expect(result.get("2026-07-15")).toBe(2);
+    expect(result.get("2026-07-16")).toBe(1);
+    expect(result.size).toBe(2);
+  });
+
+  it("ignores events without startTime even if vu", () => {
+    const events = [ev(null, "vu")];
+    expect(countVuEventsByDay(events)).toEqual(new Map());
   });
 });
