@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType } from "@/lib/signal-credibility";
 
 describe("computeSignalCredibility", () => {
   it("returns 0.5 neutre when no votes", () => {
@@ -138,5 +138,47 @@ describe("countContestedSignals", () => {
 
   it("counts signals with zero confirmations as contested if they have infirmations", () => {
     expect(countContestedSignals([sig(0, 1)])).toBe(1);
+  });
+});
+
+describe("getTopSignalType", () => {
+  it("returns null for empty array", () => {
+    expect(getTopSignalType([])).toBeNull();
+  });
+
+  it("returns null when no signals have a predefinedPhrase", () => {
+    const signals = [{ predefinedPhrase: null }, { predefinedPhrase: undefined }];
+    expect(getTopSignalType(signals)).toBeNull();
+  });
+
+  it("returns the only phrase present", () => {
+    const signals = [{ predefinedPhrase: "Foule dense" }];
+    expect(getTopSignalType(signals)).toEqual({ phrase: "Foule dense", count: 1 });
+  });
+
+  it("returns the most frequent phrase", () => {
+    const signals = [
+      { predefinedPhrase: "Foule dense" },
+      { predefinedPhrase: "Foule dense" },
+      { predefinedPhrase: "File d'attente longue" },
+    ];
+    expect(getTopSignalType(signals)).toEqual({ phrase: "Foule dense", count: 2 });
+  });
+
+  it("breaks ties alphabetically", () => {
+    const signals = [
+      { predefinedPhrase: "Foule dense" },
+      { predefinedPhrase: "Animation spontanée" },
+    ];
+    expect(getTopSignalType(signals)).toEqual({ phrase: "Animation spontanée", count: 1 });
+  });
+
+  it("ignores signals with null or undefined phrase", () => {
+    const signals = [
+      { predefinedPhrase: null },
+      { predefinedPhrase: "Foule dense" },
+      { predefinedPhrase: "Foule dense" },
+    ];
+    expect(getTopSignalType(signals)).toEqual({ phrase: "Foule dense", count: 2 });
   });
 });

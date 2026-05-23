@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
 import { filterSignalsByScope, type SignalScope } from "@/lib/signal-filter";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType } from "@/lib/signal-credibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -594,6 +594,11 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
     [displayedSignals],
   );
 
+  const topSignalType = useMemo(
+    () => getTopSignalType(displayedSignals),
+    [displayedSignals],
+  );
+
   return (
     <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
       {/* Header */}
@@ -639,6 +644,19 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
               title="Signaux contestés (au moins 1 infirmation)"
             >
               · {contestedCount} contesté{contestedCount > 1 ? "s" : ""}
+            </span>
+          )}
+          {topSignalType !== null && displayedSignals.length > 1 && (
+            <span
+              data-testid="signal-top-type"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-muted)",
+              }}
+              title={`Type de signal le plus signalé (${topSignalType.count}×)`}
+            >
+              · {topSignalType.phrase}
             </span>
           )}
         </div>

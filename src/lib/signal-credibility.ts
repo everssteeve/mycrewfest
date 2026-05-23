@@ -47,6 +47,38 @@ export function countContestedSignals(signals: CredibilityInput[]): number {
   return signals.filter((s) => s.infirmations >= 1).length;
 }
 
+export interface TopSignalTypeInput {
+  predefinedPhrase?: string | null;
+}
+
+export interface TopSignalTypeResult {
+  phrase: string;
+  count: number;
+}
+
+/**
+ * Returns the most common predefined phrase across signals, or null if none have one.
+ * Ties are broken alphabetically.
+ */
+export function getTopSignalType(
+  signals: TopSignalTypeInput[],
+): TopSignalTypeResult | null {
+  const counts = new Map<string, number>();
+  for (const s of signals) {
+    if (s.predefinedPhrase) {
+      counts.set(s.predefinedPhrase, (counts.get(s.predefinedPhrase) ?? 0) + 1);
+    }
+  }
+  if (counts.size === 0) return null;
+  let top: TopSignalTypeResult | null = null;
+  for (const [phrase, count] of counts) {
+    if (!top || count > top.count || (count === top.count && phrase < top.phrase)) {
+      top = { phrase, count };
+    }
+  }
+  return top;
+}
+
 export interface RecentSignalInput {
   createdAt: string;
 }
