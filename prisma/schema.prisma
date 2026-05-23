@@ -73,16 +73,16 @@ model User {
   updatedAt DateTime @updatedAt
 
   // relations
-  accounts           Account[]
-  sessions           Session[]
-  festEvents         FestEvent[]
-  followedFestivals  UserFollowsFestival[]
-  crewMemberships    CrewMember[]
-  souvenirs          Souvenir[]
-  signals            Signal[]
-  submissions        FestivalSubmission[]
-  checklistItems     ChecklistItem[]
-  pushSubscriptions  PushSubscription[]
+  accounts          Account[]
+  sessions          Session[]
+  festEvents        FestEvent[]
+  followedFestivals UserFollowsFestival[]
+  crewMemberships   CrewMember[]
+  souvenirs         Souvenir[]
+  signals           Signal[]
+  submissions       FestivalSubmission[]
+  checklistItems    ChecklistItem[]
+  pushSubscriptions PushSubscription[]
 }
 
 // ---------------------------------------------------------------------------
@@ -98,16 +98,16 @@ model Festival {
   endDate     DateTime
 
   // location
-  city        String
-  country     String
-  latitude    Float?
-  longitude   Float?
-  address     String?
+  city      String
+  country   String
+  latitude  Float?
+  longitude Float?
+  address   String?
 
   // classification
-  festivalType   String  @default("multidisciplinaire") // musique|theatre_rue|cirque|world|multidisciplinaire|autre
-  programType    String  @default("structuré")          // structuré|déambulatoire|hybride
-  capacity       Int?
+  festivalType String @default("multidisciplinaire") // musique|theatre_rue|cirque|world|multidisciplinaire|autre
+  programType  String @default("structuré") // structuré|déambulatoire|hybride
+  capacity     Int?
 
   // metadata from agents
   siteUrl         String?
@@ -115,7 +115,7 @@ model Festival {
   facebookPage    String?
   xHandle         String?
   ingestionStatus String  @default("détecté") // détecté|vérifié|enrichi
-  confidenceLevel String  @default("auto")    // auto|vérifié_humain
+  confidenceLevel String  @default("auto") // auto|vérifié_humain
   programStatus   String  @default("bientôt_disponible") // complet|partiel|bientôt_disponible
 
   // map / plan
@@ -127,13 +127,13 @@ model Festival {
   updatedAt DateTime @updatedAt
 
   // relations
-  events     Event[]
-  venues     Venue[]
-  newsItems  NewsItem[]
-  festEvents FestEvent[]
-  followers  UserFollowsFestival[]
+  events      Event[]
+  venues      Venue[]
+  newsItems   NewsItem[]
+  festEvents  FestEvent[]
+  followers   UserFollowsFestival[]
   submissions FestivalSubmission[]
-  signals    Signal[]
+  signals     Signal[]
 }
 
 model UserFollowsFestival {
@@ -152,10 +152,10 @@ model UserFollowsFestival {
 // ---------------------------------------------------------------------------
 
 model Venue {
-  id         String   @id @default(cuid())
+  id         String @id @default(cuid())
   festivalId String
   name       String
-  type       String   @default("scène") // scène|espace|rue|salle|plein_air
+  type       String @default("scène") // scène|espace|rue|salle|plein_air
   latitude   Float?
   longitude  Float?
   capacity   Int?
@@ -170,16 +170,16 @@ model Venue {
 // ---------------------------------------------------------------------------
 
 model Artist {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  disciplines String?  // JSON array
-  countryCode String?
-  siteUrl     String?
-  instagram   String?
-  spotifyId   String?
+  id            String  @id @default(cuid())
+  name          String
+  description   String?
+  disciplines   String? // JSON array
+  countryCode   String?
+  siteUrl       String?
+  instagram     String?
+  spotifyId     String?
   musicBrainzId String?
-  instruments String?  // JSON array
+  instruments   String? // JSON array
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -192,21 +192,21 @@ model Artist {
 // ---------------------------------------------------------------------------
 
 model Event {
-  id         String   @id @default(cuid())
+  id         String  @id @default(cuid())
   festivalId String
   venueId    String?
   artistId   String?
 
   title        String
-  eventType    String  @default("concert") // concert|spectacle|atelier|défilé|cypher|conférence|installation|autre
+  eventType    String    @default("concert") // concert|spectacle|atelier|défilé|cypher|conférence|installation|autre
   startTime    DateTime?
   endTime      DateTime?
   durationMins Int?
   ageMin       Int?
   ageMax       Int?
-  access       String  @default("inclus") // inclus|réservation_séparée
-  status       String  @default("confirmé") // confirmé|annulé|modifié
-  confidence   String  @default("auto")    // auto|vérifié_humain
+  access       String    @default("inclus") // inclus|réservation_séparée
+  status       String    @default("confirmé") // confirmé|annulé|modifié
+  confidence   String    @default("auto") // auto|vérifié_humain
   tags         String? // JSON array
 
   createdAt DateTime @default(now())
@@ -225,17 +225,17 @@ model Event {
 // ---------------------------------------------------------------------------
 
 model NewsItem {
-  id         String   @id @default(cuid())
+  id         String @id @default(cuid())
   festivalId String
 
-  source          String  // instagram|facebook|x|site_officiel
-  sourceUrl       String?
-  publishedAt     DateTime
-  category        String  @default("autre") // line-up|logistique|programme-change|annulation|urgence|autre
-  summary         String
+  source            String // instagram|facebook|x|site_officiel
+  sourceUrl         String?
+  publishedAt       DateTime
+  category          String   @default("autre") // line-up|logistique|programme-change|annulation|urgence|autre
+  summary           String
   entitiesMentioned String? // JSON array
-  urgencyLevel    String  @default("normal") // normal|critique
-  isPinned        Boolean @default(false)
+  urgencyLevel      String   @default("normal") // normal|critique
+  isPinned          Boolean  @default(false)
 
   createdAt DateTime @default(now())
 
@@ -247,27 +247,27 @@ model NewsItem {
 // ---------------------------------------------------------------------------
 
 model FestEvent {
-  id         String   @id @default(cuid())
+  id         String @id @default(cuid())
   userId     String
   festivalId String
 
-  mode                  String  @default("solo") // solo|crew
-  programTypeOverride   String? // structuré|déambulatoire|hybride — overrides festival default
-  presenceDates         String? // JSON array of date strings
-  arrivalConstraint     DateTime?
-  departureConstraint   DateTime?
-  comfortMarginMins     Int     @default(15)
-  shareToken            String? @unique // for public read-only sharing
+  mode                String    @default("solo") // solo|crew
+  programTypeOverride String? // structuré|déambulatoire|hybride — overrides festival default
+  presenceDates       String? // JSON array of date strings
+  arrivalConstraint   DateTime?
+  departureConstraint DateTime?
+  comfortMarginMins   Int       @default(15)
+  shareToken          String?   @unique // for public read-only sharing
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  festival   Festival    @relation(fields: [festivalId], references: [id])
-  crew       Crew?       @relation(fields: [crewId], references: [id])
-  crewId     String?
-  selections Selection[]
-  souvenirs  Souvenir[]
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  festival       Festival        @relation(fields: [festivalId], references: [id])
+  crew           Crew?           @relation(fields: [crewId], references: [id])
+  crewId         String?
+  selections     Selection[]
+  souvenirs      Souvenir[]
   checklistItems ChecklistItem[]
 }
 
@@ -276,11 +276,11 @@ model FestEvent {
 // ---------------------------------------------------------------------------
 
 model Selection {
-  id          String   @id @default(cuid())
+  id          String @id @default(cuid())
   festEventId String
   eventId     String
 
-  status      String  @default("intéressé") // intéressé|must-see|vu
+  status             String  @default("intéressé") // intéressé|must-see|vu
   dismissedRecoTypes String? // JSON array of dismissed recommendation types
 
   createdAt DateTime @default(now())
@@ -297,13 +297,13 @@ model Selection {
 // ---------------------------------------------------------------------------
 
 model Crew {
-  id          String   @id @default(cuid())
-  name        String?
-  inviteCode  String   @unique @default(cuid())
+  id         String  @id @default(cuid())
+  name       String?
+  inviteCode String  @unique @default(cuid())
 
   // rally point
-  rallyLatitude   Float?
-  rallyLongitude  Float?
+  rallyLatitude    Float?
+  rallyLongitude   Float?
   rallyDescription String?
 
   createdAt DateTime @default(now())
@@ -315,12 +315,12 @@ model Crew {
 }
 
 model CrewMember {
-  id      String   @id @default(cuid())
-  crewId  String
-  userId  String
-  role    String  @default("membre") // admin|membre
-  geolocStatus String @default("off") // off|active|background
-  isPrivate Boolean @default(false)
+  id           String  @id @default(cuid())
+  crewId       String
+  userId       String
+  role         String  @default("membre") // admin|membre
+  geolocStatus String  @default("off") // off|active|background
+  isPrivate    Boolean @default(false)
 
   // Temporary position storage (ephemeral, replaced at each update)
   lastLat    Float?
@@ -340,16 +340,16 @@ model CrewMember {
 // ---------------------------------------------------------------------------
 
 model Signal {
-  id         String   @id @default(cuid())
+  id         String  @id @default(cuid())
   authorId   String
-  scope      String  // crew|communauté
+  scope      String // crew|communauté
   crewId     String?
   festivalId String?
   venueId    String?
   eventId    String?
 
-  latitude   Float
-  longitude  Float
+  latitude  Float
+  longitude Float
 
   // F10-A (discovery, crew-only)
   description   String?
@@ -376,16 +376,16 @@ model Signal {
 // ---------------------------------------------------------------------------
 
 model Souvenir {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   userId      String
   festEventId String
   eventId     String?
 
-  freeText   String?
-  note       String?
-  photos     String?  // JSON array of Media URLs
-  timestamp  DateTime @default(now())
-  shareWithCrew Boolean @default(false)
+  freeText      String?
+  note          String?
+  photos        String? // JSON array of Media URLs
+  timestamp     DateTime @default(now())
+  shareWithCrew Boolean  @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -400,21 +400,21 @@ model Souvenir {
 // ---------------------------------------------------------------------------
 
 model ChecklistTemplate {
-  id       String   @id @default(cuid())
+  id       String @id @default(cuid())
   name     String
-  category String  @default("custom") // camping|day_trip|urban|family|custom
-  items    String  // JSON array of default item labels
+  category String @default("custom") // camping|day_trip|urban|family|custom
+  items    String // JSON array of default item labels
 
   createdAt DateTime @default(now())
 }
 
 model ChecklistItem {
-  id          String   @id @default(cuid())
-  festEventId String
-  userId      String?  // assignee
-  label       String
-  done        Boolean @default(false)
-  cost        Float?
+  id           String  @id @default(cuid())
+  festEventId  String
+  userId       String? // assignee
+  label        String
+  done         Boolean @default(false)
+  cost         Float?
   assigneeName String?
 
   createdAt DateTime @default(now())
@@ -445,17 +445,17 @@ model PushSubscription {
 // ---------------------------------------------------------------------------
 
 model FestivalSubmission {
-  id        String   @id @default(cuid())
-  authorId  String
+  id         String  @id @default(cuid())
+  authorId   String
   festivalId String?
 
   nameProposed String
   officialUrl  String
-  status       String  @default("en_attente") // en_attente|en_traitement|ajouté|rejeté
+  status       String @default("en_attente") // en_attente|en_traitement|ajouté|rejeté
 
   submittedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  festival  Festival? @relation(fields: [festivalId], references: [id])
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  festival Festival? @relation(fields: [festivalId], references: [id])
 }
