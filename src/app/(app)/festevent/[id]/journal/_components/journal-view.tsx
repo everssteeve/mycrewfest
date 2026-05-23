@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { BookOpen, Share2, Download, Trash2, Clock, Search, X, Copy, Check } from "lucide-react";
 import { filterAndGroupByDay } from "@/lib/journal-filter";
+import { Users } from "lucide-react";
 import { formatJournalEntryText } from "@/lib/journal-entry-text";
 import { isEscapeKey } from "@/lib/keyboard-search";
 import { computeJournalStats } from "@/lib/journal-stats";
@@ -426,6 +427,31 @@ function SouvenirCard({
         </div>
       </div>
 
+      {/* Crew badge */}
+      {souvenir.shareWithCrew && (
+        <div
+          data-testid={`journal-crew-badge-${souvenir.id}`}
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 4,
+            fontFamily: "var(--font-mono)",
+            fontSize: "var(--fs-xs)",
+            color: "var(--secondary-cyan)",
+            background: "var(--cyan-soft)",
+            border: "1px solid var(--secondary-cyan)",
+            borderRadius: "var(--radius-sm)",
+            padding: "2px 8px",
+            textTransform: "uppercase",
+            letterSpacing: "0.05em",
+            alignSelf: "flex-start",
+          }}
+        >
+          <Users size={10} aria-hidden="true" />
+          Crew
+        </div>
+      )}
+
       {/* Linked event */}
       {souvenir.event && (
         <div
@@ -560,6 +586,7 @@ export function JournalView({
   const [generatingShare, setGeneratingShare] = useState(false);
   const [currentToken, setCurrentToken] = useState(shareToken);
   const [searchQuery, setSearchQuery] = useState("");
+  const [crewOnly, setCrewOnly] = useState(false);
 
   const handleDelete = useCallback((id: string) => {
     setSouvenirs((prev) => prev.filter((s) => s.id !== id));
@@ -605,9 +632,11 @@ export function JournalView({
 
   const stats = useMemo(() => computeJournalStats(souvenirs), [souvenirs]);
 
+  const hasCrewEntries = useMemo(() => souvenirs.some((s) => s.shareWithCrew), [souvenirs]);
+
   const grouped = useMemo(
-    () => filterAndGroupByDay(souvenirs, searchQuery),
-    [souvenirs, searchQuery],
+    () => filterAndGroupByDay(souvenirs, searchQuery, crewOnly),
+    [souvenirs, searchQuery, crewOnly],
   );
   const days = Array.from(grouped.keys()).sort();
 
@@ -779,6 +808,37 @@ export function JournalView({
               <X size={14} aria-hidden="true" />
             </button>
           )}
+        </div>
+      )}
+
+      {/* Crew filter chip */}
+      {hasCrewEntries && (
+        <div className="journal-no-print" style={{ display: "flex", gap: "var(--space-sm)" }}>
+          <button
+            type="button"
+            onClick={() => setCrewOnly((v) => !v)}
+            data-testid="journal-crew-filter"
+            aria-pressed={crewOnly}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-xs)",
+              textTransform: "uppercase",
+              letterSpacing: "0.05em",
+              padding: "4px 12px",
+              borderRadius: "var(--radius-md)",
+              border: `1.5px solid ${crewOnly ? "var(--secondary-cyan)" : "var(--border-color)"}`,
+              background: crewOnly ? "var(--cyan-soft)" : "transparent",
+              color: crewOnly ? "var(--secondary-cyan)" : "var(--text-muted)",
+              cursor: "pointer",
+              transition: "var(--transition-fast)",
+            }}
+          >
+            <Users size={11} aria-hidden="true" />
+            Crew seulement
+          </button>
         </div>
       )}
 

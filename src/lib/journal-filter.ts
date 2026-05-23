@@ -23,16 +23,33 @@ export function matchesJournalQuery(
   return fields.some((f) => f?.toLowerCase().includes(q));
 }
 
+export interface CrewFilterable {
+  shareWithCrew: boolean;
+}
+
+/**
+ * Returns entries shared with crew when crewOnly is true; otherwise returns all.
+ */
+export function filterByCrew<T extends CrewFilterable>(
+  entries: T[],
+  crewOnly: boolean,
+): T[] {
+  if (!crewOnly) return entries;
+  return entries.filter((e) => e.shareWithCrew);
+}
+
 /**
  * Groups filtered entries by day (YYYY-MM-DD), preserving day order.
  */
 export function filterAndGroupByDay(
   entries: SouvenirEntry[],
   query: string,
+  crewOnly = false,
 ): Map<string, SouvenirEntry[]> {
+  const crewFiltered = filterByCrew(entries, crewOnly);
   const matched = query.trim()
-    ? entries.filter((e) => matchesJournalQuery(e, query))
-    : entries;
+    ? crewFiltered.filter((e) => matchesJournalQuery(e, query))
+    : crewFiltered;
 
   const map = new Map<string, SouvenirEntry[]>();
   for (const e of matched) {

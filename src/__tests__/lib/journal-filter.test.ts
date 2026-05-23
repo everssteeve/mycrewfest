@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { matchesJournalQuery, filterAndGroupByDay } from "@/lib/journal-filter";
+import { matchesJournalQuery, filterAndGroupByDay, filterByCrew } from "@/lib/journal-filter";
 import type { SouvenirEntry } from "@/app/(app)/festevent/[id]/journal/_components/journal-view";
 
 function entry(
@@ -127,5 +127,44 @@ describe("filterAndGroupByDay", () => {
     const entries = [entry("1", { note: "jazz" })];
     const result = filterAndGroupByDay(entries, "metal");
     expect(result.size).toBe(0);
+  });
+
+  it("applies crewOnly filter before query filter", () => {
+    const e1 = { ...entry("1", { note: "crew note", timestamp: "2026-07-15T10:00:00" }), shareWithCrew: true };
+    const e2 = { ...entry("2", { note: "crew note", timestamp: "2026-07-15T12:00:00" }), shareWithCrew: false };
+    const result = filterAndGroupByDay([e1, e2], "crew", true);
+    const day = result.get("2026-07-15") ?? [];
+    expect(day).toHaveLength(1);
+    expect(day[0].id).toBe("1");
+  });
+});
+
+describe("filterByCrew", () => {
+  const crewEntry = { shareWithCrew: true, id: "a" };
+  const nonCrewEntry = { shareWithCrew: false, id: "b" };
+
+  it("returns all entries when crewOnly is false", () => {
+    expect(filterByCrew([crewEntry, nonCrewEntry], false)).toHaveLength(2);
+  });
+
+  it("returns only crew entries when crewOnly is true", () => {
+    const result = filterByCrew([crewEntry, nonCrewEntry], true);
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("a");
+  });
+
+  it("returns empty array when no entries are shared with crew", () => {
+    expect(filterByCrew([nonCrewEntry], true)).toHaveLength(0);
+  });
+
+  it("returns all crew entries from array", () => {
+    const entries = [
+      { shareWithCrew: true, id: "1" },
+      { shareWithCrew: false, id: "2" },
+      { shareWithCrew: true, id: "3" },
+    ];
+    const result = filterByCrew(entries, true);
+    expect(result).toHaveLength(2);
+    expect(result.map((e) => e.id)).toEqual(["1", "3"]);
   });
 });
