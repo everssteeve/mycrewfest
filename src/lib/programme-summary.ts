@@ -54,6 +54,31 @@ export function computeProgrammeDurationMins<T extends DurationSummable>(
   return Math.round(total);
 }
 
+/**
+ * Returns the average event duration in minutes, or null when no events have
+ * duration data. Uses durationMins when available, otherwise derives from
+ * startTime/endTime. Events with no duration data are excluded from the average.
+ */
+export function computeAvgEventDurationMins<T extends DurationSummable>(
+  events: T[],
+): number | null {
+  let total = 0;
+  let count = 0;
+  for (const e of events) {
+    if (e.durationMins) {
+      total += e.durationMins;
+      count++;
+    } else if (e.startTime && e.endTime) {
+      const diff = (new Date(e.endTime).getTime() - new Date(e.startTime).getTime()) / 60_000;
+      if (diff > 0) {
+        total += diff;
+        count++;
+      }
+    }
+  }
+  return count === 0 ? null : Math.round(total / count);
+}
+
 export interface VuCountFilterable {
   startTime?: string | null;
   selection?: { status: string } | null;

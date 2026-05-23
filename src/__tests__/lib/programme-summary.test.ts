@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -522,5 +522,42 @@ describe("countIntéresséEvents", () => {
   it("is case-sensitive — does not count must-see as intéressé", () => {
     const events = [ev("must-see"), ev("INTÉRESSÉ"), ev("intéressé")];
     expect(countIntéresséEvents(events)).toBe(1);
+  });
+});
+
+describe("computeAvgEventDurationMins", () => {
+  it("returns null for empty list", () => {
+    expect(computeAvgEventDurationMins([])).toBeNull();
+  });
+
+  it("returns null when no events have duration data", () => {
+    const events = [{ durationMins: null }, { startTime: null, endTime: null }];
+    expect(computeAvgEventDurationMins(events)).toBeNull();
+  });
+
+  it("uses durationMins when available", () => {
+    const events = [{ durationMins: 60 }, { durationMins: 120 }];
+    expect(computeAvgEventDurationMins(events)).toBe(90);
+  });
+
+  it("derives duration from startTime/endTime when durationMins is absent", () => {
+    const events = [
+      { startTime: "2026-07-01T10:00:00Z", endTime: "2026-07-01T11:30:00Z" },
+      { startTime: "2026-07-01T14:00:00Z", endTime: "2026-07-01T15:00:00Z" },
+    ];
+    expect(computeAvgEventDurationMins(events)).toBe(75);
+  });
+
+  it("ignores events with zero or negative derived duration", () => {
+    const events = [
+      { durationMins: 90 },
+      { startTime: "2026-07-01T11:00:00Z", endTime: "2026-07-01T10:00:00Z" },
+    ];
+    expect(computeAvgEventDurationMins(events)).toBe(90);
+  });
+
+  it("rounds to nearest minute", () => {
+    const events = [{ durationMins: 60 }, { durationMins: 61 }, { durationMins: 62 }];
+    expect(computeAvgEventDurationMins(events)).toBe(61);
   });
 });
