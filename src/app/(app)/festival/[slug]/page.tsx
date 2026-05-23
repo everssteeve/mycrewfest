@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ArrowLeft, Globe, MapPin, Users, ExternalLink } from "lucide-react";
+import { buildFestivalOgDescription } from "@/lib/og-metadata";
 import { formatFestivalStats } from "@/lib/format-count";
 import type { Metadata } from "next";
 import { Badge } from "@/components/ui";
@@ -42,9 +43,27 @@ export async function generateMetadata({
   const { slug } = await params;
   const festival = await fetchFestival(slug);
   if (!festival) return {};
+  const ogDescription = buildFestivalOgDescription({
+    city: festival.city,
+    country: festival.country,
+    startDate: festival.startDate,
+    endDate: festival.endDate,
+    description: festival.description,
+  });
   return {
     title: festival.name,
-    description: festival.description ?? undefined,
+    description: ogDescription,
+    openGraph: {
+      title: `${festival.name} — MyCrewFest`,
+      description: ogDescription,
+      type: "article",
+      url: `/festival/${slug}`,
+    },
+    twitter: {
+      card: "summary",
+      title: `${festival.name} — MyCrewFest`,
+      description: ogDescription,
+    },
   };
 }
 

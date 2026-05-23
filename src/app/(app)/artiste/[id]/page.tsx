@@ -12,6 +12,7 @@ import {
   buildSpotifyUrl,
   type ArtistFestivalAppearance,
 } from "@/lib/artist-profile";
+import { buildArtistOgDescription } from "@/lib/og-metadata";
 
 type PageContext = { params: Promise<{ id: string }> };
 
@@ -71,11 +72,31 @@ async function fetchArtistData(id: string) {
 
 export async function generateMetadata({ params }: PageContext): Promise<Metadata> {
   const { id } = await params;
-  const artist = await prisma.artist.findUnique({ where: { id }, select: { name: true, description: true } });
+  const artist = await prisma.artist.findUnique({
+    where: { id },
+    select: { name: true, description: true, disciplines: true, countryCode: true },
+  });
   if (!artist) return {};
+  const disciplines = parseJsonArray(artist.disciplines) as string[];
+  const ogDescription = buildArtistOgDescription({
+    disciplines,
+    countryCode: artist.countryCode,
+    description: artist.description,
+  });
   return {
     title: artist.name,
-    description: artist.description ?? undefined,
+    description: ogDescription,
+    openGraph: {
+      title: `${artist.name} — MyCrewFest`,
+      description: ogDescription,
+      type: "profile",
+      url: `/artiste/${id}`,
+    },
+    twitter: {
+      card: "summary",
+      title: `${artist.name} — MyCrewFest`,
+      description: ogDescription,
+    },
   };
 }
 
