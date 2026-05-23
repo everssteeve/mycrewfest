@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MapPin, Navigation, X, ChevronDown, Users } from "lucide-react";
+import { countMappedVenues, countEventsOnMap, countVisibleCrewMembers } from "@/lib/carte-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -571,6 +572,10 @@ export function CarteView({
   const normalizedVenues = normalizePositions(venues);
   const hasGpsVenues = venues.some((v) => v.latitude != null && v.longitude != null);
 
+  const mappedVenueCount = useMemo(() => countMappedVenues(venues), [venues]);
+  const eventsOnMapCount = useMemo(() => countEventsOnMap(venues), [venues]);
+  const visibleCrewCount = useMemo(() => countVisibleCrewMembers(crewPositions), [crewPositions]);
+
   const handleTogglePosition = useCallback(() => {
     if (trackingMe) {
       if (watchIdRef.current !== null) {
@@ -614,6 +619,55 @@ export function CarteView({
 
   return (
     <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
+      {/* Stats strip */}
+      <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap", alignItems: "center" }}>
+        {mappedVenueCount > 0 && (
+          <span
+            data-testid="carte-mapped-venue-count"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: "var(--fs-xs)",
+              color: "var(--text-muted)",
+            }}
+            title="Lieux avec coordonnées GPS sur la carte"
+          >
+            {mappedVenueCount} lieu{mappedVenueCount !== 1 ? "x" : ""} cartographié{mappedVenueCount !== 1 ? "s" : ""}
+          </span>
+        )}
+        {eventsOnMapCount > 0 && (
+          <>
+            {mappedVenueCount > 0 && <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>}
+            <span
+              data-testid="carte-events-on-map"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+              }}
+              title="Événements localisés sur la carte"
+            >
+              {eventsOnMapCount} événement{eventsOnMapCount !== 1 ? "s" : ""}
+            </span>
+          </>
+        )}
+        {visibleCrewCount > 0 && (
+          <>
+            {(mappedVenueCount > 0 || eventsOnMapCount > 0) && <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>}
+            <span
+              data-testid="carte-visible-crew-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--secondary-cyan)",
+              }}
+              title="Membres du crew avec position partagée"
+            >
+              {visibleCrewCount} crew visible{visibleCrewCount !== 1 ? "s" : ""}
+            </span>
+          </>
+        )}
+      </div>
+
       {/* Header controls */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ color: "var(--text-main)", fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
