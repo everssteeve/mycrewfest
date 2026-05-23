@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing, countUpcomingEvents } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents, countUniqueEventTypes, countNightEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents, countUniqueEventTypes, countNightEvents, getEarliestEventStartTime, getLatestEventEndTime } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -345,6 +345,16 @@ export function ProgrammeView({
 
   const nightEventCount = useMemo(
     () => countNightEvents(filteredEvents),
+    [filteredEvents],
+  );
+
+  const earliestStart = useMemo(
+    () => getEarliestEventStartTime(filteredEvents),
+    [filteredEvents],
+  );
+
+  const latestEnd = useMemo(
+    () => getLatestEventEndTime(filteredEvents),
     [filteredEvents],
   );
 
@@ -1260,6 +1270,22 @@ export function ProgrammeView({
               title={`${nightEventCount} événement${nightEventCount > 1 ? "s" : ""} après 22h`}
             >
               ☽ {nightEventCount} nuit
+            </span>
+          </>
+        )}
+        {earliestStart && latestEnd && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-time-range"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+              }}
+              title="Plage horaire du programme"
+            >
+              {new Date(earliestStart).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", hour12: false })}→{new Date(latestEnd).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", hour12: false })}
             </span>
           </>
         )}
