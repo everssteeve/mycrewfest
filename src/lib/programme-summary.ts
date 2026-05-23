@@ -106,6 +106,17 @@ export function countUniqueArtists<T extends ArtistCountable>(events: T[]): numb
   return ids.size;
 }
 
+export interface AccessFilterable {
+  access?: string | null;
+}
+
+/**
+ * Returns the count of events that require a separate booking ("réservation_séparée").
+ */
+export function countReservationRequiredEvents<T extends AccessFilterable>(events: T[]): number {
+  return events.filter((e) => e.access === "réservation_séparée").length;
+}
+
 export interface PeakHourFilterable {
   startTime?: string | null;
 }

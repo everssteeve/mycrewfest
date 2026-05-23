@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -279,5 +279,31 @@ describe("getPeakEventHour", () => {
       { startTime: "2026-07-15T22:00:00" },
     ];
     expect(getPeakEventHour(events)).toBe(20);
+  });
+});
+
+describe("countReservationRequiredEvents", () => {
+  it("returns 0 for empty array", () => {
+    expect(countReservationRequiredEvents([])).toBe(0);
+  });
+
+  it("returns 0 when all events are inclus", () => {
+    const events = [{ access: "inclus" }, { access: "inclus" }];
+    expect(countReservationRequiredEvents(events)).toBe(0);
+  });
+
+  it("counts réservation_séparée events", () => {
+    const events = [{ access: "réservation_séparée" }, { access: "inclus" }, { access: "réservation_séparée" }];
+    expect(countReservationRequiredEvents(events)).toBe(2);
+  });
+
+  it("ignores events with null or undefined access", () => {
+    const events = [{ access: null }, { access: undefined }, { access: "réservation_séparée" }];
+    expect(countReservationRequiredEvents(events)).toBe(1);
+  });
+
+  it("returns total when all events require reservation", () => {
+    const events = [{ access: "réservation_séparée" }, { access: "réservation_séparée" }];
+    expect(countReservationRequiredEvents(events)).toBe(2);
   });
 });

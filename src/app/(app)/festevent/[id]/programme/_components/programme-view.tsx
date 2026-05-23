@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -259,6 +259,11 @@ export function ProgrammeView({
 
   const peakHour = useMemo(
     () => getPeakEventHour(filteredEvents),
+    [filteredEvents],
+  );
+
+  const reservationCount = useMemo(
+    () => countReservationRequiredEvents(filteredEvents),
     [filteredEvents],
   );
 
@@ -882,6 +887,22 @@ export function ProgrammeView({
               }}
             >
               ⚡ {conflictPairCount} conflit{conflictPairCount !== 1 ? "s" : ""}
+            </span>
+          </>
+        )}
+        {reservationCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-reservation-count"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--warning-orange)",
+              }}
+              title="Événements nécessitant une réservation séparée"
+            >
+              {reservationCount} sur réserv.
             </span>
           </>
         )}
