@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing, countUpcomingEvents } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -321,6 +321,11 @@ export function ProgrammeView({
 
   const coveragePct = useMemo(
     () => computeSelectionCoveragePercent(filteredEvents),
+    [filteredEvents],
+  );
+
+  const peakDay = useMemo(
+    () => getPeakProgrammeDay(filteredEvents),
     [filteredEvents],
   );
 
@@ -1188,6 +1193,22 @@ export function ProgrammeView({
               title={`${coveragePct}% des événements ont été évalués`}
             >
               {coveragePct}% évalués
+            </span>
+          </>
+        )}
+        {peakDay !== null && eventDayCounts.size > 1 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-peak-day"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-muted)",
+              }}
+              title={`Jour le plus chargé : ${peakDay.date} (${peakDay.count} événements)`}
+            >
+              {new Date(peakDay.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short" })} +{peakDay.count}
             </span>
           </>
         )}

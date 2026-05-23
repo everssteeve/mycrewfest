@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -678,5 +678,55 @@ describe("computeSelectionCoveragePercent", () => {
   it("treats undefined selection as not evaluated", () => {
     const events = [{ selection: undefined }, { selection: { status: "vu" } }];
     expect(computeSelectionCoveragePercent(events)).toBe(50);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getPeakProgrammeDay
+// ---------------------------------------------------------------------------
+
+describe("getPeakProgrammeDay", () => {
+  it("returns null for empty list", () => {
+    expect(getPeakProgrammeDay([])).toBeNull();
+  });
+
+  it("returns null when no events have a startTime", () => {
+    expect(getPeakProgrammeDay([{ startTime: null }, { startTime: undefined }])).toBeNull();
+  });
+
+  it("returns the only day when there is one event", () => {
+    const result = getPeakProgrammeDay([{ startTime: "2026-07-15T14:00:00" }]);
+    expect(result).toEqual({ date: "2026-07-15", count: 1 });
+  });
+
+  it("returns the day with the most events", () => {
+    const events = [
+      { startTime: "2026-07-15T10:00:00" },
+      { startTime: "2026-07-15T14:00:00" },
+      { startTime: "2026-07-15T18:00:00" },
+      { startTime: "2026-07-16T10:00:00" },
+      { startTime: "2026-07-16T14:00:00" },
+    ];
+    expect(getPeakProgrammeDay(events)).toEqual({ date: "2026-07-15", count: 3 });
+  });
+
+  it("breaks ties by earliest date", () => {
+    const events = [
+      { startTime: "2026-07-15T10:00:00" },
+      { startTime: "2026-07-15T14:00:00" },
+      { startTime: "2026-07-16T10:00:00" },
+      { startTime: "2026-07-16T14:00:00" },
+    ];
+    expect(getPeakProgrammeDay(events)).toEqual({ date: "2026-07-15", count: 2 });
+  });
+
+  it("ignores events without startTime", () => {
+    const events = [
+      { startTime: "2026-07-15T10:00:00" },
+      { startTime: null },
+      { startTime: "2026-07-16T10:00:00" },
+      { startTime: "2026-07-16T14:00:00" },
+    ];
+    expect(getPeakProgrammeDay(events)).toEqual({ date: "2026-07-16", count: 2 });
   });
 });

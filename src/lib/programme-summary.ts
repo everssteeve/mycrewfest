@@ -356,3 +356,26 @@ export function computeSelectionCoveragePercent<T extends EvaluatedEvent>(events
   const evaluated = events.filter((e) => e.selection?.status != null).length;
   return Math.round((evaluated / events.length) * 100);
 }
+
+export interface PeakDayResult {
+  date: string;
+  count: number;
+}
+
+/**
+ * Returns the day (YYYY-MM-DD) with the most events, or null when no events
+ * have a startTime. Ties are broken by earliest date.
+ */
+export function getPeakProgrammeDay<T extends SummaryFilterable>(
+  events: T[],
+): PeakDayResult | null {
+  const counts = countEventsByDay(events);
+  if (counts.size === 0) return null;
+  let peak: PeakDayResult | null = null;
+  for (const [date, count] of counts) {
+    if (!peak || count > peak.count || (count === peak.count && date < peak.date)) {
+      peak = { date, count };
+    }
+  }
+  return peak;
+}
