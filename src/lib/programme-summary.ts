@@ -72,6 +72,28 @@ export function countMustSeePendingEvents<T extends SelectionFilterable>(
   return events.filter((e) => e.selection?.status === "must-see").length;
 }
 
+export interface SelectionDayFilterable {
+  startTime?: string | null;
+  selection?: { status: string } | null;
+}
+
+/**
+ * Returns the number of distinct days that have at least one selected event
+ * (status "must-see" or "intéressé"). Events without a startTime are excluded.
+ */
+export function countSelectionDays<T extends SelectionDayFilterable>(
+  events: T[],
+): number {
+  const days = new Set<string>();
+  for (const e of events) {
+    if (!e.startTime) continue;
+    const status = e.selection?.status;
+    if (status !== "must-see" && status !== "intéressé") continue;
+    days.add(toLocalYMD(e.startTime));
+  }
+  return days.size;
+}
+
 /**
  * Returns a map of YYYY-MM-DD → vu event count for events with selection.status === "vu".
  */

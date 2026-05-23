@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -445,5 +445,52 @@ describe("countMustSeePendingEvents", () => {
   it("ignores events with no selection", () => {
     const events = [sel(null), sel("must-see")];
     expect(countMustSeePendingEvents(events)).toBe(1);
+  });
+});
+
+describe("countSelectionDays", () => {
+  const ev = (startTime: string | null, status: string | null) => ({
+    startTime,
+    selection: status ? { status } : null,
+  });
+
+  it("returns 0 for empty array", () => {
+    expect(countSelectionDays([])).toBe(0);
+  });
+
+  it("returns 0 when no events are selected", () => {
+    const events = [ev("2026-07-15T10:00:00", "vu"), ev("2026-07-15T12:00:00", null)];
+    expect(countSelectionDays(events)).toBe(0);
+  });
+
+  it("counts a single day with must-see events", () => {
+    const events = [ev("2026-07-15T10:00:00", "must-see")];
+    expect(countSelectionDays(events)).toBe(1);
+  });
+
+  it("counts a single day with intéressé events", () => {
+    const events = [ev("2026-07-15T10:00:00", "intéressé")];
+    expect(countSelectionDays(events)).toBe(1);
+  });
+
+  it("counts two distinct days when selection spans two days", () => {
+    const events = [
+      ev("2026-07-15T10:00:00", "must-see"),
+      ev("2026-07-16T14:00:00", "intéressé"),
+    ];
+    expect(countSelectionDays(events)).toBe(2);
+  });
+
+  it("ignores vu events (already seen)", () => {
+    const events = [
+      ev("2026-07-15T10:00:00", "vu"),
+      ev("2026-07-16T10:00:00", "must-see"),
+    ];
+    expect(countSelectionDays(events)).toBe(1);
+  });
+
+  it("ignores events without startTime", () => {
+    const events = [ev(null, "must-see"), ev("2026-07-15T10:00:00", "intéressé")];
+    expect(countSelectionDays(events)).toBe(1);
   });
 });
