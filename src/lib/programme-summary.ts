@@ -396,3 +396,19 @@ export function countAgeRestrictedEvents<T extends AgeRestrictedFilterable>(
     (e) => (e.ageMin != null && e.ageMin > 0) || (e.ageMax != null && e.ageMax > 0),
   ).length;
 }
+
+export interface EventTypeCountable {
+  eventType?: string | null;
+}
+
+/**
+ * Returns the number of distinct eventType values across the given events.
+ * Null/undefined eventTypes are excluded from the count.
+ */
+export function countUniqueEventTypes<T extends EventTypeCountable>(events: T[]): number {
+  const types = new Set<string>();
+  for (const e of events) {
+    if (e.eventType) types.add(e.eventType);
+  }
+  return types.size;
+}

@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { countUniqueEventTypes } from "@/lib/programme-summary";
 import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
@@ -768,5 +769,47 @@ describe("countAgeRestrictedEvents", () => {
       { ageMin: 16, ageMax: null },
     ];
     expect(countAgeRestrictedEvents(events)).toBe(3);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// countUniqueEventTypes
+// ---------------------------------------------------------------------------
+
+describe("countUniqueEventTypes", () => {
+  it("returns 0 for empty list", () => {
+    expect(countUniqueEventTypes([])).toBe(0);
+  });
+
+  it("returns 0 when all events have no eventType", () => {
+    expect(countUniqueEventTypes([{ eventType: null }, { eventType: undefined }])).toBe(0);
+  });
+
+  it("counts a single unique type", () => {
+    expect(countUniqueEventTypes([{ eventType: "concert" }, { eventType: "concert" }])).toBe(1);
+  });
+
+  it("counts multiple distinct types", () => {
+    const events = [
+      { eventType: "concert" },
+      { eventType: "atelier" },
+      { eventType: "conférence" },
+      { eventType: "concert" },
+    ];
+    expect(countUniqueEventTypes(events)).toBe(3);
+  });
+
+  it("excludes null/undefined from the distinct count", () => {
+    const events = [
+      { eventType: "concert" },
+      { eventType: null },
+      { eventType: undefined },
+      { eventType: "atelier" },
+    ];
+    expect(countUniqueEventTypes(events)).toBe(2);
+  });
+
+  it("returns 1 when only one type among many nulls", () => {
+    expect(countUniqueEventTypes([{ eventType: null }, { eventType: "scène" }, { eventType: null }])).toBe(1);
   });
 });

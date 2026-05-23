@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing, countUpcomingEvents } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents, countUniqueProgrammeTags, computeSelectionCoveragePercent, getPeakProgrammeDay, countAgeRestrictedEvents, countUniqueEventTypes } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -335,6 +335,11 @@ export function ProgrammeView({
 
   const ageRestrictedCount = useMemo(
     () => countAgeRestrictedEvents(filteredEvents),
+    [filteredEvents],
+  );
+
+  const eventTypeCount = useMemo(
+    () => countUniqueEventTypes(filteredEvents),
     [filteredEvents],
   );
 
@@ -1218,6 +1223,22 @@ export function ProgrammeView({
               title={`Jour le plus chargé : ${peakDay.date} (${peakDay.count} événements)`}
             >
               {new Date(peakDay.date + "T12:00:00").toLocaleDateString("fr-FR", { weekday: "short" })} +{peakDay.count}
+            </span>
+          </>
+        )}
+        {eventTypeCount > 1 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-event-type-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--secondary-cyan)",
+              }}
+              title={`${eventTypeCount} types d'événements différents`}
+            >
+              ◈ {eventTypeCount} types
             </span>
           </>
         )}
