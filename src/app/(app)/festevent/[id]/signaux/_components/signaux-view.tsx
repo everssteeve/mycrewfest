@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
 import { filterSignalsByScope, type SignalScope } from "@/lib/signal-filter";
+import { computeSignalCredibility } from "@/lib/signal-credibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -180,6 +181,58 @@ function SignalCard({
           {signal.infirmations}
         </button>
       </div>
+
+      {/* Credibility bar */}
+      {(() => {
+        const cred = computeSignalCredibility({ confirmations: signal.confirmations, infirmations: signal.infirmations });
+        if (cred.total === 0) return null;
+        const barColor =
+          cred.label === "forte" ? "var(--primary-neon)" :
+          cred.label === "faible" ? "var(--accent-red)" :
+          "var(--warning-orange)";
+        return (
+          <div
+            data-testid={`signal-credibility-${signal.id}`}
+            style={{ display: "flex", flexDirection: "column", gap: 2 }}
+          >
+            <div
+              role="meter"
+              aria-valuenow={Math.round(cred.score * 100)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={`Fiabilité : ${cred.label}`}
+              style={{
+                height: 3,
+                borderRadius: 2,
+                backgroundColor: "rgba(255,255,255,0.06)",
+                overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  height: "100%",
+                  width: `${Math.round(cred.score * 100)}%`,
+                  backgroundColor: barColor,
+                  borderRadius: 2,
+                  transition: "width 0.3s ease",
+                }}
+              />
+            </div>
+            <span
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "9px",
+                color: barColor,
+                textTransform: "uppercase",
+                letterSpacing: "0.05em",
+                opacity: 0.8,
+              }}
+            >
+              Fiabilité {cred.label}
+            </span>
+          </div>
+        );
+      })()}
     </div>
   );
 }
