@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { EventSummary } from "@/types";
+import { countSouvenirPhotos, countLinkedEventSouvenirs, countCrewSharedSouvenirs } from "@/lib/deambuloire-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -445,6 +446,10 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
     return d === today;
   });
 
+  const photoCount = useMemo(() => countSouvenirPhotos(todaySouvenirs), [todaySouvenirs]);
+  const linkedCount = useMemo(() => countLinkedEventSouvenirs(todaySouvenirs), [todaySouvenirs]);
+  const sharedCount = useMemo(() => countCrewSharedSouvenirs(todaySouvenirs), [todaySouvenirs]);
+
   const handleLogged = () => {
     setLogOpen(false);
     void fetchSouvenirs();
@@ -496,6 +501,55 @@ export function DeambuloireView({ festEventId, festivalId }: DeambuloireViewProp
         }}>
           Parcours libre — enregistre ce que tu découvres.
         </p>
+        {todaySouvenirs.length > 0 && (
+          <div style={{ display: "flex", gap: "var(--space-xs)", flexWrap: "wrap", marginTop: "var(--space-xs)" }}>
+            {photoCount > 0 && (
+              <span
+                data-testid="deambuloire-photo-count"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--secondary-cyan)",
+                }}
+                title="Souvenirs avec photos"
+              >
+                {photoCount} photo{photoCount > 1 ? "s" : ""}
+              </span>
+            )}
+            {linkedCount > 0 && (
+              <>
+                {photoCount > 0 && <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>}
+                <span
+                  data-testid="deambuloire-linked-count"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--text-muted)",
+                  }}
+                  title="Souvenirs liés à un événement"
+                >
+                  {linkedCount} liés
+                </span>
+              </>
+            )}
+            {sharedCount > 0 && (
+              <>
+                {(photoCount > 0 || linkedCount > 0) && <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>}
+                <span
+                  data-testid="deambuloire-shared-count"
+                  style={{
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "var(--fs-xs)",
+                    color: "var(--accent-pink)",
+                  }}
+                  title="Souvenirs partagés avec le crew"
+                >
+                  {sharedCount} partagés
+                </span>
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Logger section */}
