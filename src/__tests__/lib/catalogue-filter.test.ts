@@ -84,3 +84,35 @@ describe("getAvailableMonths", () => {
     expect(getAvailableMonths(festivals)).toEqual([6, 7]);
   });
 });
+
+// ---------------------------------------------------------------------------
+// matchesTemporalFilter
+// ---------------------------------------------------------------------------
+
+import { matchesTemporalFilter, type TemporalFilterable } from "@/lib/catalogue-filter";
+
+const tf = (endDate: string): TemporalFilterable => ({ endDate });
+
+// Use fixed past/future dates relative to 2026-05-23 (session date)
+const PAST_DATE = "2025-01-10";
+const FUTURE_DATE = "2027-12-31";
+const TODAY = new Date().toLocaleDateString("sv-SE");
+
+describe("matchesTemporalFilter", () => {
+  it("always returns true when hidePast is false", () => {
+    expect(matchesTemporalFilter(tf(PAST_DATE), false)).toBe(true);
+    expect(matchesTemporalFilter(tf(FUTURE_DATE), false)).toBe(true);
+  });
+
+  it("returns false for a clearly past festival when hidePast is true", () => {
+    expect(matchesTemporalFilter(tf(PAST_DATE), true)).toBe(false);
+  });
+
+  it("returns true for a clearly future festival when hidePast is true", () => {
+    expect(matchesTemporalFilter(tf(FUTURE_DATE), true)).toBe(true);
+  });
+
+  it("returns true for a festival ending today when hidePast is true", () => {
+    expect(matchesTemporalFilter(tf(TODAY), true)).toBe(true);
+  });
+});

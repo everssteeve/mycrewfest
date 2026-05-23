@@ -53,6 +53,27 @@ export function getAvailableMonths<T extends MonthFilterable>(festivals: T[]): n
   return Array.from(months).sort((a, b) => a - b);
 }
 
+export interface TemporalFilterable {
+  endDate: string;
+}
+
+/**
+ * Returns false when `hidePast` is true and the festival's end date is strictly
+ * before today (i.e. the festival has ended).
+ * Always returns true when `hidePast` is false.
+ */
+export function matchesTemporalFilter<T extends TemporalFilterable>(
+  festival: T,
+  hidePast: boolean,
+): boolean {
+  if (!hidePast) return true;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const end = new Date(festival.endDate);
+  end.setHours(0, 0, 0, 0);
+  return end >= today;
+}
+
 export const MONTH_NAMES_FR: Record<number, string> = {
   1: "Janv.",
   2: "Févr.",

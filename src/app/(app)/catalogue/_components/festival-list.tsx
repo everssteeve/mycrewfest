@@ -5,7 +5,7 @@ import { Search, Heart } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
 import { compareByTemporalRelevance } from "@/lib/festival-temporal";
-import { matchesFollowFilter, matchesMonthFilter, getAvailableMonths, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
+import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 type FilterType = "tous" | FestivalType;
@@ -27,6 +27,7 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
   const [query, setQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("tous");
   const [followedOnly, setFollowedOnly] = useState(false);
+  const [hidePast, setHidePast] = useState(true);
   const [activeMonth, setActiveMonth] = useState<number | null>(null);
 
   const hasFollowed = useMemo(
@@ -50,10 +51,10 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
           f.country.toLowerCase().includes(q);
         const matchesType =
           activeFilter === "tous" || f.festivalType === activeFilter;
-        return matchesQuery && matchesType && matchesFollowFilter(f, followedOnly) && matchesMonthFilter(f, activeMonth);
+        return matchesQuery && matchesType && matchesFollowFilter(f, followedOnly) && matchesMonthFilter(f, activeMonth) && matchesTemporalFilter(f, hidePast);
       })
       .sort(compareByTemporalRelevance);
-  }, [initialFestivals, query, activeFilter, followedOnly, activeMonth]);
+  }, [initialFestivals, query, activeFilter, followedOnly, activeMonth, hidePast]);
 
   return (
     <div className="flex flex-col gap-0 py-4">
@@ -158,6 +159,34 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
             </button>
           );
         })}
+        <button
+          type="button"
+          onClick={() => setHidePast((v) => !v)}
+          aria-pressed={hidePast}
+          data-testid="catalogue-hide-past"
+          style={{
+            flexShrink: 0,
+            paddingLeft: 12,
+            paddingRight: 12,
+            paddingTop: 6,
+            paddingBottom: 6,
+            borderRadius: "var(--radius-full)",
+            border: hidePast
+              ? "1px solid var(--secondary-cyan)"
+              : "1px solid var(--border-color)",
+            backgroundColor: hidePast ? "rgba(0,229,255,0.1)" : "transparent",
+            color: hidePast ? "var(--secondary-cyan)" : "var(--text-muted)",
+            fontFamily: "var(--font-body)",
+            fontSize: 12,
+            fontWeight: 700,
+            textTransform: "uppercase",
+            letterSpacing: "0.06em",
+            cursor: "pointer",
+            transition: "var(--transition-fast)",
+          }}
+        >
+          {hidePast ? "Actifs seulement" : "Tous (passés inclus)"}
+        </button>
         {hasFollowed && (
           <button
             type="button"
