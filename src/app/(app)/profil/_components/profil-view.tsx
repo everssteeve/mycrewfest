@@ -8,6 +8,7 @@ import Link from "next/link";
 import { PushToggle } from "@/components/notifications/push-toggle";
 import { computeFestivalierScore, computeScoreBreakdown } from "@/lib/festivalier-score";
 import { getFestivalTemporalStatus, getDaysUntilStart, formatTemporalBadge } from "@/lib/festival-temporal";
+import { countUpcomingFestEvents, countActiveFestEvents } from "@/lib/profil-stats";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -296,6 +297,16 @@ export function ProfilView({ data }: { data: ProfilData }) {
   const scoreBreakdown = useMemo(
     () => computeScoreBreakdown(data.stats),
     [data.stats],
+  );
+
+  const upcomingFestEventCount = useMemo(
+    () => countUpcomingFestEvents(data.festEvents),
+    [data.festEvents],
+  );
+
+  const activeFestEventCount = useMemo(
+    () => countActiveFestEvents(data.festEvents),
+    [data.festEvents],
   );
 
   const RANK_COLORS: Record<string, { bg: string; color: string; border: string }> = {
@@ -624,6 +635,48 @@ export function ProfilView({ data }: { data: ProfilData }) {
           </div>
         ))}
       </section>
+
+      {/* Temporal badges for fest events */}
+      {(upcomingFestEventCount > 0 || activeFestEventCount > 0) && (
+        <div style={{ display: "flex", gap: "var(--space-sm)", flexWrap: "wrap" }}>
+          {activeFestEventCount > 0 && (
+            <span
+              data-testid="profil-active-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                fontWeight: 700,
+                color: "var(--primary-neon)",
+                background: "rgba(0,255,102,0.08)",
+                border: "1px solid rgba(0,255,102,0.25)",
+                borderRadius: "var(--radius-full)",
+                padding: "2px 8px",
+              }}
+              title="Festivals actuellement en cours"
+            >
+              ◉ {activeFestEventCount} en cours
+            </span>
+          )}
+          {upcomingFestEventCount > 0 && (
+            <span
+              data-testid="profil-upcoming-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                fontWeight: 700,
+                color: "var(--warning-orange)",
+                background: "rgba(255,153,0,0.08)",
+                border: "1px solid rgba(255,153,0,0.25)",
+                borderRadius: "var(--radius-full)",
+                padding: "2px 8px",
+              }}
+              title="Prochains festivals"
+            >
+              ▷ {upcomingFestEventCount} à venir
+            </span>
+          )}
+        </div>
+      )}
 
       {/* === Mes festivals === */}
       {data.festEvents.length > 0 && (
