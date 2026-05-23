@@ -164,3 +164,24 @@ export function computeAvgSignalAgeHours(
   if (count === 0) return null;
   return Math.floor(total / count / (60 * 60_000));
 }
+
+/**
+ * Returns the age in minutes of the most recently created signal relative to `now`.
+ * Signals with unparseable createdAt are ignored.
+ * Returns null when the list is empty or all dates are invalid.
+ * Future-dated signals are treated as age 0.
+ */
+export function getMostRecentSignalAgoMins(
+  signals: AgedSignal[],
+  now: Date = new Date(),
+): number | null {
+  let minMs = Infinity;
+  for (const s of signals) {
+    const t = new Date(s.createdAt).getTime();
+    if (Number.isNaN(t)) continue;
+    const ageMs = Math.max(0, now.getTime() - t);
+    if (ageMs < minMs) minMs = ageMs;
+  }
+  if (minMs === Infinity) return null;
+  return Math.floor(minMs / 60_000);
+}

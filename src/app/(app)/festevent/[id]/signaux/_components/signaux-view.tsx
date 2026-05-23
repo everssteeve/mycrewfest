@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
 import { filterSignalsByScope, countCrewSignals, countCommunautéSignals, type SignalScope } from "@/lib/signal-filter";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals, computeAvgSignalAgeHours } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals, computeAvgSignalAgeHours, getMostRecentSignalAgoMins } from "@/lib/signal-credibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -629,6 +629,11 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
     [displayedSignals],
   );
 
+  const freshestAgoMins = useMemo(
+    () => getMostRecentSignalAgoMins(displayedSignals),
+    [displayedSignals],
+  );
+
   return (
     <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
       {/* Header */}
@@ -752,6 +757,19 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
               title={`Âge moyen des signaux : ${avgAgeHours}h`}
             >
               · moy. {avgAgeHours}h
+            </span>
+          )}
+          {freshestAgoMins !== null && displayedSignals.length > 0 && (
+            <span
+              data-testid="signal-freshest-ago"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: freshestAgoMins < 30 ? "var(--primary-neon)" : freshestAgoMins < 180 ? "var(--text-muted)" : "var(--text-dim)",
+              }}
+              title={`Signal le plus récent : il y a ${freshestAgoMins < 60 ? `${freshestAgoMins}min` : `${Math.floor(freshestAgoMins / 60)}h`}`}
+            >
+              · {freshestAgoMins < 60 ? `${freshestAgoMins}min` : `${Math.floor(freshestAgoMins / 60)}h`} ago
             </span>
           )}
         </div>

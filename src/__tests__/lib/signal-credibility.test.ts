@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals, computeAvgSignalAgeHours } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals, countRecentSignals, countContestedSignals, getTopSignalType, computeSignalCredibilityRate, countUniqueSignalAuthors, countExpiredSignals, computeAvgSignalAgeHours, getMostRecentSignalAgoMins } from "@/lib/signal-credibility";
 
 describe("computeSignalCredibility", () => {
   it("returns 0.5 neutre when no votes", () => {
@@ -327,5 +327,50 @@ describe("computeAvgSignalAgeHours", () => {
     const ninetyMinsAgo = new Date(now.getTime() - 90 * 60_000);
     const signals = [{ createdAt: ninetyMinsAgo.toISOString() }];
     expect(computeAvgSignalAgeHours(signals, now)).toBe(1);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getMostRecentSignalAgoMins
+// ---------------------------------------------------------------------------
+
+describe("getMostRecentSignalAgoMins", () => {
+  const now = new Date("2026-05-23T12:00:00Z");
+
+  it("returns null for empty list", () => {
+    expect(getMostRecentSignalAgoMins([], now)).toBeNull();
+  });
+
+  it("returns null when all timestamps are invalid", () => {
+    expect(getMostRecentSignalAgoMins([{ createdAt: "bad" }], now)).toBeNull();
+  });
+
+  it("returns 0 for a signal created right now", () => {
+    expect(getMostRecentSignalAgoMins([{ createdAt: now.toISOString() }], now)).toBe(0);
+  });
+
+  it("returns 30 for a signal 30 minutes ago", () => {
+    const thirtyMinsAgo = new Date(now.getTime() - 30 * 60_000);
+    expect(getMostRecentSignalAgoMins([{ createdAt: thirtyMinsAgo.toISOString() }], now)).toBe(30);
+  });
+
+  it("returns the minimum age across multiple signals", () => {
+    const tenMinsAgo = new Date(now.getTime() - 10 * 60_000);
+    const sixtyMinsAgo = new Date(now.getTime() - 60 * 60_000);
+    const signals = [
+      { createdAt: sixtyMinsAgo.toISOString() },
+      { createdAt: tenMinsAgo.toISOString() },
+    ];
+    expect(getMostRecentSignalAgoMins(signals, now)).toBe(10);
+  });
+
+  it("treats future-dated signals as age 0", () => {
+    const inFuture = new Date(now.getTime() + 60 * 60_000);
+    expect(getMostRecentSignalAgoMins([{ createdAt: inFuture.toISOString() }], now)).toBe(0);
+  });
+
+  it("floors partial minutes", () => {
+    const ninetySecsAgo = new Date(now.getTime() - 90 * 1000);
+    expect(getMostRecentSignalAgoMins([{ createdAt: ninetySecsAgo.toISOString() }], now)).toBe(1);
   });
 });
