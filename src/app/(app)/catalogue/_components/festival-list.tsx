@@ -5,7 +5,7 @@ import { Search, Heart } from "lucide-react";
 import type { FestivalSummary, FestivalType } from "@/lib/types";
 import { FestivalCard } from "@/components/festival/festival-card";
 import { compareByTemporalRelevance } from "@/lib/festival-temporal";
-import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, countVerifiedFestivals, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
+import { matchesFollowFilter, matchesMonthFilter, matchesTemporalFilter, getAvailableMonths, countFollowedFestivals, countActiveFestivals, countUpcomingFestivals, countFestivalsWithCompleteProgram, countVerifiedFestivals, computeAvgFestivalDurationDays, MONTH_NAMES_FR } from "@/lib/catalogue-filter";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 type FilterType = "tous" | FestivalType;
@@ -80,6 +80,11 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
       })
       .sort(compareByTemporalRelevance);
   }, [initialFestivals, query, activeFilter, followedOnly, activeMonth, hidePast]);
+
+  const avgDurationDays = useMemo(
+    () => computeAvgFestivalDurationDays(filtered),
+    [filtered],
+  );
 
   return (
     <div className="flex flex-col gap-0 py-4">
@@ -412,6 +417,22 @@ export function FestivalList({ initialFestivals }: FestivalListProps) {
             title={`${verifiedCount} festival${verifiedCount !== 1 ? "s" : ""} vérifiés par l'équipe`}
           >
             ◈ {verifiedCount} vérifié{verifiedCount !== 1 ? "s" : ""}
+          </span>
+        )}
+        {avgDurationDays !== null && filtered.length > 1 && (
+          <span
+            data-testid="catalogue-avg-duration"
+            style={{
+              fontFamily: "var(--font-mono)",
+              fontSize: 11,
+              fontWeight: 700,
+              color: "var(--text-dim)",
+              borderRadius: "var(--radius-full)",
+              padding: "2px 0",
+            }}
+            title={`Durée moyenne des festivals : ${avgDurationDays} jour${avgDurationDays !== 1 ? "s" : ""}`}
+          >
+            ⌀ {avgDurationDays}j
           </span>
         )}
       </div>

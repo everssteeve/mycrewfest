@@ -4,6 +4,8 @@ import {
   matchesMonthFilter,
   getAvailableMonths,
   countFollowedFestivals,
+  computeFestivalDurationDays,
+  computeAvgFestivalDurationDays,
   type FollowFilterable,
   type MonthFilterable,
 } from "@/lib/catalogue-filter";
@@ -283,5 +285,61 @@ describe("countVerifiedFestivals", () => {
 
   it("returns total when all are verified", () => {
     expect(countVerifiedFestivals([cv("vérifié_humain"), cv("vérifié_humain")])).toBe(2);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// computeFestivalDurationDays
+// ---------------------------------------------------------------------------
+
+describe("computeFestivalDurationDays", () => {
+  it("returns 1 for a same-day festival", () => {
+    expect(computeFestivalDurationDays("2024-07-20", "2024-07-20")).toBe(1);
+  });
+
+  it("returns 3 for a 3-day festival", () => {
+    expect(computeFestivalDurationDays("2024-07-20", "2024-07-22")).toBe(3);
+  });
+
+  it("returns null for unparseable dates", () => {
+    expect(computeFestivalDurationDays("invalid", "2024-07-22")).toBeNull();
+  });
+
+  it("handles multi-month range correctly", () => {
+    expect(computeFestivalDurationDays("2024-07-30", "2024-08-01")).toBe(3);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// computeAvgFestivalDurationDays
+// ---------------------------------------------------------------------------
+
+describe("computeAvgFestivalDurationDays", () => {
+  it("returns null for empty list", () => {
+    expect(computeAvgFestivalDurationDays([])).toBeNull();
+  });
+
+  it("returns the single festival duration", () => {
+    expect(computeAvgFestivalDurationDays([{ startDate: "2024-07-20", endDate: "2024-07-22" }])).toBe(3);
+  });
+
+  it("averages durations across multiple festivals", () => {
+    const festivals = [
+      { startDate: "2024-07-20", endDate: "2024-07-20" }, // 1 day
+      { startDate: "2024-07-20", endDate: "2024-07-22" }, // 3 days
+    ];
+    expect(computeAvgFestivalDurationDays(festivals)).toBe(2);
+  });
+
+  it("ignores festivals with invalid dates", () => {
+    const festivals = [
+      { startDate: "invalid", endDate: "2024-07-22" },
+      { startDate: "2024-07-20", endDate: "2024-07-22" },
+    ];
+    expect(computeAvgFestivalDurationDays(festivals)).toBe(3);
+  });
+
+  it("returns null when all dates are invalid", () => {
+    expect(computeAvgFestivalDurationDays([{ startDate: "bad", endDate: "bad" }])).toBeNull();
   });
 });

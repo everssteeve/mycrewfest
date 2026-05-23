@@ -147,6 +147,44 @@ export function countVerifiedFestivals<T extends ConfidenceLevelFilterable>(
   return festivals.filter((f) => f.confidenceLevel === "vérifié_humain").length;
 }
 
+export interface FestivalDurationComputable {
+  startDate: string;
+  endDate: string;
+}
+
+/**
+ * Returns the duration in whole days (inclusive: endDate - startDate + 1).
+ * Returns 1 for a same-day festival.
+ * Returns null if either date is unparseable.
+ */
+export function computeFestivalDurationDays(startDate: string, endDate: string): number | null {
+  const start = new Date(startDate.slice(0, 10));
+  const end = new Date(endDate.slice(0, 10));
+  if (isNaN(start.getTime()) || isNaN(end.getTime())) return null;
+  const days = Math.round((end.getTime() - start.getTime()) / 86_400_000) + 1;
+  return days < 1 ? 1 : days;
+}
+
+/**
+ * Returns the average duration in days (rounded to 1 decimal) across the given festivals.
+ * Festivals with unparseable dates are ignored.
+ * Returns null when the list is empty or all dates are invalid.
+ */
+export function computeAvgFestivalDurationDays<T extends FestivalDurationComputable>(
+  festivals: T[],
+): number | null {
+  let total = 0;
+  let count = 0;
+  for (const f of festivals) {
+    const d = computeFestivalDurationDays(f.startDate, f.endDate);
+    if (d !== null) {
+      total += d;
+      count++;
+    }
+  }
+  return count === 0 ? null : Math.round((total / count) * 10) / 10;
+}
+
 export const MONTH_NAMES_FR: Record<number, string> = {
   1: "Janv.",
   2: "Févr.",
