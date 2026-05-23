@@ -6,6 +6,8 @@ import { generateChecklistText } from "@/lib/checklist-text";
 import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
 import { computeChecklistBudget } from "@/lib/checklist-budget";
 import { filterByAssignee, getUniqueAssignees } from "@/lib/checklist-filter";
+import { filterChecklistByQuery } from "@/lib/checklist-search";
+import { isEscapeKey } from "@/lib/keyboard-search";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -196,6 +198,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [activeAssignee, setActiveAssignee] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const baseUrl = `/api/festevents/${festEventId}/checklist`;
 
@@ -203,7 +206,10 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   const completedCount = items.filter((i) => i.done).length;
   const totalCount = items.length;
   const allAssignees = useMemo(() => getUniqueAssignees(items), [items]);
-  const displayedItems = useMemo(() => filterByAssignee(items, activeAssignee), [items, activeAssignee]);
+  const displayedItems = useMemo(
+    () => filterChecklistByQuery(filterByAssignee(items, activeAssignee), searchQuery),
+    [items, activeAssignee, searchQuery],
+  );
   const { total: totalCost, spent: spentCost, remaining: remainingCost } = computeChecklistBudget(items);
 
   const copyChecklist = useCallback(async () => {
@@ -647,6 +653,55 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
               Ajouter
             </button>
           </div>
+        </div>
+      )}
+
+      {/* Search input */}
+      {items.length >= 6 && (
+        <div style={{ position: "relative" }}>
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onKeyDown={(e) => { if (isEscapeKey(e)) setSearchQuery(""); }}
+            placeholder="Chercher un item…"
+            aria-label="Rechercher dans la checklist"
+            data-testid="checklist-search"
+            style={{
+              width: "100%",
+              padding: "8px 12px",
+              paddingRight: searchQuery ? 34 : 12,
+              backgroundColor: "var(--bg-surface)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "var(--radius-md)",
+              color: "var(--text-main)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              outline: "none",
+            }}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              aria-label="Effacer la recherche"
+              style={{
+                position: "absolute",
+                right: 8,
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                color: "var(--text-dim)",
+                cursor: "pointer",
+                padding: 2,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <X size={14} />
+            </button>
+          )}
         </div>
       )}
 
