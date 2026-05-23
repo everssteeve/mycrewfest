@@ -50,3 +50,10 @@ export function findOngoingEventIds<T extends TimedEvent & { id: string }>(
   }
   return ids;
 }
+
+/**
+ * Returns the count of events that are currently ongoing relative to `now`.
+ */
+export function countOngoingEvents<T extends TimedEvent>(events: T[], now: Date): number {
+  return events.filter((e) => getEventTimeStatus(e, now) === "ongoing").length;
+}

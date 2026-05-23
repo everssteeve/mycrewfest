@@ -12,7 +12,7 @@ import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/prog
 import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
-import { findOngoingEventIds } from "@/lib/event-status";
+import { findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
 import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, computeAvgEventDurationMins, getMaxEventDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue, countMustSeePendingEvents, countSelectionDays, countIntéresséEvents } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
@@ -217,6 +217,7 @@ export function ProgrammeView({
 
   // Live "ongoing" event detection — refreshes every minute
   const ongoingIds = useMemo(() => findOngoingEventIds(events, now), [events, now]);
+  const ongoingCount = useMemo(() => countOngoingEvents(events, now), [events, now]);
 
   // Event counts per day (across ALL events, not filtered)
   const eventDayCounts = useMemo(() => countEventsByDay(initialEvents), [initialEvents]);
@@ -934,6 +935,24 @@ export function ProgrammeView({
               }}
             >
               ✓ {verifiedCount} vérifi{verifiedCount !== 1 ? "és" : "é"}
+            </span>
+          </>
+        )}
+        {ongoingCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-ongoing-count"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--primary-neon)",
+                fontWeight: "var(--fw-bold)",
+                animation: "pulse 2s infinite",
+              }}
+              title="Événements en cours maintenant"
+            >
+              ● {ongoingCount} en cours
             </span>
           </>
         )}

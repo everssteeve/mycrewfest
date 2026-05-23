@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getEventTimeStatus, findOngoingEventIds } from "@/lib/event-status";
+import { getEventTimeStatus, findOngoingEventIds, countOngoingEvents } from "@/lib/event-status";
 
 const BASE = "2026-07-15T";
 function t(h: number, m = 0): string {
@@ -78,5 +78,40 @@ describe("findOngoingEventIds", () => {
     expect(result.has("e1")).toBe(false);
     expect(result.has("e3")).toBe(false);
     expect(result.has("e4")).toBe(false);
+  });
+});
+
+describe("countOngoingEvents", () => {
+  const now = new Date(`${BASE}14:00:00`);
+
+  it("returns 0 for empty list", () => {
+    expect(countOngoingEvents([], now)).toBe(0);
+  });
+
+  it("counts only currently ongoing events", () => {
+    const events = [
+      { startTime: t(12), endTime: t(13) },
+      { startTime: t(13), endTime: t(15) },
+      { startTime: t(15), endTime: t(16) },
+      { startTime: undefined },
+    ];
+    expect(countOngoingEvents(events, now)).toBe(1);
+  });
+
+  it("returns 0 when all events are past or future", () => {
+    const events = [
+      { startTime: t(10), endTime: t(11) },
+      { startTime: t(15), endTime: t(16) },
+    ];
+    expect(countOngoingEvents(events, now)).toBe(0);
+  });
+
+  it("handles multiple concurrent ongoing events", () => {
+    const events = [
+      { startTime: t(13), endTime: t(16) },
+      { startTime: t(13, 30), endTime: t(15) },
+      { startTime: t(10), endTime: t(11) },
+    ];
+    expect(countOngoingEvents(events, now)).toBe(2);
   });
 });
