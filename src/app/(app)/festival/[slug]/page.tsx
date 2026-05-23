@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Suspense } from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { ArrowLeft, Globe, MapPin, Users, ExternalLink } from "lucide-react";
@@ -11,6 +12,7 @@ import { FollowButton } from "./_components/follow-button";
 import { ParticipateButton } from "./_components/participate-button";
 import { ShareButton } from "@/components/ui/share-button";
 import { buildFestivalSharePayload } from "@/lib/share";
+import { SimilarFestivals } from "./_components/similar-festivals";
 
 async function fetchFestival(slug: string): Promise<FestivalDetail | null> {
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
@@ -400,6 +402,10 @@ export default async function FestivalPage({
           </div>
         </section>
       )}
+
+      <Suspense fallback={null}>
+        <SimilarFestivals currentSlug={slug} />
+      </Suspense>
     </div>
   );
 }
