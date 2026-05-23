@@ -110,6 +110,32 @@ export function getTopNewsSource<T extends SourceCountable>(items: T[]): string 
   return topSource;
 }
 
+export interface TopSourceResult {
+  source: string;
+  count: number;
+}
+
+/**
+ * Returns the source name and article count of the top source, or null when
+ * the list is empty. Ties are broken by insertion order (first encountered wins).
+ */
+export function getTopNewsSourceWithCount<T extends SourceCountable>(
+  items: T[],
+): TopSourceResult | null {
+  if (items.length === 0) return null;
+  const counts = new Map<string, number>();
+  for (const item of items) {
+    counts.set(item.source, (counts.get(item.source) ?? 0) + 1);
+  }
+  let top: TopSourceResult | null = null;
+  for (const [source, count] of counts) {
+    if (!top || count > top.count) {
+      top = { source, count };
+    }
+  }
+  return top;
+}
+
 /**
  * Returns how many minutes ago the most recently published item was published,
  * relative to `now`. Returns null when the list is empty or all dates are unparseable.

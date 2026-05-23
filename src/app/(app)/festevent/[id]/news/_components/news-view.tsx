@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Newspaper, Pin, RefreshCw, Filter, Search, X } from "lucide-react";
 import { matchesNewsQuery } from "@/lib/news-search";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins, computeAvgNewsAgeHours } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins, computeAvgNewsAgeHours, getTopNewsSourceWithCount } from "@/lib/news-stats";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
 // ---------------------------------------------------------------------------
@@ -331,6 +331,7 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
   const topCategory = useMemo(() => getTopNewsCategory(filteredNews), [filteredNews]);
   const freshnessMins = useMemo(() => getMostRecentArticleAgoMins(filteredNews), [filteredNews]);
   const avgAgeHours = useMemo(() => computeAvgNewsAgeHours(filteredNews), [filteredNews]);
+  const topSourceWithCount = useMemo(() => getTopNewsSourceWithCount(filteredNews), [filteredNews]);
 
   // Separate pinned from the rest
   const pinnedItems = filteredNews.filter((item) => item.isPinned);
@@ -481,6 +482,19 @@ export function NewsView({ festEventId, initialNews, initialUrgentCount }: NewsV
               }}
             >
               · {topSource}
+            </span>
+          )}
+          {topSourceWithCount !== null && topSourceWithCount.count > 1 && categoryCount > 1 && (
+            <span
+              data-testid="news-stats-top-source-count"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-dim)",
+              }}
+              title={`${topSourceWithCount.source} : ${topSourceWithCount.count} articles`}
+            >
+              ×{topSourceWithCount.count}
             </span>
           )}
           {pinnedCount > 0 && pinnedCount < newsStats.total && (

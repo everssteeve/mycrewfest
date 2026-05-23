@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins, computeAvgNewsAgeHours } from "@/lib/news-stats";
+import { computeNewsStats, getTopNewsSource, countPinnedNewsItems, countUniqueNewsCategories, countRecentNewsItems, getTopNewsCategory, getMostRecentArticleAgoMins, computeAvgNewsAgeHours, getTopNewsSourceWithCount } from "@/lib/news-stats";
 
 const item = (urgencyLevel: "normal" | "critique", isPinned = false) => ({
   urgencyLevel,
@@ -270,5 +270,49 @@ describe("computeAvgNewsAgeHours", () => {
     const twoDaysAgo = new Date(now.getTime() - 48 * 60 * 60_000);
     const items = [{ publishedAt: twoDaysAgo.toISOString() }];
     expect(computeAvgNewsAgeHours(items, now)).toBe(48);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// getTopNewsSourceWithCount
+// ---------------------------------------------------------------------------
+
+describe("getTopNewsSourceWithCount", () => {
+  it("returns null for empty list", () => {
+    expect(getTopNewsSourceWithCount([])).toBeNull();
+  });
+
+  it("returns the only source for a single item", () => {
+    expect(getTopNewsSourceWithCount([{ source: "Le Monde" }])).toEqual({ source: "Le Monde", count: 1 });
+  });
+
+  it("returns the source with the most items", () => {
+    const items = [
+      { source: "Le Monde" },
+      { source: "Libé" },
+      { source: "Le Monde" },
+      { source: "Le Monde" },
+    ];
+    expect(getTopNewsSourceWithCount(items)).toEqual({ source: "Le Monde", count: 3 });
+  });
+
+  it("breaks ties by first encountered", () => {
+    const items = [
+      { source: "A" },
+      { source: "B" },
+      { source: "A" },
+      { source: "B" },
+    ];
+    expect(getTopNewsSourceWithCount(items)).toEqual({ source: "A", count: 2 });
+  });
+
+  it("counts each source correctly with multiple sources", () => {
+    const items = [
+      { source: "X" },
+      { source: "Y" },
+      { source: "Y" },
+      { source: "Z" },
+    ];
+    expect(getTopNewsSourceWithCount(items)).toEqual({ source: "Y", count: 2 });
   });
 });
