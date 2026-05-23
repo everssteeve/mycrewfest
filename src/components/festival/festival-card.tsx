@@ -14,6 +14,7 @@ import { buildFollowApiUrl, getFollowToggleAriaLabel, getFollowToggleMethod } fr
 import { getCapacityTier, getCapacityTierColor, getCapacityTierBg, formatCapacityLabel, buildCapacityAriaLabel } from "@/lib/festival-capacity";
 import { computeNewsStatus, getNewsBadgeLabel, getNewsBadgeColor } from "@/lib/news-badge";
 import { shareOrCopy, buildFestivalSharePayload } from "@/lib/share";
+import { computeTrendingScore, getTrendingTier } from "@/lib/festival-trending-score";
 
 interface FestivalCardProps {
   festival: FestivalSummary;
@@ -109,6 +110,13 @@ export function FestivalCard({ festival }: FestivalCardProps) {
     festival.recentNewsCount ?? 0,
     festival.hasUrgentNews ?? false,
   );
+  const trendingTier = getTrendingTier(
+    computeTrendingScore({
+      followerCount: festival._count?.followers ?? 0,
+      recentNewsCount: festival.recentNewsCount ?? 0,
+      startDate: festival.startDate,
+    }),
+  );
 
   return (
     <Link
@@ -183,6 +191,20 @@ export function FestivalCard({ festival }: FestivalCardProps) {
                 }}
               >
                 {daysUntil === 0 ? "Demain" : `Dans ${daysUntil} j`}
+              </span>
+            )}
+            {(trendingTier === "chaud" || trendingTier === "montant") && (
+              <span
+                data-testid={`festival-trending-badge-${festival.slug}`}
+                aria-label={trendingTier === "chaud" ? "Festival en tendance : chaud" : "Festival en tendance : montant"}
+                className="inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider"
+                style={{
+                  backgroundColor: trendingTier === "chaud" ? "rgba(255,51,85,0.12)" : "rgba(255,153,0,0.12)",
+                  color: trendingTier === "chaud" ? "var(--danger-red)" : "var(--warning-orange)",
+                  border: `1px solid ${trendingTier === "chaud" ? "rgba(255,51,85,0.4)" : "rgba(255,153,0,0.4)"}`,
+                }}
+              >
+                {trendingTier === "chaud" ? "🔥 Chaud" : "📈 Montant"}
               </span>
             )}
             {newsBadge && (
