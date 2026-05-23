@@ -6,7 +6,7 @@ import { EventCard, type EventWithSelectionAndConfidence } from "@/components/fe
 import { useSelections } from "@/hooks/use-selections";
 import type { SelectionStatus } from "@/types";
 import type { EventType } from "@/lib/api";
-import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, matchesVenueFilter, type SelectionFilter } from "@/lib/programme-search";
+import { matchesProgrammeQuery, matchesSelectionFilter, matchesTagFilter, matchesVenueFilter, matchesDurationFilter, type SelectionFilter, type DurationFilter, DURATION_FILTER_LABELS } from "@/lib/programme-search";
 import { isEscapeKey } from "@/lib/keyboard-search";
 import { sortProgrammeEvents, type SortMode, SORT_MODE_LABELS } from "@/lib/programme-sort";
 import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/programme-days";
@@ -94,6 +94,7 @@ export function ProgrammeView({
   const [activeVenueId, setActiveVenueId] = useState<string | null>(null);
   const [sortMode, setSortMode] = useState<SortMode>("time");
   const [shuffleSeed, setShuffleSeed] = useState(0);
+  const [activeDurationFilter, setActiveDurationFilter] = useState<DurationFilter>("tous");
   const [searchQuery, setSearchQuery] = useState("");
   const [upcomingOnly, setUpcomingOnly] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -197,9 +198,12 @@ export function ProgrammeView({
       // Upcoming filter — events happening now or starting within 2h
       if (upcomingOnly && !isUpcomingOrOngoing(e, new Date(), 120)) return false;
 
+      // Duration filter
+      if (!matchesDurationFilter(e, activeDurationFilter)) return false;
+
       return true;
     });
-  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, activeVenueId, searchQuery, upcomingOnly]);
+  }, [events, activeDay, activeTypes, accessFilter, selectionFilter, activeTags, activeVenueId, searchQuery, upcomingOnly, activeDurationFilter]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const sortedFilteredEvents = useMemo(
@@ -235,7 +239,8 @@ export function ProgrammeView({
     activeTags.size > 0 ||
     activeVenueId !== null ||
     searchQuery.trim().length > 0 ||
-    upcomingOnly;
+    upcomingOnly ||
+    activeDurationFilter !== "tous";
 
   const handleSelectionCycle = useCallback(
     (eventId: string, next: SelectionStatus | null) => {
@@ -252,6 +257,7 @@ export function ProgrammeView({
     setActiveVenueId(null);
     setSearchQuery("");
     setUpcomingOnly(false);
+    setActiveDurationFilter("tous");
   }, []);
 
   const copyShortlist = useCallback(async () => {
@@ -773,6 +779,37 @@ export function ProgrammeView({
             </span>
           </>
         )}
+        {/* Duration filter chips */}
+        {(["court", "normal", "long"] as DurationFilter[]).map((df) => {
+          const isActive = activeDurationFilter === df;
+          return (
+            <button
+              key={df}
+              type="button"
+              onClick={() => setActiveDurationFilter(isActive ? "tous" : df)}
+              aria-pressed={isActive}
+              data-testid={`duration-filter-${df}`}
+              style={{
+                padding: "2px 9px",
+                borderRadius: "var(--radius-full)",
+                border: isActive
+                  ? "1.5px solid var(--warning-orange)"
+                  : "1.5px solid rgba(255,255,255,0.1)",
+                backgroundColor: isActive ? "rgba(255,153,0,0.12)" : "transparent",
+                color: isActive ? "var(--warning-orange)" : "var(--text-dim)",
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                fontWeight: "var(--fw-bold)",
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+                transition: "var(--transition-fast)",
+              }}
+            >
+              {DURATION_FILTER_LABELS[df]}
+            </button>
+          );
+        })}
+
         {/* À venir chip */}
         <button
           type="button"

@@ -60,3 +60,34 @@ export function matchesVenueFilter<T extends VenueFilterable>(
   if (venueId === null) return true;
   return event.venue?.id === venueId;
 }
+
+export type DurationFilter = "tous" | "court" | "normal" | "long";
+
+export const DURATION_FILTER_LABELS: Record<DurationFilter, string> = {
+  tous: "Toutes durées",
+  court: "< 30min",
+  normal: "30–90min",
+  long: "> 90min",
+};
+
+export interface DurationFilterable {
+  durationMins?: number | null;
+}
+
+/**
+ * court: durationMins < 30
+ * normal: 30 <= durationMins <= 90
+ * long: durationMins > 90
+ * Events with no durationMins only match "tous".
+ */
+export function matchesDurationFilter<T extends DurationFilterable>(
+  event: T,
+  filter: DurationFilter,
+): boolean {
+  if (filter === "tous") return true;
+  const d = event.durationMins;
+  if (d == null) return false;
+  if (filter === "court") return d < 30;
+  if (filter === "normal") return d >= 30 && d <= 90;
+  return d > 90;
+}

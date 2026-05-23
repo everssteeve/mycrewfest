@@ -4,10 +4,12 @@ import {
   matchesSelectionFilter,
   matchesTagFilter,
   matchesVenueFilter,
+  matchesDurationFilter,
   type SearchableEvent,
   type SelectionFilterable,
   type TagFilterable,
   type VenueFilterable,
+  type DurationFilterable,
 } from "@/lib/programme-search";
 
 const BASE: SearchableEvent = {
@@ -192,5 +194,55 @@ describe("matchesVenueFilter", () => {
   it("rejects event with no venue when a venue is selected", () => {
     expect(matchesVenueFilter(ev(null), "v1")).toBe(false);
     expect(matchesVenueFilter(ev(), "v1")).toBe(false);
+  });
+});
+
+describe("matchesDurationFilter", () => {
+  const dur = (durationMins: number | null | undefined): DurationFilterable => ({ durationMins });
+
+  it("always returns true for 'tous'", () => {
+    expect(matchesDurationFilter(dur(null), "tous")).toBe(true);
+    expect(matchesDurationFilter(dur(20), "tous")).toBe(true);
+    expect(matchesDurationFilter(dur(60), "tous")).toBe(true);
+    expect(matchesDurationFilter(dur(120), "tous")).toBe(true);
+  });
+
+  it("court matches events with durationMins < 30", () => {
+    expect(matchesDurationFilter(dur(15), "court")).toBe(true);
+    expect(matchesDurationFilter(dur(29), "court")).toBe(true);
+    expect(matchesDurationFilter(dur(0), "court")).toBe(true);
+  });
+
+  it("court rejects events with durationMins >= 30", () => {
+    expect(matchesDurationFilter(dur(30), "court")).toBe(false);
+    expect(matchesDurationFilter(dur(60), "court")).toBe(false);
+  });
+
+  it("normal matches events with 30 <= durationMins <= 90", () => {
+    expect(matchesDurationFilter(dur(30), "normal")).toBe(true);
+    expect(matchesDurationFilter(dur(60), "normal")).toBe(true);
+    expect(matchesDurationFilter(dur(90), "normal")).toBe(true);
+  });
+
+  it("normal rejects events outside 30–90 range", () => {
+    expect(matchesDurationFilter(dur(29), "normal")).toBe(false);
+    expect(matchesDurationFilter(dur(91), "normal")).toBe(false);
+  });
+
+  it("long matches events with durationMins > 90", () => {
+    expect(matchesDurationFilter(dur(91), "long")).toBe(true);
+    expect(matchesDurationFilter(dur(120), "long")).toBe(true);
+    expect(matchesDurationFilter(dur(180), "long")).toBe(true);
+  });
+
+  it("long rejects events with durationMins <= 90", () => {
+    expect(matchesDurationFilter(dur(90), "long")).toBe(false);
+    expect(matchesDurationFilter(dur(60), "long")).toBe(false);
+  });
+
+  it("returns false for null/undefined durationMins on any specific filter", () => {
+    expect(matchesDurationFilter(dur(null), "court")).toBe(false);
+    expect(matchesDurationFilter(dur(undefined), "normal")).toBe(false);
+    expect(matchesDurationFilter(dur(null), "long")).toBe(false);
   });
 });
