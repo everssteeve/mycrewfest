@@ -90,6 +90,38 @@ export function countUniqueVenues<T extends VenueCountable>(events: T[]): number
   return ids.size;
 }
 
+export interface VenueNameable {
+  venue?: { id: string; name: string } | null;
+}
+
+export interface TopVenueResult {
+  name: string;
+  count: number;
+}
+
+/**
+ * Returns the venue with the most events, or null when no events have a venue.
+ * Ties are broken alphabetically by venue name.
+ */
+export function getTopProgrammeVenue<T extends VenueNameable>(
+  events: T[],
+): TopVenueResult | null {
+  const counts = new Map<string, number>();
+  for (const e of events) {
+    if (e.venue?.name) {
+      counts.set(e.venue.name, (counts.get(e.venue.name) ?? 0) + 1);
+    }
+  }
+  if (counts.size === 0) return null;
+  let top: TopVenueResult | null = null;
+  for (const [name, count] of counts) {
+    if (!top || count > top.count || (count === top.count && name < top.name)) {
+      top = { name, count };
+    }
+  }
+  return top;
+}
+
 export interface ArtistCountable {
   artist?: { id: string } | null;
 }

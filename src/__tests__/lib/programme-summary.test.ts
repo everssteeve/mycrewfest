@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -378,5 +378,42 @@ describe("getTopProgrammeTag", () => {
       { tags: ["B"] },
     ];
     expect(getTopProgrammeTag(events)).toEqual({ tag: "B", count: 3 });
+  });
+});
+
+describe("getTopProgrammeVenue", () => {
+  const ev = (name: string | null) =>
+    name ? { venue: { id: name.toLowerCase(), name } } : { venue: null };
+
+  it("returns null for empty array", () => {
+    expect(getTopProgrammeVenue([])).toBeNull();
+  });
+
+  it("returns null when no events have a venue", () => {
+    expect(getTopProgrammeVenue([ev(null), ev(null)])).toBeNull();
+  });
+
+  it("returns the only venue present", () => {
+    expect(getTopProgrammeVenue([ev("Main Stage")])).toEqual({ name: "Main Stage", count: 1 });
+  });
+
+  it("returns the venue with the most events", () => {
+    const events = [ev("Main Stage"), ev("Main Stage"), ev("Scène 2")];
+    expect(getTopProgrammeVenue(events)).toEqual({ name: "Main Stage", count: 2 });
+  });
+
+  it("breaks ties alphabetically by venue name", () => {
+    const events = [ev("Scène B"), ev("Scène A")];
+    expect(getTopProgrammeVenue(events)).toEqual({ name: "Scène A", count: 1 });
+  });
+
+  it("ignores events without a venue", () => {
+    const events = [ev("Main Stage"), ev(null), ev("Main Stage")];
+    expect(getTopProgrammeVenue(events)).toEqual({ name: "Main Stage", count: 2 });
+  });
+
+  it("counts across all venues correctly", () => {
+    const events = [ev("A"), ev("B"), ev("B"), ev("C"), ev("B")];
+    expect(getTopProgrammeVenue(events)).toEqual({ name: "B", count: 3 });
   });
 });

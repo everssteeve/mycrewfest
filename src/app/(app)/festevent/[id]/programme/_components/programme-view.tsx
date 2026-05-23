@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents, getTopProgrammeTag, getTopProgrammeVenue } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -280,6 +280,11 @@ export function ProgrammeView({
   const topTag = useMemo(
     () => getTopProgrammeTag(filteredEvents),
     [filteredEvents],
+  );
+
+  const topVenue = useMemo(
+    () => (venueCount > 1 ? getTopProgrammeVenue(filteredEvents) : null),
+    [filteredEvents, venueCount],
   );
 
   const hasActiveFilter =
@@ -811,6 +816,22 @@ export function ProgrammeView({
               }}
             >
               {venueCount} lieux
+            </span>
+          </>
+        )}
+        {topVenue !== null && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-top-venue"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--text-muted)",
+              }}
+              title={`Scène avec le plus d'événements (${topVenue.count})`}
+            >
+              {topVenue.name}
             </span>
           </>
         )}
