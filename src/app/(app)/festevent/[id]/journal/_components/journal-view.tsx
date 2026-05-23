@@ -1,7 +1,8 @@
 "use client";
 
-import { useCallback, useState, useTransition } from "react";
-import { BookOpen, Share2, Download, Trash2, Clock } from "lucide-react";
+import { useCallback, useMemo, useState, useTransition } from "react";
+import { BookOpen, Share2, Download, Trash2, Clock, Search, X } from "lucide-react";
+import { filterAndGroupByDay } from "@/lib/journal-filter";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -519,6 +520,7 @@ export function JournalView({
   const [souvenirs, setSouvenirs] = useState(initialSouvenirs);
   const [generatingShare, setGeneratingShare] = useState(false);
   const [currentToken, setCurrentToken] = useState(shareToken);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleDelete = useCallback((id: string) => {
     setSouvenirs((prev) => prev.filter((s) => s.id !== id));
@@ -562,7 +564,10 @@ export function JournalView({
     window.print();
   }, []);
 
-  const grouped = groupByDay(souvenirs);
+  const grouped = useMemo(
+    () => filterAndGroupByDay(souvenirs, searchQuery),
+    [souvenirs, searchQuery],
+  );
   const days = Array.from(grouped.keys()).sort();
 
   if (souvenirs.length === 0) {
@@ -609,6 +614,69 @@ export function JournalView({
         paddingBottom: "var(--space-2xl)",
       }}
     >
+      {/* Search bar */}
+      {souvenirs.length > 1 && (
+        <div className="journal-no-print" style={{ position: "relative" }}>
+          <Search
+            size={14}
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: 10,
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "var(--text-dim)",
+              pointerEvents: "none",
+            }}
+          />
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Chercher dans le journal…"
+            aria-label="Rechercher dans le journal"
+            data-testid="journal-search-input"
+            style={{
+              width: "100%",
+              paddingLeft: 32,
+              paddingRight: searchQuery ? 32 : 12,
+              paddingTop: 8,
+              paddingBottom: 8,
+              backgroundColor: "var(--bg-surface)",
+              border: "1px solid var(--border-color)",
+              borderRadius: "var(--radius-md)",
+              color: "var(--text-main)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-sm)",
+              outline: "none",
+              boxSizing: "border-box",
+            }}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => setSearchQuery("")}
+              aria-label="Effacer la recherche"
+              style={{
+                position: "absolute",
+                right: 8,
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                color: "var(--text-dim)",
+                cursor: "pointer",
+                padding: 2,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <X size={14} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Action bar */}
       <div
         className="journal-no-print"
@@ -723,6 +791,42 @@ export function JournalView({
           </section>
         );
       })}
+
+      {/* Empty search state */}
+      {days.length === 0 && searchQuery.trim() && (
+        <div
+          className="journal-no-print"
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "var(--space-sm)",
+            paddingTop: "var(--space-xl)",
+            textAlign: "center",
+          }}
+        >
+          <Search size={32} style={{ color: "var(--text-dim)", opacity: 0.4 }} aria-hidden="true" />
+          <p style={{ fontFamily: "var(--font-body)", fontSize: "var(--fs-sm)", color: "var(--text-muted)" }}>
+            Aucune entrée ne correspond à "{searchQuery}".
+          </p>
+          <button
+            type="button"
+            onClick={() => setSearchQuery("")}
+            style={{
+              padding: "6px 14px",
+              borderRadius: "var(--radius-md)",
+              border: "1px solid var(--border-color)",
+              backgroundColor: "transparent",
+              color: "var(--text-muted)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              cursor: "pointer",
+            }}
+          >
+            Effacer la recherche
+          </button>
+        </div>
+      )}
 
       {/* Print CSS */}
       <style
