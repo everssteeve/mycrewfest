@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { formatFestivalSearchResult, formatUserSearchResult, rankSearchResults } from "@/lib/admin-search";
+import { formatFestivalSearchResult, formatUserSearchResult, formatSubmissionSearchResult, rankSearchResults } from "@/lib/admin-search";
 
 async function requireAdmin() {
   const session = await auth();
@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q")?.trim() ?? "";
   if (q.length < 2) return NextResponse.json({ results: [] });
 
-  const [festivals, users] = await Promise.all([
+  const [festivals, users, submissions] = await Promise.all([
     prisma.festival.findMany({
       where: {
         OR: [
@@ -40,11 +40,22 @@ export async function GET(req: NextRequest) {
       take: 10,
       select: { id: true, pseudo: true, name: true, email: true, role: true },
     }),
+    prisma.festivalSubmission.findMany({
+      where: { nameProposed: { contains: q } },
+      take: 5,
+      select: {
+        id: true,
+        nameProposed: true,
+        status: true,
+        author: { select: { email: true } },
+      },
+    }),
   ]);
 
   const rawResults = [
     ...festivals.map(formatFestivalSearchResult),
     ...users.map(formatUserSearchResult),
+    ...submissions.map(formatSubmissionSearchResult),
   ];
 
   const results = rankSearchResults(rawResults, q).slice(0, 12);

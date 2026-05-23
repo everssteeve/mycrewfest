@@ -1,5 +1,5 @@
 export interface AdminSearchResult {
-  type: "festival" | "user";
+  type: "festival" | "user" | "submission";
   id: string;
   label: string;
   sublabel: string;
@@ -61,5 +61,20 @@ export function formatUserSearchResult(user: {
     label: user.pseudo ?? user.name ?? user.email,
     sublabel: `${user.email} · ${user.role}`,
     href: `/admin/users`,
+  };
+}
+
+export function formatSubmissionSearchResult(submission: {
+  id: string;
+  nameProposed: string;
+  status: string;
+  author: { email: string };
+}): AdminSearchResult {
+  return {
+    type: "submission",
+    id: submission.id,
+    label: submission.nameProposed,
+    sublabel: `${submission.author.email} · ${submission.status}`,
+    href: `/admin/submissions?status=${submission.status}`,
   };
 }

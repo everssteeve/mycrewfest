@@ -4,6 +4,7 @@ import {
   rankSearchResults,
   formatFestivalSearchResult,
   formatUserSearchResult,
+  formatSubmissionSearchResult,
   type AdminSearchResult,
 } from "@/lib/admin-search";
 
@@ -99,5 +100,40 @@ describe("formatUserSearchResult", () => {
     expect(resultName.label).toBe("Jane");
     const resultEmail = formatUserSearchResult({ id: "u3", pseudo: null, name: null, email: "anon@test.com", role: "user" });
     expect(resultEmail.label).toBe("anon@test.com");
+  });
+});
+
+describe("formatSubmissionSearchResult", () => {
+  const sub = {
+    id: "s1",
+    nameProposed: "Pixel Fest",
+    status: "en_attente",
+    author: { email: "author@example.com" },
+  };
+
+  it("returns type submission", () => {
+    expect(formatSubmissionSearchResult(sub).type).toBe("submission");
+  });
+
+  it("uses nameProposed as label", () => {
+    expect(formatSubmissionSearchResult(sub).label).toBe("Pixel Fest");
+  });
+
+  it("includes author email and status in sublabel", () => {
+    const result = formatSubmissionSearchResult(sub);
+    expect(result.sublabel).toContain("author@example.com");
+    expect(result.sublabel).toContain("en_attente");
+  });
+
+  it("href points to submissions page filtered by status", () => {
+    const result = formatSubmissionSearchResult(sub);
+    expect(result.href).toContain("/admin/submissions");
+    expect(result.href).toContain("en_attente");
+  });
+
+  it("handles rejeté status correctly", () => {
+    const rejected = { ...sub, status: "rejeté" };
+    const result = formatSubmissionSearchResult(rejected);
+    expect(result.href).toContain("rejeté");
   });
 });

@@ -8,11 +8,13 @@ import type { AdminSearchResult } from "@/lib/admin-search";
 const TYPE_LABELS: Record<string, string> = {
   festival: "Festival",
   user: "Utilisateur",
+  submission: "Soumission",
 };
 
 const TYPE_COLORS: Record<string, string> = {
   festival: "var(--accent-pink)",
   user: "var(--secondary-cyan)",
+  submission: "var(--warning-orange)",
 };
 
 export function AdminGlobalSearch() {
@@ -78,7 +80,7 @@ export function AdminGlobalSearch() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => results.length > 0 && setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 150)}
-          placeholder="Rechercher festivals, utilisateurs…"
+          placeholder="Rechercher festivals, utilisateurs, soumissions…"
           data-testid="admin-global-search-input"
           style={{
             width: "100%",
