@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countItinerantEvents, countVuEventsByDay, computeProgrammeDurationMins, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents } from "@/lib/programme-summary";
 
 describe("countEventsByDay", () => {
   it("returns empty map for no events", () => {
@@ -305,5 +305,31 @@ describe("countReservationRequiredEvents", () => {
   it("returns total when all events require reservation", () => {
     const events = [{ access: "réservation_séparée" }, { access: "réservation_séparée" }];
     expect(countReservationRequiredEvents(events)).toBe(2);
+  });
+});
+
+describe("countCancelledEvents and countModifiedEvents", () => {
+  it("returns 0 for empty array (cancelled)", () => {
+    expect(countCancelledEvents([])).toBe(0);
+  });
+
+  it("counts annulé events", () => {
+    const events = [{ status: "annulé" }, { status: "confirmé" }, { status: "annulé" }];
+    expect(countCancelledEvents(events)).toBe(2);
+  });
+
+  it("returns 0 for empty array (modified)", () => {
+    expect(countModifiedEvents([])).toBe(0);
+  });
+
+  it("counts modifié events", () => {
+    const events = [{ status: "modifié" }, { status: "confirmé" }, { status: "modifié" }];
+    expect(countModifiedEvents(events)).toBe(2);
+  });
+
+  it("does not mix up cancelled and modified", () => {
+    const events = [{ status: "annulé" }, { status: "modifié" }, { status: "confirmé" }];
+    expect(countCancelledEvents(events)).toBe(1);
+    expect(countModifiedEvents(events)).toBe(1);
   });
 });

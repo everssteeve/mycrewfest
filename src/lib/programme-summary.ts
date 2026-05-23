@@ -106,6 +106,24 @@ export function countUniqueArtists<T extends ArtistCountable>(events: T[]): numb
   return ids.size;
 }
 
+export interface StatusFilterable {
+  status?: string | null;
+}
+
+/**
+ * Returns the count of events with status === "annulé".
+ */
+export function countCancelledEvents<T extends StatusFilterable>(events: T[]): number {
+  return events.filter((e) => e.status === "annulé").length;
+}
+
+/**
+ * Returns the count of events with status === "modifié".
+ */
+export function countModifiedEvents<T extends StatusFilterable>(events: T[]): number {
+  return events.filter((e) => e.status === "modifié").length;
+}
+
 export interface AccessFilterable {
   access?: string | null;
 }

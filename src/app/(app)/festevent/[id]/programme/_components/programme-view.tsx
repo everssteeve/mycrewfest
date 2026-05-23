@@ -13,7 +13,7 @@ import { extractEventDays, getDefaultProgrammeDay, formatDayLabel } from "@/lib/
 import { isUpcomingOrOngoing } from "@/lib/programme-upcoming";
 import { findConflictingEventIds, countConflictPairs } from "@/lib/programme-conflicts";
 import { findOngoingEventIds } from "@/lib/event-status";
-import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents } from "@/lib/programme-summary";
+import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, countItinerantEvents, countUniqueVenues, countUniqueArtists, countVerifiedEvents, getPeakEventHour, countReservationRequiredEvents, countCancelledEvents, countModifiedEvents } from "@/lib/programme-summary";
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
@@ -264,6 +264,16 @@ export function ProgrammeView({
 
   const reservationCount = useMemo(
     () => countReservationRequiredEvents(filteredEvents),
+    [filteredEvents],
+  );
+
+  const cancelledCount = useMemo(
+    () => countCancelledEvents(filteredEvents),
+    [filteredEvents],
+  );
+
+  const modifiedCount = useMemo(
+    () => countModifiedEvents(filteredEvents),
     [filteredEvents],
   );
 
@@ -887,6 +897,39 @@ export function ProgrammeView({
               }}
             >
               ⚡ {conflictPairCount} conflit{conflictPairCount !== 1 ? "s" : ""}
+            </span>
+          </>
+        )}
+        {cancelledCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-cancelled-count"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--accent-red)",
+                fontWeight: "var(--fw-bold)",
+              }}
+              title="Événements annulés"
+            >
+              ✕ {cancelledCount} annulé{cancelledCount > 1 ? "s" : ""}
+            </span>
+          </>
+        )}
+        {modifiedCount > 0 && (
+          <>
+            <span style={{ color: "var(--border-strong)", fontSize: "var(--fs-xs)" }}>·</span>
+            <span
+              data-testid="programme-modified-count"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--warning-orange)",
+              }}
+              title="Événements dont les infos ont changé"
+            >
+              ~ {modifiedCount} modifié{modifiedCount > 1 ? "s" : ""}
             </span>
           </>
         )}
