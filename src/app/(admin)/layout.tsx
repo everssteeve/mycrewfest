@@ -87,6 +87,7 @@ export default async function AdminLayout({
             { href: "/admin/submissions", label: "Soumissions" },
             { href: "/admin/users", label: "Utilisateurs" },
             { href: "/admin/stats", label: "Statistiques" },
+            { href: "/admin/activity", label: "Activité" },
             { href: "/admin/agents", label: "Agents IA" },
           ].map(({ href, label }) => (
             <Link
