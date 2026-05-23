@@ -65,6 +65,10 @@ async function fetchProfilData(userId: string): Promise<ProfilData | null> {
 
   if (!user) return null;
 
+  const vuCount = await prisma.selection.count({
+    where: { status: "vu", festEvent: { userId } },
+  });
+
   return {
     id: user.id,
     email: user.email,
@@ -76,6 +80,7 @@ async function fetchProfilData(userId: string): Promise<ProfilData | null> {
       festEventsCount: user._count.festEvents,
       followedFestivalsCount: user._count.followedFestivals,
       souvenirsCount: user._count.souvenirs,
+      vuCount,
     },
     festEvents: user.festEvents.map((fe) => ({
       id: fe.id,

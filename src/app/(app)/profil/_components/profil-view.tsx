@@ -39,6 +39,7 @@ export interface ProfilData {
     festEventsCount: number;
     followedFestivalsCount: number;
     souvenirsCount: number;
+    vuCount: number;
   };
   festEvents: FestEventRef[];
   followedFestivals: FestivalRef[];
@@ -410,13 +411,15 @@ export function ProfilView({ data }: { data: ProfilData }) {
       <section
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
+          gridTemplateColumns: "repeat(2, 1fr)",
           gap: "var(--space-sm)",
         }}
+        data-testid="profil-stats"
       >
         {[
           { label: "Festivals", value: data.stats.festEventsCount },
-          { label: "Suivis", value: data.stats.followedFestivalsCount },
+          { label: "Événements vus", value: data.stats.vuCount },
+          { label: "Festivals suivis", value: data.stats.followedFestivalsCount },
           { label: "Souvenirs", value: data.stats.souvenirsCount },
         ].map((stat) => (
           <div
