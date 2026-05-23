@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { AlertTriangle, ThumbsUp, ThumbsDown, Plus, X, MapPin, Clock } from "lucide-react";
 import { filterSignalsByScope, type SignalScope } from "@/lib/signal-filter";
-import { computeSignalCredibility } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals } from "@/lib/signal-credibility";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -579,6 +579,11 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
     [activeSignals, scopeFilter],
   );
 
+  const forteCount = useMemo(
+    () => countForteSignals(displayedSignals.map((s) => ({ confirmations: s.confirmations, infirmations: s.infirmations }))),
+    [displayedSignals],
+  );
+
   return (
     <div style={{ paddingTop: "var(--space-lg)", display: "flex", flexDirection: "column", gap: "var(--space-md)" }}>
       {/* Header */}
@@ -588,6 +593,19 @@ export function SignauxView({ festEventId, festivalId, initialSignals }: Signaux
           <span style={{ color: "var(--text-main)", fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
             {displayedSignals.length}{scopeFilter && activeSignals.length !== displayedSignals.length ? ` / ${activeSignals.length}` : ""} signal{displayedSignals.length !== 1 ? "s" : ""} actif{displayedSignals.length !== 1 ? "s" : ""}
           </span>
+          {forteCount > 0 && (
+            <span
+              data-testid="signal-forte-count"
+              style={{
+                fontFamily: "var(--font-body)",
+                fontSize: "var(--fs-xs)",
+                color: "var(--primary-neon)",
+                fontWeight: "var(--fw-bold)",
+              }}
+            >
+              · {forteCount} fiable{forteCount > 1 ? "s" : ""}
+            </span>
+          )}
         </div>
         <button
           type="button"

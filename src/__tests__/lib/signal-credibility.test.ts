@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { computeSignalCredibility } from "@/lib/signal-credibility";
+import { computeSignalCredibility, countForteSignals } from "@/lib/signal-credibility";
 
 describe("computeSignalCredibility", () => {
   it("returns 0.5 neutre when no votes", () => {
@@ -49,5 +49,36 @@ describe("computeSignalCredibility", () => {
     const result = computeSignalCredibility({ confirmations: 9, infirmations: 1 });
     expect(result.score).toBe(0.9);
     expect(result.label).toBe("forte");
+  });
+});
+
+describe("countForteSignals", () => {
+  it("returns 0 for empty array", () => {
+    expect(countForteSignals([])).toBe(0);
+  });
+
+  it("returns 0 when no signals are forte", () => {
+    const signals = [
+      { confirmations: 0, infirmations: 0 },
+      { confirmations: 1, infirmations: 3 },
+    ];
+    expect(countForteSignals(signals)).toBe(0);
+  });
+
+  it("counts forte signals correctly", () => {
+    const signals = [
+      { confirmations: 10, infirmations: 0 },
+      { confirmations: 1, infirmations: 3 },
+      { confirmations: 2, infirmations: 1 },
+    ];
+    expect(countForteSignals(signals)).toBe(2);
+  });
+
+  it("counts all when all are forte", () => {
+    const signals = [
+      { confirmations: 5, infirmations: 1 },
+      { confirmations: 9, infirmations: 0 },
+    ];
+    expect(countForteSignals(signals)).toBe(2);
   });
 });

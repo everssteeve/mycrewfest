@@ -31,3 +31,10 @@ export function computeSignalCredibility(input: CredibilityInput): CredibilitySc
 
   return { score, total, label };
 }
+
+/**
+ * Returns the number of signals with "forte" credibility.
+ */
+export function countForteSignals(signals: CredibilityInput[]): number {
+  return signals.filter((s) => computeSignalCredibility(s).label === "forte").length;
+}
