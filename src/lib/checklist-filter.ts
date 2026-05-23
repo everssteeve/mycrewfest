@@ -31,6 +31,14 @@ export interface AssigneeStat {
 }
 
 /**
+ * Returns the count of items with no assignee that are still pending (not done).
+ * Helps crews spot orphaned tasks at a glance.
+ */
+export function countUnassignedPendingItems<T extends AssigneeStatsItem>(items: T[]): number {
+  return items.filter((i) => !i.assigneeName && !i.done).length;
+}
+
+/**
  * Returns per-assignee task completion stats, sorted alphabetically.
  * Only includes items that have an assigneeName.
  */

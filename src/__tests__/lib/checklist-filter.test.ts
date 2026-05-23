@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { filterByAssignee, getUniqueAssignees, computeAssigneeStats } from "@/lib/checklist-filter";
+import { filterByAssignee, getUniqueAssignees, computeAssigneeStats, countUnassignedPendingItems } from "@/lib/checklist-filter";
 
 describe("filterByAssignee", () => {
   const items = [
@@ -115,5 +115,44 @@ describe("computeAssigneeStats", () => {
   it("returns empty array when all items have no assignee", () => {
     const noAssignee = [{ assigneeName: null, done: false }];
     expect(computeAssigneeStats(noAssignee)).toEqual([]);
+  });
+});
+
+describe("countUnassignedPendingItems", () => {
+  it("returns 0 for empty list", () => {
+    expect(countUnassignedPendingItems([])).toBe(0);
+  });
+
+  it("returns 0 when all items are assigned", () => {
+    const items = [
+      { assigneeName: "Alice", done: false },
+      { assigneeName: "Bob", done: false },
+    ];
+    expect(countUnassignedPendingItems(items)).toBe(0);
+  });
+
+  it("counts unassigned pending items correctly", () => {
+    const items = [
+      { assigneeName: null, done: false },
+      { assigneeName: null, done: false },
+      { assigneeName: "Alice", done: false },
+    ];
+    expect(countUnassignedPendingItems(items)).toBe(2);
+  });
+
+  it("excludes done items even without assignee", () => {
+    const items = [
+      { assigneeName: null, done: true },
+      { assigneeName: null, done: false },
+    ];
+    expect(countUnassignedPendingItems(items)).toBe(1);
+  });
+
+  it("returns 0 when all unassigned items are done", () => {
+    const items = [
+      { assigneeName: null, done: true },
+      { assigneeName: "Bob", done: false },
+    ];
+    expect(countUnassignedPendingItems(items)).toBe(0);
   });
 });

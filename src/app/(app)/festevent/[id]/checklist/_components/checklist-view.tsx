@@ -5,7 +5,7 @@ import { CheckSquare, Square, Plus, Trash2, Package, X, ChevronDown, Copy, Check
 import { generateChecklistText } from "@/lib/checklist-text";
 import { getDoneItemIds, filterPendingItems } from "@/lib/checklist-clear";
 import { computeChecklistBudget } from "@/lib/checklist-budget";
-import { filterByAssignee, getUniqueAssignees, computeAssigneeStats } from "@/lib/checklist-filter";
+import { filterByAssignee, getUniqueAssignees, computeAssigneeStats, countUnassignedPendingItems } from "@/lib/checklist-filter";
 import { filterChecklistByQuery } from "@/lib/checklist-search";
 import { isEscapeKey } from "@/lib/keyboard-search";
 
@@ -207,6 +207,7 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
   const totalCount = items.length;
   const allAssignees = useMemo(() => getUniqueAssignees(items), [items]);
   const assigneeStats = useMemo(() => computeAssigneeStats(items), [items]);
+  const unassignedPendingCount = useMemo(() => countUnassignedPendingItems(items), [items]);
   const displayedItems = useMemo(
     () => filterChecklistByQuery(filterByAssignee(items, activeAssignee), searchQuery),
     [items, activeAssignee, searchQuery],
@@ -383,9 +384,27 @@ export function ChecklistView({ festEventId, initialItems, festivalName }: Check
         }}
       >
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ color: "var(--text-main)", fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
-            {completedCount} / {totalCount} complétés
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
+            <span style={{ color: "var(--text-main)", fontWeight: "var(--fw-bold)", fontSize: "var(--fs-sm)" }}>
+              {completedCount} / {totalCount} complétés
+            </span>
+            {unassignedPendingCount > 0 && (
+              <span
+                data-testid="checklist-unassigned-count"
+                style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "var(--fs-xs)",
+                  color: "var(--warning-orange)",
+                  background: "rgba(255,153,0,0.1)",
+                  border: "1px solid rgba(255,153,0,0.4)",
+                  borderRadius: "var(--radius-full)",
+                  padding: "1px 8px",
+                }}
+              >
+                {unassignedPendingCount} sans assigné
+              </span>
+            )}
+          </div>
           {totalCost > 0 && (
             <div
               data-testid="checklist-budget"
