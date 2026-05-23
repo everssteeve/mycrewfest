@@ -17,7 +17,8 @@ import { countEventsByDay, countVuEventsByDay, computeProgrammeDurationMins, com
 import { shouldShowScrollTop } from "@/lib/scroll-top";
 import { formatBilanDuration } from "@/lib/bilan";
 import { generateProgrammeShareText } from "@/lib/programme-share";
-import { Copy, Check } from "lucide-react";
+import { buildProgrammeIcs, countExportableEvents } from "@/lib/programme-ics";
+import { Copy, Check, CalendarArrowDown } from "lucide-react";
 import { ChevronUp } from "lucide-react";
 
 // ---------------------------------------------------------------------------
@@ -398,6 +399,22 @@ export function ProgrammeView({
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }, [filteredEvents, festivalName]);
+
+  const downloadIcs = useCallback(() => {
+    const icsContent = buildProgrammeIcs(events, festivalName, "selected");
+    const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${festivalName.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-selection.ics`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [events, festivalName]);
+
+  const icsExportCount = useMemo(
+    () => countExportableEvents(events, "selected"),
+    [events],
+  );
 
   return (
     <div
@@ -1444,6 +1461,33 @@ export function ProgrammeView({
           >
             {copied ? <Check size={11} /> : <Copy size={11} />}
             {copied ? "Copié" : "Copier"}
+          </button>
+        )}
+        {/* Export ICS */}
+        {icsExportCount > 0 && (
+          <button
+            type="button"
+            onClick={downloadIcs}
+            aria-label={`Exporter ${icsExportCount} événement${icsExportCount > 1 ? "s" : ""} dans le calendrier`}
+            data-testid="programme-export-ics-btn"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 4,
+              padding: "2px 9px",
+              borderRadius: "var(--radius-full)",
+              border: "1.5px solid rgba(255,255,255,0.15)",
+              backgroundColor: "transparent",
+              color: "var(--text-dim)",
+              fontFamily: "var(--font-body)",
+              fontSize: "var(--fs-xs)",
+              cursor: "pointer",
+              whiteSpace: "nowrap",
+              transition: "var(--transition-fast)",
+            }}
+          >
+            <CalendarArrowDown size={11} />
+            .ics
           </button>
         )}
         <div style={{ flex: 1 }} />
